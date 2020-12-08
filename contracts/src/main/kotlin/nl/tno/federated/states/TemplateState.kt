@@ -1,6 +1,6 @@
-package com.template.states
+package nl.tno.federated.states
 
-import com.template.contracts.TemplateContract
+import nl.tno.federated.contracts.TemplateContract
 import net.corda.core.contracts.BelongsToContract
 import net.corda.core.contracts.ContractState
 import net.corda.core.identity.AbstractParty

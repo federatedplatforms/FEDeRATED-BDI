@@ -25,7 +25,7 @@ dependencies {
 
 
 springBoot {
-    mainClassName = "com.template.webserver.ServerKt"
+    mainClassName = "nl.tno.federated.webserver.ServerKt"
 }
 
 /* The Client is the communication channel between the external and the node. This task will help you immediately
@@ -34,7 +34,7 @@ springBoot {
  */
 task runTemplateClient(type: JavaExec, dependsOn: assemble) {
     classpath = sourceSets.main.runtimeClasspath
-    main = 'com.template.ClientKt'
+    main = 'nl.tno.federated.ClientKt'
     args 'localhost:10006', 'user1', 'test'
 }
 
@@ -43,6 +43,6 @@ task runTemplateClient(type: JavaExec, dependsOn: assemble) {
  */
 task runTemplateServer(type: JavaExec, dependsOn: assemble) {
     classpath = sourceSets.main.runtimeClasspath
-    main = 'com.template.webserver.ServerKt'
+    main = 'nl.tno.federated.webserver.ServerKt'
     args '--server.port=10050', '--config.rpc.host=localhost', '--config.rpc.port=10006', '--config.rpc.username=user1', '--config.rpc.password=test'
 }
