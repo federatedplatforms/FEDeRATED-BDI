@@ -1,6 +1,6 @@
-package com.template
+package nl.tno.federated
 
-import com.template.flows.Responder
+import nl.tno.federated.flows.Responder
 import net.corda.core.identity.CordaX500Name
 import net.corda.testing.core.internal.ContractJarTestUtils.makeTestJar
 import net.corda.testing.node.MockNetwork
@@ -21,7 +21,7 @@ class FlowTests {
     @Before
     fun setup() {
         mockNetwork = MockNetwork(
-                listOf("com.template"),
+                listOf("nl.tno.federated"),
                 notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
         )
         a = mockNetwork.createNode(MockNodeParameters())

@@ -1,4 +1,4 @@
-package com.template.webserver
+package nl.tno.federated.webserver
 
 import net.corda.client.rpc.CordaRPCClient
 import net.corda.client.rpc.CordaRPCConnection
