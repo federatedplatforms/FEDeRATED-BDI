@@ -4,15 +4,15 @@
 
 # CorDapp Template - Kotlin
 
-Welcome to the Kotlin CorDapp template. The CorDapp template is a stubbed-out CorDapp that you can use to bootstrap 
-your own CorDapps.
-
-**This is the Kotlin version of the CorDapp template. The Java equivalent is 
-[here](https://github.com/corda/cordapp-template-java/).**
+This is the CorDapp for Federated. It includes a web-api (Spring Boot) and a set up for a few Corda nodes.  
 
 # Pre-Requisites
+- Java <u>**8**</u> (⚠️) JDK (Oracle, Coretto, or **Zulu OpenJDK** (preferred for licensing reasons))
+- IntelliJ (my preference) or Visual Studio Code with [Corda plugin](https://github.com/corda/vscode-corda). 
+  IntelliJ run configurations are included with the project.
+- Unix users need xterm
 
-See https://docs.corda.net/getting-set-up.html.
+See https://docs.corda.net/getting-set-up.html for more details.
 
 # Usage
 
@@ -35,6 +35,12 @@ copy your quasar JAR file to the lib directory. You will then need to specify ``
 and set the run directory to the project root directory for each test.
 
 ## Running the nodes
+1. open a terminal
+2. navigate to the project root
+3. run `./gradlew deployNodes`
+4. wait
+5. navigate to `build/nodes` and run `./runnodes`
+6. three windows will pop up (node A, node B, notary), wait for these to be finished, you will see an interactive shell
 
 See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
 
@@ -80,7 +86,7 @@ You can find out more about the node shell [here](https://docs.corda.net/shell.h
 
 ### Client
 
-`clients/src/main/kotlin/com/template/Client.kt` defines a simple command-line client that connects to a node via RPC 
+`clients/src/main/kotlin/nl/tno/federated/Client.kt` defines a simple command-line client that connects to a node via RPC 
 and prints a list of the other nodes on the network.
 
 #### Running the client
@@ -97,16 +103,18 @@ with the username `user1` and the password `test`.
 
 ### Webserver
 
-`clients/src/main/kotlin/com/template/webserver/` defines a simple Spring webserver that connects to a node via RPC and 
+`clients/src/main/kotlin/nl/tno/federated/webserver/` defines a simple Spring webserver that connects to a node via RPC and 
 allows you to interact with the node over HTTP.
 
 The API endpoints are defined here:
 
-     clients/src/main/kotlin/com/template/webserver/Controller.kt
+     clients/src/main/kotlin/nl/tno/federated/webserver/Controller.kt
 
 And a static webpage is defined here:
 
      clients/src/main/resources/static/
+
+
 
 #### Running the webserver
 
@@ -126,10 +134,10 @@ The static webpage is served on:
 
     http://localhost:10050
 
-While the sole template endpoint is served on:
+Swagger-UI will be available at:
 
-    http://localhost:10050/templateendpoint
-    
+    http://localhost:10050/swagger-ui.html
+
 # Extending the template
 
 You should extend this template as follows:
