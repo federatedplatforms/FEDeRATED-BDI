@@ -4,11 +4,12 @@ import org.springframework.boot.Banner
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.WebApplicationType.SERVLET
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration
 
 /**
  * Our Spring Boot application.
  */
-@SpringBootApplication
+@SpringBootApplication(exclude = [ErrorMvcAutoConfiguration::class])
 private open class Starter
 
 /**
