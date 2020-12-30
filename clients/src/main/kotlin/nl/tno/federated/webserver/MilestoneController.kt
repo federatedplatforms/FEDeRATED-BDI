@@ -2,7 +2,6 @@ package nl.tno.federated.webserver
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiResponse
 import nl.tno.federated.flows.ArrivalFlow
 import nl.tno.federated.states.MilestoneState
 import nl.tno.federated.states.MilestoneType
@@ -28,11 +27,19 @@ class MilestoneController(rpc: NodeRPCConnection) {
     private fun newMilestone(@RequestBody milestone : MilestoneDTO) : APIResponse<String> {
         return if (milestone.type == MilestoneType.ARRIVE) {
             try {
+                // Piece of code appointed to check that "counterpary" field is valid (not empty)
+                // not needed IF we want the counterparty field not to be made explicit in the call
+                // TODO Delete after final decision.
+                /*val counterParties = proxy.networkMapSnapshot().flatMap { it.legalIdentities }
+                    .filter { it.name.organisation == milestone.counterparty }
+                if(counterParties.isEmpty()) {
+                    return APIResponse.error("The name of the counterparty doesn't correspond.")
+                }*/
+
                 proxy.startFlowDynamic(
                     ArrivalFlow::class.java,
                     milestone.digitalTwins,
-                    proxy.networkMapSnapshot().flatMap { it.legalIdentities }
-                        .first { it.name.organisation == milestone.counterparty }
+                    milestone.location
                 ).returnValue.get()
 
                 APIResponse.success("Milestone created")

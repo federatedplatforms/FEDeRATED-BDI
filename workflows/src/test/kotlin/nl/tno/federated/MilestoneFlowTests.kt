@@ -11,11 +11,13 @@ import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
 import nl.tno.federated.flows.ArrivalFlow
+import nl.tno.federated.states.Location
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 
 
 class MilestoneFlowTests {
@@ -23,6 +25,7 @@ class MilestoneFlowTests {
     lateinit var network: MockNetwork
     lateinit var a: StartedMockNode
     lateinit var b: StartedMockNode
+    lateinit var c: StartedMockNode
 
     @Before
     fun setup() {
@@ -31,7 +34,8 @@ class MilestoneFlowTests {
                 notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
         )
         a = network.createNode(MockNodeParameters())
-        b = network.createNode(MockNodeParameters())
+        b = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyB","Brussels","BE")))
+        c = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyC","Berlin","DE")))
         val startedNodes = arrayListOf(a, b)
         // For real nodes this happens automatically, but we have to manually register the flow for tests
         startedNodes.forEach { it.registerInitiatedFlow(ArrivalResponder::class.java) }
@@ -45,7 +49,8 @@ class MilestoneFlowTests {
 
     @Test
     fun `SignedTransaction returned by the flow is signed by the acceptor`() {
-        val flow = ArrivalFlow(listOf(UniqueIdentifier()), b.info.singleIdentity())
+        val location = Location("BE", "Brussels")
+        val flow = ArrivalFlow(listOf(UniqueIdentifier()), location)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -55,7 +60,8 @@ class MilestoneFlowTests {
 
     @Test
     fun `flow records a transaction in both parties' transaction storages`() {
-        val flow = ArrivalFlow(listOf(UniqueIdentifier()), b.info.singleIdentity())
+        val location = Location("BE", "Brussels")
+        val flow = ArrivalFlow(listOf(UniqueIdentifier()), location)
         val future = a.startFlow(flow)
         network.runNetwork()
         val signedTx = future.getOrThrow()
@@ -67,8 +73,34 @@ class MilestoneFlowTests {
     }
 
     @Test
+    fun `flow doesn't record a transaction unrelated to a party`() {
+        val location = Location("BE", "Brussels")
+        val flow = ArrivalFlow(listOf(UniqueIdentifier()), location)
+        val future = a.startFlow(flow)
+        network.runNetwork()
+        val signedTx = future.getOrThrow()
+
+        // We check the recorded transaction in both transaction storages.
+        for (node in listOf(a, b)) {
+            assertEquals(signedTx, node.services.validatedTransactions.getTransaction(signedTx.id))
+        }
+        assertNull(c.services.validatedTransactions.getTransaction(signedTx.id))
+    }
+
+    @Test
+    fun `flow rejects tx with no counterparty`() {
+        val location = Location("IT", "Milan")
+        val flow = ArrivalFlow(listOf(UniqueIdentifier()), location)
+        val future = a.startFlow(flow)
+        network.runNetwork()
+
+        assertFailsWith<TransactionVerificationException> { future.getOrThrow() }
+    }
+
+    @Test
     fun `flow rejects invalid milestones`() {
-        val flow = ArrivalFlow(emptyList(), b.info.singleIdentity())
+        val location = Location("BE", "Brussels")
+        val flow = ArrivalFlow(emptyList(), location)
         val future = a.startFlow(flow)
         network.runNetwork()
 

@@ -36,6 +36,7 @@ class MilestoneContract : Contract {
                 requireThat {
                     "Arrival is the first step in a process. No input state may be passed." using (inputStates.isEmpty())
                     "An arrival output state must be passed." using (milestoneState.type == MilestoneType.ARRIVE)
+                    "A counterparty must exist, sender shouldn't transact with itself alone." using (milestoneState.participants.count() > 1)
                 }
             }
             else -> throw IllegalArgumentException("An unknown command was passed.")
