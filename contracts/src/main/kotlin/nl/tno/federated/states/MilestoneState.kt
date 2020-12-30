@@ -17,6 +17,7 @@ data class MilestoneState(
     val type: MilestoneType,
     val digitalTwins: List<UniqueIdentifier>,
     val time: Date,
+    val location: Location,
     override val participants: List<AbstractParty> = listOf(),
     override val linearId: UniqueIdentifier = UniqueIdentifier()
 ) : LinearState
@@ -25,3 +26,8 @@ data class MilestoneState(
 enum class MilestoneType {
     ARRIVE, DEPART, LOAD, DISCHARGE, POSITION
 }
+@CordaSerializable
+data class Location (
+    val country: String,
+    val city: String
+        )

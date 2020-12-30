@@ -11,13 +11,14 @@ import net.corda.core.contracts.requireThat
 import net.corda.core.identity.Party
 import net.corda.core.transactions.TransactionBuilder
 import nl.tno.federated.contracts.MilestoneContract
+import nl.tno.federated.states.Location
 import nl.tno.federated.states.MilestoneState
 import nl.tno.federated.states.MilestoneType
 import java.util.*
 
 @InitiatingFlow
 @StartableByRPC
-class ArrivalFlow(val digitalTwins: List<UniqueIdentifier>, val counterParty: Party) : FlowLogic<SignedTransaction>() {
+class ArrivalFlow(val digitalTwins: List<UniqueIdentifier>, val location: Location) : FlowLogic<SignedTransaction>() {
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
      * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
@@ -55,8 +56,16 @@ class ArrivalFlow(val digitalTwins: List<UniqueIdentifier>, val counterParty: Pa
 
         // Stage 1.
         progressTracker.currentStep = GENERATING_TRANSACTION
+        // Retrieving counterparties from location
+        val counterParties = serviceHub.networkMapCache.allNodes.flatMap {it.legalIdentities}
+            .filter { location.country == it.name.country } // to be changed later, meant for the poc only
+            // Above we are matching the name of the country provided with the one of the known nodes,
+            // and we are assuming every counterparty related to a country should receive the tx.
+
+        val allParties = counterParties + serviceHub.myInfo.legalIdentities.first()
+
         // Generate an unsigned transaction.
-        val milestoneState = MilestoneState(MilestoneType.ARRIVE, digitalTwins, Date(), listOf(serviceHub.myInfo.legalIdentities.first(), counterParty))
+        val milestoneState = MilestoneState(MilestoneType.ARRIVE, digitalTwins, Date(), location, allParties)
         val txCommand = Command(MilestoneContract.Commands.Arrive(), milestoneState.participants.map { it.owningKey })
         val txBuilder = TransactionBuilder(notary)
             .addOutputState(milestoneState, MilestoneContract.ID)
@@ -75,13 +84,13 @@ class ArrivalFlow(val digitalTwins: List<UniqueIdentifier>, val counterParty: Pa
         // Stage 4.
         progressTracker.currentStep = GATHERING_SIGS
         // Send the state to the counterparty, and receive it back with their signature.
-        val otherPartySession = initiateFlow(counterParty)
-        val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, setOf(otherPartySession), GATHERING_SIGS.childProgressTracker()))
+        val otherPartySessions = counterParties.map { initiateFlow(it) }
+        val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, otherPartySessions, GATHERING_SIGS.childProgressTracker()))
 
         // Stage 5.
         progressTracker.currentStep = FINALISING_TRANSACTION
         // Notarise and record the transaction in both parties' vaults.
-        return subFlow(FinalityFlow(fullySignedTx, setOf(otherPartySession), FINALISING_TRANSACTION.childProgressTracker()))
+        return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
     }
 }
 

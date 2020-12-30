@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController
  * only. Do not expose these endpoints to the outside world.
  */
 @RestController
-@RequestMapping("/")
+@RequestMapping("/node")
 @Api(value = "NodeController", tags = ["Corda details"])
 class NodeController(rpc: NodeRPCConnection) {
 
