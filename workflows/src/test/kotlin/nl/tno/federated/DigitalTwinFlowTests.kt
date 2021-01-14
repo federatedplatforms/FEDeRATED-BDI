@@ -61,7 +61,7 @@ class DigitalTwinFlowTests {
         network.runNetwork()
 
         val signedTx = future.getOrThrow()
-        signedTx.verifySignaturesExcept()
+        signedTx.verifyRequiredSignatures()
     }
 
 }
