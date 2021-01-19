@@ -101,8 +101,24 @@ class MilestoneFlowTests {
 
     @Test
     fun `SignedTransaction returned by the flow is signed by the acceptor`() {
+        val type = DigitalTwinType.TRUCK
+        val plate = "N1C3PL4T3"
+        val owner = "Best Business"
+
+        val createDTflow = CreateFlow(type, plate, owner)
+        val futureDT = a.startFlow(createDTflow)
+        network.runNetwork()
+
+        val signedTxDT = futureDT.getOrThrow()
+        signedTxDT.verifyRequiredSignatures()
+
+
+        val newlyCreatedDT = a.services.vaultService.queryBy<DigitalTwinState>().states
+        val idOfNewlyCreatedDT = newlyCreatedDT.map { it.state.data.linearId }
+
+
         val location = Location("BE", "Brussels")
-        val flow = ArrivalFlow(listOf(UniqueIdentifier()), location)
+        val flow = ArrivalFlow(idOfNewlyCreatedDT, location)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -112,8 +128,24 @@ class MilestoneFlowTests {
 
     @Test
     fun `flow records a transaction in both parties' transaction storages`() {
+        val type = DigitalTwinType.TRUCK
+        val plate = "N1C3PL4T3"
+        val owner = "Best Business"
+
+        val createDTflow = CreateFlow(type, plate, owner)
+        val futureDT = a.startFlow(createDTflow)
+        network.runNetwork()
+
+        val signedTxDT = futureDT.getOrThrow()
+        signedTxDT.verifyRequiredSignatures()
+
+
+        val newlyCreatedDT = a.services.vaultService.queryBy<DigitalTwinState>().states
+        val idOfNewlyCreatedDT = newlyCreatedDT.map { it.state.data.linearId }
+
+
         val location = Location("BE", "Brussels")
-        val flow = ArrivalFlow(listOf(UniqueIdentifier()), location)
+        val flow = ArrivalFlow(idOfNewlyCreatedDT, location)
         val future = a.startFlow(flow)
         network.runNetwork()
         val signedTx = future.getOrThrow()
@@ -126,8 +158,24 @@ class MilestoneFlowTests {
 
     @Test
     fun `flow doesn't record a transaction unrelated to a party`() {
+        val type = DigitalTwinType.TRUCK
+        val plate = "N1C3PL4T3"
+        val owner = "Best Business"
+
+        val createDTflow = CreateFlow(type, plate, owner)
+        val futureDT = a.startFlow(createDTflow)
+        network.runNetwork()
+
+        val signedTxDT = futureDT.getOrThrow()
+        signedTxDT.verifyRequiredSignatures()
+
+
+        val newlyCreatedDT = a.services.vaultService.queryBy<DigitalTwinState>().states
+        val idOfNewlyCreatedDT = newlyCreatedDT.map { it.state.data.linearId }
+
+
         val location = Location("BE", "Brussels")
-        val flow = ArrivalFlow(listOf(UniqueIdentifier()), location)
+        val flow = ArrivalFlow(idOfNewlyCreatedDT, location)
         val future = a.startFlow(flow)
         network.runNetwork()
         val signedTx = future.getOrThrow()
@@ -141,8 +189,24 @@ class MilestoneFlowTests {
 
     @Test
     fun `flow rejects tx with no counterparty`() {
+        val type = DigitalTwinType.TRUCK
+        val plate = "N1C3PL4T3"
+        val owner = "Best Business"
+
+        val createDTflow = CreateFlow(type, plate, owner)
+        val futureDT = a.startFlow(createDTflow)
+        network.runNetwork()
+
+        val signedTxDT = futureDT.getOrThrow()
+        signedTxDT.verifyRequiredSignatures()
+
+
+        val newlyCreatedDT = a.services.vaultService.queryBy<DigitalTwinState>().states
+        val idOfNewlyCreatedDT = newlyCreatedDT.map { it.state.data.linearId }
+
+
         val location = Location("IT", "Milan")
-        val flow = ArrivalFlow(listOf(UniqueIdentifier()), location)
+        val flow = ArrivalFlow(idOfNewlyCreatedDT, location)
         val future = a.startFlow(flow)
         network.runNetwork()
 
