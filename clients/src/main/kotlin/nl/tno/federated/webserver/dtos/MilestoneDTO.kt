@@ -1,4 +1,4 @@
-package nl.tno.federated.webserver
+package nl.tno.federated.webserver.dtos
 
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.AbstractParty
@@ -12,7 +12,6 @@ data class MilestoneDTO(
     val digitalTwins: List<UniqueIdentifier>,
     val time: Date,
     val location: Location
-//  val counterparty: String
     )
 {
     constructor(state: MilestoneState) : this(state.type, state.digitalTwins, state.time, state.location)
