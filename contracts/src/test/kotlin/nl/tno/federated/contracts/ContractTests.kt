@@ -19,7 +19,7 @@ class ContractTests {
 
     // Set up of DT for milestone testing
     private val dtUUID = UniqueIdentifier()
-    private val digitalTwinState = DigitalTwinState(DigitalTwinType.TRUCK,"1MTH3B35T", "Nice Company",null,null,
+    private val digitalTwinState = DigitalTwinState(DigitalTwinType.TRUCK,"1MTH3B35T", "Nice Company", emptyList(),null,
     listOf(sender.party),dtUUID)
 
     @Test
