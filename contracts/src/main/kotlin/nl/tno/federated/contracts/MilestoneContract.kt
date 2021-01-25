@@ -28,16 +28,10 @@ class MilestoneContract : Contract {
         val milestoneState = outputStates.filter { it is MilestoneState }.single() as MilestoneState
 
         // Building the list of ID of Digital Twins passed as input states
-        val idOfDTinput : MutableList<UniqueIdentifier> = mutableListOf()
+        val idOfDTinput = inputStates.filter { it is DigitalTwinState }
+            .map { it as DigitalTwinState }
+            .map { it.linearId }
 
-        for(state in inputStates){
-            when(state) {
-                is DigitalTwinState -> {
-                    val dtState = state as DigitalTwinState
-                    idOfDTinput.add(dtState.linearId)
-                }
-            }
-        }
         requireThat {
             "Digital twins must be linked" using (milestoneState.digitalTwins.isNotEmpty())
             "Digital twins must exist" using (idOfDTinput.containsAll(milestoneState.digitalTwins))

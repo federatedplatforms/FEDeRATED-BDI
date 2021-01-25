@@ -17,7 +17,7 @@ data class DigitalTwinState(
     val type: DigitalTwinType,
     val plate: String,
     val owner: String,
-    var goods: List<UniqueIdentifier>?,
+    var goods: List<UniqueIdentifier>,
     var lastMilestone: UniqueIdentifier?,
     override val participants: List<AbstractParty> = listOf(),
     override val linearId: UniqueIdentifier = UniqueIdentifier()

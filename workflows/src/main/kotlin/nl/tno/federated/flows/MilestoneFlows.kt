@@ -79,6 +79,7 @@ class ArrivalFlow(val digitalTwins: List<UniqueIdentifier>, val location: Locati
             .addOutputState(milestoneState, MilestoneContract.ID)
             .addCommand(txCommand)
 
+        // Adding Input and Output states for DT
         digitalTwinInputStates.forEach{txBuilder.addInputState( it )}
         digitalTwinsOutput.forEach{txBuilder.addOutputState( it )}
 

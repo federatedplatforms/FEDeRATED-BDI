@@ -57,7 +57,7 @@ class CreateFlow(val type: DigitalTwinType, val plate: String, val owner: String
         val me = serviceHub.myInfo.legalIdentities.first()
 
         // Generate an unsigned transaction.
-        val digitalTwinState = DigitalTwinState(DigitalTwinType.TRUCK, plate, owner, null, null, listOf(me))
+        val digitalTwinState = DigitalTwinState(DigitalTwinType.TRUCK, plate, owner, emptyList(), null, listOf(me))
         val txCommand = Command(DigitalTwinContract.Commands.Create(), digitalTwinState.participants.map { it.owningKey })
         val txBuilder = TransactionBuilder(notary)
             .addOutputState(digitalTwinState)
