@@ -1,23 +1,20 @@
 package nl.tno.federated.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import net.corda.core.contracts.UniqueIdentifier
-import net.corda.core.flows.*
-import net.corda.core.transactions.SignedTransaction
-import net.corda.core.utilities.ProgressTracker
-import net.corda.core.utilities.ProgressTracker.Step
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.requireThat
-import net.corda.core.identity.Party
+import net.corda.core.flows.*
+import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
+import net.corda.core.utilities.ProgressTracker
+import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.DigitalTwinContract
-import nl.tno.federated.contracts.MilestoneContract
-import nl.tno.federated.states.*
-import java.util.*
+import nl.tno.federated.states.DigitalTwinState
+import nl.tno.federated.states.DigitalTwinType
 
 @InitiatingFlow
 @StartableByRPC
-class CreateFlow(val type: DigitalTwinType, val plate: String, val owner: String) : FlowLogic<SignedTransaction>() {
+class CreateFlow(private val type: DigitalTwinType, private val plate: String, private val owner: String) : FlowLogic<SignedTransaction>() {
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
      * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
@@ -45,9 +42,6 @@ class CreateFlow(val type: DigitalTwinType, val plate: String, val owner: String
 
     override val progressTracker = tracker()
 
-    /**
-     * The flow logic is encapsulated within the call() method.
-     */
     @Suspendable
     override fun call(): SignedTransaction {
 
@@ -57,7 +51,7 @@ class CreateFlow(val type: DigitalTwinType, val plate: String, val owner: String
         val me = serviceHub.myInfo.legalIdentities.first()
 
         // Generate an unsigned transaction.
-        val digitalTwinState = DigitalTwinState(DigitalTwinType.TRUCK, plate, owner, emptyList(), null, listOf(me))
+        val digitalTwinState = DigitalTwinState(type, plate, owner, emptyList(), listOf(me))
         val txCommand = Command(DigitalTwinContract.Commands.Create(), digitalTwinState.participants.map { it.owningKey })
         val txBuilder = TransactionBuilder(notary)
             .addOutputState(digitalTwinState)

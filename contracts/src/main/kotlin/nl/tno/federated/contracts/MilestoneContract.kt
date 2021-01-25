@@ -1,10 +1,13 @@
 package nl.tno.federated.contracts
 
-import net.corda.core.contracts.*
+import net.corda.core.contracts.CommandData
+import net.corda.core.contracts.Contract
+import net.corda.core.contracts.requireSingleCommand
+import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
+import nl.tno.federated.states.DigitalTwinState
 import nl.tno.federated.states.MilestoneState
 import nl.tno.federated.states.MilestoneType
-import nl.tno.federated.states.DigitalTwinState
 
 // ************
 // * Contract *
@@ -22,25 +25,25 @@ class MilestoneContract : Contract {
         val inputStates = tx.inputStates
         val outputStates = tx.outputStates
         requireThat {
-            "An single MilestoneState output must be passed." using (outputStates.filter { it is MilestoneState }.size == 1)
+            "A single MilestoneState output must be passed" using (outputStates.filterIsInstance<MilestoneState>().size == 1)
         }
 
-        val milestoneState = outputStates.filter { it is MilestoneState }.single() as MilestoneState
+        val milestoneState = outputStates.filterIsInstance<MilestoneState>().single()
 
         // Building the list of ID of Digital Twins passed as input states
-        val idOfDTinput = inputStates.filter { it is DigitalTwinState }
-            .map { it as DigitalTwinState }
+        val digitalTwinIds = inputStates.filterIsInstance<DigitalTwinState>()
             .map { it.linearId }
 
         requireThat {
             "Digital twins must be linked" using (milestoneState.digitalTwins.isNotEmpty())
-            "Digital twins must exist" using (idOfDTinput.containsAll(milestoneState.digitalTwins))
+            "Digital twins must exist" using (digitalTwinIds.containsAll(milestoneState.digitalTwins))
         }
 
         when(command.value) {
             is Commands.Arrive -> {
                 requireThat {
-                    "Arrival is the first step in a process. No milestone input state may be passed." using (inputStates.filter { it is MilestoneState }.isEmpty())
+                    "Arrival is the first step in a process. No milestone input state may be passed." using (inputStates.filterIsInstance<MilestoneState>()
+                        .isEmpty())
                     "An arrival output state must be passed." using (milestoneState.type == MilestoneType.ARRIVE)
                     "A counterparty must exist, sender shouldn't transact with itself alone." using (milestoneState.participants.count() > 1)
                 }

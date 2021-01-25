@@ -19,7 +19,7 @@ class ContractTests {
 
     // Set up of DT for milestone testing
     private val dtUUID = UniqueIdentifier()
-    private val digitalTwinState = DigitalTwinState(DigitalTwinType.TRUCK,"1MTH3B35T", "Nice Company", emptyList(),null,
+    private val digitalTwinState = DigitalTwinState(DigitalTwinType.TRUCK,"1MTH3B35T", "Nice Company", emptyList(),
     listOf(sender.party),dtUUID)
 
     @Test
@@ -55,7 +55,7 @@ class ContractTests {
                 input(DigitalTwinContract.ID, digitalTwinState)
                 output(MilestoneContract.ID, MilestoneState(MilestoneType.ARRIVE, listOf(dtUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party), UniqueIdentifier()))
 
-                `fails with`("A counterparty must exist, sender shouldn't transact with itself alone.")
+                `fails with`("A counterparty must exist, sender shouldn't transact with itself alone")
             }
         }
     }
