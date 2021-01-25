@@ -8,9 +8,11 @@ import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.requireThat
-import net.corda.core.identity.Party
+import net.corda.core.node.services.queryBy
+import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.TransactionBuilder
 import nl.tno.federated.contracts.MilestoneContract
+import nl.tno.federated.states.DigitalTwinState
 import nl.tno.federated.states.Location
 import nl.tno.federated.states.MilestoneState
 import nl.tno.federated.states.MilestoneType
@@ -64,12 +66,22 @@ class ArrivalFlow(val digitalTwins: List<UniqueIdentifier>, val location: Locati
 
         val allParties = counterParties + serviceHub.myInfo.legalIdentities.first()
 
+        // The input states are the DTs whose ID is passed as argument (i.e. those related to the milestone)
+        val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = digitalTwins.map { it.id })
+        val digitalTwinInputStates = serviceHub.vaultService.queryBy<DigitalTwinState>(criteria).states
+
         // Generate an unsigned transaction.
         val milestoneState = MilestoneState(MilestoneType.ARRIVE, digitalTwins, Date(), location, allParties)
+        val digitalTwinsOutput = digitalTwinInputStates.map{ it.state.data }.map{ it.copy( lastMilestone = milestoneState.linearId)}
+
         val txCommand = Command(MilestoneContract.Commands.Arrive(), milestoneState.participants.map { it.owningKey })
         val txBuilder = TransactionBuilder(notary)
             .addOutputState(milestoneState, MilestoneContract.ID)
             .addCommand(txCommand)
+
+        // Adding Input and Output states for DT
+        digitalTwinInputStates.forEach{txBuilder.addInputState( it )}
+        digitalTwinsOutput.forEach{txBuilder.addOutputState( it )}
 
         // Stage 2.
         progressTracker.currentStep = VERIFYING_TRANSACTION
@@ -101,9 +113,9 @@ class ArrivalResponder(val counterpartySession: FlowSession) : FlowLogic<SignedT
     override fun call(): SignedTransaction {
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
-                val output = stx.tx.outputs.single().data
-                "This must be a milestone." using (output is MilestoneState)
-                val iou = output as MilestoneState
+                val milestoneOutput = stx.tx.outputs.filter { it.data is MilestoneState }.map { it.data }
+                "There must be one milestone output." using (milestoneOutput.size == 1)
+                val iou = milestoneOutput.single() as MilestoneState
                 "I must be party to this milestone." using (iou.participants.contains(serviceHub.myInfo.legalIdentities.first()))
             }
         }
