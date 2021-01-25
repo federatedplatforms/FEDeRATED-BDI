@@ -1,16 +1,16 @@
 package nl.tno.federated.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import net.corda.core.contracts.UniqueIdentifier
-import net.corda.core.flows.*
-import net.corda.core.transactions.SignedTransaction
-import net.corda.core.utilities.ProgressTracker
-import net.corda.core.utilities.ProgressTracker.Step
 import net.corda.core.contracts.Command
+import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.requireThat
+import net.corda.core.flows.*
 import net.corda.core.node.services.queryBy
 import net.corda.core.node.services.vault.QueryCriteria
+import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
+import net.corda.core.utilities.ProgressTracker
+import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.MilestoneContract
 import nl.tno.federated.states.DigitalTwinState
 import nl.tno.federated.states.Location
@@ -54,7 +54,6 @@ class ArrivalFlow(val digitalTwins: List<UniqueIdentifier>, val location: Locati
     @Suspendable
     override fun call(): SignedTransaction {
         val notary = serviceHub.networkMapCache.notaryIdentities.single() // METHOD 1
-        // val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
 
         // Stage 1.
         progressTracker.currentStep = GENERATING_TRANSACTION
@@ -72,7 +71,7 @@ class ArrivalFlow(val digitalTwins: List<UniqueIdentifier>, val location: Locati
 
         // Generate an unsigned transaction.
         val milestoneState = MilestoneState(MilestoneType.ARRIVE, digitalTwins, Date(), location, allParties)
-        val digitalTwinsOutput = digitalTwinInputStates.map{ it.state.data }.map{ it.copy( lastMilestone = milestoneState.linearId)}
+        val digitalTwinsOutput = digitalTwinInputStates.map{ it.state.data }
 
         val txCommand = Command(MilestoneContract.Commands.Arrive(), milestoneState.participants.map { it.owningKey })
         val txBuilder = TransactionBuilder(notary)
