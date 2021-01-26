@@ -14,13 +14,13 @@ import java.util.*
 // *********
 @BelongsToContract(MilestoneContract::class)
 data class MilestoneState(
-    val type: MilestoneType,
-    val digitalTwins: List<UniqueIdentifier>,
-    val time: Date,
-    val location: Location,
     override val participants: List<AbstractParty> = listOf(),
-    override val linearId: UniqueIdentifier = UniqueIdentifier()
-) : LinearState
+    override val linearId: UniqueIdentifier = UniqueIdentifier(),
+    override val type: MilestoneType,
+    override val digitalTwins: List<UniqueIdentifier>,
+    override val time: Date,
+    override val location: Location
+) : LinearState, MilestoneDTO(type, digitalTwins, time, location)
 
 @CordaSerializable
 enum class MilestoneType {
@@ -31,3 +31,10 @@ data class Location (
     val country: String,
     val city: String
         )
+
+open class MilestoneDTO(
+    open val type: MilestoneType,
+    open val digitalTwins: List<UniqueIdentifier>,
+    open val time: Date,
+    open val location: Location
+)
