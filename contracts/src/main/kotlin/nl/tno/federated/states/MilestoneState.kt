@@ -14,12 +14,12 @@ import java.util.*
 // *********
 @BelongsToContract(MilestoneContract::class)
 data class MilestoneState(
-    override val participants: List<AbstractParty> = listOf(),
-    override val linearId: UniqueIdentifier = UniqueIdentifier(),
     override val type: MilestoneType,
     override val digitalTwins: List<UniqueIdentifier>,
     override val time: Date,
-    override val location: Location
+    override val location: Location,
+    override val participants: List<AbstractParty> = listOf(),
+    override val linearId: UniqueIdentifier = UniqueIdentifier()
 ) : LinearState, MilestoneDTO(type, digitalTwins, time, location)
 
 @CordaSerializable
