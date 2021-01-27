@@ -1,4 +1,4 @@
-package nl.tno.federated.webserver
+package nl.tno.federated.webserver.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
@@ -6,6 +6,9 @@ import nl.tno.federated.flows.ArrivalFlow
 import nl.tno.federated.states.MilestoneDTO
 import nl.tno.federated.states.MilestoneState
 import nl.tno.federated.states.MilestoneType
+import nl.tno.federated.webserver.APIResponse
+import nl.tno.federated.webserver.dtos.MilestoneDTO
+import nl.tno.federated.webserver.NodeRPCConnection
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.*
 
