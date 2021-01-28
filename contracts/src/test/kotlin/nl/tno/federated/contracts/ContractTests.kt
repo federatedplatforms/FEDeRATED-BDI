@@ -17,7 +17,7 @@ class ContractTests {
     private val enterpriseDE = TestIdentity(CordaX500Name("German Enterprise", "Berlin", "DE"))
     private val locationBerlin = Location("DE", "Berlin")
 
-    // Set up of DT for milestone testing
+    // Set up of DT for event testing
     private val dtUUID = UniqueIdentifier()
     private val digitalTwinState = DigitalTwinState(DigitalTwinType.TRUCK,"1MTH3B35T", "Nice Company", emptyList(),
     listOf(sender.party),dtUUID)
@@ -26,9 +26,9 @@ class ContractTests {
     fun `arrival test`() {
         ledgerServices.ledger {
             transaction {
-                command(sender.publicKey, MilestoneContract.Commands.Arrive())
+                command(sender.publicKey, EventContract.Commands.Arrive())
                 input(DigitalTwinContract.ID, digitalTwinState)
-                output(MilestoneContract.ID, MilestoneState(MilestoneType.ARRIVE, listOf(dtUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+                output(EventContract.ID, EventState(EventType.ARRIVE, listOf(dtUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
                 verifies()
             }
@@ -39,8 +39,8 @@ class ContractTests {
     fun `arrival test without twins`() {
         ledgerServices.ledger {
             transaction {
-                command(sender.publicKey, MilestoneContract.Commands.Arrive())
-                output(MilestoneContract.ID, MilestoneState(MilestoneType.ARRIVE, emptyList(), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+                command(sender.publicKey, EventContract.Commands.Arrive())
+                output(EventContract.ID, EventState(EventType.ARRIVE, emptyList(), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
                 `fails with`("Digital twins must be linked")
             }
@@ -51,9 +51,9 @@ class ContractTests {
     fun `arrival test without counterparty`() {
         ledgerServices.ledger {
             transaction {
-                command(sender.publicKey, MilestoneContract.Commands.Arrive())
+                command(sender.publicKey, EventContract.Commands.Arrive())
                 input(DigitalTwinContract.ID, digitalTwinState)
-                output(MilestoneContract.ID, MilestoneState(MilestoneType.ARRIVE, listOf(dtUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party), UniqueIdentifier()))
+                output(EventContract.ID, EventState(EventType.ARRIVE, listOf(dtUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party), UniqueIdentifier()))
 
                 `fails with`("A counterparty must exist, sender shouldn't transact with itself alone")
             }

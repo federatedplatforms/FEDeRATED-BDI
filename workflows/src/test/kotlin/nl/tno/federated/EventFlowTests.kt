@@ -24,7 +24,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
 
-class MilestoneFlowTests {
+class EventFlowTests {
 
     lateinit var network: MockNetwork
     lateinit var a: StartedMockNode
@@ -214,7 +214,7 @@ class MilestoneFlowTests {
     }
 
     @Test
-    fun `flow rejects invalid milestones`() {
+    fun `flow rejects invalid events`() {
         val location = Location("BE", "Brussels")
         val flow = ArrivalFlow(emptyList(), location)
         val future = a.startFlow(flow)

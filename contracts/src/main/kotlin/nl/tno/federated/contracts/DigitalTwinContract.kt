@@ -1,11 +1,7 @@
 package nl.tno.federated.contracts
 
 import net.corda.core.contracts.*
-import net.corda.core.contracts.Requirements.using
 import net.corda.core.transactions.LedgerTransaction
-import nl.tno.federated.states.MilestoneState
-import nl.tno.federated.states.MilestoneType
-import nl.tno.federated.states.DigitalTwinState
 
 // ************
 // * Contract *
