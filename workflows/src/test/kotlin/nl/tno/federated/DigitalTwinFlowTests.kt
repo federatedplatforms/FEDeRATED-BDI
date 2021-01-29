@@ -6,6 +6,7 @@ import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
+import nl.tno.federated.flows.CreateCargoFlow
 import nl.tno.federated.flows.CreateFlow
 import nl.tno.federated.flows.CreationResponder
 import nl.tno.federated.states.DigitalTwinType
@@ -48,6 +49,56 @@ class DigitalTwinFlowTests {
         val owner = "Best Business"
 
         val flow = CreateFlow(type, plate, owner)
+        val future = a.startFlow(flow)
+        network.runNetwork()
+
+        val signedTx = future.getOrThrow()
+        signedTx.verifyRequiredSignatures()
+    }
+
+    @Test
+    fun `SignedTransaction returned by the flow is signed by the acceptor (new implementation)`() {
+        val dangerous = false
+        val dryBulk = true
+        val excise = true
+        val liquidBulk = false
+        val maximumSize = 123
+        val maximumTemperature = "123"
+        val maximumVolume = 123
+        val minimumSize = 123
+        val minimumTemperature = "123"
+        val minimumVolume = 123
+        val minimumWeight = 123.123
+        val natureOfCargo = "C4"
+        val numberOfTEU = 123
+        val properties = "kaboom"
+        val reefer = false
+        val tarWeight = 123.123
+        val temperature = "123"
+        val type = "Game"
+        val waste = false
+
+        val flow = CreateCargoFlow(
+        dangerous,
+        dryBulk,
+        excise,
+        liquidBulk,
+        maximumSize,
+        maximumTemperature,
+        maximumVolume,
+        minimumSize,
+        minimumTemperature,
+        minimumVolume,
+        minimumWeight,
+        natureOfCargo,
+        numberOfTEU,
+        properties,
+        reefer,
+        tarWeight,
+        temperature,
+        type,
+        waste
+        )
         val future = a.startFlow(flow)
         network.runNetwork()
 
