@@ -2,7 +2,7 @@ package nl.tno.federated.webserver
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
-import nl.tno.federated.flows.ArrivalFlow
+import nl.tno.federated.flows.LoadFlow
 import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
 import nl.tno.federated.states.EventType
@@ -26,10 +26,10 @@ class EventController(rpc: NodeRPCConnection) {
     @ApiOperation(value = "Create a new milestone")
     @PostMapping(value = ["/"])
     private fun newEvent(@RequestBody event : Event) : APIResponse<String> {
-        return if (event.type == EventType.ARRIVE) {
+        return if (event.type == EventType.LOAD) {
             try {
                 proxy.startFlowDynamic(
-                    ArrivalFlow::class.java,
+                    LoadFlow::class.java,
                     event.digitalTwins,
                     event.location
                 ).returnValue.get()

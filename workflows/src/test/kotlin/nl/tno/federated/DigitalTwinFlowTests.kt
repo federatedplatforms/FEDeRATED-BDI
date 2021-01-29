@@ -1,26 +1,17 @@
 package nl.tno.federated
 
-import net.corda.core.contracts.TransactionVerificationException
-import net.corda.core.contracts.UniqueIdentifier
-import nl.tno.federated.flows.ArrivalResponder
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.utilities.getOrThrow
-import net.corda.testing.core.singleIdentity
 import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
-import nl.tno.federated.flows.ArrivalFlow
 import nl.tno.federated.flows.CreateFlow
 import nl.tno.federated.flows.CreationResponder
 import nl.tno.federated.states.DigitalTwinType
-import nl.tno.federated.states.Location
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNull
 
 
 class DigitalTwinFlowTests {

@@ -40,11 +40,11 @@ class EventContract : Contract {
         }
 
         when(command.value) {
-            is Commands.Arrive -> {
+            is Commands.Load -> {
                 requireThat {
-                    "Arrival is the first step in a process. No event input state may be passed." using (inputStates.filterIsInstance<EventState>()
+                    "Load is the first step in a process. No event input state may be passed." using (inputStates.filterIsInstance<EventState>()
                         .isEmpty())
-                    "An arrival output state must be passed." using (eventState.type == EventType.ARRIVE)
+                    "A load output state must be passed." using (eventState.type == EventType.LOAD)
                     "A counterparty must exist, sender shouldn't transact with itself alone." using (eventState.participants.count() > 1)
                 }
             }
@@ -54,6 +54,9 @@ class EventContract : Contract {
 
     // Used to indicate the transaction's intent.
     interface Commands : CommandData {
+        class Load : Commands
+        class Departure : Commands
+        class Discharge : Commands
         class Arrive : Commands
     }
 }

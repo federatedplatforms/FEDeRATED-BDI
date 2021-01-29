@@ -23,12 +23,12 @@ class ContractTests {
     listOf(sender.party),dtUUID)
 
     @Test
-    fun `arrival test`() {
+    fun `load test`() {
         ledgerServices.ledger {
             transaction {
-                command(sender.publicKey, EventContract.Commands.Arrive())
+                command(sender.publicKey, EventContract.Commands.Load())
                 input(DigitalTwinContract.ID, digitalTwinState)
-                output(EventContract.ID, EventState(EventType.ARRIVE, listOf(dtUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+                output(EventContract.ID, EventState(EventType.LOAD, listOf(dtUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
                 verifies()
             }
@@ -36,11 +36,11 @@ class ContractTests {
     }
 
     @Test
-    fun `arrival test without twins`() {
+    fun `load test without twins`() {
         ledgerServices.ledger {
             transaction {
-                command(sender.publicKey, EventContract.Commands.Arrive())
-                output(EventContract.ID, EventState(EventType.ARRIVE, emptyList(), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+                command(sender.publicKey, EventContract.Commands.Load())
+                output(EventContract.ID, EventState(EventType.LOAD, emptyList(), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
                 `fails with`("Digital twins must be linked")
             }
@@ -48,12 +48,12 @@ class ContractTests {
     }
 
     @Test
-    fun `arrival test without counterparty`() {
+    fun `load test without counterparty`() {
         ledgerServices.ledger {
             transaction {
-                command(sender.publicKey, EventContract.Commands.Arrive())
+                command(sender.publicKey, EventContract.Commands.Load())
                 input(DigitalTwinContract.ID, digitalTwinState)
-                output(EventContract.ID, EventState(EventType.ARRIVE, listOf(dtUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party), UniqueIdentifier()))
+                output(EventContract.ID, EventState(EventType.LOAD, listOf(dtUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party), UniqueIdentifier()))
 
                 `fails with`("A counterparty must exist, sender shouldn't transact with itself alone")
             }

@@ -20,7 +20,7 @@ import java.util.*
 
 @InitiatingFlow
 @StartableByRPC
-class ArrivalFlow(val digitalTwins: List<UniqueIdentifier>, val location: Location) : FlowLogic<SignedTransaction>() {
+class LoadFlow(val digitalTwins: List<UniqueIdentifier>, val location: Location) : FlowLogic<SignedTransaction>() {
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
      * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
@@ -70,10 +70,10 @@ class ArrivalFlow(val digitalTwins: List<UniqueIdentifier>, val location: Locati
         val digitalTwinInputStates = serviceHub.vaultService.queryBy<DigitalTwinState>(criteria).states
 
         // Generate an unsigned transaction.
-        val eventState = EventState(EventType.ARRIVE, digitalTwins, Date(), location, allParties)
+        val eventState = EventState(EventType.LOAD, digitalTwins, Date(), location, allParties)
         val digitalTwinsOutput = digitalTwinInputStates.map{ it.state.data }
 
-        val txCommand = Command(EventContract.Commands.Arrive(), eventState.participants.map { it.owningKey })
+        val txCommand = Command(EventContract.Commands.Load(), eventState.participants.map { it.owningKey })
         val txBuilder = TransactionBuilder(notary)
             .addOutputState(eventState, EventContract.ID)
             .addCommand(txCommand)
@@ -106,8 +106,8 @@ class ArrivalFlow(val digitalTwins: List<UniqueIdentifier>, val location: Locati
 }
 
 
-@InitiatedBy(ArrivalFlow::class)
-class ArrivalResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
+@InitiatedBy(LoadFlow::class)
+class LoadResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
     @Suspendable
     override fun call(): SignedTransaction {
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
