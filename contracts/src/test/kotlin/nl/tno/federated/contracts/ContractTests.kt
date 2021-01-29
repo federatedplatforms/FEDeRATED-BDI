@@ -19,8 +19,30 @@ class ContractTests {
 
     // Set up of DT for event testing
     private val dtUUID = UniqueIdentifier()
-    private val digitalTwinState = DigitalTwinState(DigitalTwinType.TRUCK,"1MTH3B35T", "Nice Company", emptyList(),
-    listOf(sender.party),dtUUID)
+
+    // Params for test cargo DT
+    private val cargo : Cargo = Cargo(
+        dangerous = false,
+        dryBulk = true,
+        excise = true,
+        liquidBulk = false,
+        maximumSize = 123,
+        maximumTemperature = "123",
+        maximumVolume = 123,
+        minimumSize = 123,
+        minimumTemperature = "123",
+        minimumVolume = 123,
+        minimumWeight = 123.123,
+        natureOfCargo = "C4",
+        numberOfTEU = 123,
+        properties = "kaboom",
+        reefer = false,
+        tarWeight = 123.123,
+        temperature = "123",
+        type = "Game",
+        waste = false
+    )
+    private val digitalTwinState = DigitalTwinState(physicalOject = PhysicalObject.CARGO, cargo = cargo, participants = listOf(sender.party), linearId = dtUUID)
 
     @Test
     fun `load test`() {

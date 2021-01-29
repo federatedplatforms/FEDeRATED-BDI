@@ -8,9 +8,6 @@ import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
 import nl.tno.federated.flows.CargoCreationResponder
 import nl.tno.federated.flows.CreateCargoFlow
-import nl.tno.federated.flows.CreateFlow
-import nl.tno.federated.flows.CreationResponder
-import nl.tno.federated.states.DigitalTwinType
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -34,7 +31,6 @@ class DigitalTwinFlowTests {
         c = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyC","Berlin","DE")))
         val startedNodes = arrayListOf(a, b)
         // For real nodes this happens automatically, but we have to manually register the flow for tests
-        startedNodes.forEach { it.registerInitiatedFlow(CreationResponder::class.java) }
         startedNodes.forEach { it.registerInitiatedFlow(CargoCreationResponder::class.java) }
         network.runNetwork()
     }
@@ -42,20 +38,6 @@ class DigitalTwinFlowTests {
     @After
     fun tearDown() {
         network.stopNodes()
-    }
-
-    @Test
-    fun `SignedTransaction returned by the flow is signed by the acceptor`() {
-        val type = DigitalTwinType.TRUCK
-        val plate = "N1C3PL4T3"
-        val owner = "Best Business"
-
-        val flow = CreateFlow(type, plate, owner)
-        val future = a.startFlow(flow)
-        network.runNetwork()
-
-        val signedTx = future.getOrThrow()
-        signedTx.verifyRequiredSignatures()
     }
 
     @Test

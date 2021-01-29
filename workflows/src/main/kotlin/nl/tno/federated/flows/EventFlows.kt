@@ -12,10 +12,7 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
-import nl.tno.federated.states.DigitalTwinState
-import nl.tno.federated.states.Location
-import nl.tno.federated.states.EventState
-import nl.tno.federated.states.EventType
+import nl.tno.federated.states.*
 import java.util.*
 
 @InitiatingFlow
