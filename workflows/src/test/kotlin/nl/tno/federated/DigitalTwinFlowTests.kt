@@ -6,6 +6,7 @@ import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
+import nl.tno.federated.flows.CargoCreationResponder
 import nl.tno.federated.flows.CreateCargoFlow
 import nl.tno.federated.flows.CreateFlow
 import nl.tno.federated.flows.CreationResponder
@@ -34,6 +35,7 @@ class DigitalTwinFlowTests {
         val startedNodes = arrayListOf(a, b)
         // For real nodes this happens automatically, but we have to manually register the flow for tests
         startedNodes.forEach { it.registerInitiatedFlow(CreationResponder::class.java) }
+        startedNodes.forEach { it.registerInitiatedFlow(CargoCreationResponder::class.java) }
         network.runNetwork()
     }
 
