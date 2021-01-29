@@ -6,18 +6,18 @@ import nl.tno.federated.flows.ArrivalFlow
 import nl.tno.federated.states.MilestoneDTO
 import nl.tno.federated.states.MilestoneState
 import nl.tno.federated.states.MilestoneType
-import nl.tno.federated.webserver.APIResponse
-import nl.tno.federated.webserver.dtos.MilestoneDTO
 import nl.tno.federated.webserver.NodeRPCConnection
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 /**
- * Create and query milestones / events.
+ * Create and query events.
  */
 @RestController
-@RequestMapping("/milestones")
-@Api(value = "MilestoneController", tags = ["Milestone / event details"])
+@RequestMapping("/events")
+@Api(value = "MilestoneController", tags = ["Event details"])
 class MilestoneController(rpc: NodeRPCConnection) {
 
     companion object {
@@ -26,28 +26,28 @@ class MilestoneController(rpc: NodeRPCConnection) {
 
     private val proxy = rpc.proxy
 
-    @ApiOperation(value = "Create a new milestone")
+    @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
-    private fun newMilestone(@RequestBody milestone : MilestoneDTO) : APIResponse<String> {
-        return if (milestone.type == MilestoneType.ARRIVE) {
+    private fun newMilestone(@RequestBody event : MilestoneDTO) : ResponseEntity<String> {
+        return if (event.type == MilestoneType.ARRIVE) {
             try {
                 proxy.startFlowDynamic(
                     ArrivalFlow::class.java,
-                    milestone.digitalTwins,
-                    milestone.location
+                    event.digitalTwins,
+                    event.location
                 ).returnValue.get()
 
-                APIResponse.success("Milestone created")
+                ResponseEntity("Event created", HttpStatus.CREATED)
             } catch (e: Exception) {
-                return APIResponse.error("Something went wrong: $e")
+                return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
             }
-        } else APIResponse.error("Unimplemented milestone type")
+        } else ResponseEntity("Unimplemented milestone type", HttpStatus.BAD_REQUEST)
     }
 
-    @ApiOperation(value = "Return all known milestones")
+    @ApiOperation(value = "Return all known events")
     @GetMapping(value = ["/"])
-    private fun milestones() : List<MilestoneDTO> {
-        val milestoneStates = proxy.vaultQuery(MilestoneState::class.java).states.map { it.state.data }
-        return milestoneStates.map { MilestoneDTO(it.type, it.digitalTwins, it.time, it.location) }
+    private fun events() : List<MilestoneDTO> {
+        val eventStates = proxy.vaultQuery(MilestoneState::class.java).states.map { it.state.data }
+        return eventStates.map { MilestoneDTO(it.type, it.digitalTwins, it.time, it.location) }
     }
 }
