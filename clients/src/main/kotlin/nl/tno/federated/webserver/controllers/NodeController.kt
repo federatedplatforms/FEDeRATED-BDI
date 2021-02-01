@@ -1,7 +1,8 @@
-package nl.tno.federated.webserver
+package nl.tno.federated.webserver.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import nl.tno.federated.webserver.NodeRPCConnection
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
