@@ -6,16 +6,16 @@ import net.corda.core.contracts.requireSingleCommand
 import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
 import nl.tno.federated.states.DigitalTwinState
-import nl.tno.federated.states.MilestoneState
-import nl.tno.federated.states.MilestoneType
+import nl.tno.federated.states.EventState
+import nl.tno.federated.states.EventType
 
 // ************
 // * Contract *
 // ************
-class MilestoneContract : Contract {
+class EventContract : Contract {
     companion object {
         // Used to identify our contract when building a transaction.
-        const val ID = "nl.tno.federated.contracts.MilestoneContract"
+        const val ID = "nl.tno.federated.contracts.EventContract"
     }
 
     // A transaction is valid if the verify() function of the contract of all the transaction's input and output states
@@ -25,27 +25,27 @@ class MilestoneContract : Contract {
         val inputStates = tx.inputStates
         val outputStates = tx.outputStates
         requireThat {
-            "A single MilestoneState output must be passed" using (outputStates.filterIsInstance<MilestoneState>().size == 1)
+            "A single EventState output must be passed" using (outputStates.filterIsInstance<EventState>().size == 1)
         }
 
-        val milestoneState = outputStates.filterIsInstance<MilestoneState>().single()
+        val eventState = outputStates.filterIsInstance<EventState>().single()
 
         // Building the list of ID of Digital Twins passed as input states
         val digitalTwinIds = inputStates.filterIsInstance<DigitalTwinState>()
             .map { it.linearId }
 
         requireThat {
-            "Digital twins must be linked" using (milestoneState.digitalTwins.isNotEmpty())
-            "Digital twins must exist" using (digitalTwinIds.containsAll(milestoneState.digitalTwins))
+            "Digital twins must be linked" using (eventState.digitalTwins.isNotEmpty())
+            "Digital twins must exist" using (digitalTwinIds.containsAll(eventState.digitalTwins))
         }
 
         when(command.value) {
-            is Commands.Arrive -> {
+            is Commands.Load -> {
                 requireThat {
-                    "Arrival is the first step in a process. No milestone input state may be passed." using (inputStates.filterIsInstance<MilestoneState>()
+                    "Load is the first step in a process. No event input state may be passed." using (inputStates.filterIsInstance<EventState>()
                         .isEmpty())
-                    "An arrival output state must be passed." using (milestoneState.type == MilestoneType.ARRIVE)
-                    "A counterparty must exist, sender shouldn't transact with itself alone." using (milestoneState.participants.count() > 1)
+                    "A load output state must be passed." using (eventState.type == EventType.LOAD)
+                    "A counterparty must exist, sender shouldn't transact with itself alone." using (eventState.participants.count() > 1)
                 }
             }
             else -> throw IllegalArgumentException("An unknown command was passed.")
@@ -54,6 +54,9 @@ class MilestoneContract : Contract {
 
     // Used to indicate the transaction's intent.
     interface Commands : CommandData {
+        class Load : Commands
+        class Departure : Commands
+        class Discharge : Commands
         class Arrive : Commands
     }
 }
