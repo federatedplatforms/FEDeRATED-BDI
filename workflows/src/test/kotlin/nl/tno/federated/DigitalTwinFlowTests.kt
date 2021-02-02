@@ -8,6 +8,8 @@ import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
 import nl.tno.federated.flows.CargoCreationResponder
 import nl.tno.federated.flows.CreateCargoFlow
+import nl.tno.federated.flows.CreateTruckFlow
+import nl.tno.federated.flows.TruckCreationResponder
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -32,6 +34,7 @@ class DigitalTwinFlowTests {
         val startedNodes = arrayListOf(a, b)
         // For real nodes this happens automatically, but we have to manually register the flow for tests
         startedNodes.forEach { it.registerInitiatedFlow(CargoCreationResponder::class.java) }
+        startedNodes.forEach { it.registerInitiatedFlow(TruckCreationResponder::class.java) }
         network.runNetwork()
     }
 
@@ -41,7 +44,7 @@ class DigitalTwinFlowTests {
     }
 
     @Test
-    fun `SignedTransaction returned by the flow is signed by the acceptor (new implementation)`() {
+    fun `Cargo Creation, signedTransaction returned by the flow is signed by the acceptor`() {
         val dangerous = false
         val dryBulk = true
         val excise = true
@@ -82,6 +85,20 @@ class DigitalTwinFlowTests {
         temperature,
         type,
         waste
+        )
+        val future = a.startFlow(flow)
+        network.runNetwork()
+
+        val signedTx = future.getOrThrow()
+        signedTx.verifyRequiredSignatures()
+    }
+
+    @Test
+    fun `Truck Creation, signedTransaction returned by the flow is signed by the acceptor`() {
+        val licensePlate = "835TPL4T3"
+
+        val flow = CreateTruckFlow(
+            licensePlate
         )
         val future = a.startFlow(flow)
         network.runNetwork()

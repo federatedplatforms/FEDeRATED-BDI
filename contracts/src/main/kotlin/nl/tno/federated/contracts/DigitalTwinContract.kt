@@ -22,5 +22,6 @@ class DigitalTwinContract : Contract {
     // Used to indicate the transaction's intent.
     interface Commands : CommandData {
         class CreateCargo : Commands
+        class CreateTruck : Commands
     }
 }
