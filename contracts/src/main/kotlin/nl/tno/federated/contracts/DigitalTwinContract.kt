@@ -7,6 +7,7 @@ import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
 import nl.tno.federated.states.DigitalTwinState
 import nl.tno.federated.states.PhysicalObject
+import nl.tno.federated.contracts.EventContract
 
 // ************
 // * Contract *
@@ -20,9 +21,20 @@ class DigitalTwinContract : Contract {
     // A transaction is valid if the verify() function of the contract of all the transaction's input and output states
     // does not throw an exception.
     override fun verify(tx: LedgerTransaction) {
-        val command = tx.commands.requireSingleCommand<DigitalTwinContract.Commands>()
+        val command = tx.commands.single()
         val inputStates = tx.inputStates
         val outputStates = tx.outputStates
+
+        requireThat {
+            "Command must be among those allowed" using (
+                            command.value is Commands.CreateCargo ||
+                            command.value is Commands.CreateTruck ||
+                            command.value is EventContract.Commands.Load ||
+                            command.value is EventContract.Commands.Departure ||
+                            command.value is EventContract.Commands.Arrive ||
+                            command.value is EventContract.Commands.Discharge
+                    )
+        }
 
         when (command.value) {
             is Commands.CreateTruck, is Commands.CreateCargo -> {
@@ -30,10 +42,13 @@ class DigitalTwinContract : Contract {
                     "There must be no input state" using (inputStates.isEmpty())
                     "A single output must be passed" using (outputStates.size == 1)
                     "Output state must be a DigitalTwinState" using (outputStates.single() is DigitalTwinState)
-                    "The transaction for creation must be done with the creator node alone" using (outputStates.filterIsInstance<DigitalTwinState>().single().participants.size == 1)
+                    "The transaction for creation must be done with the creator node alone" using (outputStates.filterIsInstance<DigitalTwinState>()
+                        .single().participants.size == 1)
                 }
             }
+        }
 
+        when (command.value) {
             is Commands.CreateCargo -> {
                 requireThat {
                     "Physical Object must be of type CARGO" using (outputStates.filterIsInstance<DigitalTwinState>().single().physicalOject == PhysicalObject.CARGO)
