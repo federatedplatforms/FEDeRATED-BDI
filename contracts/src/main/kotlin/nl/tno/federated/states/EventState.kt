@@ -23,7 +23,7 @@ data class EventState(
 
 @CordaSerializable
 enum class EventType {
-    LOAD, DEPART, DISCHARGE, ARRIVE
+    LOAD, DEPART, ARRIVE, DISCHARGE
 }
 @CordaSerializable
 data class Location (
