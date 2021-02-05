@@ -42,6 +42,7 @@ class EventFlowTests {
         val startedNodes = arrayListOf(a, b)
         // For real nodes this happens automatically, but we have to manually register the flow for tests
         startedNodes.forEach { it.registerInitiatedFlow(LoadResponder::class.java) }
+        startedNodes.forEach { it.registerInitiatedFlow(NewEventResponder::class.java) }
         network.runNetwork()
 
     }
@@ -161,16 +162,19 @@ class EventFlowTests {
             type,
             waste
         )
+
+        // Execute the flow to create a cargo
         val futureDT = a.startFlow(createDTflow)
         network.runNetwork()
 
         val signedTxDT = futureDT.getOrThrow()
         signedTxDT.verifyRequiredSignatures()
 
-
+        // Retrieving ID of the new DT (in this case only the cargo)
         var newlyCreatedDT = a.services.vaultService.queryBy<DigitalTwinState>().states
         val idOfNewlyCreatedDT = newlyCreatedDT.map { it.state.data.linearId }.single()
 
+        // Executing the flow for the first load event - location needed
         val location = Location("BE", "Brussels")
         val flow = LoadFlow(listOf(idOfNewlyCreatedDT), location)
         val future = a.startFlow(flow)
@@ -179,6 +183,11 @@ class EventFlowTests {
         val signedTx = future.getOrThrow()
         signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
+        // Retrieving ID of the event just created
+        val newlyCreatedEvent =  a.services.vaultService.queryBy<EventState>().states.single()
+        val idOfNewlyCreatedEvent = newlyCreatedEvent.state.data.linearId
+
+        // Executing the flow to create a Truck - needed for the new departure event
         val createDTtruckFlow = CreateTruckFlow("PL4T3N1C3")
         val futureTruck = a.startFlow(createDTtruckFlow)
         network.runNetwork()
@@ -186,19 +195,16 @@ class EventFlowTests {
         val signedTxTruck = futureTruck.getOrThrow()
         signedTxTruck.verifyRequiredSignatures()
 
-        val newlyCreatedEvent =  a.services.vaultService.queryBy<EventState>().states.single()
-        val idOfNewlyCreatedEvent = newlyCreatedEvent.state.data.linearId
+        // Retrieving ID of the new DT (in this case the cargo and the Truck)
+        newlyCreatedDT = a.services.vaultService.queryBy<DigitalTwinState>().states
+        val idOfNewlyCreatedDTs = newlyCreatedDT.map { it.state.data.linearId }
 
-        val newlyCreatedDTs = a.services.vaultService.queryBy<DigitalTwinState>().states // assumption is that it will pop the last created, a more specific sorting will be needed
-        val idOfNewlyCreatedDTs = newlyCreatedDTs.map { it.state.data.linearId }
-
-
-
+        // Executing new event flow
         val flowNewEvent = NewEventFlow(EventType.DEPART, idOfNewlyCreatedEvent, idOfNewlyCreatedDTs, location)
         val newEventFuture = a.startFlow(flowNewEvent)
         network.runNetwork()
 
-        val signedTxNewEvent = futureTruck.getOrThrow()
+        val signedTxNewEvent = newEventFuture.getOrThrow()
         signedTxNewEvent.verifyRequiredSignatures()
     }
 

@@ -13,6 +13,7 @@ import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
 import nl.tno.federated.states.*
+import nl.tno.federated.states.EventType.*
 import java.util.*
 
 @InitiatingFlow
@@ -67,7 +68,7 @@ class LoadFlow(val digitalTwins: List<UniqueIdentifier>, val location: Location)
         val digitalTwinInputStates = serviceHub.vaultService.queryBy<DigitalTwinState>(criteria).states
 
         // Generate an unsigned transaction.
-        val eventState = EventState(EventType.LOAD, digitalTwins, Date(), location, allParties)
+        val eventState = EventState(LOAD, digitalTwins, Date(), location, allParties)
         val digitalTwinsOutput = digitalTwinInputStates.map{ it.state.data }
 
         val txCommand = Command(EventContract.Commands.Load(), eventState.participants.map { it.owningKey })
@@ -184,7 +185,18 @@ class NewEventFlow(
         val newEventState = EventState(type, digitalTwins, Date(), location, allParties)
         val digitalTwinsOutput = digitalTwinInputStates.map{ it.state.data }
 
-        val txCommand = Command(EventContract.Commands.Load(), newEventState.participants.map { it.owningKey })
+        val command : EventContract.Commands = when (type) {
+            DEPART -> {
+                EventContract.Commands.Departure()
+            }
+            DISCHARGE -> {
+                EventContract.Commands.Discharge()
+            }
+            else -> {
+                EventContract.Commands.Other()
+            }
+        }
+        val txCommand = Command(command, newEventState.participants.map { it.owningKey })
         val txBuilder = TransactionBuilder(notary)
             .addInputState(previousEventState)
             .addOutputState(newEventState, EventContract.ID)

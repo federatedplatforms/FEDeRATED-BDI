@@ -48,6 +48,15 @@ class EventContract : Contract {
                     "A counterparty must exist, sender shouldn't transact with itself alone." using (eventState.participants.count() > 1)
                 }
             }
+            is Commands.Departure -> {
+                // Constraints for Departure command
+            }
+            is Commands.Discharge -> {
+                // Constraints for Discharge command
+            }
+            is Commands.Arrive -> {
+                // Constraints for Arrive command
+            }
             else -> throw IllegalArgumentException("An unknown command was passed.")
         }
     }
@@ -58,5 +67,6 @@ class EventContract : Contract {
         class Departure : Commands
         class Discharge : Commands
         class Arrive : Commands
+        class Other : Commands
     }
 }
