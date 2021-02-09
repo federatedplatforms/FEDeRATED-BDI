@@ -41,7 +41,6 @@ class EventFlowTests {
         c = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyC","Berlin","DE")))
         val startedNodes = arrayListOf(a, b)
         // For real nodes this happens automatically, but we have to manually register the flow for tests
-        startedNodes.forEach { it.registerInitiatedFlow(LoadResponder::class.java) }
         startedNodes.forEach { it.registerInitiatedFlow(NewEventResponder::class.java) }
         network.runNetwork()
 
@@ -109,7 +108,7 @@ class EventFlowTests {
 
 
         val location = Location("BE", "Brussels")
-        val flow = LoadFlow(idOfNewlyCreatedDT, location)
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -118,7 +117,7 @@ class EventFlowTests {
     }
 
     @Test
-    fun `Simple new event flow transaction`() {
+    fun `Simple two-events flow transaction`() {
 
         // Params for test cargo
         val dangerous = false
@@ -176,16 +175,12 @@ class EventFlowTests {
 
         // Executing the flow for the first load event - location needed
         val location = Location("BE", "Brussels")
-        val flow = LoadFlow(listOf(idOfNewlyCreatedDT), location)
+        val flow = NewEventFlow(EventType.LOAD, listOf(idOfNewlyCreatedDT), location)
         val future = a.startFlow(flow)
         network.runNetwork()
 
         val signedTx = future.getOrThrow()
         signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
-
-        // Retrieving ID of the event just created
-        val newlyCreatedEvent =  a.services.vaultService.queryBy<EventState>().states.single()
-        val idOfNewlyCreatedEvent = newlyCreatedEvent.state.data.linearId
 
         // Executing the flow to create a Truck - needed for the new departure event
         val createDTtruckFlow = CreateTruckFlow("PL4T3N1C3")
@@ -200,7 +195,7 @@ class EventFlowTests {
         val idOfNewlyCreatedDTs = newlyCreatedDT.map { it.state.data.linearId }
 
         // Executing new event flow
-        val flowNewEvent = NewEventFlow(EventType.DEPART, idOfNewlyCreatedEvent, idOfNewlyCreatedDTs, location)
+        val flowNewEvent = NewEventFlow(EventType.DEPART, idOfNewlyCreatedDTs, location)
         val newEventFuture = a.startFlow(flowNewEvent)
         network.runNetwork()
 
@@ -260,7 +255,7 @@ class EventFlowTests {
         signedTxDT.verifyRequiredSignatures()
 
         val location = Location("BE", "Brussels")
-        val flow = LoadFlow(listOf(UniqueIdentifier()), location)
+        val flow = NewEventFlow(EventType.LOAD, listOf(UniqueIdentifier()), location)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -324,7 +319,7 @@ class EventFlowTests {
 
 
         val location = Location("BE", "Brussels")
-        val flow = LoadFlow(idOfNewlyCreatedDT, location)
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -389,7 +384,7 @@ class EventFlowTests {
 
 
         val location = Location("BE", "Brussels")
-        val flow = LoadFlow(idOfNewlyCreatedDT, location)
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location)
         val future = a.startFlow(flow)
         network.runNetwork()
         val signedTx = future.getOrThrow()
@@ -457,7 +452,7 @@ class EventFlowTests {
 
 
         val location = Location("BE", "Brussels")
-        val flow = LoadFlow(idOfNewlyCreatedDT, location)
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location)
         val future = a.startFlow(flow)
         network.runNetwork()
         val signedTx = future.getOrThrow()
@@ -526,7 +521,7 @@ class EventFlowTests {
 
 
         val location = Location("IT", "Milan")
-        val flow = LoadFlow(idOfNewlyCreatedDT, location)
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -536,7 +531,7 @@ class EventFlowTests {
     @Test
     fun `flow rejects invalid events`() {
         val location = Location("BE", "Brussels")
-        val flow = LoadFlow(emptyList(), location)
+        val flow = NewEventFlow(EventType.LOAD, emptyList(), location)
         val future = a.startFlow(flow)
         network.runNetwork()
 

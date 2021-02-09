@@ -28,6 +28,7 @@ class EventContract : Contract {
             "A single EventState output must be passed" using (outputStates.filterIsInstance<EventState>().size == 1)
         }
 
+        // Retrieving output Event state
         val eventState = outputStates.filterIsInstance<EventState>().single()
 
         // Building the list of ID of Digital Twins passed as input states
@@ -35,27 +36,36 @@ class EventContract : Contract {
             .map { it.linearId }
 
         requireThat {
+            // General requirements about DT
             "Digital twins must be linked" using (eventState.digitalTwins.isNotEmpty())
             "Digital twins must exist" using (digitalTwinIds.containsAll(eventState.digitalTwins))
+
+            // General requirements about Event
+            "Load is the first step in a process. No event input state may be passed." using (inputStates.filterIsInstance<EventState>()
+                .isEmpty())
+            "A counterparty must exist, sender shouldn't transact with itself alone." using (eventState.participants.count() > 1)
         }
 
         when(command.value) {
             is Commands.Load -> {
                 requireThat {
-                    "Load is the first step in a process. No event input state may be passed." using (inputStates.filterIsInstance<EventState>()
-                        .isEmpty())
                     "A load output state must be passed." using (eventState.type == EventType.LOAD)
-                    "A counterparty must exist, sender shouldn't transact with itself alone." using (eventState.participants.count() > 1)
                 }
             }
             is Commands.Departure -> {
-                // Constraints for Departure command
+                requireThat {
+                    "A departure output state must be passed." using (eventState.type == EventType.DEPART)
+                }
             }
             is Commands.Discharge -> {
-                // Constraints for Discharge command
+                requireThat {
+                    "A discharge output state must be passed." using (eventState.type == EventType.DISCHARGE)
+                }
             }
             is Commands.Arrive -> {
-                // Constraints for Arrive command
+                requireThat {
+                    "An arrive output state must be passed." using (eventState.type == EventType.ARRIVE)
+                }
             }
             else -> throw IllegalArgumentException("An unknown command was passed.")
         }
