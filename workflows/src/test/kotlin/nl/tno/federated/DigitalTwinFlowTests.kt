@@ -10,6 +10,7 @@ import nl.tno.federated.flows.CargoCreationResponder
 import nl.tno.federated.flows.CreateCargoFlow
 import nl.tno.federated.flows.CreateTruckFlow
 import nl.tno.federated.flows.TruckCreationResponder
+import nl.tno.federated.states.Cargo
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -21,6 +22,28 @@ class DigitalTwinFlowTests {
     lateinit var a: StartedMockNode
     lateinit var b: StartedMockNode
     lateinit var c: StartedMockNode
+
+    val cargo = Cargo(
+        dangerous = false,
+        dryBulk = true,
+        excise = true,
+        liquidBulk = false,
+        maximumSize = 123,
+        maximumTemperature = "123",
+        maximumVolume = 123,
+        minimumSize = 123,
+        minimumTemperature = "123",
+        minimumVolume = 123,
+        minimumWeight = 123.123,
+        natureOfCargo = "C4",
+        numberOfTEU = 123,
+        properties = "kaboom",
+        reefer = false,
+        tarWeight = 123.123,
+        temperature = "123",
+        type = "Game",
+        waste = false
+    )
 
     @Before
     fun setup() {
@@ -45,47 +68,8 @@ class DigitalTwinFlowTests {
 
     @Test
     fun `Cargo Creation, signedTransaction returned by the flow is signed by the acceptor`() {
-        val dangerous = false
-        val dryBulk = true
-        val excise = true
-        val liquidBulk = false
-        val maximumSize = 123
-        val maximumTemperature = "123"
-        val maximumVolume = 123
-        val minimumSize = 123
-        val minimumTemperature = "123"
-        val minimumVolume = 123
-        val minimumWeight = 123.123
-        val natureOfCargo = "C4"
-        val numberOfTEU = 123
-        val properties = "kaboom"
-        val reefer = false
-        val tarWeight = 123.123
-        val temperature = "123"
-        val type = "Game"
-        val waste = false
 
-        val flow = CreateCargoFlow(
-        dangerous,
-        dryBulk,
-        excise,
-        liquidBulk,
-        maximumSize,
-        maximumTemperature,
-        maximumVolume,
-        minimumSize,
-        minimumTemperature,
-        minimumVolume,
-        minimumWeight,
-        natureOfCargo,
-        numberOfTEU,
-        properties,
-        reefer,
-        tarWeight,
-        temperature,
-        type,
-        waste
-        )
+        val flow = CreateCargoFlow( cargo )
         val future = a.startFlow(flow)
         network.runNetwork()
 

@@ -20,25 +20,7 @@ import nl.tno.federated.states.Truck
 @InitiatingFlow
 @StartableByRPC
 class CreateCargoFlow(
-    private val dangerous : Boolean,
-    private val dryBulk : Boolean,
-    private val excise : Boolean,
-    private val liquidBulk : Boolean,
-    private val maximumSize : Int,
-    private val maximumTemperature : String,
-    private val maximumVolume : Int,
-    private val minimumSize: Int,
-    private val minimumTemperature: String,
-    private val minimumVolume: Int,
-    private val minimumWeight: Double,
-    private val natureOfCargo: String,
-    private val numberOfTEU: Int,
-    private val properties: String,
-    private val reefer: Boolean,
-    private val tarWeight: Double,
-    private val temperature: String,
-    private val type: String,
-    private val waste: Boolean
+    private val cargo : Cargo
     ) : FlowLogic<SignedTransaction>() {
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
@@ -79,7 +61,7 @@ class CreateCargoFlow(
         /// Generate an unsigned transaction ///
 
         // Creating cargo object
-        val cargo = Cargo(dangerous,dryBulk,excise,liquidBulk,maximumSize,maximumTemperature,maximumVolume,minimumSize,minimumTemperature,minimumVolume,minimumWeight,natureOfCargo,numberOfTEU,properties,reefer,tarWeight,temperature,type,waste)
+//        val cargo = Cargo(dangerous,dryBulk,excise,liquidBulk,maximumSize,maximumTemperature,maximumVolume,minimumSize,minimumTemperature,minimumVolume,minimumWeight,natureOfCargo,numberOfTEU,properties,reefer,tarWeight,temperature,type,waste)
 
         // Creating DT state
         val digitalTwinState = DigitalTwinState(PhysicalObject.CARGO, cargo = cargo, participants = listOf(me))

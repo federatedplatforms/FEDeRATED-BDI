@@ -11,10 +11,7 @@ import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
 import nl.tno.federated.flows.*
-import nl.tno.federated.states.DigitalTwinState
-import nl.tno.federated.states.EventState
-import nl.tno.federated.states.EventType
-import nl.tno.federated.states.Location
+import nl.tno.federated.states.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -29,6 +26,28 @@ class EventFlowTests {
     lateinit var a: StartedMockNode
     lateinit var b: StartedMockNode
     lateinit var c: StartedMockNode
+
+    val cargo = Cargo(
+        dangerous = false,
+        dryBulk = true,
+        excise = true,
+        liquidBulk = false,
+        maximumSize = 123,
+        maximumTemperature = "123",
+        maximumVolume = 123,
+        minimumSize = 123,
+        minimumTemperature = "123",
+        minimumVolume = 123,
+        minimumWeight = 123.123,
+        natureOfCargo = "C4",
+        numberOfTEU = 123,
+        properties = "kaboom",
+        reefer = false,
+        tarWeight = 123.123,
+        temperature = "123",
+        type = "Game",
+        waste = false
+    )
 
     @Before
     fun setup() {
@@ -54,48 +73,7 @@ class EventFlowTests {
     @Test
     fun `Simple flow transaction`() {
 
-        // Params for test cargo
-        val dangerous = false
-        val dryBulk = true
-        val excise = true
-        val liquidBulk = false
-        val maximumSize = 123
-        val maximumTemperature = "123"
-        val maximumVolume = 123
-        val minimumSize = 123
-        val minimumTemperature = "123"
-        val minimumVolume = 123
-        val minimumWeight = 123.123
-        val natureOfCargo = "C4"
-        val numberOfTEU = 123
-        val properties = "kaboom"
-        val reefer = false
-        val tarWeight = 123.123
-        val temperature = "123"
-        val type = "Game"
-        val waste = false
-
-        val createDTflow = CreateCargoFlow(
-            dangerous,
-            dryBulk,
-            excise,
-            liquidBulk,
-            maximumSize,
-            maximumTemperature,
-            maximumVolume,
-            minimumSize,
-            minimumTemperature,
-            minimumVolume,
-            minimumWeight,
-            natureOfCargo,
-            numberOfTEU,
-            properties,
-            reefer,
-            tarWeight,
-            temperature,
-            type,
-            waste
-        )
+        val createDTflow = CreateCargoFlow( cargo )
         val futureDT = a.startFlow(createDTflow)
         network.runNetwork()
 
@@ -119,48 +97,7 @@ class EventFlowTests {
     @Test
     fun `Simple two-events flow transaction`() {
 
-        // Params for test cargo
-        val dangerous = false
-        val dryBulk = true
-        val excise = true
-        val liquidBulk = false
-        val maximumSize = 123
-        val maximumTemperature = "123"
-        val maximumVolume = 123
-        val minimumSize = 123
-        val minimumTemperature = "123"
-        val minimumVolume = 123
-        val minimumWeight = 123.123
-        val natureOfCargo = "C4"
-        val numberOfTEU = 123
-        val properties = "kaboom"
-        val reefer = false
-        val tarWeight = 123.123
-        val temperature = "123"
-        val type = "Game"
-        val waste = false
-
-        val createDTflow = CreateCargoFlow(
-            dangerous,
-            dryBulk,
-            excise,
-            liquidBulk,
-            maximumSize,
-            maximumTemperature,
-            maximumVolume,
-            minimumSize,
-            minimumTemperature,
-            minimumVolume,
-            minimumWeight,
-            natureOfCargo,
-            numberOfTEU,
-            properties,
-            reefer,
-            tarWeight,
-            temperature,
-            type,
-            waste
-        )
+        val createDTflow = CreateCargoFlow(cargo)
 
         // Execute the flow to create a cargo
         val futureDT = a.startFlow(createDTflow)
@@ -206,48 +143,7 @@ class EventFlowTests {
     @Test
     fun `Transaction fails when a unique identifier for a DT that doesn't exist is passed`() {
 
-        // Params for test cargo
-        val dangerous = false
-        val dryBulk = true
-        val excise = true
-        val liquidBulk = false
-        val maximumSize = 123
-        val maximumTemperature = "123"
-        val maximumVolume = 123
-        val minimumSize = 123
-        val minimumTemperature = "123"
-        val minimumVolume = 123
-        val minimumWeight = 123.123
-        val natureOfCargo = "C4"
-        val numberOfTEU = 123
-        val properties = "kaboom"
-        val reefer = false
-        val tarWeight = 123.123
-        val temperature = "123"
-        val type = "Game"
-        val waste = false
-
-        val createDTflow = CreateCargoFlow(
-            dangerous,
-            dryBulk,
-            excise,
-            liquidBulk,
-            maximumSize,
-            maximumTemperature,
-            maximumVolume,
-            minimumSize,
-            minimumTemperature,
-            minimumVolume,
-            minimumWeight,
-            natureOfCargo,
-            numberOfTEU,
-            properties,
-            reefer,
-            tarWeight,
-            temperature,
-            type,
-            waste
-        )
+        val createDTflow = CreateCargoFlow(cargo)
         val futureDT = a.startFlow(createDTflow)
         network.runNetwork()
 
@@ -264,49 +160,7 @@ class EventFlowTests {
 
     @Test
     fun `SignedTransaction returned by the flow is signed by the acceptor`() {
-
-        // Params for test cargo
-        val dangerous = false
-        val dryBulk = true
-        val excise = true
-        val liquidBulk = false
-        val maximumSize = 123
-        val maximumTemperature = "123"
-        val maximumVolume = 123
-        val minimumSize = 123
-        val minimumTemperature = "123"
-        val minimumVolume = 123
-        val minimumWeight = 123.123
-        val natureOfCargo = "C4"
-        val numberOfTEU = 123
-        val properties = "kaboom"
-        val reefer = false
-        val tarWeight = 123.123
-        val temperature = "123"
-        val type = "Game"
-        val waste = false
-
-        val createDTflow = CreateCargoFlow(
-            dangerous,
-            dryBulk,
-            excise,
-            liquidBulk,
-            maximumSize,
-            maximumTemperature,
-            maximumVolume,
-            minimumSize,
-            minimumTemperature,
-            minimumVolume,
-            minimumWeight,
-            natureOfCargo,
-            numberOfTEU,
-            properties,
-            reefer,
-            tarWeight,
-            temperature,
-            type,
-            waste
-        )
+        val createDTflow = CreateCargoFlow(cargo)
         val futureDT = a.startFlow(createDTflow)
         network.runNetwork()
 
@@ -330,48 +184,7 @@ class EventFlowTests {
     @Test
     fun `flow records a transaction in both parties' transaction storages`() {
 
-        // Params for test cargo
-        val dangerous = false
-        val dryBulk = true
-        val excise = true
-        val liquidBulk = false
-        val maximumSize = 123
-        val maximumTemperature = "123"
-        val maximumVolume = 123
-        val minimumSize = 123
-        val minimumTemperature = "123"
-        val minimumVolume = 123
-        val minimumWeight = 123.123
-        val natureOfCargo = "C4"
-        val numberOfTEU = 123
-        val properties = "kaboom"
-        val reefer = false
-        val tarWeight = 123.123
-        val temperature = "123"
-        val type = "Game"
-        val waste = false
-
-        val createDTflow = CreateCargoFlow(
-            dangerous,
-            dryBulk,
-            excise,
-            liquidBulk,
-            maximumSize,
-            maximumTemperature,
-            maximumVolume,
-            minimumSize,
-            minimumTemperature,
-            minimumVolume,
-            minimumWeight,
-            natureOfCargo,
-            numberOfTEU,
-            properties,
-            reefer,
-            tarWeight,
-            temperature,
-            type,
-            waste
-        )
+        val createDTflow = CreateCargoFlow( cargo )
         val futureDT = a.startFlow(createDTflow)
         network.runNetwork()
 
@@ -398,48 +211,7 @@ class EventFlowTests {
     @Test
     fun `flow doesn't record a transaction unrelated to a party`() {
 
-        // Params for test cargo
-        val dangerous = false
-        val dryBulk = true
-        val excise = true
-        val liquidBulk = false
-        val maximumSize = 123
-        val maximumTemperature = "123"
-        val maximumVolume = 123
-        val minimumSize = 123
-        val minimumTemperature = "123"
-        val minimumVolume = 123
-        val minimumWeight = 123.123
-        val natureOfCargo = "C4"
-        val numberOfTEU = 123
-        val properties = "kaboom"
-        val reefer = false
-        val tarWeight = 123.123
-        val temperature = "123"
-        val type = "Game"
-        val waste = false
-
-        val createDTflow = CreateCargoFlow(
-            dangerous,
-            dryBulk,
-            excise,
-            liquidBulk,
-            maximumSize,
-            maximumTemperature,
-            maximumVolume,
-            minimumSize,
-            minimumTemperature,
-            minimumVolume,
-            minimumWeight,
-            natureOfCargo,
-            numberOfTEU,
-            properties,
-            reefer,
-            tarWeight,
-            temperature,
-            type,
-            waste
-        )
+        val createDTflow = CreateCargoFlow(cargo)
         val futureDT = a.startFlow(createDTflow)
         network.runNetwork()
 
@@ -467,48 +239,7 @@ class EventFlowTests {
     @Test
     fun `flow rejects tx with no counterparty`() {
 
-        // Params for test cargo
-        val dangerous = false
-        val dryBulk = true
-        val excise = true
-        val liquidBulk = false
-        val maximumSize = 123
-        val maximumTemperature = "123"
-        val maximumVolume = 123
-        val minimumSize = 123
-        val minimumTemperature = "123"
-        val minimumVolume = 123
-        val minimumWeight = 123.123
-        val natureOfCargo = "C4"
-        val numberOfTEU = 123
-        val properties = "kaboom"
-        val reefer = false
-        val tarWeight = 123.123
-        val temperature = "123"
-        val type = "Game"
-        val waste = false
-
-        val createDTflow = CreateCargoFlow(
-            dangerous,
-            dryBulk,
-            excise,
-            liquidBulk,
-            maximumSize,
-            maximumTemperature,
-            maximumVolume,
-            minimumSize,
-            minimumTemperature,
-            minimumVolume,
-            minimumWeight,
-            natureOfCargo,
-            numberOfTEU,
-            properties,
-            reefer,
-            tarWeight,
-            temperature,
-            type,
-            waste
-        )
+        val createDTflow = CreateCargoFlow(cargo)
         val futureDT = a.startFlow(createDTflow)
         network.runNetwork()
 
