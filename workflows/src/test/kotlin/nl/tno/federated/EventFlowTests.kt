@@ -2,7 +2,6 @@ package nl.tno.federated
 
 import net.corda.core.contracts.TransactionVerificationException
 import net.corda.core.contracts.UniqueIdentifier
-import nl.tno.federated.flows.ArrivalResponder
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.queryBy
 import net.corda.core.utilities.getOrThrow
@@ -11,11 +10,8 @@ import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
-import nl.tno.federated.flows.ArrivalFlow
-import nl.tno.federated.flows.CreateFlow
-import nl.tno.federated.states.DigitalTwinState
-import nl.tno.federated.states.DigitalTwinType
-import nl.tno.federated.states.Location
+import nl.tno.federated.flows.*
+import nl.tno.federated.states.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -24,12 +20,34 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
 
-class MilestoneFlowTests {
+class EventFlowTests {
 
     lateinit var network: MockNetwork
     lateinit var a: StartedMockNode
     lateinit var b: StartedMockNode
     lateinit var c: StartedMockNode
+
+    val cargo = Cargo(
+        dangerous = false,
+        dryBulk = true,
+        excise = true,
+        liquidBulk = false,
+        maximumSize = 123,
+        maximumTemperature = "123",
+        maximumVolume = 123,
+        minimumSize = 123,
+        minimumTemperature = "123",
+        minimumVolume = 123,
+        minimumWeight = 123.123,
+        natureOfCargo = "C4",
+        numberOfTEU = 123,
+        properties = "kaboom",
+        reefer = false,
+        tarWeight = 123.123,
+        temperature = "123",
+        type = "Game",
+        waste = false
+    )
 
     @Before
     fun setup() {
@@ -42,8 +60,9 @@ class MilestoneFlowTests {
         c = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyC","Berlin","DE")))
         val startedNodes = arrayListOf(a, b)
         // For real nodes this happens automatically, but we have to manually register the flow for tests
-        startedNodes.forEach { it.registerInitiatedFlow(ArrivalResponder::class.java) }
+        startedNodes.forEach { it.registerInitiatedFlow(NewEventResponder::class.java) }
         network.runNetwork()
+
     }
 
     @After
@@ -53,11 +72,8 @@ class MilestoneFlowTests {
 
     @Test
     fun `Simple flow transaction`() {
-        val type = DigitalTwinType.TRUCK
-        val plate = "N1C3PL4T3"
-        val owner = "Best Business"
 
-        val createDTflow = CreateFlow(type, plate, owner)
+        val createDTflow = CreateCargoFlow( cargo )
         val futureDT = a.startFlow(createDTflow)
         network.runNetwork()
 
@@ -70,7 +86,7 @@ class MilestoneFlowTests {
 
 
         val location = Location("BE", "Brussels")
-        val flow = ArrivalFlow(idOfNewlyCreatedDT, location)
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -79,12 +95,55 @@ class MilestoneFlowTests {
     }
 
     @Test
-    fun `Transaction fails when a unique identifier for a DT that doesn't exist is passed`() {
-        val type = DigitalTwinType.TRUCK
-        val plate = "N1C3PL4T3"
-        val owner = "Best Business"
+    fun `Simple two-events flow transaction`() {
 
-        val createDTflow = CreateFlow(type, plate, owner)
+        val createDTflow = CreateCargoFlow(cargo)
+
+        // Execute the flow to create a cargo
+        val futureDT = a.startFlow(createDTflow)
+        network.runNetwork()
+
+        val signedTxDT = futureDT.getOrThrow()
+        signedTxDT.verifyRequiredSignatures()
+
+        // Retrieving ID of the new DT (in this case only the cargo)
+        var newlyCreatedDT = a.services.vaultService.queryBy<DigitalTwinState>().states
+        val idOfNewlyCreatedDT = newlyCreatedDT.map { it.state.data.linearId }.single()
+
+        // Executing the flow for the first load event - location needed
+        val location = Location("BE", "Brussels")
+        val flow = NewEventFlow(EventType.LOAD, listOf(idOfNewlyCreatedDT), location)
+        val future = a.startFlow(flow)
+        network.runNetwork()
+
+        val signedTx = future.getOrThrow()
+        signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+
+        // Executing the flow to create a Truck - needed for the new departure event
+        val createDTtruckFlow = CreateTruckFlow("PL4T3N1C3")
+        val futureTruck = a.startFlow(createDTtruckFlow)
+        network.runNetwork()
+
+        val signedTxTruck = futureTruck.getOrThrow()
+        signedTxTruck.verifyRequiredSignatures()
+
+        // Retrieving ID of the new DT (in this case the cargo and the Truck)
+        newlyCreatedDT = a.services.vaultService.queryBy<DigitalTwinState>().states
+        val idOfNewlyCreatedDTs = newlyCreatedDT.map { it.state.data.linearId }
+
+        // Executing new event flow
+        val flowNewEvent = NewEventFlow(EventType.DEPART, idOfNewlyCreatedDTs, location)
+        val newEventFuture = a.startFlow(flowNewEvent)
+        network.runNetwork()
+
+        val signedTxNewEvent = newEventFuture.getOrThrow()
+        signedTxNewEvent.verifyRequiredSignatures()
+    }
+
+    @Test
+    fun `Transaction fails when a unique identifier for a DT that doesn't exist is passed`() {
+
+        val createDTflow = CreateCargoFlow(cargo)
         val futureDT = a.startFlow(createDTflow)
         network.runNetwork()
 
@@ -92,7 +151,7 @@ class MilestoneFlowTests {
         signedTxDT.verifyRequiredSignatures()
 
         val location = Location("BE", "Brussels")
-        val flow = ArrivalFlow(listOf(UniqueIdentifier()), location)
+        val flow = NewEventFlow(EventType.LOAD, listOf(UniqueIdentifier()), location)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -101,11 +160,7 @@ class MilestoneFlowTests {
 
     @Test
     fun `SignedTransaction returned by the flow is signed by the acceptor`() {
-        val type = DigitalTwinType.TRUCK
-        val plate = "N1C3PL4T3"
-        val owner = "Best Business"
-
-        val createDTflow = CreateFlow(type, plate, owner)
+        val createDTflow = CreateCargoFlow(cargo)
         val futureDT = a.startFlow(createDTflow)
         network.runNetwork()
 
@@ -118,7 +173,7 @@ class MilestoneFlowTests {
 
 
         val location = Location("BE", "Brussels")
-        val flow = ArrivalFlow(idOfNewlyCreatedDT, location)
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -128,11 +183,8 @@ class MilestoneFlowTests {
 
     @Test
     fun `flow records a transaction in both parties' transaction storages`() {
-        val type = DigitalTwinType.TRUCK
-        val plate = "N1C3PL4T3"
-        val owner = "Best Business"
 
-        val createDTflow = CreateFlow(type, plate, owner)
+        val createDTflow = CreateCargoFlow( cargo )
         val futureDT = a.startFlow(createDTflow)
         network.runNetwork()
 
@@ -145,7 +197,7 @@ class MilestoneFlowTests {
 
 
         val location = Location("BE", "Brussels")
-        val flow = ArrivalFlow(idOfNewlyCreatedDT, location)
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location)
         val future = a.startFlow(flow)
         network.runNetwork()
         val signedTx = future.getOrThrow()
@@ -158,11 +210,8 @@ class MilestoneFlowTests {
 
     @Test
     fun `flow doesn't record a transaction unrelated to a party`() {
-        val type = DigitalTwinType.TRUCK
-        val plate = "N1C3PL4T3"
-        val owner = "Best Business"
 
-        val createDTflow = CreateFlow(type, plate, owner)
+        val createDTflow = CreateCargoFlow(cargo)
         val futureDT = a.startFlow(createDTflow)
         network.runNetwork()
 
@@ -175,7 +224,7 @@ class MilestoneFlowTests {
 
 
         val location = Location("BE", "Brussels")
-        val flow = ArrivalFlow(idOfNewlyCreatedDT, location)
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location)
         val future = a.startFlow(flow)
         network.runNetwork()
         val signedTx = future.getOrThrow()
@@ -189,11 +238,8 @@ class MilestoneFlowTests {
 
     @Test
     fun `flow rejects tx with no counterparty`() {
-        val type = DigitalTwinType.TRUCK
-        val plate = "N1C3PL4T3"
-        val owner = "Best Business"
 
-        val createDTflow = CreateFlow(type, plate, owner)
+        val createDTflow = CreateCargoFlow(cargo)
         val futureDT = a.startFlow(createDTflow)
         network.runNetwork()
 
@@ -206,7 +252,7 @@ class MilestoneFlowTests {
 
 
         val location = Location("IT", "Milan")
-        val flow = ArrivalFlow(idOfNewlyCreatedDT, location)
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -214,9 +260,9 @@ class MilestoneFlowTests {
     }
 
     @Test
-    fun `flow rejects invalid milestones`() {
+    fun `flow rejects invalid events`() {
         val location = Location("BE", "Brussels")
-        val flow = ArrivalFlow(emptyList(), location)
+        val flow = NewEventFlow(EventType.LOAD, emptyList(), location)
         val future = a.startFlow(flow)
         network.runNetwork()
 

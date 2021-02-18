@@ -1,33 +1,39 @@
 package nl.tno.federated.states
 
-import nl.tno.federated.contracts.MilestoneContract
 import net.corda.core.contracts.BelongsToContract
 import net.corda.core.contracts.LinearState
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.AbstractParty
 import net.corda.core.serialization.CordaSerializable
-import java.sql.Timestamp
+import nl.tno.federated.contracts.EventContract
 import java.util.*
 
 // *********
 // * State *
 // *********
-@BelongsToContract(MilestoneContract::class)
-data class MilestoneState(
-    val type: MilestoneType,
-    val digitalTwins: List<UniqueIdentifier>,
-    val time: Date,
-    val location: Location,
+@BelongsToContract(EventContract::class)
+data class EventState(
+    override val type: EventType,
+    override val digitalTwins: List<UniqueIdentifier>,
+    override val time: Date,
+    override val location: Location,
     override val participants: List<AbstractParty> = listOf(),
     override val linearId: UniqueIdentifier = UniqueIdentifier()
-) : LinearState
+) : LinearState, Event(type, digitalTwins, time, location)
 
 @CordaSerializable
-enum class MilestoneType {
-    ARRIVE, DEPART, LOAD, DISCHARGE, POSITION
+enum class EventType {
+    LOAD, DEPART, ARRIVE, DISCHARGE
 }
 @CordaSerializable
 data class Location (
     val country: String,
     val city: String
         )
+
+open class Event(
+    open val type: EventType,
+    open val digitalTwins: List<UniqueIdentifier>,
+    open val time: Date,
+    open val location: Location
+)
