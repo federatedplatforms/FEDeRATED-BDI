@@ -106,7 +106,7 @@ class CargoCreationResponder(val counterpartySession: FlowSession) : FlowLogic<S
 @InitiatingFlow
 @StartableByRPC
 class CreateTruckFlow(
-    private val licensePlate: String
+    private val truck: Truck
 ) : FlowLogic<SignedTransaction>() {
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
@@ -145,9 +145,6 @@ class CreateTruckFlow(
 
 
         /// Generate an unsigned transaction ///
-
-        // Creating cargo object
-        val truck = Truck(licensePlate)
 
         // Creating DT state
         val digitalTwinState = DigitalTwinState(PhysicalObject.TRANSPORTMEAN, truck = truck, participants = listOf(me))

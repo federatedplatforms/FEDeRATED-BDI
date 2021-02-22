@@ -42,9 +42,9 @@ class ContractTests {
         type = "Game",
         waste = false
     )
-    private val cargoDigitalTwinState = DigitalTwinState(physicalOject = PhysicalObject.CARGO, cargo = cargo, participants = listOf(sender.party), linearId = dtUUID)
+    private val cargoDigitalTwinState = DigitalTwinState(physicalObject = PhysicalObject.CARGO, cargo = cargo, participants = listOf(sender.party), linearId = dtUUID)
 
-    private val truckDigitalTwinState = DigitalTwinState(physicalOject = PhysicalObject.TRANSPORTMEAN, truck = Truck(licensePlate = "B1TC01N"), participants = listOf(sender.party), linearId = dtUUID)
+    private val truckDigitalTwinState = DigitalTwinState(physicalObject = PhysicalObject.TRANSPORTMEAN, truck = Truck(licensePlate = "B1TC01N"), participants = listOf(sender.party), linearId = dtUUID)
 
     @Test
     fun `create cargo test`() {
@@ -72,7 +72,7 @@ class ContractTests {
 
     @Test
     fun `physical object mismatch test 1`() {
-        val wrongState = cargoDigitalTwinState.copy(physicalOject = PhysicalObject.TRANSPORTMEAN)
+        val wrongState = cargoDigitalTwinState.copy(physicalObject = PhysicalObject.TRANSPORTMEAN)
 
         ledgerServices.ledger {
             transaction {
@@ -86,7 +86,7 @@ class ContractTests {
 
     @Test
     fun `physical object mismatch test 2`() {
-        val wrongState = cargoDigitalTwinState.copy(physicalOject = PhysicalObject.TRANSPORTMEAN)
+        val wrongState = cargoDigitalTwinState.copy(physicalObject = PhysicalObject.TRANSPORTMEAN)
 
         ledgerServices.ledger {
             transaction {

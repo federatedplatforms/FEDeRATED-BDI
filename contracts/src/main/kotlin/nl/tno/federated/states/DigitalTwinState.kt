@@ -9,7 +9,6 @@ import net.corda.core.schemas.PersistentState
 import net.corda.core.schemas.QueryableState
 import net.corda.core.serialization.CordaSerializable
 import nl.tno.federated.contracts.DigitalTwinContract
-import java.util.*
 
 @BelongsToContract(DigitalTwinContract::class)
 data class DigitalTwinState(
@@ -19,7 +18,7 @@ data class DigitalTwinState(
     override val participants: List<AbstractParty> = listOf(),
     override val linearId: UniqueIdentifier = UniqueIdentifier()
 ) : LinearState, QueryableState {
-    
+
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         if (schema is DigitalTwinSchemaV1) {
             val pCargo = cargo?.let {
@@ -54,9 +53,8 @@ data class DigitalTwinState(
                 )
             }
 
-
             return DigitalTwinSchemaV1.PersistentDigitalTwin(
-                linearId,
+                linearId.id,
                 physicalObject,
                 pCargo,
                 pTruck
@@ -75,7 +73,6 @@ enum class PhysicalObject {
 
 @CordaSerializable
 data class Cargo(
-    val id: UUID,
     val dangerous : Boolean,
     val dryBulk : Boolean,
     val excise : Boolean,

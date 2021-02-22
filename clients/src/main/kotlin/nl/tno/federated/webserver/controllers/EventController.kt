@@ -2,10 +2,10 @@ package nl.tno.federated.webserver.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
-import nl.tno.federated.flows.ArrivalFlow
-import nl.tno.federated.states.MilestoneDTO
-import nl.tno.federated.states.MilestoneState
-import nl.tno.federated.states.MilestoneType
+import nl.tno.federated.flows.NewEventFlow
+import nl.tno.federated.states.Event
+import nl.tno.federated.states.EventState
+import nl.tno.federated.states.EventType
 import nl.tno.federated.webserver.NodeRPCConnection
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.*
  */
 @RestController
 @RequestMapping("/events")
-@Api(value = "MilestoneController", tags = ["Event details"])
-class MilestoneController(rpc: NodeRPCConnection) {
+@Api(value = "EventController", tags = ["Event details"])
+class EventController(rpc: NodeRPCConnection) {
 
     companion object {
         private val logger = LoggerFactory.getLogger(RestController::class.java)
@@ -28,11 +28,12 @@ class MilestoneController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
-    private fun newMilestone(@RequestBody event : MilestoneDTO) : ResponseEntity<String> {
-        return if (event.type == MilestoneType.ARRIVE) {
+    private fun newMilestone(@RequestBody event : Event) : ResponseEntity<String> {
+        return if (event.type == EventType.ARRIVE) {
             try {
                 proxy.startFlowDynamic(
-                    ArrivalFlow::class.java,
+                    NewEventFlow::class.java,
+                    EventType.LOAD,
                     event.digitalTwins,
                     event.location
                 ).returnValue.get()
@@ -46,8 +47,8 @@ class MilestoneController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Return all known events")
     @GetMapping(value = ["/"])
-    private fun events() : List<MilestoneDTO> {
-        val eventStates = proxy.vaultQuery(MilestoneState::class.java).states.map { it.state.data }
-        return eventStates.map { MilestoneDTO(it.type, it.digitalTwins, it.time, it.location) }
+    private fun events() : List<Event> {
+        val eventStates = proxy.vaultQuery(EventState::class.java).states.map { it.state.data }
+        return eventStates.map { Event(it.type, it.digitalTwins, it.time, it.location) }
     }
 }

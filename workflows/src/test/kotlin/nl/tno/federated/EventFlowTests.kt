@@ -10,7 +10,10 @@ import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
-import nl.tno.federated.flows.*
+import nl.tno.federated.flows.CreateCargoFlow
+import nl.tno.federated.flows.CreateTruckFlow
+import nl.tno.federated.flows.NewEventFlow
+import nl.tno.federated.flows.NewEventResponder
 import nl.tno.federated.states.*
 import org.junit.After
 import org.junit.Before
@@ -73,7 +76,7 @@ class EventFlowTests {
     @Test
     fun `Simple flow transaction`() {
 
-        val createDTflow = CreateCargoFlow( cargo )
+        val createDTflow = CreateCargoFlow(cargo)
         val futureDT = a.startFlow(createDTflow)
         network.runNetwork()
 
@@ -120,7 +123,7 @@ class EventFlowTests {
         signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
         // Executing the flow to create a Truck - needed for the new departure event
-        val createDTtruckFlow = CreateTruckFlow("PL4T3N1C3")
+        val createDTtruckFlow = CreateTruckFlow(Truck("PL4T3N1C3"))
         val futureTruck = a.startFlow(createDTtruckFlow)
         network.runNetwork()
 
