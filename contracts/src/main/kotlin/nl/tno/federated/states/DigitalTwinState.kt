@@ -23,7 +23,7 @@ data class DigitalTwinState(
         if (schema is DigitalTwinSchemaV1) {
             val pCargo = cargo?.let {
                 DigitalTwinSchemaV1.PersistentCargo(
-                    linearId.id,
+                    UniqueIdentifier().id,
                     cargo.dangerous,
                     cargo.dryBulk,
                     cargo.excise,
@@ -48,7 +48,7 @@ data class DigitalTwinState(
 
             val pTruck = truck?.let {
                 DigitalTwinSchemaV1.PersistentTruck(
-                    linearId.id,
+                    UniqueIdentifier().id,
                     truck.licensePlate
                 )
             }
