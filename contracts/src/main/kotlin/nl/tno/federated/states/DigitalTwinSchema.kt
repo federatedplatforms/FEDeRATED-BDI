@@ -29,7 +29,7 @@ object DigitalTwinSchemaV1 : MappedSchema(
         @Type(type = "uuid-char")
         val id: UUID,
         @Column(name = "license_plate")
-        val licensePlace: String
+        val licensePlate: String
     ) {
         // Default constructor required by hibernate.
         constructor() : this(
@@ -112,7 +112,7 @@ object DigitalTwinSchemaV1 : MappedSchema(
     @Entity
     @Table(name = "DIGITALTWIN_DETAIL")
     class PersistentDigitalTwin(
-        @Column(name = "dt_id")
+        @Column(name = "linear_id")
         @Type(type = "uuid-char")
         val linearId: UUID,
         @Column(name = "physicalObject")
