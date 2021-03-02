@@ -8,7 +8,7 @@ cordapp {
         name "Template Flows"
         vendor "Corda Open Source"
         licence "Apache License, Version 2.0"
-        versionId 1
+        versionId 4
     }
 }
 

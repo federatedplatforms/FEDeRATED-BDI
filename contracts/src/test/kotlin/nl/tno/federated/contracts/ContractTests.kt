@@ -2,16 +2,19 @@ package nl.tno.federated.contracts
 
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
+import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockServices
 import net.corda.testing.node.ledger
 import nl.tno.federated.states.*
 import org.junit.Test
 import java.sql.Timestamp
+import kotlin.math.min
 
 class ContractTests {
-    private val ledgerServices = MockServices()
+    private val netParamForMinVersion = testNetworkParameters(minimumPlatformVersion = 4)
     private val sender = TestIdentity(CordaX500Name("SomeEnterprise", "Utrecht", "NL"))
+    private val ledgerServices = MockServices(sender, networkParameters = netParamForMinVersion)
 
     // Enterprise 1
     private val enterpriseDE = TestIdentity(CordaX500Name("German Enterprise", "Berlin", "DE"))
@@ -118,7 +121,7 @@ class ContractTests {
         ledgerServices.ledger {
             transaction {
                 command(sender.publicKey, EventContract.Commands.Load())
-                input(DigitalTwinContract.ID, cargoDigitalTwinState)
+                reference(DigitalTwinContract.ID, cargoDigitalTwinState)
                 output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
                 verifies()
@@ -143,7 +146,7 @@ class ContractTests {
         ledgerServices.ledger {
             transaction {
                 command(sender.publicKey, EventContract.Commands.Load())
-                input(DigitalTwinContract.ID, cargoDigitalTwinState)
+                reference(DigitalTwinContract.ID, cargoDigitalTwinState)
                 output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party), UniqueIdentifier()))
 
                 `fails with`("A counterparty must exist, sender shouldn't transact with itself alone")
@@ -152,25 +155,25 @@ class ContractTests {
     }
 
     @Test
-    fun `mismatch - # DT input states greater than # DT UUID`() {
+    fun `mismatch - # DT reference states greater than # DT UUID`() {
         ledgerServices.ledger {
             transaction {
                 command(sender.publicKey, EventContract.Commands.Load())
-                input(DigitalTwinContract.ID, cargoDigitalTwinState)
-                input(DigitalTwinContract.ID, truckDigitalTwinState)
+                reference(DigitalTwinContract.ID, cargoDigitalTwinState)
+                reference(DigitalTwinContract.ID, truckDigitalTwinState)
                 output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
-                `fails with`("The number of DT input states must be equal to the number of DT UUID in the event state")
+                `fails with`("The number of DT reference states must be equal to the number of DT UUID in the event state")
             }
         }
     }
 
     @Test
-    fun `mismatch - # DT UUIDs greater than # DT input states`() {
+    fun `mismatch - # DT UUIDs greater than # DT reference states`() {
         ledgerServices.ledger {
             transaction {
                 command(sender.publicKey, EventContract.Commands.Load())
-                input(DigitalTwinContract.ID, cargoDigitalTwinState)
+                reference(DigitalTwinContract.ID, cargoDigitalTwinState)
                 output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID, truckUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
                 `fails with`("Digital twins must exist")

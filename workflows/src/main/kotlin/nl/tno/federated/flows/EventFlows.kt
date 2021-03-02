@@ -98,8 +98,7 @@ class NewEventFlow(
             .addCommand(txCommand)
 
         // Adding Input and Output states for DT
-        digitalTwinInputStates.forEach{txBuilder.addInputState( it )}
-        digitalTwinsOutput.forEach{txBuilder.addOutputState( it )}
+        digitalTwinInputStates.forEach{txBuilder.addReferenceState(it.referenced())}
 
         // Stage 2.
         progressTracker.currentStep = VERIFYING_TRANSACTION

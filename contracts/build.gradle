@@ -7,7 +7,7 @@ cordapp {
         name "Template Contracts"
         vendor "Corda Open Source"
         licence "Apache License, Version 2.0"
-        versionId 1
+        versionId 4
     }
 }
 

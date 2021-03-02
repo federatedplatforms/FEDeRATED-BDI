@@ -22,7 +22,7 @@ class EventContract : Contract {
     // does not throw an exception.
     override fun verify(tx: LedgerTransaction) {
         val command = tx.commands.requireSingleCommand<Commands>()
-        val inputStates = tx.inputStates
+        val referenceStates = tx.referenceStates
         val outputStates = tx.outputStates
         requireThat {
             "A single EventState output must be passed" using (outputStates.filterIsInstance<EventState>().size == 1)
@@ -32,17 +32,17 @@ class EventContract : Contract {
         val eventState = outputStates.filterIsInstance<EventState>().single()
 
         // Building the list of ID of Digital Twins passed as input states
-        val digitalTwinIds = inputStates.filterIsInstance<DigitalTwinState>()
+        val digitalTwinIds = referenceStates.filterIsInstance<DigitalTwinState>()
             .map { it.linearId }
 
         requireThat {
             // General requirements about DT
             "Digital twins must be linked" using (eventState.digitalTwins.isNotEmpty())
             "Digital twins must exist" using (digitalTwinIds.containsAll(eventState.digitalTwins))
-            "The number of DT input states must be equal to the number of DT UUID in the event state" using (digitalTwinIds.size == eventState.digitalTwins.size)
+            "The number of DT reference states must be equal to the number of DT UUID in the event state" using (digitalTwinIds.size == eventState.digitalTwins.size)
 
             // General requirements about Event
-            "No event input state may be passed." using (inputStates.filterIsInstance<EventState>()
+            "No event input state may be passed." using (referenceStates.filterIsInstance<EventState>()
                 .isEmpty())
             "A counterparty must exist, sender shouldn't transact with itself alone." using (eventState.participants.count() > 1)
         }

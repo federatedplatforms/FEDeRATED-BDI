@@ -5,11 +5,9 @@ import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.queryBy
 import net.corda.core.utilities.getOrThrow
+import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.singleIdentity
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.MockNetworkNotarySpec
-import net.corda.testing.node.MockNodeParameters
-import net.corda.testing.node.StartedMockNode
+import net.corda.testing.node.*
 import nl.tno.federated.flows.CreateCargoFlow
 import nl.tno.federated.flows.CreateTruckFlow
 import nl.tno.federated.flows.NewEventFlow
@@ -56,7 +54,8 @@ class EventFlowTests {
     fun setup() {
         network = MockNetwork(
                 listOf("nl.tno.federated"),
-                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB"))),
+                networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
         )
         a = network.createNode(MockNodeParameters())
         b = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyB","Brussels","BE")))
