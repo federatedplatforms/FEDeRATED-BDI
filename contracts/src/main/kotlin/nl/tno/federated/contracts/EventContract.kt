@@ -39,9 +39,10 @@ class EventContract : Contract {
             // General requirements about DT
             "Digital twins must be linked" using (eventState.digitalTwins.isNotEmpty())
             "Digital twins must exist" using (digitalTwinIds.containsAll(eventState.digitalTwins))
+            "The number of DT input states must be equal to the number of DT UUID in the event state" using (digitalTwinIds.size == eventState.digitalTwins.size)
 
             // General requirements about Event
-            "Load is the first step in a process. No event input state may be passed." using (inputStates.filterIsInstance<EventState>()
+            "No event input state may be passed." using (inputStates.filterIsInstance<EventState>()
                 .isEmpty())
             "A counterparty must exist, sender shouldn't transact with itself alone." using (eventState.participants.count() > 1)
         }

@@ -18,7 +18,8 @@ class ContractTests {
     private val locationBerlin = Location("DE", "Berlin")
 
     // Set up of DT for event testing
-    private val dtUUID = UniqueIdentifier()
+    private val truckUUID = UniqueIdentifier()
+    private val cargoUUID = UniqueIdentifier()
 
     // Params for test cargo DT
     private val cargo : Cargo = Cargo(
@@ -42,9 +43,9 @@ class ContractTests {
         type = "Game",
         waste = false
     )
-    private val cargoDigitalTwinState = DigitalTwinState(physicalObject = PhysicalObject.CARGO, cargo = cargo, participants = listOf(sender.party), linearId = dtUUID)
+    private val cargoDigitalTwinState = DigitalTwinState(physicalObject = PhysicalObject.CARGO, cargo = cargo, participants = listOf(sender.party), linearId = cargoUUID)
 
-    private val truckDigitalTwinState = DigitalTwinState(physicalObject = PhysicalObject.TRANSPORTMEAN, truck = Truck(licensePlate = "B1TC01N"), participants = listOf(sender.party), linearId = dtUUID)
+    private val truckDigitalTwinState = DigitalTwinState(physicalObject = PhysicalObject.TRANSPORTMEAN, truck = Truck(licensePlate = "B1TC01N"), participants = listOf(sender.party), linearId = truckUUID)
 
     @Test
     fun `create cargo test`() {
@@ -118,7 +119,7 @@ class ContractTests {
             transaction {
                 command(sender.publicKey, EventContract.Commands.Load())
                 input(DigitalTwinContract.ID, cargoDigitalTwinState)
-                output(EventContract.ID, EventState(EventType.LOAD, listOf(dtUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+                output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
                 verifies()
             }
@@ -143,9 +144,36 @@ class ContractTests {
             transaction {
                 command(sender.publicKey, EventContract.Commands.Load())
                 input(DigitalTwinContract.ID, cargoDigitalTwinState)
-                output(EventContract.ID, EventState(EventType.LOAD, listOf(dtUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party), UniqueIdentifier()))
+                output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party), UniqueIdentifier()))
 
                 `fails with`("A counterparty must exist, sender shouldn't transact with itself alone")
+            }
+        }
+    }
+
+    @Test
+    fun `mismatch - # DT input states greater than # DT UUID`() {
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventContract.Commands.Load())
+                input(DigitalTwinContract.ID, cargoDigitalTwinState)
+                input(DigitalTwinContract.ID, truckDigitalTwinState)
+                output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+
+                `fails with`("The number of DT input states must be equal to the number of DT UUID in the event state")
+            }
+        }
+    }
+
+    @Test
+    fun `mismatch - # DT UUIDs greater than # DT input states`() {
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventContract.Commands.Load())
+                input(DigitalTwinContract.ID, cargoDigitalTwinState)
+                output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID, truckUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+
+                `fails with`("Digital twins must exist")
             }
         }
     }
