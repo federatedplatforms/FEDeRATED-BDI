@@ -35,17 +35,13 @@ data class EventState(
 
 
             val pDigitalTwins = digitalTwins.map {
-                EventSchemaV1.PersistentDigitalTwinUUID(
-                        UniqueIdentifier().id,
-                        it.id,
-                        null
-                )
+                                        it.id
             }.toMutableList()
 
             return EventSchemaV1.PersistentEvent(
                     linearId.id,
                     type,
-//                    pDigitalTwins,
+                    pDigitalTwins,
                     time,
                     pLocation
             )
