@@ -36,11 +36,12 @@ class DigitalTwinController(rpc: NodeRPCConnection) {
     @PostMapping(value = ["/trucks"])
     private fun newTruck(@RequestBody truck : Truck) : ResponseEntity<String> {
         return try {
-            proxy.startFlowDynamic(
+            val newCargoTx = proxy.startFlowDynamic(
                 CreateTruckFlow::class.java,
                 truck
             ).returnValue.get()
-            ResponseEntity("Digital twin created", HttpStatus.CREATED)
+            val createdDTId = (newCargoTx.coreTransaction.getOutput(0) as DigitalTwinState).linearId.id
+            ResponseEntity("Digital twin created: $createdDTId", HttpStatus.CREATED)
         } catch (e: Exception) {
             ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
         }
@@ -50,11 +51,12 @@ class DigitalTwinController(rpc: NodeRPCConnection) {
     @PostMapping(value = ["/cargo"])
     private fun newCargo(@RequestBody cargo : Cargo) : ResponseEntity<String> {
         return try {
-            proxy.startFlowDynamic(
+            val newCargoTx = proxy.startFlowDynamic(
                 CreateCargoFlow::class.java,
                 cargo
             ).returnValue.get()
-            ResponseEntity("Digital twin created", HttpStatus.CREATED)
+            val createdDTId = (newCargoTx.coreTransaction.getOutput(0) as DigitalTwinState).linearId.id
+            ResponseEntity("Digital twin created: $createdDTId", HttpStatus.CREATED)
         } catch (e: Exception) {
             ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
         }
@@ -62,32 +64,34 @@ class DigitalTwinController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Return all cargo")
     @GetMapping(value = ["/cargo"])
-    private fun cargo(): List<Cargo> {
+    private fun cargo(): Map<UUID, Cargo> {
         val hasCargo = QueryCriteria.VaultCustomQueryCriteria(DigitalTwinSchemaV1.PersistentDigitalTwin::cargo.notNull())
-        return proxy.vaultQueryByCriteria(hasCargo, DigitalTwinState::class.java).states.map { it.state.data.cargo!! }
+        return proxy.vaultQueryByCriteria(hasCargo, DigitalTwinState::class.java).states
+            .map { it.state.data.linearId.id to it.state.data.cargo!! }.toMap()
     }
 
     @ApiOperation(value = "Return all trucks")
     @GetMapping(value = ["/trucks"])
-    private fun trucks(): List<Truck> {
-        val hasCargo = QueryCriteria.VaultCustomQueryCriteria(DigitalTwinSchemaV1.PersistentDigitalTwin::truck.notNull())
-        return proxy.vaultQueryByCriteria(hasCargo, DigitalTwinState::class.java).states.map { it.state.data.truck!! }
+    private fun trucks(): Map<UUID, Truck> {
+        val hasTruck = QueryCriteria.VaultCustomQueryCriteria(DigitalTwinSchemaV1.PersistentDigitalTwin::truck.notNull())
+        return proxy.vaultQueryByCriteria(hasTruck, DigitalTwinState::class.java).states
+            .map { it.state.data.linearId.id to it.state.data.truck!! }.toMap()
     }
 
     @ApiOperation(value = "Return a piece of cargo")
     @GetMapping(value = ["/cargo/{id}"])
-    private fun cargo(@PathVariable id: UUID): List<Cargo> {
+    private fun cargo(@PathVariable id: UUID): Map<UUID, Cargo> {
         val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(id))
         val states = proxy.vaultQueryBy<DigitalTwinState>(criteria).states.map { it.state.data }
-        return states.filter { it.cargo != null }.map { it.cargo!! }
+        return states.filter { it.cargo != null }.map { it.linearId.id to it.cargo!! }.toMap()
     }
 
     @ApiOperation(value = "Return a truck")
     @GetMapping(value = ["/trucks/{id}"])
-    private fun truck(@PathVariable id: UUID): List<Truck> {
+    private fun truck(@PathVariable id: UUID): Map<UUID, Truck> {
         val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(id))
         val states = proxy.vaultQueryBy<DigitalTwinState>(criteria).states.map { it.state.data }
-        return states.filter { it.truck != null }.map { it.truck!! }
+        return states.filter { it.truck != null }.map { it.linearId.id to it.truck!! }.toMap()
     }
 }
 
