@@ -8,7 +8,7 @@ cordapp {
         name "Template Flows"
         vendor "Corda Open Source"
         licence "Apache License, Version 2.0"
-        versionId 1
+        versionId 4
     }
 }
 
@@ -39,6 +39,8 @@ configurations {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.9.7'
     testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     testCompile "junit:junit:$junit_version"
 

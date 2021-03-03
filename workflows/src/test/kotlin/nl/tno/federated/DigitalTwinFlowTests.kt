@@ -11,6 +11,7 @@ import nl.tno.federated.flows.CreateCargoFlow
 import nl.tno.federated.flows.CreateTruckFlow
 import nl.tno.federated.flows.TruckCreationResponder
 import nl.tno.federated.states.Cargo
+import nl.tno.federated.states.Truck
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -82,7 +83,7 @@ class DigitalTwinFlowTests {
         val licensePlate = "835TPL4T3"
 
         val flow = CreateTruckFlow(
-            licensePlate
+            Truck(licensePlate)
         )
         val future = a.startFlow(flow)
         network.runNetwork()

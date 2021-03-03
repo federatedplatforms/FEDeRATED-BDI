@@ -23,6 +23,8 @@ dependencies {
     compile "org.slf4j:jul-to-slf4j:$slf4j_version"
     compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.7.0'
     compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.7.0'
+    implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.9.7'
+    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
 }
 
 

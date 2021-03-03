@@ -2,12 +2,10 @@ package nl.tno.federated.contracts
 
 import net.corda.core.contracts.CommandData
 import net.corda.core.contracts.Contract
-import net.corda.core.contracts.requireSingleCommand
 import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
 import nl.tno.federated.states.DigitalTwinState
 import nl.tno.federated.states.PhysicalObject
-import nl.tno.federated.contracts.EventContract
 
 // ************
 // * Contract *
@@ -51,7 +49,7 @@ class DigitalTwinContract : Contract {
         when (command.value) {
             is Commands.CreateCargo -> {
                 requireThat {
-                    "Physical Object must be of type CARGO" using (outputStates.filterIsInstance<DigitalTwinState>().single().physicalOject == PhysicalObject.CARGO)
+                    "Physical Object must be of type CARGO" using (outputStates.filterIsInstance<DigitalTwinState>().single().physicalObject == PhysicalObject.CARGO)
                     "Cargo attribute cannot be null" using (outputStates.filterIsInstance<DigitalTwinState>().single().cargo != null)
                     "Truck attribute must be null" using (outputStates.filterIsInstance<DigitalTwinState>().single().truck == null)
                 }
@@ -59,7 +57,7 @@ class DigitalTwinContract : Contract {
 
             is Commands.CreateTruck -> {
                 requireThat {
-                    "Physical Object must be of type TRANSPORTMEAN" using (outputStates.filterIsInstance<DigitalTwinState>().single().physicalOject == PhysicalObject.TRANSPORTMEAN)
+                    "Physical Object must be of type TRANSPORTMEAN" using (outputStates.filterIsInstance<DigitalTwinState>().single().physicalObject == PhysicalObject.TRANSPORTMEAN)
                     "Truck attribute cannot be null" using (outputStates.filterIsInstance<DigitalTwinState>().single().truck != null)
                     "Cargo attribute must be null" using (outputStates.filterIsInstance<DigitalTwinState>().single().cargo == null)
                 }

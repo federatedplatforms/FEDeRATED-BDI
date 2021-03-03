@@ -5,12 +5,13 @@ import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.queryBy
 import net.corda.core.utilities.getOrThrow
+import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.singleIdentity
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.MockNetworkNotarySpec
-import net.corda.testing.node.MockNodeParameters
-import net.corda.testing.node.StartedMockNode
-import nl.tno.federated.flows.*
+import net.corda.testing.node.*
+import nl.tno.federated.flows.CreateCargoFlow
+import nl.tno.federated.flows.CreateTruckFlow
+import nl.tno.federated.flows.NewEventFlow
+import nl.tno.federated.flows.NewEventResponder
 import nl.tno.federated.states.*
 import org.junit.After
 import org.junit.Before
@@ -53,7 +54,8 @@ class EventFlowTests {
     fun setup() {
         network = MockNetwork(
                 listOf("nl.tno.federated"),
-                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB"))),
+                networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
         )
         a = network.createNode(MockNodeParameters())
         b = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyB","Brussels","BE")))
@@ -73,7 +75,7 @@ class EventFlowTests {
     @Test
     fun `Simple flow transaction`() {
 
-        val createDTflow = CreateCargoFlow( cargo )
+        val createDTflow = CreateCargoFlow(cargo)
         val futureDT = a.startFlow(createDTflow)
         network.runNetwork()
 
@@ -120,7 +122,7 @@ class EventFlowTests {
         signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
         // Executing the flow to create a Truck - needed for the new departure event
-        val createDTtruckFlow = CreateTruckFlow("PL4T3N1C3")
+        val createDTtruckFlow = CreateTruckFlow(Truck("PL4T3N1C3"))
         val futureTruck = a.startFlow(createDTtruckFlow)
         network.runNetwork()
 
