@@ -101,10 +101,9 @@ class NewEventFlow(
         digitalTwinReferenceStates.forEach{txBuilder.addReferenceState(it.referenced())}
 
         // Adding input state if necessary
-        if(command == DISCHARGE) {
+        if(type == DISCHARGE) {
             val criteriaDischarge = QueryCriteria.LinearStateQueryCriteria(uuid = previousEventID)
             val previousEventStates = serviceHub.vaultService.queryBy<EventState>(criteriaDischarge).states
-
             previousEventStates.forEach{txBuilder.addInputState(it)}
         }
 

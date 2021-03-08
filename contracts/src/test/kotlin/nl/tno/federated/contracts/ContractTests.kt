@@ -23,6 +23,7 @@ class ContractTests {
     // Set up of DT for event testing
     private val truckUUID = UniqueIdentifier()
     private val cargoUUID = UniqueIdentifier()
+    private val cargoUUID2 = UniqueIdentifier()
 
     // Params for test cargo DT
     private val cargo : Cargo = Cargo(
@@ -47,6 +48,7 @@ class ContractTests {
         waste = false
     )
     private val cargoDigitalTwinState = DigitalTwinState(physicalObject = PhysicalObject.CARGO, cargo = cargo, participants = listOf(sender.party), linearId = cargoUUID)
+    private val cargoDigitalTwinState2 = cargoDigitalTwinState.copy(cargo = cargo.copy(dangerous = true), linearId = cargoUUID2)
 
     private val truckDigitalTwinState = DigitalTwinState(physicalObject = PhysicalObject.TRANSPORTMEAN, truck = Truck(licensePlate = "B1TC01N"), participants = listOf(sender.party), linearId = truckUUID)
 
@@ -177,6 +179,129 @@ class ContractTests {
                 output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID, truckUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
                 `fails with`("Digital twins must exist")
+            }
+        }
+    }
+
+    @Test
+    fun `Load event linked to more than one cargo object`() {
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventContract.Commands.Load())
+                reference(DigitalTwinContract.ID, cargoDigitalTwinState)
+                reference(DigitalTwinContract.ID, cargoDigitalTwinState2)
+                reference(DigitalTwinContract.ID, truckDigitalTwinState)
+                output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID, cargoUUID2, truckUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+
+                `fails with`("Every LOAD event must be linked to exactly one cargo object")
+            }
+        }
+    }
+
+    @Test
+    fun `simple discharge event`() {
+        val previousLoadEvent = EventState(EventType.LOAD, listOf(cargoUUID, truckUUID),
+                Timestamp(System.currentTimeMillis()), locationBerlin,
+                listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
+
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventContract.Commands.Discharge())
+                reference(DigitalTwinContract.ID, cargoDigitalTwinState)
+                reference(DigitalTwinContract.ID, truckDigitalTwinState)
+                input(EventContract.ID, previousLoadEvent)
+                output(EventContract.ID, EventState(EventType.DISCHARGE, listOf(cargoUUID, truckUUID),
+                        Timestamp(System.currentTimeMillis()), locationBerlin,
+                        listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+
+                verifies()
+            }
+        }
+    }
+
+    @Test
+    fun `discharge event with double load input`() {
+        val previousLoadEvent = EventState(EventType.LOAD, listOf(cargoUUID, truckUUID),
+                Timestamp(System.currentTimeMillis()), locationBerlin,
+                listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
+        val previousLoadEvent2 = EventState(EventType.LOAD, listOf(cargoUUID2, truckUUID),
+                Timestamp(System.currentTimeMillis()), locationBerlin,
+                listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
+
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventContract.Commands.Discharge())
+                reference(DigitalTwinContract.ID, cargoDigitalTwinState)
+                reference(DigitalTwinContract.ID, cargoDigitalTwinState2)
+                reference(DigitalTwinContract.ID, truckDigitalTwinState)
+                input(EventContract.ID, previousLoadEvent)
+                input(EventContract.ID, previousLoadEvent2)
+                output(EventContract.ID, EventState(EventType.DISCHARGE, listOf(cargoUUID, cargoUUID2, truckUUID),
+                        Timestamp(System.currentTimeMillis()), locationBerlin,
+                        listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+
+                verifies()
+            }
+        }
+    }
+
+    @Test
+    fun `discharge event with missing load input`() {
+        val previousLoadEvent = EventState(EventType.LOAD, listOf(cargoUUID, truckUUID),
+                Timestamp(System.currentTimeMillis()), locationBerlin,
+                listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
+        val previousLoadEvent2 = EventState(EventType.LOAD, listOf(cargoUUID2, truckUUID),
+                Timestamp(System.currentTimeMillis()), locationBerlin,
+                listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
+
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventContract.Commands.Discharge())
+                reference(DigitalTwinContract.ID, cargoDigitalTwinState)
+                reference(DigitalTwinContract.ID, cargoDigitalTwinState2)
+                reference(DigitalTwinContract.ID, truckDigitalTwinState)
+                input(EventContract.ID, previousLoadEvent)
+                output(EventContract.ID, EventState(EventType.DISCHARGE, listOf(cargoUUID, cargoUUID2, truckUUID),
+                        Timestamp(System.currentTimeMillis()), locationBerlin,
+                        listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+
+                `fails with`("Every DT in DISCHARGE event must be in a previous LOAD event")
+            }
+        }
+    }
+
+    @Test
+    fun `discharge event with input other than load type`() {
+        val previousLoadEvent = EventState(EventType.OTHER, listOf(cargoUUID, truckUUID),
+                Timestamp(System.currentTimeMillis()), locationBerlin,
+                listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
+
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventContract.Commands.Discharge())
+                reference(DigitalTwinContract.ID, cargoDigitalTwinState)
+                reference(DigitalTwinContract.ID, truckDigitalTwinState)
+                input(EventContract.ID, previousLoadEvent)
+                output(EventContract.ID, EventState(EventType.DISCHARGE, listOf(cargoUUID, truckUUID),
+                        Timestamp(System.currentTimeMillis()), locationBerlin,
+                        listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+
+                `fails with`("Every input state must be of type LOAD")
+            }
+        }
+    }
+
+    @Test
+    fun `discharge event without input`() {
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventContract.Commands.Discharge())
+                reference(DigitalTwinContract.ID, truckDigitalTwinState)
+                output(EventContract.ID, EventState(EventType.DISCHARGE, listOf(truckUUID),
+                        Timestamp(System.currentTimeMillis()), locationBerlin,
+                        listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+
+                `fails with`("At least one event input state must be passed")
             }
         }
     }

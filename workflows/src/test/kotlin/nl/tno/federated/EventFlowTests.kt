@@ -270,4 +270,49 @@ class EventFlowTests {
 
         assertFailsWith<TransactionVerificationException> { future.getOrThrow() }
     }
+
+    @Test
+    fun `Simple discharge transaction`() {
+
+        val createDTflow = CreateCargoFlow(cargo)
+
+        // Execute the flow to create a cargo
+        val futureDT = a.startFlow(createDTflow)
+        network.runNetwork()
+
+        val signedTxDT = futureDT.getOrThrow()
+        signedTxDT.verifyRequiredSignatures()
+
+        // Executing the flow to create a Truck
+        val createDTtruckFlow = CreateTruckFlow(Truck("PL4T3N1C3"))
+        val futureTruck = a.startFlow(createDTtruckFlow)
+        network.runNetwork()
+
+        val signedTxTruck = futureTruck.getOrThrow()
+        signedTxTruck.verifyRequiredSignatures()
+
+        // Retrieving ID of the new DT (in this case only the cargo)
+        val newlyCreatedDTs = a.services.vaultService.queryBy<DigitalTwinState>().states
+        val idOfNewlyCreatedDTs = newlyCreatedDTs.map { it.state.data.linearId }
+
+        // Executing the flow for the first load event - location needed
+        val location = Location("BE", "Brussels")
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDTs, location, null)
+        val future = a.startFlow(flow)
+        network.runNetwork()
+
+        val signedTx = future.getOrThrow()
+        signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+
+        // Retrieving UUID of Load event
+        val loadUUID = a.services.vaultService.queryBy<EventState>().states.map { it.state.data.linearId.id }
+
+        // Executing new event flow
+        val flowNewEvent = NewEventFlow(EventType.DISCHARGE, idOfNewlyCreatedDTs, location, loadUUID)
+        val newEventFuture = a.startFlow(flowNewEvent)
+        network.runNetwork()
+
+        val signedTxNewEvent = newEventFuture.getOrThrow()
+        signedTxNewEvent.verifyRequiredSignatures()
+    }
 }
