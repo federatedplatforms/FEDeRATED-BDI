@@ -68,11 +68,10 @@ class NewEventFlow(
 
         // The input states are the DTs whose ID is passed as argument (i.e. those related to the event)
         val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = digitalTwins.map { it.id })
-        val digitalTwinInputStates = serviceHub.vaultService.queryBy<DigitalTwinState>(criteria).states
+        val digitalTwinReferenceStates = serviceHub.vaultService.queryBy<DigitalTwinState>(criteria).states
 
         // Generate an unsigned transaction.
         val newEventState = EventState(type, digitalTwins, Date(), location, allParties)
-        val digitalTwinsOutput = digitalTwinInputStates.map{ it.state.data }
 
         val command : EventContract.Commands = when (type) {
             DEPART -> {
@@ -98,7 +97,7 @@ class NewEventFlow(
             .addCommand(txCommand)
 
         // Adding Input and Output states for DT
-        digitalTwinInputStates.forEach{txBuilder.addReferenceState(it.referenced())}
+        digitalTwinReferenceStates.forEach{txBuilder.addReferenceState(it.referenced())}
 
         // Stage 2.
         progressTracker.currentStep = VERIFYING_TRANSACTION
