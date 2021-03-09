@@ -22,7 +22,7 @@ class NewEventFlow(
     val type : EventType,
     val digitalTwins: List<UniqueIdentifier>,
     val location: Location,
-    val previousEventID: List<UUID>?
+    val previousEventID: List<UUID>
     ) : FlowLogic<SignedTransaction>() {
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
