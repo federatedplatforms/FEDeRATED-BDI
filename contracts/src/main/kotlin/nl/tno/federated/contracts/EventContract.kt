@@ -51,16 +51,14 @@ class EventContract : Contract {
         when(command.value) {
             is Commands.Load -> {
                 requireThat {
-                    "No event input state may be passed" using (referenceStates.filterIsInstance<EventState>()
-                            .isEmpty())
+                    "No input state may be passed" using (inputStates.isEmpty())
                     "A load output state must be passed" using (eventOutputState.type == EventType.LOAD)
                     "Every LOAD event must be linked to exactly one cargo object" using (digitalTwinStates.filter { it.physicalObject == PhysicalObject.CARGO }.size == 1)
                 }
             }
             is Commands.Departure -> {
                 requireThat {
-                    "No event input state may be passed" using (referenceStates.filterIsInstance<EventState>()
-                            .isEmpty())
+                    "No input state may be passed" using (inputStates.isEmpty())
                     "A departure output state must be passed" using (eventOutputState.type == EventType.DEPART)
                 }
             }
@@ -78,8 +76,7 @@ class EventContract : Contract {
             }
             is Commands.Arrive -> {
                 requireThat {
-                    "No event input state may be passed" using (referenceStates.filterIsInstance<EventState>()
-                            .isEmpty())
+                    "No input state may be passed" using (inputStates.isEmpty())
                     "An arrive output state must be passed" using (eventOutputState.type == EventType.ARRIVE)
                 }
             }
