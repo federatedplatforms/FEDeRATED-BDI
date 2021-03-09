@@ -21,7 +21,9 @@ import java.util.*
 class NewEventFlow(
     val type : EventType,
     val digitalTwins: List<UniqueIdentifier>,
-    val location: Location) : FlowLogic<SignedTransaction>() {
+    val location: Location,
+    val previousEventID: List<UUID>
+    ) : FlowLogic<SignedTransaction>() {
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
      * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
@@ -67,12 +69,11 @@ class NewEventFlow(
         val allParties = counterParties + serviceHub.myInfo.legalIdentities.first()
 
         // The input states are the DTs whose ID is passed as argument (i.e. those related to the event)
-        val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = digitalTwins.map { it.id })
-        val digitalTwinInputStates = serviceHub.vaultService.queryBy<DigitalTwinState>(criteria).states
+        val criteriaDT = QueryCriteria.LinearStateQueryCriteria(uuid = digitalTwins.map { it.id })
+        val digitalTwinReferenceStates = serviceHub.vaultService.queryBy<DigitalTwinState>(criteriaDT).states
 
         // Generate an unsigned transaction.
         val newEventState = EventState(type, digitalTwins, Date(), location, allParties)
-        val digitalTwinsOutput = digitalTwinInputStates.map{ it.state.data }
 
         val command : EventContract.Commands = when (type) {
             DEPART -> {
@@ -81,7 +82,6 @@ class NewEventFlow(
             DISCHARGE -> {
                 EventContract.Commands.Discharge()
             }
-
             ARRIVE -> {
                 EventContract.Commands.Arrive()
             }
@@ -98,7 +98,14 @@ class NewEventFlow(
             .addCommand(txCommand)
 
         // Adding Input and Output states for DT
-        digitalTwinInputStates.forEach{txBuilder.addReferenceState(it.referenced())}
+        digitalTwinReferenceStates.forEach{txBuilder.addReferenceState(it.referenced())}
+
+        // Adding input state if necessary
+        if(type == DISCHARGE) {
+            val criteriaDischarge = QueryCriteria.LinearStateQueryCriteria(uuid = previousEventID)
+            val previousEventStates = serviceHub.vaultService.queryBy<EventState>(criteriaDischarge).states
+            previousEventStates.forEach{txBuilder.addInputState(it)}
+        }
 
         // Stage 2.
         progressTracker.currentStep = VERIFYING_TRANSACTION
