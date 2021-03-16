@@ -24,7 +24,7 @@ class DigitalTwinFlowTests {
     lateinit var b: StartedMockNode
     lateinit var c: StartedMockNode
 
-    val cargo = Cargo(
+    private val cargo = Cargo(
         dangerous = false,
         dryBulk = true,
         excise = true,

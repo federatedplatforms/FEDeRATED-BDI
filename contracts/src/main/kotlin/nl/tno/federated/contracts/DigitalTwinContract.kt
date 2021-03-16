@@ -34,36 +34,37 @@ class DigitalTwinContract : Contract {
                     )
         }
 
-        when (command.value) {
-            is Commands.CreateTruck, is Commands.CreateCargo -> {
-                requireThat {
-                    "There must be no input state" using (inputStates.isEmpty())
-                    "A single output must be passed" using (outputStates.size == 1)
-                    "Output state must be a DigitalTwinState" using (outputStates.single() is DigitalTwinState)
-                    "The transaction for creation must be done with the creator node alone" using (outputStates.filterIsInstance<DigitalTwinState>()
-                        .single().participants.size == 1)
+        if (command.value is Commands.CreateTruck || command.value is Commands.CreateCargo) {
+            requireThat {
+                "There must be no input state" using (inputStates.isEmpty())
+                "A single output must be passed" using (outputStates.size == 1)
+                "Output state must be a DigitalTwinState" using (outputStates.single() is DigitalTwinState)
+                "The transaction for creation must be done with the creator node alone" using (outputStates.single().participants.size == 1)
+            }
+            val dtState = outputStates.single() as DigitalTwinState
+
+            when (command.value) {
+                is Commands.CreateCargo -> {
+                    requireThat {
+                        "Physical Object must be of type CARGO" using (outputStates.filterIsInstance<DigitalTwinState>()
+                            .single().physicalObject == PhysicalObject.CARGO)
+                        "Cargo attribute cannot be null" using (outputStates.filterIsInstance<DigitalTwinState>()
+                            .single().cargo != null)
+                        "Truck attribute must be null" using (outputStates.filterIsInstance<DigitalTwinState>()
+                            .single().truck == null)
+                    }
+                }
+
+                is Commands.CreateTruck -> {
+                    requireThat {
+                        "Physical Object must be of type TRANSPORTMEAN" using (dtState.physicalObject == PhysicalObject.TRANSPORTMEAN)
+                        "Truck attribute cannot be null" using (dtState.truck != null)
+                        "Cargo attribute must be null" using (dtState.cargo == null)
+                        "Truck digital twins must have license plates as external id" using (dtState.truck!!.licensePlate == dtState.linearId.externalId)
+                    }
                 }
             }
         }
-
-        when (command.value) {
-            is Commands.CreateCargo -> {
-                requireThat {
-                    "Physical Object must be of type CARGO" using (outputStates.filterIsInstance<DigitalTwinState>().single().physicalObject == PhysicalObject.CARGO)
-                    "Cargo attribute cannot be null" using (outputStates.filterIsInstance<DigitalTwinState>().single().cargo != null)
-                    "Truck attribute must be null" using (outputStates.filterIsInstance<DigitalTwinState>().single().truck == null)
-                }
-            }
-
-            is Commands.CreateTruck -> {
-                requireThat {
-                    "Physical Object must be of type TRANSPORTMEAN" using (outputStates.filterIsInstance<DigitalTwinState>().single().physicalObject == PhysicalObject.TRANSPORTMEAN)
-                    "Truck attribute cannot be null" using (outputStates.filterIsInstance<DigitalTwinState>().single().truck != null)
-                    "Cargo attribute must be null" using (outputStates.filterIsInstance<DigitalTwinState>().single().cargo == null)
-                }
-            }
-        }
-
     }
 
     // Used to indicate the transaction's intent.
