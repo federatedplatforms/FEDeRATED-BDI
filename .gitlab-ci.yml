@@ -1,0 +1,10 @@
+stages:
+  - test
+
+contract_and_flow_test:
+  tags:
+    - corda
+  stage: test
+  image: azul/zulu-openjdk:8
+  script:
+    - ./gradlew clean test
