@@ -5,9 +5,7 @@ import io.swagger.annotations.ApiOperation
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.flows.NewEventFlow
-import nl.tno.federated.states.Event
-import nl.tno.federated.states.EventState
-import nl.tno.federated.states.EventType
+import nl.tno.federated.states.*
 import nl.tno.federated.webserver.NodeRPCConnection
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -39,6 +37,7 @@ class EventController(rpc: NodeRPCConnection) {
                     EventType.LOAD,
                     event.digitalTwins,
                     event.location,
+                    emptyList<UUID>(),
                     event.eCMRuri
                 ).returnValue.get()
                 val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
@@ -64,4 +63,25 @@ class EventController(rpc: NodeRPCConnection) {
         val state = proxy.vaultQueryBy<EventState>(criteria).states.map { it.state.data }
         return state.map { it.linearId.id to Event(it.type, it.digitalTwins, it.time, it.location, it.eCMRuri) }.toMap()
     }
+
+    @ApiOperation(value = "Return events by license plate")
+    @GetMapping(value = ["/license/{plate}"])
+    private fun eventByTruck(@PathVariable plate: String): Map<UUID, Event> {
+        val hasPlate = QueryCriteria.LinearStateQueryCriteria(externalId = listOf(plate))
+        val digitalTwinIds = proxy.vaultQueryBy<DigitalTwinState>(hasPlate).states.map { it.state.data.linearId.id }
+
+        val eventStates = proxy.vaultQuery(EventState::class.java).states.map { it.state.data }
+        val relevantEventStates = eventStates.filter { it.digitalTwins.map { uniqueIdentifier -> uniqueIdentifier.id }.intersect(digitalTwinIds).isNotEmpty() }
+        return relevantEventStates.map { it.linearId.id to Event(it.type, it.digitalTwins, it.time, it.location, it.eCMRuri) }.toMap()
+    }
+
+    @ApiOperation(value = "Return cargo by license plate")
+    @GetMapping(value = ["/license/{plate}/cargo"])
+    private fun cargoByTruck(@PathVariable plate: String): Map<UUID, Cargo> {
+        val relevantEvents = eventByTruck(plate).values
+        val relevantDtStateIds = relevantEvents.flatMap { it.digitalTwins }.map { it.id }
+
+        val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = relevantDtStateIds)
+        val states = proxy.vaultQueryBy<DigitalTwinState>(criteria).states.map { it.state.data }
+        return states.filter { it.cargo != null }.map { it.linearId.id to it.cargo!! }.toMap()    }
 }

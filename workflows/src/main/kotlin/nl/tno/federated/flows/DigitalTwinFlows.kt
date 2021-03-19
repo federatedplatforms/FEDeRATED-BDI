@@ -2,6 +2,7 @@ package nl.tno.federated.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command
+import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.transactions.SignedTransaction
@@ -147,7 +148,9 @@ class CreateTruckFlow(
         /// Generate an unsigned transaction ///
 
         // Creating DT state
-        val digitalTwinState = DigitalTwinState(PhysicalObject.TRANSPORTMEAN, truck = truck, participants = listOf(me))
+        val digitalTwinState = DigitalTwinState(PhysicalObject.TRANSPORTMEAN, truck = truck, participants = listOf(me),
+            linearId = UniqueIdentifier(externalId = truck.licensePlate)
+        )
 
         // Generating tx
         val txCommand = Command(DigitalTwinContract.Commands.CreateTruck(), digitalTwinState.participants.map { it.owningKey })

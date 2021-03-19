@@ -9,7 +9,6 @@ import net.corda.testing.node.ledger
 import nl.tno.federated.states.*
 import org.junit.Test
 import java.sql.Timestamp
-import kotlin.math.min
 
 class ContractTests {
     private val netParamForMinVersion = testNetworkParameters(minimumPlatformVersion = 4)
@@ -20,8 +19,10 @@ class ContractTests {
     private val enterpriseDE = TestIdentity(CordaX500Name("German Enterprise", "Berlin", "DE"))
     private val locationBerlin = Location("DE", "Berlin")
 
+    private val licensePlate = "B1TC01N"
+
     // Set up of DT for event testing
-    private val truckUUID = UniqueIdentifier()
+    private val truckUUID = UniqueIdentifier(externalId = licensePlate)
     private val cargoUUID = UniqueIdentifier()
     private val cargoUUID2 = UniqueIdentifier()
 
@@ -50,7 +51,7 @@ class ContractTests {
     private val cargoDigitalTwinState = DigitalTwinState(physicalObject = PhysicalObject.CARGO, cargo = cargo, participants = listOf(sender.party), linearId = cargoUUID)
     private val cargoDigitalTwinState2 = cargoDigitalTwinState.copy(cargo = cargo.copy(dangerous = true), linearId = cargoUUID2)
 
-    private val truckDigitalTwinState = DigitalTwinState(physicalObject = PhysicalObject.TRANSPORTMEAN, truck = Truck(licensePlate = "B1TC01N"), participants = listOf(sender.party), linearId = truckUUID)
+    private val truckDigitalTwinState = DigitalTwinState(physicalObject = PhysicalObject.TRANSPORTMEAN, truck = Truck(licensePlate = licensePlate), participants = listOf(sender.party), linearId = truckUUID)
 
 
     private val eCMRuriExample = "This is a URI example for an eCMR"
@@ -75,6 +76,18 @@ class ContractTests {
                 output(DigitalTwinContract.ID, truckDigitalTwinState)
 
                 verifies()
+            }
+        }
+    }
+
+    @Test
+    fun `create truck without matching external id fails`() {
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, DigitalTwinContract.Commands.CreateTruck())
+                output(DigitalTwinContract.ID, truckDigitalTwinState.copy(linearId = UniqueIdentifier()))
+
+                `fails with`("Truck digital twins must have license plates as external id")
             }
         }
     }
