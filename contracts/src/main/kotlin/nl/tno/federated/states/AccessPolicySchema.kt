@@ -15,7 +15,7 @@ object AccessPolicySchema
 object AccessPolicySchemaV1 : MappedSchema(
     schemaFamily = AccessPolicySchema.javaClass,
     version = 1,
-    mappedTypes = listOf(PersistentAccessPolicy::class.java, PersistentTarget::class.java, PersistentAssetRefinement::class.java)) {
+    mappedTypes = listOf(PersistentAccessPolicy::class.java, PersistentTarget::class.java, PersistentAction::class.java, PersistentAssetRefinement::class.java)) {
 
     override val migrationResource: String
         get() = "accesspolicy.changelog-master"
@@ -66,21 +66,21 @@ object AccessPolicySchemaV1 : MappedSchema(
         )
     }
 
-//    @Entity
-//    @Table(name = "ACTION")
-//    class PersistentAction(
-//        @Id @Column(name = "action_id")
-//        @Type(type = "uuid-char")
-//        val id: UUID,
-//        @ElementCollection
-//        val actionId: List<String>
-//    ) {
-//        // Default constructor required by hibernate.
-//        constructor() : this(
-//            UUID.randomUUID(),
-//            emptyList<String>()
-//        )
-//    }
+    @Entity
+    @Table(name = "ACTION")
+    class PersistentAction(
+        @Id @Column(name = "action_id")
+        @Type(type = "uuid-char")
+        val id: UUID,
+        @ElementCollection
+        val actionId: List<String>
+    ) {
+        // Default constructor required by hibernate.
+        constructor() : this(
+            UUID.randomUUID(),
+            emptyList<String>()
+        )
+    }
 
     @Entity
     @Table(name = "ACCESS_POLICY")
@@ -99,7 +99,7 @@ object AccessPolicySchemaV1 : MappedSchema(
         @Column(name = "consumer")
         val consumer: String,
         @ElementCollection
-        val actions: List<Action>,
+        val permissions: List<PersistentAction>,
         @OneToOne(cascade = [CascadeType.PERSIST])
         @JoinColumn(name = "target_id", referencedColumnName = "target_id")
         val target: PersistentTarget
@@ -113,7 +113,7 @@ object AccessPolicySchemaV1 : MappedSchema(
             "",
             "",
             "",
-            emptyList<Action>(),
+            emptyList<PersistentAction>(),
             PersistentTarget()
         )
     }

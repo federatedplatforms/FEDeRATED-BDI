@@ -38,6 +38,13 @@ data class AccessPolicyState(
                 )
             }
 
+            val pAction = accessPolicy.permission.map {
+                AccessPolicySchemaV1.PersistentAction(
+                    UniqueIdentifier().id,
+                    it.id
+                )
+            }
+
             return AccessPolicySchemaV1.PersistentAccessPolicy(
                 linearId.id,
                 accessPolicy.context,
@@ -45,7 +52,7 @@ data class AccessPolicyState(
                 accessPolicy.id,
                 accessPolicy.provider,
                 accessPolicy.consumer,
-                accessPolicy.permission,
+                pAction,
                 pTarget
             )
         } else
