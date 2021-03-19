@@ -20,9 +20,10 @@ data class EventState(
     override val digitalTwins: List<UniqueIdentifier>,
     override val time: Date,
     override val location: Location,
+    override val eCMRuri: String,
     override val participants: List<AbstractParty> = listOf(),
     override val linearId: UniqueIdentifier = UniqueIdentifier()
-) : LinearState, Event(type, digitalTwins, time, location), QueryableState {
+) : LinearState, Event(type, digitalTwins, time, location, eCMRuri), QueryableState {
 
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         if (schema is EventSchemaV1) {
@@ -43,7 +44,8 @@ data class EventState(
                     type,
                     pDigitalTwins,
                     time,
-                    pLocation
+                    pLocation,
+                    eCMRuri
             )
         } else
             throw IllegalArgumentException("Unsupported Schema")
@@ -66,5 +68,6 @@ open class Event(
     open val type: EventType,
     open val digitalTwins: List<UniqueIdentifier>,
     open val time: Date,
-    open val location: Location
+    open val location: Location,
+    open val eCMRuri: String
 )

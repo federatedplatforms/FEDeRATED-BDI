@@ -52,6 +52,9 @@ class ContractTests {
 
     private val truckDigitalTwinState = DigitalTwinState(physicalObject = PhysicalObject.TRANSPORTMEAN, truck = Truck(licensePlate = "B1TC01N"), participants = listOf(sender.party), linearId = truckUUID)
 
+
+    private val eCMRuriExample = "This is a URI example for an eCMR"
+
     @Test
     fun `create cargo test`() {
         ledgerServices.ledger {
@@ -124,7 +127,7 @@ class ContractTests {
             transaction {
                 command(sender.publicKey, EventContract.Commands.Load())
                 reference(DigitalTwinContract.ID, cargoDigitalTwinState)
-                output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+                output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID), Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
                 verifies()
             }
@@ -136,7 +139,7 @@ class ContractTests {
         ledgerServices.ledger {
             transaction {
                 command(sender.publicKey, EventContract.Commands.Load())
-                output(EventContract.ID, EventState(EventType.LOAD, emptyList(), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+                output(EventContract.ID, EventState(EventType.LOAD, emptyList(), Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
                 `fails with`("Digital twins must be linked")
             }
@@ -149,7 +152,7 @@ class ContractTests {
             transaction {
                 command(sender.publicKey, EventContract.Commands.Load())
                 reference(DigitalTwinContract.ID, cargoDigitalTwinState)
-                output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party), UniqueIdentifier()))
+                output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID), Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample, listOf(sender.party), UniqueIdentifier()))
 
                 `fails with`("A counterparty must exist, sender shouldn't transact with itself alone")
             }
@@ -163,7 +166,7 @@ class ContractTests {
                 command(sender.publicKey, EventContract.Commands.Load())
                 reference(DigitalTwinContract.ID, cargoDigitalTwinState)
                 reference(DigitalTwinContract.ID, truckDigitalTwinState)
-                output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+                output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID), Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
                 `fails with`("The number of DT reference states must be equal to the number of DT UUID in the event state")
             }
@@ -176,7 +179,7 @@ class ContractTests {
             transaction {
                 command(sender.publicKey, EventContract.Commands.Load())
                 reference(DigitalTwinContract.ID, cargoDigitalTwinState)
-                output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID, truckUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+                output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID, truckUUID), Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
                 `fails with`("Digital twins must exist")
             }
@@ -191,7 +194,7 @@ class ContractTests {
                 reference(DigitalTwinContract.ID, cargoDigitalTwinState)
                 reference(DigitalTwinContract.ID, cargoDigitalTwinState2)
                 reference(DigitalTwinContract.ID, truckDigitalTwinState)
-                output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID, cargoUUID2, truckUUID), Timestamp(System.currentTimeMillis()), locationBerlin, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+                output(EventContract.ID, EventState(EventType.LOAD, listOf(cargoUUID, cargoUUID2, truckUUID), Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample, listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
                 `fails with`("Every LOAD event must be linked to exactly one cargo object")
             }
@@ -201,7 +204,7 @@ class ContractTests {
     @Test
     fun `simple discharge event`() {
         val previousLoadEvent = EventState(EventType.LOAD, listOf(cargoUUID, truckUUID),
-                Timestamp(System.currentTimeMillis()), locationBerlin,
+                Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample,
                 listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
         ledgerServices.ledger {
@@ -211,7 +214,7 @@ class ContractTests {
                 reference(DigitalTwinContract.ID, truckDigitalTwinState)
                 input(EventContract.ID, previousLoadEvent)
                 output(EventContract.ID, EventState(EventType.DISCHARGE, listOf(cargoUUID, truckUUID),
-                        Timestamp(System.currentTimeMillis()), locationBerlin,
+                        Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample,
                         listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
                 verifies()
@@ -222,10 +225,10 @@ class ContractTests {
     @Test
     fun `discharge event with double load input`() {
         val previousLoadEvent = EventState(EventType.LOAD, listOf(cargoUUID, truckUUID),
-                Timestamp(System.currentTimeMillis()), locationBerlin,
+                Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample,
                 listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
         val previousLoadEvent2 = EventState(EventType.LOAD, listOf(cargoUUID2, truckUUID),
-                Timestamp(System.currentTimeMillis()), locationBerlin,
+                Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample,
                 listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
         ledgerServices.ledger {
@@ -237,7 +240,7 @@ class ContractTests {
                 input(EventContract.ID, previousLoadEvent)
                 input(EventContract.ID, previousLoadEvent2)
                 output(EventContract.ID, EventState(EventType.DISCHARGE, listOf(cargoUUID, cargoUUID2, truckUUID),
-                        Timestamp(System.currentTimeMillis()), locationBerlin,
+                        Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample,
                         listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
                 verifies()
@@ -248,10 +251,10 @@ class ContractTests {
     @Test
     fun `discharge event with missing load input`() {
         val previousLoadEvent = EventState(EventType.LOAD, listOf(cargoUUID, truckUUID),
-                Timestamp(System.currentTimeMillis()), locationBerlin,
+                Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample,
                 listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
         val previousLoadEvent2 = EventState(EventType.LOAD, listOf(cargoUUID2, truckUUID),
-                Timestamp(System.currentTimeMillis()), locationBerlin,
+                Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample,
                 listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
         ledgerServices.ledger {
@@ -262,7 +265,7 @@ class ContractTests {
                 reference(DigitalTwinContract.ID, truckDigitalTwinState)
                 input(EventContract.ID, previousLoadEvent)
                 output(EventContract.ID, EventState(EventType.DISCHARGE, listOf(cargoUUID, cargoUUID2, truckUUID),
-                        Timestamp(System.currentTimeMillis()), locationBerlin,
+                        Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample,
                         listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
                 `fails with`("Every DT in DISCHARGE event must be in a previous LOAD event")
@@ -273,7 +276,7 @@ class ContractTests {
     @Test
     fun `discharge event with input other than load type`() {
         val previousLoadEvent = EventState(EventType.OTHER, listOf(cargoUUID, truckUUID),
-                Timestamp(System.currentTimeMillis()), locationBerlin,
+                Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample,
                 listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
         ledgerServices.ledger {
@@ -283,7 +286,7 @@ class ContractTests {
                 reference(DigitalTwinContract.ID, truckDigitalTwinState)
                 input(EventContract.ID, previousLoadEvent)
                 output(EventContract.ID, EventState(EventType.DISCHARGE, listOf(cargoUUID, truckUUID),
-                        Timestamp(System.currentTimeMillis()), locationBerlin,
+                        Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample,
                         listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
                 `fails with`("Every input state must be of type LOAD")
@@ -298,10 +301,36 @@ class ContractTests {
                 command(sender.publicKey, EventContract.Commands.Discharge())
                 reference(DigitalTwinContract.ID, truckDigitalTwinState)
                 output(EventContract.ID, EventState(EventType.DISCHARGE, listOf(truckUUID),
-                        Timestamp(System.currentTimeMillis()), locationBerlin,
+                        Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample,
                         listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
 
                 `fails with`("At least one event input state must be passed")
+            }
+        }
+    }
+
+    @Test
+    fun `new event without eCMR URI`() {
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventContract.Commands.Load())
+                reference(DigitalTwinContract.ID, truckDigitalTwinState)
+                output(EventContract.ID, EventState(EventType.LOAD, listOf(truckUUID),
+                        Timestamp(System.currentTimeMillis()), locationBerlin, "",
+                        listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+
+                `fails with`("An eCMR URI must be passed")
+            }
+        }
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventContract.Commands.Load())
+                reference(DigitalTwinContract.ID, truckDigitalTwinState)
+                output(EventContract.ID, EventState(EventType.LOAD, listOf(truckUUID),
+                        Timestamp(System.currentTimeMillis()), locationBerlin, " \t\n",
+                        listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
+
+                `fails with`("An eCMR URI must be passed")
             }
         }
     }

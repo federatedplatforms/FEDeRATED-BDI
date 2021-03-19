@@ -38,7 +38,8 @@ class EventController(rpc: NodeRPCConnection) {
                     NewEventFlow::class.java,
                     EventType.LOAD,
                     event.digitalTwins,
-                    event.location
+                    event.location,
+                    event.eCMRuri
                 ).returnValue.get()
                 val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
                 ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
@@ -53,7 +54,7 @@ class EventController(rpc: NodeRPCConnection) {
     private fun events() : Map<UUID, Event> {
         val eventStates = proxy.vaultQuery(EventState::class.java).states.map { it.state.data }
 
-        return eventStates.map { it.linearId.id to Event(it.type, it.digitalTwins, it.time, it.location) }.toMap()
+        return eventStates.map { it.linearId.id to Event(it.type, it.digitalTwins, it.time, it.location, it.eCMRuri) }.toMap()
     }
 
     @ApiOperation(value = "Return an event")
@@ -61,6 +62,6 @@ class EventController(rpc: NodeRPCConnection) {
     private fun event(@PathVariable id: UUID): Map<UUID, Event> {
         val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(id))
         val state = proxy.vaultQueryBy<EventState>(criteria).states.map { it.state.data }
-        return state.map { it.linearId.id to Event(it.type, it.digitalTwins, it.time, it.location) }.toMap()
+        return state.map { it.linearId.id to Event(it.type, it.digitalTwins, it.time, it.location, it.eCMRuri) }.toMap()
     }
 }
