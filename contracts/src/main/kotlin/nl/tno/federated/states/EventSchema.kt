@@ -54,14 +54,17 @@ object EventSchemaV1 : MappedSchema(
         val time: Date,
         @OneToOne(cascade = [CascadeType.PERSIST])
         @JoinColumn(name = "location_id", referencedColumnName = "location_id")
-        val location: PersistentLocation
+        val location: PersistentLocation,
+        @Column(name = "eCMRuri")
+        val eCMRuri: String
     ) : PersistentState(), Serializable {
         constructor() : this(
             UUID.randomUUID(),
             EventType.OTHER,
             emptyList<UUID>(),
             Date(),
-            PersistentLocation()
+            PersistentLocation(),
+            "no URI provided"
         )
     }
 }

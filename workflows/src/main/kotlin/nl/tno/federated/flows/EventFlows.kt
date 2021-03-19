@@ -22,6 +22,7 @@ class NewEventFlow(
     val type : EventType,
     val digitalTwins: List<UniqueIdentifier>,
     val location: Location,
+    val eCMRuri: String,
     val previousEventID: List<UUID>
     ) : FlowLogic<SignedTransaction>() {
     /**
@@ -73,7 +74,7 @@ class NewEventFlow(
         val digitalTwinReferenceStates = serviceHub.vaultService.queryBy<DigitalTwinState>(criteriaDT).states
 
         // Generate an unsigned transaction.
-        val newEventState = EventState(type, digitalTwins, Date(), location, allParties)
+        val newEventState = EventState(type, digitalTwins, Date(), location, eCMRuri, allParties)
 
         val command : EventContract.Commands = when (type) {
             DEPART -> {

@@ -76,6 +76,12 @@ sourceSets {
     }
 }
 
+test {
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+    }
+}
+
 //Module dependencies
 dependencies {
     // Corda dependencies.
