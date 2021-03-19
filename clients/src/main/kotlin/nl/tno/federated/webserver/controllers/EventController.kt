@@ -72,7 +72,7 @@ class EventController(rpc: NodeRPCConnection) {
 
         val eventStates = proxy.vaultQuery(EventState::class.java).states.map { it.state.data }
         val relevantEventStates = eventStates.filter { it.digitalTwins.map { uniqueIdentifier -> uniqueIdentifier.id }.intersect(digitalTwinIds).isNotEmpty() }
-        return relevantEventStates.map { it.linearId.id to Event(it.type, it.digitalTwins, it.time, it.location) }.toMap()
+        return relevantEventStates.map { it.linearId.id to Event(it.type, it.digitalTwins, it.time, it.location, it.eCMRuri) }.toMap()
     }
 
     @ApiOperation(value = "Return cargo by license plate")
