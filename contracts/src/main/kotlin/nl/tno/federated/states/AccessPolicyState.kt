@@ -20,17 +20,17 @@ data class AccessPolicyState(
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         if (schema is AccessPolicySchemaV1) {
 
-            val pAssetRefinement = accessPolicy.target.assetRefinement.let {
+            val pAssetRefinement = accessPolicy.idsTarget.idsAssetRefinement.let {
                 AccessPolicySchemaV1.PersistentAssetRefinement(
                     UniqueIdentifier().id,
                     it.type,
-                    it.leftOperand,
-                    it.operator,
-                    it.rightOperand
+                    it.idsLeftOperand,
+                    it.idsOperator,
+                    it.idsRightOperand
                 )
             }
 
-            val pTarget = accessPolicy.target.let {
+            val pTarget = accessPolicy.idsTarget.let {
                 AccessPolicySchemaV1.PersistentTarget(
                     UniqueIdentifier().id,
                     it.type,
@@ -38,7 +38,7 @@ data class AccessPolicyState(
                 )
             }
 
-            val pAction = accessPolicy.permission.map {
+            val pAction = accessPolicy.idsPermission.map {
                 AccessPolicySchemaV1.PersistentAction(
                     UniqueIdentifier().id,
                     it.id
@@ -50,8 +50,8 @@ data class AccessPolicyState(
                 accessPolicy.context,
                 accessPolicy.type,
                 accessPolicy.id,
-                accessPolicy.provider,
-                accessPolicy.consumer,
+                accessPolicy.idsProvider,
+                accessPolicy.idsConsumer,
                 pAction,
                 pTarget
             )
@@ -67,14 +67,14 @@ data class AccessPolicy(
     val context : String,
     val type : String,
     val id : String,
-    val provider : String,
-    val consumer : String,
-    val permission : List<Action>,
-    val target : Target
+    val idsProvider : String,
+    val idsConsumer : String,
+    val idsPermission : List<IdsAction>,
+    val idsTarget : Target
 )
 
 @CordaSerializable
-data class Action(
+data class IdsAction(
     val id : List<String>
 )
 
@@ -82,13 +82,13 @@ data class Action(
 data class Target(
     val id : String,
     val type : String,
-    val assetRefinement : AssetRefinement
+    val idsAssetRefinement : AssetRefinement
 )
 
 @CordaSerializable
 data class AssetRefinement(
     val type: String,
-    val leftOperand: String,
-    val operator: String,
-    val rightOperand: String
+    val idsLeftOperand: String,
+    val idsOperator: String,
+    val idsRightOperand: String
 )

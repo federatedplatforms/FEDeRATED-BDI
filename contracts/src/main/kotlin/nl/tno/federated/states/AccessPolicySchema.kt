@@ -30,11 +30,11 @@ object AccessPolicySchemaV1 : MappedSchema(
         @Column(name = "type")
         val type: String,
         @Column(name = "left_operand")
-        val left_operand: String,
+        val idsLeft_operand: String,
         @Column(name = "operator")
-        val operator: String,
+        val idsOperator: String,
         @Column(name = "right_operand")
-        val right_operand: String
+        val idsRight_operand: String
     ) {
         // Default constructor required by hibernate.
         constructor() : this(
@@ -56,7 +56,7 @@ object AccessPolicySchemaV1 : MappedSchema(
         val type: String,
         @OneToOne(cascade = [CascadeType.PERSIST])
         @JoinColumn(name = "asset_refinement_id", referencedColumnName = "asset_refinement_id")
-        val assetRefinement: AccessPolicySchemaV1.PersistentAssetRefinement
+        val idsAssetRefinement: AccessPolicySchemaV1.PersistentAssetRefinement
     ) {
         // Default constructor required by hibernate.
         constructor() : this(
@@ -95,14 +95,14 @@ object AccessPolicySchemaV1 : MappedSchema(
         @Column(name = "ap_id")
         val accessPolicyId: String,
         @Column(name = "provider")
-        val provider: String,
+        val idsProvider: String,
         @Column(name = "consumer")
-        val consumer: String,
+        val idsConsumer: String,
         @ElementCollection
-        val permissions: List<PersistentAction>,
+        val idsPermissions: List<PersistentAction>,
         @OneToOne(cascade = [CascadeType.PERSIST])
         @JoinColumn(name = "target_id", referencedColumnName = "target_id")
-        val target: PersistentTarget
+        val idsTarget: PersistentTarget
 
     ) : PersistentState(), Serializable {
         // Default constructor required by hibernate.
