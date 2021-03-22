@@ -8,9 +8,9 @@ import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
 import net.corda.core.schemas.QueryableState
 import net.corda.core.serialization.CordaSerializable
-import nl.tno.federated.contracts.DigitalTwinContract
+import nl.tno.federated.contracts.AccessPoliciesContract
 
-@BelongsToContract(DigitalTwinContract::class)
+@BelongsToContract(AccessPoliciesContract::class)
 data class AccessPolicyState(
     val accessPolicy: AccessPolicy,
     override val participants: List<AbstractParty> = listOf(),
@@ -38,13 +38,6 @@ data class AccessPolicyState(
                 )
             }
 
-            val pAction = accessPolicy.idsPermission.map {
-                AccessPolicySchemaV1.PersistentAction(
-                    UniqueIdentifier().id,
-                    it.id
-                )
-            }
-
             return AccessPolicySchemaV1.PersistentAccessPolicy(
                 linearId.id,
                 accessPolicy.context,
@@ -52,7 +45,6 @@ data class AccessPolicyState(
                 accessPolicy.id,
                 accessPolicy.idsProvider,
                 accessPolicy.idsConsumer,
-                pAction,
                 pTarget
             )
         } else
