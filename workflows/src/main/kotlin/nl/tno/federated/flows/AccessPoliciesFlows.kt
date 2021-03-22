@@ -10,8 +10,9 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.AccessPoliciesContract
-import nl.tno.federated.states.AccessPolicy
 import nl.tno.federated.states.AccessPolicyState
+import nl.tno.federated.states.IdsAction
+import nl.tno.federated.states.Target
 import javax.accessibility.AccessibleState
 
 
@@ -20,7 +21,13 @@ import javax.accessibility.AccessibleState
 @InitiatingFlow
 @StartableByRPC
 class CreateAccessPolicyFlow(
-    private val accessPolicy : AccessPolicy
+    private val context : String,
+    private val type : String,
+    private val id : String,
+    private val idsProvider : String,
+    private val idsConsumer : String,
+    private val idsPermission : List<IdsAction>,
+    private val idsTarget : Target
     ) : FlowLogic<SignedTransaction>() {
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
@@ -60,7 +67,7 @@ class CreateAccessPolicyFlow(
         val counterParties = allParties - me
 
         // Creating AP state
-        val accessPolicyState = AccessPolicyState(accessPolicy, participants = allParties)
+        val accessPolicyState = AccessPolicyState(context, type, id, idsProvider, idsConsumer, idsPermission, idsTarget, participants = allParties)
 
         // Generating tx
         val txCommand = Command(AccessPoliciesContract.Commands.CreateAccessPolicy(), accessPolicyState.participants.map { it.owningKey })

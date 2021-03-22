@@ -29,8 +29,6 @@ class AccessPoliciesFlowTests {
 
     private val idsAction = IdsAction(listOf(""))
 
-    private val accessPolicy = AccessPolicy("", "", "", "", "", listOf(idsAction), target)
-
     @Before
     fun setup() {
         network = MockNetwork(
@@ -54,26 +52,15 @@ class AccessPoliciesFlowTests {
     @Test
     fun `Simple access policy flow creation`() {
 
-        val flow = CreateAccessPolicyFlow( accessPolicy )
-        val future = a.startFlow(flow)
-        network.runNetwork()
-
-        val signedTx = future.getOrThrow()
-        signedTx.verifyRequiredSignatures()
-    }
-
-    @Test
-    fun `Truck Creation, signedTransaction returned by the flow is signed by the acceptor`() {
-        val licensePlate = "835TPL4T3"
-
-        val flow = CreateTruckFlow(
-            Truck(licensePlate)
+        val flow = CreateAccessPolicyFlow(
+            "", "", "", "", "",
+            listOf(idsAction), target
         )
+
         val future = a.startFlow(flow)
         network.runNetwork()
 
         val signedTx = future.getOrThrow()
         signedTx.verifyRequiredSignatures()
     }
-
 }

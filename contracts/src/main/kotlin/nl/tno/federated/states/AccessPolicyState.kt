@@ -12,7 +12,13 @@ import nl.tno.federated.contracts.AccessPoliciesContract
 
 @BelongsToContract(AccessPoliciesContract::class)
 data class AccessPolicyState(
-    val accessPolicy: AccessPolicy,
+    val context : String,
+    val type : String,
+    val id : String,
+    val idsProvider : String,
+    val idsConsumer : String,
+    val idsPermission : List<IdsAction>,
+    val idsTarget : Target,
     override val participants: List<AbstractParty> = listOf(),
     override val linearId: UniqueIdentifier = UniqueIdentifier()
 ) : LinearState, QueryableState {
@@ -20,7 +26,7 @@ data class AccessPolicyState(
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         if (schema is AccessPolicySchemaV1) {
 
-            val pAssetRefinement = accessPolicy.idsTarget.idsAssetRefinement.let {
+            val pAssetRefinement = idsTarget.idsAssetRefinement.let {
                 AccessPolicySchemaV1.PersistentAssetRefinement(
                     UniqueIdentifier().id,
                     it.type,
@@ -30,7 +36,7 @@ data class AccessPolicyState(
                 )
             }
 
-            val pTarget = accessPolicy.idsTarget.let {
+            val pTarget = idsTarget.let {
                 AccessPolicySchemaV1.PersistentTarget(
                     UniqueIdentifier().id,
                     it.type,
@@ -40,11 +46,11 @@ data class AccessPolicyState(
 
             return AccessPolicySchemaV1.PersistentAccessPolicy(
                 linearId.id,
-                accessPolicy.context,
-                accessPolicy.type,
-                accessPolicy.id,
-                accessPolicy.idsProvider,
-                accessPolicy.idsConsumer,
+                context,
+                type,
+                id,
+                idsProvider,
+                idsConsumer,
                 pTarget
             )
         } else
@@ -53,17 +59,6 @@ data class AccessPolicyState(
 
     override fun supportedSchemas(): Iterable<MappedSchema> = listOf(AccessPolicySchemaV1)
 }
-
-@CordaSerializable
-data class AccessPolicy(
-    val context : String,
-    val type : String,
-    val id : String,
-    val idsProvider : String,
-    val idsConsumer : String,
-    val idsPermission : List<IdsAction>,
-    val idsTarget : Target
-)
 
 @CordaSerializable
 data class IdsAction(
