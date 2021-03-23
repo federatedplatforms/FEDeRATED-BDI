@@ -19,9 +19,7 @@ class AccessPoliciesContract : Contract {
     // A transaction is valid if the verify() function of the contract of all the transaction's input and output states
     // does not throw an exception.
     override fun verify(tx: LedgerTransaction) {
-        val command = tx.commands.single()
-        val inputStates = tx.inputStates
-        val outputStates = tx.outputStates
+        // Constraints for access policies states
     }
 
     // Used to indicate the transaction's intent.
