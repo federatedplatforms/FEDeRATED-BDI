@@ -26,23 +26,19 @@ data class AccessPolicyState(
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         if (schema is AccessPolicySchemaV1) {
 
-            val pAssetRefinement = idsTarget.idsAssetRefinement.let {
-                AccessPolicySchemaV1.PersistentAssetRefinement(
+            val pAssetRefinement = AccessPolicySchemaV1.PersistentAssetRefinement(
                     UniqueIdentifier().id,
-                    it.type,
-                    it.idsLeftOperand,
-                    it.idsOperator,
-                    it.idsRightOperand
+                    idsTarget.idsAssetRefinement.type,
+                    idsTarget.idsAssetRefinement.idsLeftOperand,
+                    idsTarget.idsAssetRefinement.idsOperator,
+                    idsTarget.idsAssetRefinement.idsRightOperand
                 )
-            }
 
-            val pTarget = idsTarget.let {
-                AccessPolicySchemaV1.PersistentTarget(
+            val pTarget = AccessPolicySchemaV1.PersistentTarget(
                     UniqueIdentifier().id,
-                    it.type,
+                    idsTarget.type,
                     pAssetRefinement
                 )
-            }
 
             return AccessPolicySchemaV1.PersistentAccessPolicy(
                 linearId.id,
