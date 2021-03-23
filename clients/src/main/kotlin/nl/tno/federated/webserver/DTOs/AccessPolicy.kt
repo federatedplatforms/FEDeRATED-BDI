@@ -1,6 +1,7 @@
 package nl.tno.federated.webserver.DTOs
 
 import net.corda.core.serialization.CordaSerializable
+import nl.tno.federated.states.AccessPolicyState
 import nl.tno.federated.states.IdsAction
 import nl.tno.federated.states.Target
 
@@ -14,4 +15,14 @@ data class AccessPolicy(
     val idsConsumer : String,
     val idsPermission : List<IdsAction>,
     val idsTarget : Target
-)
+) {
+    constructor(accessPolicyState: AccessPolicyState) : this (
+        accessPolicyState.context,
+        accessPolicyState.type,
+        accessPolicyState.id,
+        accessPolicyState.idsProvider,
+        accessPolicyState.idsConsumer,
+        accessPolicyState.idsPermission,
+        accessPolicyState.idsTarget
+            )
+}

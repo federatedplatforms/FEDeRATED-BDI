@@ -57,15 +57,7 @@ class AccessPolicyController(rpc: NodeRPCConnection) {
         val accessPolicyStates = proxy.vaultQuery(AccessPolicyState::class.java).states.map { it.state.data }
 
         return accessPolicyStates.map { it.linearId.id to
-                AccessPolicy(
-                    it.context,
-                    it.type,
-                    it.id,
-                    it.idsProvider,
-                    it.idsConsumer,
-                    it.idsPermission,
-                    it.idsTarget
-                ) }.toMap()
+                AccessPolicy( it ) }.toMap()
     }
 
     @ApiOperation(value = "Return an access policy")
@@ -73,15 +65,7 @@ class AccessPolicyController(rpc: NodeRPCConnection) {
     private fun accessPolicy(@PathVariable id: UUID): Map<UUID, AccessPolicy> {
         val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(id))
         val state = proxy.vaultQueryBy<AccessPolicyState>(criteria).states.map { it.state.data }
-        return state.map { it.linearId.id to AccessPolicy(
-            it.context,
-            it.type,
-            it.id,
-            it.idsProvider,
-            it.idsConsumer,
-            it.idsPermission,
-            it.idsTarget
-        ) }.toMap()
+        return state.map { it.linearId.id to AccessPolicy( it ) }.toMap()
     }
 
     @ApiOperation(value = "Return access policy by ids:consumer")
@@ -90,7 +74,7 @@ class AccessPolicyController(rpc: NodeRPCConnection) {
         val matchesConsumer = QueryCriteria.VaultCustomQueryCriteria(AccessPolicySchemaV1.PersistentAccessPolicy::idsConsumer.equal(consumer))
         val accessPolicyStates = proxy.vaultQueryBy<AccessPolicyState>(matchesConsumer).states.map { it.state.data }
 
-        return accessPolicyStates.map { it.linearId.id to AccessPolicy(it.context, it.type, it.id, it.idsProvider, it.idsConsumer, it.idsPermission, it.idsTarget) }.toMap()
+        return accessPolicyStates.map { it.linearId.id to AccessPolicy( it ) }.toMap()
     }
 
 }
