@@ -266,9 +266,6 @@ class ContractTests {
         val previousLoadEvent = EventState(EventType.LOAD, listOf(cargoUUID, truckUUID),
                 Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample,
                 listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
-        val previousLoadEvent2 = EventState(EventType.LOAD, listOf(cargoUUID2, truckUUID),
-                Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample,
-                listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
         ledgerServices.ledger {
             transaction {
@@ -301,7 +298,6 @@ class ContractTests {
                 output(EventContract.ID, EventState(EventType.DISCHARGE, listOf(cargoUUID, truckUUID),
                         Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample,
                         listOf(sender.party, enterpriseDE.party), UniqueIdentifier()))
-
                 `fails with`("Every input state must be of type LOAD")
             }
         }

@@ -6,6 +6,7 @@ import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.node.services.queryBy
+import net.corda.core.node.services.vault.Builder.equal
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
@@ -22,8 +23,7 @@ class NewEventFlow(
     val type : EventType,
     val digitalTwins: List<UniqueIdentifier>,
     val location: Location,
-    val eCMRuri: String,
-    val previousEventID: List<UUID>
+    val eCMRuri: String
     ) : FlowLogic<SignedTransaction>() {
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
@@ -103,9 +103,17 @@ class NewEventFlow(
 
         // Adding input state if necessary
         if(type == DISCHARGE) {
-            val criteriaDischarge = QueryCriteria.LinearStateQueryCriteria(uuid = previousEventID)
-            val previousEventStates = serviceHub.vaultService.queryBy<EventState>(criteriaDischarge).states
-            previousEventStates.forEach{txBuilder.addInputState(it)}
+            val relatedDigitalTwins = QueryCriteria.LinearStateQueryCriteria(linearId = digitalTwins)
+            val cargoDigitalTwinIds = serviceHub.vaultService.queryBy<DigitalTwinState>(relatedDigitalTwins).states.map { it.state.data.linearId.id }
+
+            val isLoad = QueryCriteria.VaultCustomQueryCriteria(EventSchemaV1.PersistentEvent::type.equal(LOAD))
+
+            val eventStates = serviceHub.vaultService.queryBy<EventState>(isLoad).states
+            val relevantEventStates = eventStates
+                .filter { it.state.data.digitalTwins.map { uniqueIdentifier -> uniqueIdentifier.id }
+                    .intersect(cargoDigitalTwinIds).isNotEmpty() }
+
+            relevantEventStates.forEach{txBuilder.addInputState(it)}
         }
 
         // Stage 2.
