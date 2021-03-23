@@ -49,6 +49,13 @@ class EventController(rpc: NodeRPCConnection) {
         }
     }
 
+    @ApiOperation(value = "Create multiple new events")
+    @PostMapping(value = ["/itinerary"])
+    private fun newEvents(@RequestBody events: List<Event>) : ResponseEntity<List<String>> {
+        val results = events.map { newEvent(it).body!! }
+        return ResponseEntity(results, HttpStatus.CREATED)
+    }
+
     @ApiOperation(value = "Return all known events")
     @GetMapping(value = ["/"])
     private fun events() : Map<UUID, Event> {
