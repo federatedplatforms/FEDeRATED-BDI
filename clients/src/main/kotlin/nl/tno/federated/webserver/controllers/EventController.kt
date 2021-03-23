@@ -30,14 +30,15 @@ class EventController(rpc: NodeRPCConnection) {
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
     private fun newEvent(@RequestBody event : Event) : ResponseEntity<String> {
-        return if (event.type == EventType.ARRIVE) {
+        return if (!listOf(EventType.LOAD, EventType.ARRIVE, EventType.DEPART, EventType.DISCHARGE).contains(event.type))
+            ResponseEntity("Unimplemented milestone type", HttpStatus.BAD_REQUEST)
+        else {
             try {
                 val newEventTx = proxy.startFlowDynamic(
                     NewEventFlow::class.java,
-                    EventType.LOAD,
+                    event.type,
                     event.digitalTwins,
                     event.location,
-                    emptyList<UUID>(),
                     event.eCMRuri
                 ).returnValue.get()
                 val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
@@ -45,7 +46,7 @@ class EventController(rpc: NodeRPCConnection) {
             } catch (e: Exception) {
                 return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
             }
-        } else ResponseEntity("Unimplemented milestone type", HttpStatus.BAD_REQUEST)
+        }
     }
 
     @ApiOperation(value = "Return all known events")

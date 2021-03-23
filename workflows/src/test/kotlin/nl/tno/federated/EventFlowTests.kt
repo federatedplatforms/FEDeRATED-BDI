@@ -7,7 +7,10 @@ import net.corda.core.node.services.queryBy
 import net.corda.core.utilities.getOrThrow
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.singleIdentity
-import net.corda.testing.node.*
+import net.corda.testing.node.MockNetwork
+import net.corda.testing.node.MockNetworkNotarySpec
+import net.corda.testing.node.MockNodeParameters
+import net.corda.testing.node.StartedMockNode
 import nl.tno.federated.flows.CreateCargoFlow
 import nl.tno.federated.flows.CreateTruckFlow
 import nl.tno.federated.flows.NewEventFlow
@@ -90,7 +93,7 @@ class EventFlowTests {
 
 
         val location = Location("BE", "Brussels")
-        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample, emptyList())
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -116,7 +119,7 @@ class EventFlowTests {
 
         // Executing the flow for the first load event - location needed
         val location = Location("BE", "Brussels")
-        val flow = NewEventFlow(EventType.LOAD, listOf(idOfNewlyCreatedDT), location, eCMRuriExample, emptyList())
+        val flow = NewEventFlow(EventType.LOAD, listOf(idOfNewlyCreatedDT), location, eCMRuriExample)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -136,7 +139,7 @@ class EventFlowTests {
         val idOfNewlyCreatedDTs = newlyCreatedDT.map { it.state.data.linearId }
 
         // Executing new event flow
-        val flowNewEvent = NewEventFlow(EventType.DEPART, idOfNewlyCreatedDTs, location, eCMRuriExample, emptyList())
+        val flowNewEvent = NewEventFlow(EventType.DEPART, idOfNewlyCreatedDTs, location, eCMRuriExample)
         val newEventFuture = a.startFlow(flowNewEvent)
         network.runNetwork()
 
@@ -155,7 +158,7 @@ class EventFlowTests {
         signedTxDT.verifyRequiredSignatures()
 
         val location = Location("BE", "Brussels")
-        val flow = NewEventFlow(EventType.LOAD, listOf(UniqueIdentifier()), location, eCMRuriExample, emptyList())
+        val flow = NewEventFlow(EventType.LOAD, listOf(UniqueIdentifier()), location, eCMRuriExample)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -177,7 +180,7 @@ class EventFlowTests {
 
 
         val location = Location("BE", "Brussels")
-        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample, emptyList())
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -201,7 +204,7 @@ class EventFlowTests {
 
 
         val location = Location("BE", "Brussels")
-        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample, emptyList())
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample)
         val future = a.startFlow(flow)
         network.runNetwork()
         val signedTx = future.getOrThrow()
@@ -228,7 +231,7 @@ class EventFlowTests {
 
 
         val location = Location("BE", "Brussels")
-        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample, emptyList())
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample)
         val future = a.startFlow(flow)
         network.runNetwork()
         val signedTx = future.getOrThrow()
@@ -256,7 +259,7 @@ class EventFlowTests {
 
 
         val location = Location("IT", "Milan")
-        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample, emptyList())
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -266,7 +269,7 @@ class EventFlowTests {
     @Test
     fun `flow rejects invalid events`() {
         val location = Location("BE", "Brussels")
-        val flow = NewEventFlow(EventType.LOAD, emptyList(), location, eCMRuriExample, emptyList())
+        val flow = NewEventFlow(EventType.LOAD, emptyList(), location, eCMRuriExample)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -299,18 +302,15 @@ class EventFlowTests {
 
         // Executing the flow for the first load event - location needed
         val location = Location("BE", "Brussels")
-        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDTs, location, eCMRuriExample, emptyList())
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDTs, location, eCMRuriExample)
         val future = a.startFlow(flow)
         network.runNetwork()
 
         val signedTx = future.getOrThrow()
         signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
-        // Retrieving UUID of Load event
-        val loadUUID = a.services.vaultService.queryBy<EventState>().states.map { it.state.data.linearId.id }
-
         // Executing new event flow
-        val flowNewEvent = NewEventFlow(EventType.DISCHARGE, idOfNewlyCreatedDTs, location, eCMRuriExample, loadUUID)
+        val flowNewEvent = NewEventFlow(EventType.DISCHARGE, idOfNewlyCreatedDTs, location, eCMRuriExample)
         val newEventFuture = a.startFlow(flowNewEvent)
         network.runNetwork()
 

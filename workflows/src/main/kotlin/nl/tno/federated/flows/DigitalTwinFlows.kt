@@ -61,9 +61,6 @@ class CreateCargoFlow(
 
         /// Generate an unsigned transaction ///
 
-        // Creating cargo object
-//        val cargo = Cargo(dangerous,dryBulk,excise,liquidBulk,maximumSize,maximumTemperature,maximumVolume,minimumSize,minimumTemperature,minimumVolume,minimumWeight,natureOfCargo,numberOfTEU,properties,reefer,tarWeight,temperature,type,waste)
-
         // Creating DT state
         val digitalTwinState = DigitalTwinState(PhysicalObject.CARGO, cargo = cargo, participants = listOf(me))
 
