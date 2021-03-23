@@ -30,11 +30,11 @@ object AccessPolicySchemaV1 : MappedSchema(
         @Column(name = "type")
         val type: String,
         @Column(name = "left_operand")
-        val idsLeft_operand: String,
+        val ids_leftOperand: String,
         @Column(name = "operator")
-        val idsOperator: String,
+        val ids_operator: String,
         @Column(name = "right_operand")
-        val idsRight_operand: String
+        val ids_rightOperand: String
     ) {
         // Default constructor required by hibernate.
         constructor() : this(
