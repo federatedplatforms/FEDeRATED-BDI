@@ -46,7 +46,8 @@ data class EventState(
                     pDigitalTwins,
                     time,
                     pLocation,
-                    eCMRuri
+                    eCMRuri,
+                    milestone
             )
         } else
             throw IllegalArgumentException("Unsupported Schema")
