@@ -11,10 +11,7 @@ import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
-import nl.tno.federated.flows.CreateCargoFlow
-import nl.tno.federated.flows.CreateTruckFlow
-import nl.tno.federated.flows.NewEventFlow
-import nl.tno.federated.flows.NewEventResponder
+import nl.tno.federated.flows.*
 import nl.tno.federated.states.*
 import org.junit.After
 import org.junit.Before
@@ -66,8 +63,10 @@ class EventFlowTests {
         b = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyB","Brussels","BE")))
         c = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyC","Berlin","DE")))
         val startedNodes = arrayListOf(a, b)
+
         // For real nodes this happens automatically, but we have to manually register the flow for tests
         startedNodes.forEach { it.registerInitiatedFlow(NewEventResponder::class.java) }
+        startedNodes.forEach { it.registerInitiatedFlow(ExecuteEventResponder::class.java) }
         network.runNetwork()
 
     }
@@ -311,6 +310,43 @@ class EventFlowTests {
 
         // Executing new event flow
         val flowNewEvent = NewEventFlow(EventType.DISCHARGE, idOfNewlyCreatedDTs, location, eCMRuriExample, Milestone.EXECUTED)
+        val newEventFuture = a.startFlow(flowNewEvent)
+        network.runNetwork()
+
+        val signedTxNewEvent = newEventFuture.getOrThrow()
+        signedTxNewEvent.verifyRequiredSignatures()
+    }
+
+    @Test
+    fun `Simple planned-to-execute event flow`() {
+
+        val createDTflow = CreateCargoFlow(cargo)
+
+        // Execute the flow to create a cargo
+        val futureDT = a.startFlow(createDTflow)
+        network.runNetwork()
+
+        val signedTxDT = futureDT.getOrThrow()
+        signedTxDT.verifyRequiredSignatures()
+
+        // Retrieving ID of the new DT (in this case only the cargo)
+        var newlyCreatedDT = a.services.vaultService.queryBy<DigitalTwinState>().states
+        val idOfNewlyCreatedDT = newlyCreatedDT.map { it.state.data.linearId }.single()
+
+        // Executing the flow for the first load event - location needed
+        val location = Location("BE", "Brussels")
+        val flow = NewEventFlow(EventType.LOAD, listOf(idOfNewlyCreatedDT), location, eCMRuriExample, Milestone.PLANNED)
+        val future = a.startFlow(flow)
+        network.runNetwork()
+
+        val signedTx = future.getOrThrow()
+        signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+
+        // Getting id of planned event
+        val idOfPlannedEvent = a.services.vaultService.queryBy<EventState>().states.map { it.state.data.linearId }.single()
+
+        // Executing planned event
+        val flowNewEvent = ExecuteEventFlow(idOfPlannedEvent.id)
         val newEventFuture = a.startFlow(flowNewEvent)
         network.runNetwork()
 
