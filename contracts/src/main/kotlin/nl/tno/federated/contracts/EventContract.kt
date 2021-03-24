@@ -81,6 +81,11 @@ class EventContract : Contract {
                     "An arrive output state must be passed" using (eventOutputState.type == EventType.ARRIVE)
                 }
             }
+            is Commands.Execute -> {
+                requireThat {
+                    // Requirements
+                }
+            }
             else -> throw IllegalArgumentException("An unknown command was passed")
         }
     }
@@ -91,6 +96,7 @@ class EventContract : Contract {
         class Departure : Commands
         class Discharge : Commands
         class Arrive : Commands
+        class Execute : Commands
         class Other : Commands
     }
 }
