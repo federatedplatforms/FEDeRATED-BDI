@@ -343,4 +343,23 @@ class ContractTests {
             }
         }
     }
+
+    @Test
+    fun `execute event simple test`() {
+        val outputState = EventState(EventType.LOAD, listOf(truckUUID),
+            Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample, Milestone.PLANNED,
+            listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
+        val inputState = outputState.copy(time = Timestamp(System.currentTimeMillis()), milestone = Milestone.EXECUTED)
+
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventContract.Commands.Execute())
+                reference(DigitalTwinContract.ID, truckDigitalTwinState)
+                input(EventContract.ID, inputState)
+                output(EventContract.ID, outputState)
+
+                verifies()
+            }
+        }
+    }
 }

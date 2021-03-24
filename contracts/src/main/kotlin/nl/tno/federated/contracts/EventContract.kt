@@ -1,14 +1,9 @@
 package nl.tno.federated.contracts
 
-import net.corda.core.contracts.CommandData
-import net.corda.core.contracts.Contract
-import net.corda.core.contracts.requireSingleCommand
-import net.corda.core.contracts.requireThat
+import net.corda.core.contracts.*
 import net.corda.core.transactions.LedgerTransaction
-import nl.tno.federated.states.DigitalTwinState
-import nl.tno.federated.states.EventState
-import nl.tno.federated.states.EventType
-import nl.tno.federated.states.PhysicalObject
+import nl.tno.federated.states.*
+import java.util.*
 
 // ************
 // * Contract *
@@ -82,8 +77,12 @@ class EventContract : Contract {
                 }
             }
             is Commands.Execute -> {
+                val mockUUID = UniqueIdentifier()
                 requireThat {
-                    // Requirements
+                    "One event input state must be passed" using (eventInputStates.size == 1)
+                    "Event input and event output must be the same net of time, milestone and linearId" using (
+                            eventInputStates.single().copy(time = Date(0), milestone = Milestone.EXECUTED, linearId = mockUUID)
+                                    == eventOutputState.copy(time = Date(0), milestone = Milestone.EXECUTED, linearId = mockUUID))
                 }
             }
             else -> throw IllegalArgumentException("An unknown command was passed")
