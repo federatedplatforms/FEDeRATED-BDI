@@ -23,7 +23,8 @@ class NewEventFlow(
     val type : EventType,
     val digitalTwins: List<UniqueIdentifier>,
     val location: Location,
-    val eCMRuri: String
+    val eCMRuri: String,
+    val milestone: Milestone
     ) : FlowLogic<SignedTransaction>() {
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
@@ -74,7 +75,7 @@ class NewEventFlow(
         val digitalTwinReferenceStates = serviceHub.vaultService.queryBy<DigitalTwinState>(criteriaDT).states
 
         // Generate an unsigned transaction.
-        val newEventState = EventState(type, digitalTwins, Date(), location, eCMRuri, allParties)
+        val newEventState = EventState(type, digitalTwins, Date(), location, eCMRuri, milestone, allParties)
 
         val command : EventContract.Commands = when (type) {
             DEPART -> {

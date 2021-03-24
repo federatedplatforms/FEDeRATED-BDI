@@ -21,9 +21,10 @@ data class EventState(
     override val time: Date,
     override val location: Location,
     override val eCMRuri: String,
+    override val milestone: Milestone,
     override val participants: List<AbstractParty> = listOf(),
     override val linearId: UniqueIdentifier = UniqueIdentifier()
-) : LinearState, Event(type, digitalTwins, time, location, eCMRuri), QueryableState {
+) : LinearState, Event(type, digitalTwins, time, location, eCMRuri, milestone), QueryableState {
 
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         if (schema is EventSchemaV1) {
@@ -58,6 +59,11 @@ data class EventState(
 enum class EventType {
     LOAD, DEPART, ARRIVE, DISCHARGE, OTHER
 }
+
+@CordaSerializable
+enum class Milestone {
+    PLANNED, EXECUTED
+}
 @CordaSerializable
 data class Location (
     val country: String,
@@ -69,5 +75,6 @@ open class Event(
     open val digitalTwins: List<UniqueIdentifier>,
     open val time: Date,
     open val location: Location,
-    open val eCMRuri: String
+    open val eCMRuri: String,
+    open val milestone: Milestone
 )

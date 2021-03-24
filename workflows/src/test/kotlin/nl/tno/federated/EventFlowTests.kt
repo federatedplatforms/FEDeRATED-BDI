@@ -93,7 +93,7 @@ class EventFlowTests {
 
 
         val location = Location("BE", "Brussels")
-        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample)
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample, Milestone.EXECUTED)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -119,7 +119,7 @@ class EventFlowTests {
 
         // Executing the flow for the first load event - location needed
         val location = Location("BE", "Brussels")
-        val flow = NewEventFlow(EventType.LOAD, listOf(idOfNewlyCreatedDT), location, eCMRuriExample)
+        val flow = NewEventFlow(EventType.LOAD, listOf(idOfNewlyCreatedDT), location, eCMRuriExample, Milestone.EXECUTED)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -139,7 +139,7 @@ class EventFlowTests {
         val idOfNewlyCreatedDTs = newlyCreatedDT.map { it.state.data.linearId }
 
         // Executing new event flow
-        val flowNewEvent = NewEventFlow(EventType.DEPART, idOfNewlyCreatedDTs, location, eCMRuriExample)
+        val flowNewEvent = NewEventFlow(EventType.DEPART, idOfNewlyCreatedDTs, location, eCMRuriExample, Milestone.EXECUTED)
         val newEventFuture = a.startFlow(flowNewEvent)
         network.runNetwork()
 
@@ -158,7 +158,7 @@ class EventFlowTests {
         signedTxDT.verifyRequiredSignatures()
 
         val location = Location("BE", "Brussels")
-        val flow = NewEventFlow(EventType.LOAD, listOf(UniqueIdentifier()), location, eCMRuriExample)
+        val flow = NewEventFlow(EventType.LOAD, listOf(UniqueIdentifier()), location, eCMRuriExample, Milestone.EXECUTED)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -180,7 +180,7 @@ class EventFlowTests {
 
 
         val location = Location("BE", "Brussels")
-        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample)
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample, Milestone.EXECUTED)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -204,7 +204,7 @@ class EventFlowTests {
 
 
         val location = Location("BE", "Brussels")
-        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample)
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample, Milestone.EXECUTED)
         val future = a.startFlow(flow)
         network.runNetwork()
         val signedTx = future.getOrThrow()
@@ -231,7 +231,7 @@ class EventFlowTests {
 
 
         val location = Location("BE", "Brussels")
-        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample)
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample, Milestone.EXECUTED)
         val future = a.startFlow(flow)
         network.runNetwork()
         val signedTx = future.getOrThrow()
@@ -259,7 +259,7 @@ class EventFlowTests {
 
 
         val location = Location("IT", "Milan")
-        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample)
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDT, location, eCMRuriExample, Milestone.EXECUTED)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -269,7 +269,7 @@ class EventFlowTests {
     @Test
     fun `flow rejects invalid events`() {
         val location = Location("BE", "Brussels")
-        val flow = NewEventFlow(EventType.LOAD, emptyList(), location, eCMRuriExample)
+        val flow = NewEventFlow(EventType.LOAD, emptyList(), location, eCMRuriExample, Milestone.EXECUTED)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -302,7 +302,7 @@ class EventFlowTests {
 
         // Executing the flow for the first load event - location needed
         val location = Location("BE", "Brussels")
-        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDTs, location, eCMRuriExample)
+        val flow = NewEventFlow(EventType.LOAD, idOfNewlyCreatedDTs, location, eCMRuriExample, Milestone.EXECUTED)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -310,7 +310,7 @@ class EventFlowTests {
         signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
         // Executing new event flow
-        val flowNewEvent = NewEventFlow(EventType.DISCHARGE, idOfNewlyCreatedDTs, location, eCMRuriExample)
+        val flowNewEvent = NewEventFlow(EventType.DISCHARGE, idOfNewlyCreatedDTs, location, eCMRuriExample, Milestone.EXECUTED)
         val newEventFuture = a.startFlow(flowNewEvent)
         network.runNetwork()
 
