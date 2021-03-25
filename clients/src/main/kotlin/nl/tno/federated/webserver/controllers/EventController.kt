@@ -4,6 +4,7 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
+import nl.tno.federated.flows.ExecuteEventFlow
 import nl.tno.federated.flows.NewEventFlow
 import nl.tno.federated.states.*
 import nl.tno.federated.webserver.NodeRPCConnection
@@ -31,7 +32,7 @@ class EventController(rpc: NodeRPCConnection) {
     @PostMapping(value = ["/"])
     private fun newEvent(@RequestBody event : Event) : ResponseEntity<String> {
         return if (!listOf(EventType.LOAD, EventType.ARRIVE, EventType.DEPART, EventType.DISCHARGE).contains(event.type))
-            ResponseEntity("Unimplemented milestone type", HttpStatus.BAD_REQUEST)
+            ResponseEntity("Unimplemented event type", HttpStatus.BAD_REQUEST)
         else {
             try {
                 val newEventTx = proxy.startFlowDynamic(
@@ -55,6 +56,21 @@ class EventController(rpc: NodeRPCConnection) {
     private fun newEvents(@RequestBody events: List<Event>) : ResponseEntity<List<String>> {
         val results = events.map { newEvent(it).body!! }
         return ResponseEntity(results, HttpStatus.CREATED)
+    }
+
+    @ApiOperation(value = "Execute a planned event")
+    @PostMapping(value = ["/executeEvent/{plannedEventID}"])
+    private fun executeEvent(@PathVariable plannedEventID: UUID) : ResponseEntity<String> {
+        return try {
+            val newEventTx = proxy.startFlowDynamic(
+                ExecuteEventFlow::class.java,
+                plannedEventID
+            ).returnValue.get()
+            val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
+            ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
+        } catch (e: Exception) {
+            ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
+        }
     }
 
     @ApiOperation(value = "Return all known events")
