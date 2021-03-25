@@ -347,9 +347,9 @@ class ContractTests {
     @Test
     fun `execute event simple test`() {
         val outputState = EventState(EventType.LOAD, listOf(truckUUID),
-            Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample, Milestone.PLANNED,
+            Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample, Milestone.EXECUTED,
             listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
-        val inputState = outputState.copy(time = Timestamp(System.currentTimeMillis()), milestone = Milestone.EXECUTED)
+        val inputState = outputState.copy(time = Timestamp(System.currentTimeMillis()), milestone = Milestone.PLANNED)
 
         ledgerServices.ledger {
             transaction {
@@ -359,6 +359,83 @@ class ContractTests {
                 output(EventContract.ID, outputState)
 
                 verifies()
+            }
+        }
+    }
+
+    @Test
+    fun `execute event - no event input state passed`() {
+        val outputState = EventState(EventType.LOAD, listOf(truckUUID),
+            Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample, Milestone.EXECUTED,
+            listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
+
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventContract.Commands.Execute())
+                reference(DigitalTwinContract.ID, truckDigitalTwinState)
+                output(EventContract.ID, outputState)
+
+                `fails with`("One event input state must be passed")
+            }
+        }
+    }
+
+    @Test
+    fun `execute event - event input and output differs`() {
+        val outputState = EventState(EventType.LOAD, listOf(truckUUID, cargoUUID),
+            Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample, Milestone.EXECUTED,
+            listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
+        val inputState = outputState.copy(
+            time = Timestamp(System.currentTimeMillis()), milestone = Milestone.PLANNED, digitalTwins = listOf(truckUUID)
+        )
+
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventContract.Commands.Execute())
+                reference(DigitalTwinContract.ID, truckDigitalTwinState)
+                reference(DigitalTwinContract.ID, cargoDigitalTwinState)
+                input(EventContract.ID, inputState)
+                output(EventContract.ID, outputState)
+
+                `fails with`("Event input and event output must be the same net of time, milestone and linearId")
+            }
+        }
+    }
+
+    @Test
+    fun `execute event - event input is EXECUTED`() {
+        val outputState = EventState(EventType.LOAD, listOf(truckUUID),
+            Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample, Milestone.EXECUTED,
+            listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
+        val inputState = outputState.copy(time = Timestamp(System.currentTimeMillis()))
+
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventContract.Commands.Execute())
+                reference(DigitalTwinContract.ID, truckDigitalTwinState)
+                input(EventContract.ID, inputState)
+                output(EventContract.ID, outputState)
+
+                `fails with`("Event input must be PLANNED")
+            }
+        }
+    }
+
+    @Test
+    fun `execute event - event output is PLANNED`() {
+        val outputState = EventState(EventType.LOAD, listOf(truckUUID),
+            Timestamp(System.currentTimeMillis()), locationBerlin, eCMRuriExample, Milestone.PLANNED,
+            listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
+        val inputState = outputState.copy(time = Timestamp(System.currentTimeMillis()))
+
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventContract.Commands.Execute())
+                reference(DigitalTwinContract.ID, truckDigitalTwinState)
+                input(EventContract.ID, inputState)
+                output(EventContract.ID, outputState)
+
+                `fails with`("Event output must be EXECUTED")
             }
         }
     }
