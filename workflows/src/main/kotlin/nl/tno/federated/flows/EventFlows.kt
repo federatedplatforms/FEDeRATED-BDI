@@ -200,7 +200,14 @@ class ExecuteEventFlow(
         progressTracker.currentStep = GENERATING_TRANSACTION
 
         val criteriaPreviousEvent = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(plannedEventUUID))
-        val plannedEventStateAndRef = serviceHub.vaultService.queryBy<EventState>(criteriaPreviousEvent).states.single()
+
+        val plannedEventStatesAndRefs = serviceHub.vaultService.queryBy<EventState>(criteriaPreviousEvent).states
+
+        check(plannedEventStatesAndRefs.isNotEmpty()) {
+            "An Event input must exist"
+        }
+
+        val plannedEventStateAndRef = plannedEventStatesAndRefs.single()
         val plannedEventState = plannedEventStateAndRef.state.data
 
         val counterParties = plannedEventState.participants - serviceHub.myInfo.legalIdentities.first()
