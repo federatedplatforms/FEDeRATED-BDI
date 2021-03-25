@@ -353,4 +353,15 @@ class EventFlowTests {
         val signedTxNewEvent = newEventFuture.getOrThrow()
         signedTxNewEvent.verifyRequiredSignatures()
     }
+
+    @Test
+    fun `No planned event in planned-to-execute event flow`() {
+
+        // Executing planned event
+        val flowNewEvent = ExecuteEventFlow(UniqueIdentifier().id)
+        val newEventFuture = a.startFlow(flowNewEvent)
+        network.runNetwork()
+
+        assertFailsWith<IllegalStateException> { newEventFuture.getOrThrow() }
+    }
 }
