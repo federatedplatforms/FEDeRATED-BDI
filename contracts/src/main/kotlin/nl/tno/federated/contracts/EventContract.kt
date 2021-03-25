@@ -83,6 +83,8 @@ class EventContract : Contract {
                     "Event input and event output must be the same net of time, milestone and linearId" using (
                             eventInputStates.single().copy(time = Date(0), milestone = Milestone.EXECUTED, linearId = mockUUID)
                                     == eventOutputState.copy(time = Date(0), milestone = Milestone.EXECUTED, linearId = mockUUID))
+                    "Event input must be PLANNED" using (eventInputStates.single().milestone == Milestone.PLANNED)
+                    "Event output must be EXECUTED" using (eventOutputState.milestone == Milestone.EXECUTED)
                 }
             }
             else -> throw IllegalArgumentException("An unknown command was passed")
