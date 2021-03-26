@@ -56,7 +56,9 @@ object EventSchemaV1 : MappedSchema(
         @JoinColumn(name = "location_id", referencedColumnName = "location_id")
         val location: PersistentLocation,
         @Column(name = "eCMRuri")
-        val eCMRuri: String
+        val eCMRuri: String,
+        @Column(name = "milestone")
+        val milestone: Milestone
     ) : PersistentState(), Serializable {
         constructor() : this(
             UUID.randomUUID(),
@@ -64,7 +66,8 @@ object EventSchemaV1 : MappedSchema(
             emptyList<UUID>(),
             Date(),
             PersistentLocation(),
-            "no URI provided"
+            "no URI provided",
+            Milestone.EXECUTED
         )
     }
 }
