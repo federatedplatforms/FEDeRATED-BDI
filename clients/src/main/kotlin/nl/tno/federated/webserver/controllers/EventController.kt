@@ -59,7 +59,7 @@ class EventController(rpc: NodeRPCConnection) {
     }
 
     @ApiOperation(value = "Execute a planned event")
-    @PostMapping(value = ["/executeEvent/{plannedEventID}"])
+    @PatchMapping(value = ["/{plannedEventID}/execute"])
     private fun executeEvent(@PathVariable plannedEventID: UUID) : ResponseEntity<String> {
         return try {
             val newEventTx = proxy.startFlowDynamic(
