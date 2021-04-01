@@ -103,7 +103,7 @@ class EventController(rpc: NodeRPCConnection) {
     @ApiOperation(value = "Return cargo by license plate")
     @GetMapping(value = ["/license/{plate}/cargo"])
     private fun cargoByTruck(@PathVariable plate: String): Map<UUID, Cargo> {
-        val relevantEvents = eventByTruck(plate).values
+        val relevantEvents = eventByTruck(plate).values.filter { it.type == EventType.LOAD }
         val relevantDtStateIds = relevantEvents.flatMap { it.digitalTwins }.map { it.id }
 
         val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = relevantDtStateIds)
