@@ -74,7 +74,7 @@ class EventController(rpc: NodeRPCConnection) {
     }
 
     @ApiOperation(value = "Return all known events")
-    @GetMapping(value = ["/"])
+    @GetMapping(value = [""])
     private fun events() : Map<UUID, Event> {
         val eventStates = proxy.vaultQuery(EventState::class.java).states.map { it.state.data }
 
