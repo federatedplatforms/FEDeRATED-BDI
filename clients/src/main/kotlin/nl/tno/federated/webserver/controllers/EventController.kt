@@ -40,7 +40,7 @@ class EventController(rpc: NodeRPCConnection) {
                     event.type,
                     event.digitalTwins,
                     event.location,
-                    event.eCMRuri,
+                    event.ecmruri,
                     event.milestone
                 ).returnValue.get()
                 val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
@@ -78,7 +78,7 @@ class EventController(rpc: NodeRPCConnection) {
     private fun events() : Map<UUID, Event> {
         val eventStates = proxy.vaultQuery(EventState::class.java).states.map { it.state.data }
 
-        return eventStates.map { it.linearId.id to Event(it.type, it.digitalTwins, it.time, it.location, it.eCMRuri, it.milestone) }.toMap()
+        return eventStates.map { it.linearId.id to Event(it.type, it.digitalTwins, it.time, it.location, it.ecmruri, it.milestone) }.toMap()
     }
 
     @ApiOperation(value = "Return an event")
@@ -86,7 +86,7 @@ class EventController(rpc: NodeRPCConnection) {
     private fun event(@PathVariable id: UUID): Map<UUID, Event> {
         val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(id))
         val state = proxy.vaultQueryBy<EventState>(criteria).states.map { it.state.data }
-        return state.map { it.linearId.id to Event(it.type, it.digitalTwins, it.time, it.location, it.eCMRuri, it.milestone) }.toMap()
+        return state.map { it.linearId.id to Event(it.type, it.digitalTwins, it.time, it.location, it.ecmruri, it.milestone) }.toMap()
     }
 
     @ApiOperation(value = "Return events by license plate")
@@ -97,7 +97,7 @@ class EventController(rpc: NodeRPCConnection) {
 
         val eventStates = proxy.vaultQuery(EventState::class.java).states.map { it.state.data }
         val relevantEventStates = eventStates.filter { it.digitalTwins.map { uniqueIdentifier -> uniqueIdentifier.id }.intersect(digitalTwinIds).isNotEmpty() }
-        return relevantEventStates.map { it.linearId.id to Event(it.type, it.digitalTwins, it.time, it.location, it.eCMRuri, it.milestone) }.toMap()
+        return relevantEventStates.map { it.linearId.id to Event(it.type, it.digitalTwins, it.time, it.location, it.ecmruri, it.milestone) }.toMap()
     }
 
     @ApiOperation(value = "Return cargo by license plate")

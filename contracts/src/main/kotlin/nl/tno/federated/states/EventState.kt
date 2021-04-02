@@ -16,15 +16,15 @@ import java.util.*
 // *********
 @BelongsToContract(EventContract::class)
 data class EventState(
-    override val type: EventType,
-    override val digitalTwins: List<UniqueIdentifier>,
-    override val time: Date,
-    override val location: Location,
-    override val eCMRuri: String,
-    override val milestone: Milestone,
-    override val participants: List<AbstractParty> = listOf(),
-    override val linearId: UniqueIdentifier = UniqueIdentifier()
-) : LinearState, Event(type, digitalTwins, time, location, eCMRuri, milestone), QueryableState {
+        override val type: EventType,
+        override val digitalTwins: List<UniqueIdentifier>,
+        override val time: Date,
+        override val location: Location,
+        override val ecmruri: String,
+        override val milestone: Milestone,
+        override val participants: List<AbstractParty> = listOf(),
+        override val linearId: UniqueIdentifier = UniqueIdentifier()
+) : LinearState, Event(type, digitalTwins, time, location, ecmruri, milestone), QueryableState {
 
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         if (schema is EventSchemaV1) {
@@ -46,7 +46,7 @@ data class EventState(
                     pDigitalTwins,
                     time,
                     pLocation,
-                    eCMRuri,
+                    ecmruri,
                     milestone
             )
         } else
@@ -72,10 +72,10 @@ data class Location (
         )
 
 open class Event(
-    open val type: EventType,
-    open val digitalTwins: List<UniqueIdentifier>,
-    open val time: Date,
-    open val location: Location,
-    open val eCMRuri: String,
-    open val milestone: Milestone
+        open val type: EventType,
+        open val digitalTwins: List<UniqueIdentifier>,
+        open val time: Date,
+        open val location: Location,
+        open val ecmruri: String,
+        open val milestone: Milestone
 )
