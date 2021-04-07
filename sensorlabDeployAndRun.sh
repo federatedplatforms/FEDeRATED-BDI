@@ -20,8 +20,9 @@ echo "Deploying nodes..."
 
 echo "Initiating nodes..."
 nohup java -jar build/nodes/Notary/corda.jar --base-directory=build/nodes/Notary > $PATHTOLOGFOLDER/log_notary.txt & echo $! >> $PATHTOLOGFOLDER/log_pid.txt 
-nohup java -jar build/nodes/PartyA/corda.jar --base-directory=build/nodes/PartyA > $PATHTOLOGFOLDER/log_partyA.txt & echo $! >> $PATHTOLOGFOLDER/log_pid.txt 
-nohup java -jar build/nodes/PartyB/corda.jar --base-directory=build/nodes/PartyB > $PATHTOLOGFOLDER/log_partyB.txt & echo $! >> $PATHTOLOGFOLDER/log_pid.txt 
+nohup java -jar build/nodes/Netherlands/corda.jar --base-directory=build/nodes/Netherlands > $PATHTOLOGFOLDER/log_netherlands.txt & echo $! >> $PATHTOLOGFOLDER/log_pid.txt
+nohup java -jar build/nodes/Spain/corda.jar --base-directory=build/nodes/Spain > $PATHTOLOGFOLDER/log_spain.txt & echo $! >> $PATHTOLOGFOLDER/log_pid.txt
+nohup java -jar build/nodes/Italy/corda.jar --base-directory=build/nodes/Italy > $PATHTOLOGFOLDER/log_italy.txt & echo $! >> $PATHTOLOGFOLDER/log_pid.txt
 
 # Waiting 40 seconds to give the time to the nodes to be up and running,
 # otherwise webserver deployment will fail.

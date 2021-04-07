@@ -41,7 +41,7 @@ class EventContract : Contract {
 
             // General requirements about Event
             "A counterparty must exist, sender shouldn't transact with itself alone" using (eventOutputState.participants.count() > 1)
-            "An eCMR URI must be passed" using (eventOutputState.eCMRuri.isNotBlank())
+            "An eCMR URI must be passed" using (eventOutputState.ecmruri.isNotBlank())
         }
 
         when(command.value) {

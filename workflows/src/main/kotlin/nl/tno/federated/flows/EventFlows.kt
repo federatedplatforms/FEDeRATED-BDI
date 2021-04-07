@@ -104,8 +104,10 @@ class NewEventFlow(
 
         // Adding input state if necessary
         if(type == DISCHARGE) {
-            val relatedDigitalTwins = QueryCriteria.LinearStateQueryCriteria(linearId = digitalTwins)
-            val cargoDigitalTwinIds = serviceHub.vaultService.queryBy<DigitalTwinState>(relatedDigitalTwins).states.map { it.state.data.linearId.id }
+            val relatedDigitalTwins = QueryCriteria.LinearStateQueryCriteria(uuid = digitalTwins.map { it.id })
+            val cargoDigitalTwinIds = serviceHub.vaultService.queryBy<DigitalTwinState>(relatedDigitalTwins).states
+                    .filter { it.state.data.physicalObject == PhysicalObject.CARGO }
+                    .map { it.state.data.linearId.id }
 
             val isLoad = QueryCriteria.VaultCustomQueryCriteria(EventSchemaV1.PersistentEvent::type.equal(LOAD))
 
