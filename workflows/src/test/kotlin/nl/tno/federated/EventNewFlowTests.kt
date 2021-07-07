@@ -30,11 +30,32 @@ class EventNewFlowTests {
 
     val eCMRuriExample = "This is a URI example for an eCMR"
 
-    val digitalTwins = listOf(
+    val digitalTwinsWrong = listOf(
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.GOOD),
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.GOOD),
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.TRANSPORTMEAN),
+            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER),
+            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER)
+    )
+
+    val digitalTwinsWrong2 = listOf(
+            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.GOOD),
+            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.TRANSPORTMEAN),
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.LOCATION),
+            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER),
+            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER)
+    )
+
+    val digitalTwinsTransportAndLocation = listOf(
+            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.TRANSPORTMEAN),
+            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.LOCATION),
+            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER),
+            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER)
+    )
+
+    val digitalTwinsGoodsAndTransport = listOf(
+            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.GOOD),
+            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.TRANSPORTMEAN),
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER),
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER)
     )
@@ -65,11 +86,42 @@ class EventNewFlowTests {
     @Test
     fun `Simple flow transaction`() {
 
-        val flow = NewEventNewFlow(digitalTwins, eCMRuriExample, MilestoneNew.START)
+        val flow = NewEventNewFlow(digitalTwinsGoodsAndTransport, eCMRuriExample, MilestoneNew.START)
         val future = a.startFlow(flow)
         network.runNetwork()
 
         val signedTx = future.getOrThrow()
         signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+    }
+
+    @Test
+    fun `Simple flow transaction 2`() {
+
+        val flow = NewEventNewFlow(digitalTwinsTransportAndLocation, eCMRuriExample, MilestoneNew.START)
+        val future = a.startFlow(flow)
+        network.runNetwork()
+
+        val signedTx = future.getOrThrow()
+        signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+    }
+
+    @Test
+    fun `fail flow transaction because too many goods`() {
+
+        val flow = NewEventNewFlow(digitalTwinsWrong, eCMRuriExample, MilestoneNew.START)
+        val future = a.startFlow(flow)
+        network.runNetwork()
+
+        assertFailsWith<TransactionVerificationException> { future.getOrThrow() }
+    }
+
+    @Test
+    fun `fail flow transaction because goods are linked to locations`() {
+
+        val flow = NewEventNewFlow(digitalTwinsWrong2, eCMRuriExample, MilestoneNew.START)
+        val future = a.startFlow(flow)
+        network.runNetwork()
+
+        assertFailsWith<TransactionVerificationException> { future.getOrThrow() }
     }
 }

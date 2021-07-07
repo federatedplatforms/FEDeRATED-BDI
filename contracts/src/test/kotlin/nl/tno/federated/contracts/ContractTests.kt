@@ -53,8 +53,87 @@ class ContractTests {
 
     private val truckDigitalTwinState = DigitalTwinState(physicalObject = PhysicalObject.TRANSPORTMEAN, truck = Truck(licensePlate = licensePlate), participants = listOf(sender.party), linearId = truckUUID)
 
-
     private val eCMRuriExample = "This is a URI example for an eCMR"
+
+    private val eventNewStateGoodsAndTransport = EventNewState(
+            listOf(UniqueIdentifier().id),
+            listOf(UniqueIdentifier().id),
+            emptyList(),
+            listOf(UniqueIdentifier().id, UniqueIdentifier().id),
+            Timestamp(System.currentTimeMillis()),
+            eCMRuriExample, MilestoneNew.START, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
+
+    private val eventNewStateTransportAndLocation = EventNewState(
+            emptyList(),
+            listOf(UniqueIdentifier().id),
+            listOf(UniqueIdentifier().id),
+            listOf(UniqueIdentifier().id, UniqueIdentifier().id),
+            Timestamp(System.currentTimeMillis()),
+            eCMRuriExample, MilestoneNew.START, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
+
+    private val eventNewStateWrong = EventNewState(
+            listOf(UniqueIdentifier().id, UniqueIdentifier().id),
+            listOf(UniqueIdentifier().id),
+            emptyList(),
+            listOf(UniqueIdentifier().id, UniqueIdentifier().id),
+            Timestamp(System.currentTimeMillis()),
+            eCMRuriExample, MilestoneNew.START, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
+
+    private val eventNewStateWrong2 = EventNewState(
+            listOf(UniqueIdentifier().id),
+            listOf(UniqueIdentifier().id),
+            listOf(UniqueIdentifier().id),
+            listOf(UniqueIdentifier().id, UniqueIdentifier().id),
+            Timestamp(System.currentTimeMillis()),
+            eCMRuriExample, MilestoneNew.START, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
+
+    @Test
+    fun `new event simple test`() {
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventNewContract.Commands.Other())
+                output(EventNewContract.ID, eventNewStateGoodsAndTransport)
+
+                verifies()
+            }
+        }
+    }
+
+    @Test
+    fun `new event simple test 2`() {
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventNewContract.Commands.Other())
+                output(EventNewContract.ID, eventNewStateTransportAndLocation)
+
+                verifies()
+            }
+        }
+    }
+
+    @Test
+    fun `fail new event because too many goods`() {
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventNewContract.Commands.Other())
+                output(EventNewContract.ID, eventNewStateWrong)
+
+                `fails with`("There can be one good only")
+            }
+        }
+    }
+
+    @Test
+    fun `fail new event because goods and location`() {
+        ledgerServices.ledger {
+            transaction {
+                command(sender.publicKey, EventNewContract.Commands.Other())
+                output(EventNewContract.ID, eventNewStateWrong2)
+
+                `fails with` ("Goods and locations cannot be linked together")
+            }
+        }
+    }
 
     @Test
     fun `create cargo test`() {
