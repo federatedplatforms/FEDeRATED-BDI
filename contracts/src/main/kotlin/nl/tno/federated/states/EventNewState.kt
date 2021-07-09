@@ -25,7 +25,43 @@ data class EventNewState(
         override val milestone: MilestoneNew,
         override val participants: List<AbstractParty> = listOf(),
         override val linearId: UniqueIdentifier = UniqueIdentifier()
-) : LinearState, EventNew(goods, transportMean, location, otherDigitalTwins, time, ecmruri, milestone)
+) : LinearState, EventNew(goods, transportMean, location, otherDigitalTwins, time, ecmruri, milestone), QueryableState {
+
+    override fun generateMappedObject(schema: MappedSchema): PersistentState {
+        if (schema is EventNewSchemaV1) {
+
+            val pGoods = goods.map {
+                it
+            }.toMutableList()
+
+            val pTransportMean = transportMean.map {
+                it
+            }.toMutableList()
+
+            val pLocation = location.map {
+                it
+            }.toMutableList()
+
+            val pOtherDigitalTwins = otherDigitalTwins.map {
+                it
+            }.toMutableList()
+
+            return EventNewSchemaV1.PersistentEvent(
+                    linearId.id,
+                    pGoods,
+                    pTransportMean,
+                    pLocation,
+                    pOtherDigitalTwins,
+                    time,
+                    ecmruri,
+                    milestone
+            )
+        } else
+            throw IllegalArgumentException("Unsupported Schema")
+    }
+
+    override fun supportedSchemas(): Iterable<MappedSchema> = listOf(EventSchemaV1)
+}
 
 @CordaSerializable
 enum class MilestoneNew {

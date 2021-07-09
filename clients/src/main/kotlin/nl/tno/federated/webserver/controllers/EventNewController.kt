@@ -50,4 +50,20 @@ class EventNewController(rpc: NodeRPCConnection) {
             }
         }
     }
+
+    @ApiOperation(value = "Return all known events")
+    @GetMapping(value = [""])
+    private fun events() : Map<UUID, EventNew> {
+        val eventStates = proxy.vaultQuery(EventNewState::class.java).states.map { it.state.data }
+
+        return eventStates.map { it.linearId.id to EventNew(it.goods, it.transportMean, it.location, it.otherDigitalTwins, it.time, it.ecmruri, it.milestone) }.toMap()
+    }
+
+    @ApiOperation(value = "Return an event")
+    @GetMapping(value = ["/{id}"])
+    private fun event(@PathVariable id: UUID): Map<UUID, EventNew> {
+        val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(id))
+        val state = proxy.vaultQueryBy<EventNewState>(criteria).states.map { it.state.data }
+        return state.map { it.linearId.id to EventNew(it.goods, it.transportMean, it.location, it.otherDigitalTwins, it.time, it.ecmruri, it.milestone) }.toMap()
+    }
 }
