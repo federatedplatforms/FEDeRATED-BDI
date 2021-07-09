@@ -19,7 +19,7 @@ import java.util.*
  */
 @RestController
 @RequestMapping("/events")
-@Api(value = "EventController", tags = ["Event details"])
+@Api(value = "EventControllerOld", tags = ["Event details old"])
 class EventController(rpc: NodeRPCConnection) {
 
     companion object {

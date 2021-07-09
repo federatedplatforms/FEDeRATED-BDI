@@ -8,6 +8,7 @@ import net.corda.core.flows.*
 import net.corda.core.node.services.queryBy
 import net.corda.core.node.services.vault.Builder.equal
 import net.corda.core.node.services.vault.QueryCriteria
+import net.corda.core.serialization.CordaSerializable
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
@@ -135,6 +136,7 @@ class NewEventNewResponder(val counterpartySession: FlowSession) : FlowLogic<Sig
     }
 }
 
+@CordaSerializable
 data class DigitalTwinPair(
         val uuid : UUID,
         val type: PhysicalObject

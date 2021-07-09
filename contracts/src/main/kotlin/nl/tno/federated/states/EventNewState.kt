@@ -16,18 +16,29 @@ import java.util.*
 // *********
 @BelongsToContract(EventNewContract::class)
 data class EventNewState(
-        val goods: List<UUID>,
-        val transportMean: List<UUID>,
-        val location: List<UUID>,
-        val otherDigitalTwins: List<UUID>,
-        val time: Date,
-        val ecmruri: String,
-        val milestone: MilestoneNew,
+        override val goods: List<UUID>,
+        override val transportMean: List<UUID>,
+        override val location: List<UUID>,
+        override val otherDigitalTwins: List<UUID>,
+        override val time: Date,
+        override val ecmruri: String,
+        override val milestone: MilestoneNew,
         override val participants: List<AbstractParty> = listOf(),
         override val linearId: UniqueIdentifier = UniqueIdentifier()
-) : LinearState
+) : LinearState, EventNew(goods, transportMean, location, otherDigitalTwins, time, ecmruri, milestone)
 
 @CordaSerializable
 enum class MilestoneNew {
     START, STOP
 }
+
+
+open class EventNew(
+        open val goods: List<UUID>,
+        open val transportMean: List<UUID>,
+        open val location: List<UUID>,
+        open val otherDigitalTwins: List<UUID>,
+        open val time: Date,
+        open val ecmruri: String,
+        open val milestone: MilestoneNew
+)
