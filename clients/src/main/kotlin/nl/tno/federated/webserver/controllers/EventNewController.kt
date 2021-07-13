@@ -66,4 +66,17 @@ class EventNewController(rpc: NodeRPCConnection) {
         val state = proxy.vaultQueryBy<EventNewState>(criteria).states.map { it.state.data }
         return state.map { it.linearId.id to EventNew(it.goods, it.transportMean, it.location, it.otherDigitalTwins, it.time, it.ecmruri, it.milestone) }.toMap()
     }
+
+    @ApiOperation(value = "Return events by digital twin ID")
+    @GetMapping(value = ["/dtuuid/{dtuuid}"])
+    private fun eventBydtUUID(@PathVariable dtuuid: UUID): Map<UUID, EventNew> {
+        val eventStates = proxy.vaultQueryBy<EventNewState>().states.filter {
+                    it.state.data.goods.contains(dtuuid) ||
+                    it.state.data.transportMean.contains(dtuuid) ||
+                    it.state.data.location.contains(dtuuid) ||
+                    it.state.data.otherDigitalTwins.contains(dtuuid)
+        }.map{ it.state.data }
+
+        return eventStates.map { it.linearId.id to EventNew(it.goods, it.transportMean, it.location, it.otherDigitalTwins, it.time, it.ecmruri, it.milestone) }.toMap()
+    }
 }
