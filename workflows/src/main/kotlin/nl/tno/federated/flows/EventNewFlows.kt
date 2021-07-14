@@ -90,13 +90,54 @@ class NewEventNewFlow(
             }
         }
 
-        val newEventState = EventNewState(goods, transportMean, location, otherDT, Date(), eCMRuri, milestone, allParties - notary)
+        val newEventState : EventNewState
+        val txCommand : Command<EventNewContract.Commands>
 
-        val txCommand = Command(EventNewContract.Commands.Other(), newEventState.participants.map { it.owningKey })
+        // TODO This criteria raises some nullpointerexception when running tests
+        /*val isTheSame = QueryCriteria.VaultCustomQueryCriteria(EventNewSchemaV1.PersistentEvent::goods.equal(goods))
+                .and(QueryCriteria.VaultCustomQueryCriteria( EventNewSchemaV1.PersistentEvent::transportMean.equal(transportMean)))
+                .and(QueryCriteria.VaultCustomQueryCriteria(EventNewSchemaV1.PersistentEvent::location.equal(location)))
+                .and(QueryCriteria.VaultCustomQueryCriteria(EventNewSchemaV1.PersistentEvent::otherDigitalTwins.equal(otherDT)))*/
+
+        val previousEvents = serviceHub.vaultService.queryBy<EventNewState>(/*isTheSame*/).states
+                .filter{ it.state.data.milestone == MilestoneNew.START &&
+                        it.state.data.goods == goods &&
+                        it.state.data.transportMean == transportMean &&
+                        it.state.data.location == location &&
+                        it.state.data.otherDigitalTwins == otherDT
+                }
+
+        when(milestone) {
+            MilestoneNew.START -> {
+
+                requireThat {
+                    "There cannot be a previous equal start event" using (previousEvents.isEmpty())
+                }
+
+                newEventState = EventNewState(goods, transportMean, location, otherDT, Date(), eCMRuri, milestone, allParties - notary)
+                txCommand = Command(EventNewContract.Commands.Start(), newEventState.participants.map { it.owningKey })
+            }
+            MilestoneNew.STOP -> {
+
+                requireThat {
+                    "There must be one previous event only" using ( previousEvents.size <= 1 )
+                }
+
+                newEventState = EventNewState(goods, transportMean, location, otherDT, Date(), eCMRuri, milestone, allParties - notary)
+                txCommand = Command(EventNewContract.Commands.Stop(), newEventState.participants.map { it.owningKey })
+            }
+            else -> {
+                // Make the contract and the tx fail (by setting all dt fields to empty)
+                newEventState = EventNewState(emptyList(), emptyList(), emptyList(), emptyList(), Date(), eCMRuri, milestone, allParties - notary)
+                txCommand = Command(EventNewContract.Commands.Other(), newEventState.participants.map { it.owningKey })
+            }
+        }
 
         val txBuilder = TransactionBuilder(notary)
-            .addOutputState(newEventState, EventNewContract.ID)
-            .addCommand(txCommand)
+                .addOutputState(newEventState, EventNewContract.ID)
+                .addCommand(txCommand)
+
+        if(previousEvents.isNotEmpty()) txBuilder.addInputState(previousEvents.single())
 
         // Stage 2.
         progressTracker.currentStep = VERIFYING_TRANSACTION
@@ -127,7 +168,7 @@ class NewEventNewResponder(val counterpartySession: FlowSession) : FlowLogic<Sig
     override fun call(): SignedTransaction {
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
-                // TODO
+                // TODO what to check in the counterparty flow?
             }
         }
         val txId = subFlow(signTransactionFlow).id

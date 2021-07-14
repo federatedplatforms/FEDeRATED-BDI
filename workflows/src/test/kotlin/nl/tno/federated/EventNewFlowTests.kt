@@ -95,6 +95,58 @@ class EventNewFlowTests {
     }
 
     @Test
+    fun `Simple flow start and stop event`() {
+
+        val flowStart = NewEventNewFlow(digitalTwinsGoodsAndTransport, eCMRuriExample, MilestoneNew.START)
+        val futureStart = a.startFlow(flowStart)
+        network.runNetwork()
+
+        val signedTxStart = futureStart.getOrThrow()
+        signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+
+        val flowStop = NewEventNewFlow(digitalTwinsGoodsAndTransport, eCMRuriExample, MilestoneNew.STOP)
+        val futureStop = a.startFlow(flowStop)
+        network.runNetwork()
+
+        val signedTxStop = futureStop.getOrThrow()
+        signedTxStop.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+    }
+
+    @Test
+    fun `Start and stop event failed because no previous start event`() {
+
+        val flowStart = NewEventNewFlow(digitalTwinsGoodsAndTransport, eCMRuriExample, MilestoneNew.START)
+        val futureStart = a.startFlow(flowStart)
+        network.runNetwork()
+
+        val signedTxStart = futureStart.getOrThrow()
+        signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+
+        val flowStop = NewEventNewFlow(digitalTwinsTransportAndLocation, eCMRuriExample, MilestoneNew.STOP)
+        val futureStop = a.startFlow(flowStop)
+        network.runNetwork()
+
+        assertFailsWith<TransactionVerificationException> { futureStop.getOrThrow() }
+    }
+
+    @Test
+    fun `Two identical start events`() {
+
+        val flowStart = NewEventNewFlow(digitalTwinsGoodsAndTransport, eCMRuriExample, MilestoneNew.START)
+        val futureStart = a.startFlow(flowStart)
+        network.runNetwork()
+
+        val signedTxStart = futureStart.getOrThrow()
+        signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+
+        val flowStop = NewEventNewFlow(digitalTwinsGoodsAndTransport, eCMRuriExample, MilestoneNew.START)
+        val futureStop = a.startFlow(flowStop)
+        network.runNetwork()
+
+        assertFailsWith<IllegalArgumentException>("There cannot be a previous equal start event") { futureStop.getOrThrow() }
+    }
+
+    @Test
     fun `Simple flow transaction 2`() {
 
         val flow = NewEventNewFlow(digitalTwinsTransportAndLocation, eCMRuriExample, MilestoneNew.START)

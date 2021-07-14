@@ -60,7 +60,7 @@ data class EventNewState(
             throw IllegalArgumentException("Unsupported Schema")
     }
 
-    override fun supportedSchemas(): Iterable<MappedSchema> = listOf(EventSchemaV1)
+    override fun supportedSchemas(): Iterable<MappedSchema> = listOf(EventNewSchemaV1)
 }
 
 @CordaSerializable

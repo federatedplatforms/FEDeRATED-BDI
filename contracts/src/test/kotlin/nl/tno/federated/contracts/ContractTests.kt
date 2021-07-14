@@ -87,11 +87,14 @@ class ContractTests {
             Timestamp(System.currentTimeMillis()),
             eCMRuriExample, MilestoneNew.START, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
+
+    // TODO New tests for stop events
+
     @Test
     fun `new event simple test`() {
         ledgerServices.ledger {
             transaction {
-                command(sender.publicKey, EventNewContract.Commands.Other())
+                command(sender.publicKey, EventNewContract.Commands.Start())
                 output(EventNewContract.ID, eventNewStateGoodsAndTransport)
 
                 verifies()
@@ -103,7 +106,7 @@ class ContractTests {
     fun `new event simple test 2`() {
         ledgerServices.ledger {
             transaction {
-                command(sender.publicKey, EventNewContract.Commands.Other())
+                command(sender.publicKey, EventNewContract.Commands.Start())
                 output(EventNewContract.ID, eventNewStateTransportAndLocation)
 
                 verifies()
@@ -115,7 +118,7 @@ class ContractTests {
     fun `fail new event because too many goods`() {
         ledgerServices.ledger {
             transaction {
-                command(sender.publicKey, EventNewContract.Commands.Other())
+                command(sender.publicKey, EventNewContract.Commands.Start())
                 output(EventNewContract.ID, eventNewStateWrong)
 
                 `fails with`("There can be one good only")
@@ -127,13 +130,16 @@ class ContractTests {
     fun `fail new event because goods and location`() {
         ledgerServices.ledger {
             transaction {
-                command(sender.publicKey, EventNewContract.Commands.Other())
+                command(sender.publicKey, EventNewContract.Commands.Start())
                 output(EventNewContract.ID, eventNewStateWrong2)
 
                 `fails with` ("Goods and locations cannot be linked together")
             }
         }
     }
+
+
+    /////// OLD TESTS
 
     @Test
     fun `create cargo test`() {
