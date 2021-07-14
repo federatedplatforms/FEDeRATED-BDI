@@ -2,29 +2,24 @@ package nl.tno.federated.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command
-import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.node.services.queryBy
-import net.corda.core.node.services.vault.Builder.equal
-import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.serialization.CordaSerializable
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
-import nl.tno.federated.contracts.EventNewContract
 import nl.tno.federated.states.*
-import nl.tno.federated.states.EventType.*
 import java.util.*
 
 @InitiatingFlow
 @StartableByRPC
-class NewEventNewFlow(
+class NewEventFlow(
     val digitalTwins: List<DigitalTwinPair>,
     val eCMRuri: String,
-    val milestone: MilestoneNew
+    val milestone: Milestone
     ) : FlowLogic<SignedTransaction>() {
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
@@ -90,8 +85,8 @@ class NewEventNewFlow(
             }
         }
 
-        val newEventState : EventNewState
-        val txCommand : Command<EventNewContract.Commands>
+        val newEventState : EventState
+        val txCommand : Command<EventContract.Commands>
 
         // TODO This criteria raises some nullpointerexception when running tests
         /*val isTheSame = QueryCriteria.VaultCustomQueryCriteria(EventNewSchemaV1.PersistentEvent::goods.equal(goods))
@@ -99,8 +94,8 @@ class NewEventNewFlow(
                 .and(QueryCriteria.VaultCustomQueryCriteria(EventNewSchemaV1.PersistentEvent::location.equal(location)))
                 .and(QueryCriteria.VaultCustomQueryCriteria(EventNewSchemaV1.PersistentEvent::otherDigitalTwins.equal(otherDT)))*/
 
-        val previousEvents = serviceHub.vaultService.queryBy<EventNewState>(/*isTheSame*/).states
-                .filter{ it.state.data.milestone == MilestoneNew.START &&
+        val previousEvents = serviceHub.vaultService.queryBy<EventState>(/*isTheSame*/).states
+                .filter{ it.state.data.milestone == Milestone.START &&
                         it.state.data.goods == goods &&
                         it.state.data.transportMean == transportMean &&
                         it.state.data.location == location &&
@@ -108,33 +103,33 @@ class NewEventNewFlow(
                 }
 
         when(milestone) {
-            MilestoneNew.START -> {
+            Milestone.START -> {
 
                 requireThat {
                     "There cannot be a previous equal start event" using (previousEvents.isEmpty())
                 }
 
-                newEventState = EventNewState(goods, transportMean, location, otherDT, Date(), eCMRuri, milestone, allParties - notary)
-                txCommand = Command(EventNewContract.Commands.Start(), newEventState.participants.map { it.owningKey })
+                newEventState = EventState(goods, transportMean, location, otherDT, Date(), eCMRuri, milestone, allParties - notary)
+                txCommand = Command(EventContract.Commands.Start(), newEventState.participants.map { it.owningKey })
             }
-            MilestoneNew.STOP -> {
+            Milestone.STOP -> {
 
                 requireThat {
                     "There must be one previous event only" using ( previousEvents.size <= 1 )
                 }
 
-                newEventState = EventNewState(goods, transportMean, location, otherDT, Date(), eCMRuri, milestone, allParties - notary)
-                txCommand = Command(EventNewContract.Commands.Stop(), newEventState.participants.map { it.owningKey })
+                newEventState = EventState(goods, transportMean, location, otherDT, Date(), eCMRuri, milestone, allParties - notary)
+                txCommand = Command(EventContract.Commands.Stop(), newEventState.participants.map { it.owningKey })
             }
             else -> {
                 // Make the contract and the tx fail (by setting all dt fields to empty)
-                newEventState = EventNewState(emptyList(), emptyList(), emptyList(), emptyList(), Date(), eCMRuri, milestone, allParties - notary)
-                txCommand = Command(EventNewContract.Commands.Other(), newEventState.participants.map { it.owningKey })
+                newEventState = EventState(emptyList(), emptyList(), emptyList(), emptyList(), Date(), eCMRuri, milestone, allParties - notary)
+                txCommand = Command(EventContract.Commands.Other(), newEventState.participants.map { it.owningKey })
             }
         }
 
         val txBuilder = TransactionBuilder(notary)
-                .addOutputState(newEventState, EventNewContract.ID)
+                .addOutputState(newEventState, EventContract.ID)
                 .addCommand(txCommand)
 
         if(previousEvents.isNotEmpty()) txBuilder.addInputState(previousEvents.single())
@@ -162,8 +157,8 @@ class NewEventNewFlow(
     }
 }
 
-@InitiatedBy(NewEventNewFlow::class)
-class NewEventNewResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
+@InitiatedBy(NewEventFlow::class)
+class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
     @Suspendable
     override fun call(): SignedTransaction {
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {

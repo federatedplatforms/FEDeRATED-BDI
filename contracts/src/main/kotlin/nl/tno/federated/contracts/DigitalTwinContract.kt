@@ -23,7 +23,7 @@ class DigitalTwinContract : Contract {
         val inputStates = tx.inputStates
         val outputStates = tx.outputStates
 
-        requireThat {
+        /*requireThat {
             "Command must be among those allowed" using (
                             command.value is Commands.CreateCargo ||
                             command.value is Commands.CreateTruck ||
@@ -32,7 +32,7 @@ class DigitalTwinContract : Contract {
                             command.value is EventContract.Commands.Arrive ||
                             command.value is EventContract.Commands.Discharge
                     )
-        }
+        }*/
 
         if (command.value is Commands.CreateTruck || command.value is Commands.CreateCargo) {
             requireThat {

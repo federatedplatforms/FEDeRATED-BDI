@@ -16,36 +16,43 @@ import java.util.*
 // *********
 @BelongsToContract(EventContract::class)
 data class EventState(
-        override val type: EventType,
-        override val digitalTwins: List<UniqueIdentifier>,
+        override val goods: List<UUID>,
+        override val transportMean: List<UUID>,
+        override val location: List<UUID>,
+        override val otherDigitalTwins: List<UUID>,
         override val time: Date,
-        override val location: Location,
         override val ecmruri: String,
         override val milestone: Milestone,
         override val participants: List<AbstractParty> = listOf(),
         override val linearId: UniqueIdentifier = UniqueIdentifier()
-) : LinearState, Event(type, digitalTwins, time, location, ecmruri, milestone), QueryableState {
+) : LinearState, Event(goods, transportMean, location, otherDigitalTwins, time, ecmruri, milestone), QueryableState {
 
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         if (schema is EventSchemaV1) {
-            val pLocation =
-                EventSchemaV1.PersistentLocation(
-                        UniqueIdentifier().id,
-                        location.country,
-                        location.city
-                )
 
+            val pGoods = goods.map {
+                it
+            }.toMutableList()
 
-            val pDigitalTwins = digitalTwins.map {
-                                        it.id
+            val pTransportMean = transportMean.map {
+                it
+            }.toMutableList()
+
+            val pLocation = location.map {
+                it
+            }.toMutableList()
+
+            val pOtherDigitalTwins = otherDigitalTwins.map {
+                it
             }.toMutableList()
 
             return EventSchemaV1.PersistentEvent(
                     linearId.id,
-                    type,
-                    pDigitalTwins,
-                    time,
+                    pGoods,
+                    pTransportMean,
                     pLocation,
+                    pOtherDigitalTwins,
+                    time,
                     ecmruri,
                     milestone
             )
@@ -57,25 +64,17 @@ data class EventState(
 }
 
 @CordaSerializable
-enum class EventType {
-    LOAD, DEPART, ARRIVE, DISCHARGE, OTHER
+enum class Milestone {
+    START, STOP
 }
 
-@CordaSerializable
-enum class Milestone {
-    PLANNED, EXECUTED
-}
-@CordaSerializable
-data class Location (
-    val country: String,
-    val city: String
-        )
 
 open class Event(
-        open val type: EventType,
-        open val digitalTwins: List<UniqueIdentifier>,
+        open val goods: List<UUID>,
+        open val transportMean: List<UUID>,
+        open val location: List<UUID>,
+        open val otherDigitalTwins: List<UUID>,
         open val time: Date,
-        open val location: Location,
         open val ecmruri: String,
         open val milestone: Milestone
 )

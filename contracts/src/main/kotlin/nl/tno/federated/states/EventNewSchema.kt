@@ -12,7 +12,7 @@ object EventNewSchema
 
 
 // first version of the schema
-object EventNewSchemaV1 : MappedSchema(
+object EventSchemaV1 : MappedSchema(
         schemaFamily = EventNewSchema.javaClass,
         version = 1,
         mappedTypes = listOf(PersistentEvent::class.java)
@@ -41,7 +41,7 @@ object EventNewSchemaV1 : MappedSchema(
         @Column(name = "eCMRuri")
         val eCMRuri: String,
         @Column(name = "milestone")
-        val milestone: MilestoneNew
+        val milestone: Milestone
     ) : PersistentState(), Serializable {
         constructor() : this(
             UUID.randomUUID(),
@@ -51,7 +51,7 @@ object EventNewSchemaV1 : MappedSchema(
             emptyList<UUID>(),
             Date(),
             "no URI provided",
-            MilestoneNew.START
+            Milestone.START
         )
     }
 }
