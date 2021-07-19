@@ -31,10 +31,7 @@ class EventController(rpc: NodeRPCConnection) {
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
     private fun newEvent(@RequestBody digitalTwins: List<DigitalTwinPair>, eCMRuri: String, milestone: Milestone): ResponseEntity<String> {
-        return if (false)
-            ResponseEntity("Error" /*write the type of error according to condition*/, HttpStatus.BAD_REQUEST)
-        else {
-            try {
+        return try {
                 val newEventTx = proxy.startFlowDynamic(
                         NewEventFlow::class.java,
                         digitalTwins,
@@ -46,8 +43,8 @@ class EventController(rpc: NodeRPCConnection) {
             } catch (e: Exception) {
                 return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
             }
-        }
     }
+
 
     @ApiOperation(value = "Return all known events")
     @GetMapping(value = [""])
