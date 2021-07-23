@@ -63,7 +63,7 @@ class EventController(rpc: NodeRPCConnection) {
     }
 
     @ApiOperation(value = "Return events by digital twin ID")
-    @GetMapping(value = ["/dtuuid/{dtuuid}"])
+    @GetMapping(value = ["/digitaltwin/{dtuuid}"])
     private fun eventBydtUUID(@PathVariable dtuuid: UUID): Map<UUID, Event> {
         val eventStates = proxy.vaultQueryBy<EventState>().states.filter {
                     it.state.data.goods.contains(dtuuid) ||

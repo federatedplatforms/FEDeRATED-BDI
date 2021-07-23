@@ -8,12 +8,12 @@ import java.util.*
 import javax.persistence.*
 
 // Family of schemas
-object EventNewSchema
+object EventSchema
 
 
 // first version of the schema
 object EventSchemaV1 : MappedSchema(
-        schemaFamily = EventNewSchema.javaClass,
+        schemaFamily = EventSchema.javaClass,
         version = 1,
         mappedTypes = listOf(PersistentEvent::class.java)
 ) {
