@@ -15,29 +15,11 @@ object EventSchema
 object EventSchemaV1 : MappedSchema(
         schemaFamily = EventSchema.javaClass,
         version = 1,
-        mappedTypes = listOf(PersistentEvent::class.java, PersistentLocation::class.java)) {
+        mappedTypes = listOf(PersistentEvent::class.java)
+) {
 
     override val migrationResource: String
         get() = "event.changelog-master"
-
-    @Entity
-    @Table(name = "LOCATION_DETAIL")
-    class PersistentLocation(
-            @Id @Column(name = "location_id")
-            @Type(type = "uuid-char")
-            val id: UUID,
-            @Column(name = "country")
-            val country: String,
-            @Column(name = "city")
-            val city: String
-    ) {
-        // Default constructor required by hibernate.
-        constructor() : this(
-                UUID.randomUUID(),
-                "Antarctica",
-                "FrozenBase"
-        )
-    }
 
 
     @Entity
@@ -46,15 +28,16 @@ object EventSchemaV1 : MappedSchema(
         @Column(name = "event_id")
         @Type(type = "uuid-char")
         val linearId: UUID,
-        @Column(name = "eventType")
-        val type: EventType,
         @ElementCollection
-        val digitalTwins: List<UUID>,
+        val goods: List<UUID>,
+        @ElementCollection
+        val transportMean: List<UUID>,
+        @ElementCollection
+        val location: List<UUID>,
+        @ElementCollection
+        val otherDigitalTwins: List<UUID>,
         @Column(name = "time")
         val time: Date,
-        @OneToOne(cascade = [CascadeType.PERSIST])
-        @JoinColumn(name = "location_id", referencedColumnName = "location_id")
-        val location: PersistentLocation,
         @Column(name = "eCMRuri")
         val eCMRuri: String,
         @Column(name = "milestone")
@@ -62,12 +45,13 @@ object EventSchemaV1 : MappedSchema(
     ) : PersistentState(), Serializable {
         constructor() : this(
             UUID.randomUUID(),
-            EventType.OTHER,
+            emptyList<UUID>(),
+            emptyList<UUID>(),
+            emptyList<UUID>(),
             emptyList<UUID>(),
             Date(),
-            PersistentLocation(),
             "no URI provided",
-            Milestone.EXECUTED
+            Milestone.START
         )
     }
 }

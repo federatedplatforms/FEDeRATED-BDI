@@ -68,7 +68,7 @@ data class DigitalTwinState(
 
 @CordaSerializable
 enum class PhysicalObject {
-    CARGO, TRANSPORTMEAN, OTHER
+    CARGO, TRANSPORTMEAN, OTHER, GOOD, LOCATION
 }
 
 @CordaSerializable

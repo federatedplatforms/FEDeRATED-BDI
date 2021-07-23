@@ -2,27 +2,22 @@ package nl.tno.federated.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command
-import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.node.services.queryBy
-import net.corda.core.node.services.vault.Builder.equal
-import net.corda.core.node.services.vault.QueryCriteria
+import net.corda.core.serialization.CordaSerializable
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
 import nl.tno.federated.states.*
-import nl.tno.federated.states.EventType.*
 import java.util.*
 
 @InitiatingFlow
 @StartableByRPC
 class NewEventFlow(
-    val type : EventType,
-    val digitalTwins: List<UniqueIdentifier>,
-    val location: Location,
+    val digitalTwins: List<DigitalTwinPair>,
     val eCMRuri: String,
     val milestone: Milestone
     ) : FlowLogic<SignedTransaction>() {
@@ -62,62 +57,82 @@ class NewEventFlow(
 
         // Stage 1.
         progressTracker.currentStep = GENERATING_TRANSACTION
-        // Retrieving counterparties from location
-        val counterParties = serviceHub.networkMapCache.allNodes.flatMap {it.legalIdentities}
-            .filter { location.country == it.name.country } // to be changed later, meant for the poc only
-        // Above we are matching the name of the country provided with the one of the known nodes,
-        // and we are assuming every counterparty related to a country should receive the tx.
 
-        val allParties = counterParties + serviceHub.myInfo.legalIdentities.first()
+        // Retrieving counterparties (sending to all nodes, for now)
+        val allParties = serviceHub.networkMapCache.allNodes.flatMap {it.legalIdentities}
+        val me = serviceHub.myInfo.legalIdentities.first()
+        val counterParties = allParties - notary - me
 
-        // The input states are the DTs whose ID is passed as argument (i.e. those related to the event)
-        val criteriaDT = QueryCriteria.LinearStateQueryCriteria(uuid = digitalTwins.map { it.id })
-        val digitalTwinReferenceStates = serviceHub.vaultService.queryBy<DigitalTwinState>(criteriaDT).states
+        val goods = emptyList<UUID>().toMutableList()
+        val transportMean = emptyList<UUID>().toMutableList()
+        val location = emptyList<UUID>().toMutableList()
+        val otherDT = emptyList<UUID>().toMutableList()
 
-        // Generate an unsigned transaction.
-        val newEventState = EventState(type, digitalTwins, Date(), location, eCMRuri, milestone, allParties)
-
-        val command : EventContract.Commands = when (type) {
-            DEPART -> {
-                EventContract.Commands.Departure()
+        digitalTwins.forEach{
+            when(it.type) {
+                PhysicalObject.GOOD -> {
+                    goods.add(it.uuid)
+                }
+                PhysicalObject.TRANSPORTMEAN -> {
+                    transportMean.add(it.uuid)
+                }
+                PhysicalObject.LOCATION -> {
+                    location.add(it.uuid)
+                }
+                PhysicalObject.OTHER -> {
+                    otherDT.add(it.uuid)
+                }
             }
-            DISCHARGE -> {
-                EventContract.Commands.Discharge()
+        }
+
+        val newEventState : EventState
+        val txCommand : Command<EventContract.Commands>
+
+        // TODO This criteria raises some nullpointerexception when running tests
+        /*val isTheSame = QueryCriteria.VaultCustomQueryCriteria(EventNewSchemaV1.PersistentEvent::goods.equal(goods))
+                .and(QueryCriteria.VaultCustomQueryCriteria( EventNewSchemaV1.PersistentEvent::transportMean.equal(transportMean)))
+                .and(QueryCriteria.VaultCustomQueryCriteria(EventNewSchemaV1.PersistentEvent::location.equal(location)))
+                .and(QueryCriteria.VaultCustomQueryCriteria(EventNewSchemaV1.PersistentEvent::otherDigitalTwins.equal(otherDT)))*/
+
+        val previousEvents = serviceHub.vaultService.queryBy<EventState>(/*isTheSame*/).states
+                .filter{ it.state.data.milestone == Milestone.START &&
+                        it.state.data.goods == goods &&
+                        it.state.data.transportMean == transportMean &&
+                        it.state.data.location == location &&
+                        it.state.data.otherDigitalTwins == otherDT
+                }
+
+        when(milestone) {
+            Milestone.START -> {
+
+                requireThat {
+                    "There cannot be a previous equal start event" using (previousEvents.isEmpty())
+                }
+
+                newEventState = EventState(goods, transportMean, location, otherDT, Date(), eCMRuri, milestone, allParties - notary)
+                txCommand = Command(EventContract.Commands.Start(), newEventState.participants.map { it.owningKey })
             }
-            ARRIVE -> {
-                EventContract.Commands.Arrive()
-            }
-            LOAD -> {
-                EventContract.Commands.Load()
+            Milestone.STOP -> {
+
+                requireThat {
+                    "There must be one previous event only" using ( previousEvents.size <= 1 )
+                }
+
+                newEventState = EventState(goods, transportMean, location, otherDT, Date(), eCMRuri, milestone, allParties - notary)
+                txCommand = Command(EventContract.Commands.Stop(), newEventState.participants.map { it.owningKey })
             }
             else -> {
-                EventContract.Commands.Other()
+                // Make the contract and the tx fail (by setting all dt fields to empty)
+                newEventState = EventState(emptyList(), emptyList(), emptyList(), emptyList(), Date(), eCMRuri, milestone, allParties - notary)
+                txCommand = Command(EventContract.Commands.Other(), newEventState.participants.map { it.owningKey })
             }
         }
-        val txCommand = Command(command, newEventState.participants.map { it.owningKey })
+
         val txBuilder = TransactionBuilder(notary)
-            .addOutputState(newEventState, EventContract.ID)
-            .addCommand(txCommand)
+                .addOutputState(newEventState, EventContract.ID)
+                .addCommand(txCommand)
 
-        // Adding reference states for DT
-        digitalTwinReferenceStates.forEach{txBuilder.addReferenceState(it.referenced())}
-
-        // Adding input state if necessary
-        if(type == DISCHARGE) {
-            val relatedDigitalTwins = QueryCriteria.LinearStateQueryCriteria(uuid = digitalTwins.map { it.id })
-            val cargoDigitalTwinIds = serviceHub.vaultService.queryBy<DigitalTwinState>(relatedDigitalTwins).states
-                    .filter { it.state.data.physicalObject == PhysicalObject.CARGO }
-                    .map { it.state.data.linearId.id }
-
-            val isLoad = QueryCriteria.VaultCustomQueryCriteria(EventSchemaV1.PersistentEvent::type.equal(LOAD))
-
-            val eventStates = serviceHub.vaultService.queryBy<EventState>(isLoad).states
-            val relevantEventStates = eventStates
-                .filter { it.state.data.digitalTwins.map { uniqueIdentifier -> uniqueIdentifier.id }
-                    .intersect(cargoDigitalTwinIds).isNotEmpty() }
-
-            relevantEventStates.forEach{txBuilder.addInputState(it)}
-        }
+        if(previousEvents.isNotEmpty()) txBuilder.addInputState(previousEvents.single())
 
         // Stage 2.
         progressTracker.currentStep = VERIFYING_TRANSACTION
@@ -148,10 +163,7 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
     override fun call(): SignedTransaction {
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
-                val eventOutput = stx.tx.outputs.filter { it.data is EventState }.map { it.data }
-                "There must be one event output." using (eventOutput.size == 1)
-                val iou = eventOutput.single() as EventState
-                "I must be party to this event." using (iou.participants.contains(serviceHub.myInfo.legalIdentities.first()))
+                // TODO what to check in the counterparty flow?
             }
         }
         val txId = subFlow(signTransactionFlow).id
@@ -159,116 +171,9 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
         return subFlow(ReceiveFinalityFlow(counterpartySession, expectedTxId = txId))
     }
 }
-@InitiatingFlow
-@StartableByRPC
-class ExecuteEventFlow(
-    val plannedEventUUID : UUID
-    ) : FlowLogic<SignedTransaction>() {
-    /**
-     * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
-     * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
-     */
-    companion object {
-        object GENERATING_TRANSACTION : Step("Generating transaction based on new IOU.")
-        object VERIFYING_TRANSACTION : Step("Verifying contract constraints.")
-        object SIGNING_TRANSACTION : Step("Signing transaction with our private key.")
-        object GATHERING_SIGS : Step("Gathering the counterparty's signature.") {
-            override fun childProgressTracker() = CollectSignaturesFlow.tracker()
-        }
 
-        object FINALISING_TRANSACTION : Step("Obtaining notary signature and recording transaction.") {
-            override fun childProgressTracker() = FinalityFlow.tracker()
-        }
-
-        fun tracker() = ProgressTracker(
-            GENERATING_TRANSACTION,
-            VERIFYING_TRANSACTION,
-            SIGNING_TRANSACTION,
-            GATHERING_SIGS,
-            FINALISING_TRANSACTION
-        )
-    }
-
-    override val progressTracker = tracker()
-
-    /**
-     * The flow logic is encapsulated within the call() method.
-     */
-    @Suspendable
-    override fun call(): SignedTransaction {
-        val notary = serviceHub.networkMapCache.notaryIdentities.single() // METHOD 1
-
-        // Stage 1.
-        progressTracker.currentStep = GENERATING_TRANSACTION
-
-        val criteriaPreviousEvent = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(plannedEventUUID))
-
-        val plannedEventStatesAndRefs = serviceHub.vaultService.queryBy<EventState>(criteriaPreviousEvent).states
-
-        check(plannedEventStatesAndRefs.isNotEmpty()) {
-            "An Event input must exist"
-        }
-
-        val plannedEventStateAndRef = plannedEventStatesAndRefs.single()
-        val plannedEventState = plannedEventStateAndRef.state.data
-
-        val counterParties = plannedEventState.participants - serviceHub.myInfo.legalIdentities.first()
-
-        val newEventState = plannedEventState.copy(time = Date(), milestone = Milestone.EXECUTED, linearId = UniqueIdentifier())
-
-        // The input states are the DTs whose ID is passed as argument (i.e. those related to the event)
-        val criteriaDT = QueryCriteria.LinearStateQueryCriteria(uuid = plannedEventState.digitalTwins.map { it.id })
-        val digitalTwinReferenceStates = serviceHub.vaultService.queryBy<DigitalTwinState>(criteriaDT).states
-
-        val txCommand = Command(EventContract.Commands.Execute(), newEventState.participants.map { it.owningKey })
-
-        val txBuilder = TransactionBuilder(notary)
-            .addOutputState(newEventState, EventContract.ID)
-            .addCommand(txCommand)
-            .addInputState(plannedEventStateAndRef)
-
-        // Adding reference states for DT
-        digitalTwinReferenceStates.forEach{txBuilder.addReferenceState(it.referenced())}
-
-        // Stage 2.
-        progressTracker.currentStep = VERIFYING_TRANSACTION
-        // Verify that the transaction is valid.
-        txBuilder.verify(serviceHub)
-
-        // Stage 3.
-        progressTracker.currentStep = SIGNING_TRANSACTION
-        // Sign the transaction.
-        val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
-
-        // Stage 4.
-        progressTracker.currentStep = GATHERING_SIGS
-        // Send the state to the counterparty, and receive it back with their signature.
-        val otherPartySessions = counterParties.map { initiateFlow(it) }
-        val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, otherPartySessions, GATHERING_SIGS.childProgressTracker()))
-
-        // Stage 5.
-        progressTracker.currentStep = FINALISING_TRANSACTION
-        // Notarise and record the transaction in both parties' vaults.
-        return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
-    }
-}
-
-@InitiatedBy(ExecuteEventFlow::class)
-class ExecuteEventResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
-    @Suspendable
-    override fun call(): SignedTransaction {
-        val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
-            override fun checkTransaction(stx: SignedTransaction) = requireThat {
-
-                val eventOutput = stx.tx.outputs.filter { it.data is EventState }.map { it.data }
-                "There must be one event output" using (eventOutput.size == 1)
-
-                val iou = eventOutput.single() as EventState
-                "I must be party to this event" using (iou.participants.contains(serviceHub.myInfo.legalIdentities.first()))
-            }
-        }
-        val txId = subFlow(signTransactionFlow).id
-
-        return subFlow(ReceiveFinalityFlow(counterpartySession, expectedTxId = txId))
-    }
-}
+@CordaSerializable
+data class DigitalTwinPair(
+        val uuid : UUID,
+        val type: PhysicalObject
+)
