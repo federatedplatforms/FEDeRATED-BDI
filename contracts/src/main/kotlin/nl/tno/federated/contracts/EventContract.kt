@@ -24,45 +24,56 @@ class EventContract : Contract {
 
         val eventState = outputStates.filterIsInstance<EventState>().single()
 
-        when(command.value){
-            is Commands.Start -> {
+        when(command.value) {
+            is Commands.Create -> {
                 requireThat{
-                    "Goods and locations cannot be linked together" using (!(eventState.goods.isNotEmpty() && eventState.location.isNotEmpty()))
-                    "There can be one location only" using (eventState.location.size <= 1)
-                    "There can be one good only" using (eventState.goods.size <= 1)
-                    "There can be one transport mean only" using (eventState.transportMean.size <= 1)
-                    // there can be one "other" only?
-                    "There must be at least a connection" using (
-                                    eventState.goods.size +
-                                    eventState.location.size +
-                                    eventState.transportMean.size +
-                                    eventState.otherDigitalTwins.size >= 2)
-                    // requirements about eCMR uri?
-                }
-            }
-
-            is Commands.Stop -> {
-                requireThat{
-                    "There must be 1 previous event" using (inputStates.size == 1)
-                    "Previous event must be of type START" using (inputStates.single().milestone == Milestone.START)
-                    "Digital twins in the previous START event must equal to those in the current STOP event" using (
-                                    inputStates.single().goods == eventState.goods &&
-                                    inputStates.single().location == eventState.location &&
-                                    inputStates.single().transportMean == eventState.transportMean &&
-                                    inputStates.single().otherDigitalTwins == eventState.otherDigitalTwins
+                    "There must be exactly one timestamp at time of creation" using (eventState.timestamps.size == 1)
+                    "The type of the timestamp must be either PLANNED or ACTUAL" using (
+                            when(eventState.timestamps.single().type) {
+                                TimeType.PLANNED, TimeType.ACTUAL -> true
+                                else -> false
+                            }
                             )
                 }
-                // TODO other constraints for stop case?
+                // TODO other general creation constraints?
+
+                when(eventState.milestone) {
+                    Milestone.START -> {
+                        requireThat{
+                            "Goods and locations cannot be linked together" using (!(eventState.goods.isNotEmpty() && eventState.location.isNotEmpty()))
+                            "There can be one location only" using (eventState.location.size <= 1)
+                            "There can be one good only" using (eventState.goods.size <= 1)
+                            "There can be one transport mean only" using (eventState.transportMean.size <= 1)
+                            // there can be one "other" only?
+                            "There must be at least a connection" using (
+                                            eventState.goods.size +
+                                            eventState.location.size +
+                                            eventState.transportMean.size +
+                                            eventState.otherDigitalTwins.size >= 2)
+                            // requirements about eCMR uri?
+                        }
+                    }
+
+                    Milestone.STOP -> {
+                        requireThat{
+                            "There must be 1 previous event" using (inputStates.size == 1)
+                            "Previous event must be of type START" using (inputStates.single().milestone == Milestone.START)
+                            "Digital twins in the previous START event must equal to those in the current STOP event" using (
+                                            inputStates.single().hasSameDigitalTwins(eventState)
+                                    )
+                        }
+                        // TODO other constraints for stop case?
+                    }
+                }
             }
         }
-
-
     }
 
     // Used to indicate the transaction's intent.
     interface Commands : CommandData {
         class Other : Commands
-        class Start : Commands
-        class Stop : Commands
+        class Create : Commands
+        class UpdateEstimatedTime : Commands
+        class ExecuteEvent : Commands
     }
 }
