@@ -62,6 +62,34 @@ data class EventState(
     }
 
     override fun supportedSchemas(): Iterable<MappedSchema> = listOf(EventSchemaV1)
+
+    /**
+     * Returns true if everything besides times, participants and linearId are the same
+     */
+    fun equals(other: EventState): Boolean {
+        if(
+            super.goods == other.goods &&
+            super.transportMean == other.transportMean &&
+            super.location == other.location &&
+            super.otherDigitalTwins == other.otherDigitalTwins &&
+            super.ecmruri == other.ecmruri &&
+            super.milestone == other.milestone
+        ) return true
+        else return false
+    }
+
+    /**
+     * Returns true if digital twins are the same
+     */
+    fun hasSameDigitalTwins(other: EventState): Boolean {
+        if(
+            super.goods == other.goods &&
+            super.transportMean == other.transportMean &&
+            super.location == other.location &&
+            super.otherDigitalTwins == other.otherDigitalTwins
+        ) return true
+        else return false
+    }
 }
 
 @CordaSerializable
