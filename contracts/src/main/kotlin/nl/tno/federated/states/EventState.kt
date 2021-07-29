@@ -20,12 +20,13 @@ data class EventState(
         override val transportMean: List<UUID>,
         override val location: List<UUID>,
         override val otherDigitalTwins: List<UUID>,
-        override val time: Date,
+        override val eventCreationtime: Date,
+        override val timestamps: List<TimeAndType>,
         override val ecmruri: String,
         override val milestone: Milestone,
         override val participants: List<AbstractParty> = listOf(),
         override val linearId: UniqueIdentifier = UniqueIdentifier()
-) : LinearState, Event(goods, transportMean, location, otherDigitalTwins, time, ecmruri, milestone), QueryableState {
+) : LinearState, Event(goods, transportMean, location, otherDigitalTwins, eventCreationtime, timestamps, ecmruri, milestone), QueryableState {
 
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         if (schema is EventSchemaV1) {
@@ -52,7 +53,7 @@ data class EventState(
                     pTransportMean,
                     pLocation,
                     pOtherDigitalTwins,
-                    time,
+                    eventCreationtime,
                     ecmruri,
                     milestone
             )
@@ -68,13 +69,25 @@ enum class Milestone {
     START, STOP
 }
 
+@CordaSerializable
+enum class TimeType {
+    PLANNED, ESTIMATED, ACTUAL
+}
+
+@CordaSerializable
+data class TimeAndType (
+    val time : Date,
+    val type : TimeType
+)
+
 
 open class Event(
         open val goods: List<UUID>,
         open val transportMean: List<UUID>,
         open val location: List<UUID>,
         open val otherDigitalTwins: List<UUID>,
-        open val time: Date,
+        open val eventCreationtime: Date,
+        open val timestamps: List<TimeAndType>,
         open val ecmruri: String,
         open val milestone: Milestone
 )
