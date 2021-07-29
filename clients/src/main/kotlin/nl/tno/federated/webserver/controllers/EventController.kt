@@ -6,6 +6,7 @@ import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.flows.DigitalTwinPair
 import nl.tno.federated.flows.NewEventFlow
+import nl.tno.federated.flows.UpdateEstimatedTimeFlow
 import nl.tno.federated.states.*
 import nl.tno.federated.webserver.NodeRPCConnection
 import org.slf4j.LoggerFactory
@@ -51,7 +52,7 @@ class EventController(rpc: NodeRPCConnection) {
     private fun events() : Map<UUID, Event> {
         val eventStates = proxy.vaultQuery(EventState::class.java).states.map { it.state.data }
 
-        return eventStates.map { it.linearId.id to Event(it.goods, it.transportMean, it.location, it.otherDigitalTwins, it.time, it.ecmruri, it.milestone) }.toMap()
+        return eventStates.map { it.linearId.id to Event(it.goods, it.transportMean, it.location, it.otherDigitalTwins, it.eventCreationtime, it.timestamps, it.ecmruri, it.milestone) }.toMap()
     }
 
     @ApiOperation(value = "Return an event")
@@ -59,7 +60,7 @@ class EventController(rpc: NodeRPCConnection) {
     private fun event(@PathVariable id: UUID): Map<UUID, Event> {
         val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(id))
         val state = proxy.vaultQueryBy<EventState>(criteria).states.map { it.state.data }
-        return state.map { it.linearId.id to Event(it.goods, it.transportMean, it.location, it.otherDigitalTwins, it.time, it.ecmruri, it.milestone) }.toMap()
+        return state.map { it.linearId.id to Event(it.goods, it.transportMean, it.location, it.otherDigitalTwins, it.eventCreationtime, it.timestamps, it.ecmruri, it.milestone) }.toMap()
     }
 
     @ApiOperation(value = "Return events by digital twin ID")
@@ -72,6 +73,6 @@ class EventController(rpc: NodeRPCConnection) {
                     it.state.data.otherDigitalTwins.contains(dtuuid)
         }.map{ it.state.data }
 
-        return eventStates.map { it.linearId.id to Event(it.goods, it.transportMean, it.location, it.otherDigitalTwins, it.time, it.ecmruri, it.milestone) }.toMap()
+        return eventStates.map { it.linearId.id to Event(it.goods, it.transportMean, it.location, it.otherDigitalTwins, it.eventCreationtime, it.timestamps, it.ecmruri, it.milestone) }.toMap()
     }
 }
