@@ -66,6 +66,17 @@ class EventContract : Contract {
                     }
                 }
             }
+
+            is Commands.UpdateEstimatedTime -> {
+                requireThat{
+                    "Besides times, id and participants, input and output states must be equal" using (inputStates.single().equals(eventState))
+
+                    val oldTimestamps = inputStates.single().timestamps
+                    val newTimestamps = eventState.timestamps
+                    "Old timestamps and new timestamps must be equal, net of the last element" using (oldTimestamps == newTimestamps - newTimestamps.last())
+                    "The last (added) timestamp must be of type ESTIMATED" using (newTimestamps.last().type == TimeType.ESTIMATED)
+                }
+            }
         }
     }
 

@@ -46,6 +46,22 @@ class EventController(rpc: NodeRPCConnection) {
             }
     }
 
+    @ApiOperation(value = "Update an event estimated time")
+    @PostMapping(value = ["/updatetime"])
+    private fun updateEvent(@RequestBody eventUUID: UUID, time: Date): ResponseEntity<String> {
+        return try {
+                val updateEventTx = proxy.startFlowDynamic(
+                        UpdateEstimatedTimeFlow::class.java,
+                        eventUUID,
+                        time
+                ).returnValue.get()
+                val createdEventId = (updateEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
+                ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
+            } catch (e: Exception) {
+                return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
+            }
+    }
+
 
     @ApiOperation(value = "Return all known events")
     @GetMapping(value = [""])

@@ -175,4 +175,27 @@ class EventFlowTests {
 
         assertFailsWith<TransactionVerificationException> { future.getOrThrow() }
     }
+
+    @Test
+    fun `Simple flow start and update event`() {
+
+        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, TimeAndType(Date(), TimeType.ACTUAL), eCMRuriExample, Milestone.START)
+        val futureStart = a.startFlow(flowStart)
+        network.runNetwork()
+
+        val signedTxStart = futureStart.getOrThrow()
+        signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+
+        // Retrieving ID of the new DT (in this case only the cargo)
+        val newlyCreatedEvent = a.services.vaultService.queryBy<EventState>().states
+        val idOfNewlyCreatedEvent = newlyCreatedEvent.map { it.state.data.linearId }.single().id
+
+
+        val flowUpdated = UpdateEstimatedTimeFlow(idOfNewlyCreatedEvent, Date())
+        val futureStop = a.startFlow(flowUpdated)
+        network.runNetwork()
+
+        val signedTxStop = futureStop.getOrThrow()
+        signedTxStop.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+    }
 }
