@@ -18,6 +18,7 @@ import java.util.*
 @StartableByRPC
 class NewEventFlow(
     val digitalTwins: List<DigitalTwinPair>,
+    val time: TimeAndType,
     val eCMRuri: String,
     val milestone: Milestone
     ) : FlowLogic<SignedTransaction>() {
@@ -86,7 +87,6 @@ class NewEventFlow(
         }
 
         val newEventState : EventState
-        val txCommand : Command<EventContract.Commands>
 
         // TODO This criteria raises some nullpointerexception when running tests
         /*val isTheSame = QueryCriteria.VaultCustomQueryCriteria(EventNewSchemaV1.PersistentEvent::goods.equal(goods))
@@ -109,8 +109,7 @@ class NewEventFlow(
                     "There cannot be a previous equal start event" using (previousEvents.isEmpty())
                 }
 
-                newEventState = EventState(goods, transportMean, location, otherDT, Date(), eCMRuri, milestone, allParties - notary)
-                txCommand = Command(EventContract.Commands.Start(), newEventState.participants.map { it.owningKey })
+                newEventState = EventState(goods, transportMean, location, otherDT, Date(), listOf(time), eCMRuri, milestone, allParties - notary)
             }
             Milestone.STOP -> {
 
@@ -118,21 +117,20 @@ class NewEventFlow(
                     "There must be one previous event only" using ( previousEvents.size <= 1 )
                 }
 
-                newEventState = EventState(goods, transportMean, location, otherDT, Date(), eCMRuri, milestone, allParties - notary)
-                txCommand = Command(EventContract.Commands.Stop(), newEventState.participants.map { it.owningKey })
+                newEventState = EventState(goods, transportMean, location, otherDT, Date(), listOf(time), eCMRuri, milestone, allParties - notary)
             }
             else -> {
                 // Make the contract and the tx fail (by setting all dt fields to empty)
-                newEventState = EventState(emptyList(), emptyList(), emptyList(), emptyList(), Date(), eCMRuri, milestone, allParties - notary)
-                txCommand = Command(EventContract.Commands.Other(), newEventState.participants.map { it.owningKey })
+                newEventState = EventState(emptyList(), emptyList(), emptyList(), emptyList(), Date(), listOf(time), eCMRuri, milestone, allParties - notary)
             }
         }
 
         val txBuilder = TransactionBuilder(notary)
                 .addOutputState(newEventState, EventContract.ID)
-                .addCommand(txCommand)
+                .addCommand(EventContract.Commands.Create(), newEventState.participants.map { it.owningKey })
 
-        if(previousEvents.isNotEmpty()) txBuilder.addInputState(previousEvents.single())
+        if(previousEvents.isNotEmpty())
+            txBuilder.addInputState(previousEvents.single())
 
         // Stage 2.
         progressTracker.currentStep = VERIFYING_TRANSACTION
@@ -164,6 +162,8 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 // TODO what to check in the counterparty flow?
+                // especially: if I'm not passing all previous states in the tx (see "requires" in the flow)
+                // then I want the counterparties to check by themselves that everything's legit
             }
         }
         val txId = subFlow(signTransactionFlow).id
