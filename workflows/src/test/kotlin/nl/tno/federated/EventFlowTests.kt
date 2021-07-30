@@ -186,16 +186,51 @@ class EventFlowTests {
         val signedTxStart = futureStart.getOrThrow()
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
-        // Retrieving ID of the new DT (in this case only the cargo)
+        // Retrieving ID of the new event
         val newlyCreatedEvent = a.services.vaultService.queryBy<EventState>().states
         val idOfNewlyCreatedEvent = newlyCreatedEvent.map { it.state.data.linearId }.single().id
 
 
         val flowUpdated = UpdateEstimatedTimeFlow(idOfNewlyCreatedEvent, Date())
-        val futureStop = a.startFlow(flowUpdated)
+        val futureUpdated = a.startFlow(flowUpdated)
         network.runNetwork()
 
-        val signedTxStop = futureStop.getOrThrow()
+        val signedTxStop = futureUpdated.getOrThrow()
         signedTxStop.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+    }
+
+    @Test
+    fun `Simple flow start and update and execute event`() {
+
+        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, TimeAndType(Date(), TimeType.ACTUAL), eCMRuriExample, Milestone.START)
+        val futureStart = a.startFlow(flowStart)
+        network.runNetwork()
+
+        val signedTxStart = futureStart.getOrThrow()
+        signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+
+        // Retrieving ID of the new event
+        var newlyCreatedEvent = a.services.vaultService.queryBy<EventState>().states
+        var idOfNewlyCreatedEvent = newlyCreatedEvent.map { it.state.data.linearId }.single().id
+
+
+        val flowUpdated = UpdateEstimatedTimeFlow(idOfNewlyCreatedEvent, Date())
+        val futureUpdated = a.startFlow(flowUpdated)
+        network.runNetwork()
+
+        val signedTxStop = futureUpdated.getOrThrow()
+        signedTxStop.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+
+        // Retrieving ID of the new event
+        newlyCreatedEvent = a.services.vaultService.queryBy<EventState>().states
+        idOfNewlyCreatedEvent = newlyCreatedEvent.map { it.state.data.linearId }.single().id
+
+
+        val flowExecuted = ExecuteEventFlow(idOfNewlyCreatedEvent, Date())
+        val futureExecuted = a.startFlow(flowExecuted)
+        network.runNetwork()
+
+        val signedTxExec = futureExecuted.getOrThrow()
+        signedTxExec.verifySignaturesExcept(a.info.singleIdentity().owningKey)
     }
 }
