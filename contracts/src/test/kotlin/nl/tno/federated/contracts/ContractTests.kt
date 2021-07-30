@@ -9,6 +9,7 @@ import net.corda.testing.node.ledger
 import nl.tno.federated.states.*
 import org.junit.Test
 import java.sql.Timestamp
+import java.util.*
 
 class ContractTests {
     private val netParamForMinVersion = testNetworkParameters(minimumPlatformVersion = 4)
@@ -26,6 +27,7 @@ class ContractTests {
             emptyList(),
             listOf(UniqueIdentifier().id, UniqueIdentifier().id),
             Timestamp(System.currentTimeMillis()),
+            listOf(TimeAndType(Date(),TimeType.ACTUAL)),
             eCMRuriExample, Milestone.START, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
     private val eventNewStateTransportAndLocation = EventState(
@@ -34,6 +36,7 @@ class ContractTests {
             listOf(UniqueIdentifier().id),
             listOf(UniqueIdentifier().id, UniqueIdentifier().id),
             Timestamp(System.currentTimeMillis()),
+            listOf(TimeAndType(Date(),TimeType.ACTUAL)),
             eCMRuriExample, Milestone.START, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
     private val eventNewStateWrong = EventState(
@@ -42,6 +45,7 @@ class ContractTests {
             emptyList(),
             listOf(UniqueIdentifier().id, UniqueIdentifier().id),
             Timestamp(System.currentTimeMillis()),
+            listOf(TimeAndType(Date(),TimeType.ACTUAL)),
             eCMRuriExample, Milestone.START, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
     private val eventNewStateWrong2 = EventState(
@@ -50,6 +54,7 @@ class ContractTests {
             listOf(UniqueIdentifier().id),
             listOf(UniqueIdentifier().id, UniqueIdentifier().id),
             Timestamp(System.currentTimeMillis()),
+            listOf(TimeAndType(Date(),TimeType.ACTUAL)),
             eCMRuriExample, Milestone.START, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
 
@@ -59,7 +64,7 @@ class ContractTests {
     fun `new event simple test`() {
         ledgerServices.ledger {
             transaction {
-                command(sender.publicKey, EventContract.Commands.Start())
+                command(sender.publicKey, EventContract.Commands.Create())
                 output(EventContract.ID, eventNewStateGoodsAndTransport)
 
                 verifies()
@@ -71,7 +76,7 @@ class ContractTests {
     fun `new event simple test 2`() {
         ledgerServices.ledger {
             transaction {
-                command(sender.publicKey, EventContract.Commands.Start())
+                command(sender.publicKey, EventContract.Commands.Create())
                 output(EventContract.ID, eventNewStateTransportAndLocation)
 
                 verifies()
@@ -83,7 +88,7 @@ class ContractTests {
     fun `fail new event because too many goods`() {
         ledgerServices.ledger {
             transaction {
-                command(sender.publicKey, EventContract.Commands.Start())
+                command(sender.publicKey, EventContract.Commands.Create())
                 output(EventContract.ID, eventNewStateWrong)
 
                 `fails with`("There can be one good only")
@@ -95,7 +100,7 @@ class ContractTests {
     fun `fail new event because goods and location`() {
         ledgerServices.ledger {
             transaction {
-                command(sender.publicKey, EventContract.Commands.Start())
+                command(sender.publicKey, EventContract.Commands.Create())
                 output(EventContract.ID, eventNewStateWrong2)
 
                 `fails with` ("Goods and locations cannot be linked together")
