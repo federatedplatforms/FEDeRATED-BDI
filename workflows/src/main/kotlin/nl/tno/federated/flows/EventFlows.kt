@@ -346,6 +346,16 @@ class ExecuteEventFlow(
         if(retrievedEvent.isNotEmpty())
             txBuilder.addInputState(retrievedEvent.single())
 
+        when(newEventState.milestone) {
+            Milestone.STOP -> {
+                val previousStartEvents = serviceHub.vaultService.queryBy<EventState>(/*isTheSame*/).states
+                        .filter{ it.state.data.hasSameDigitalTwins(newEventState) && it.state.data.milestone == Milestone.START }
+
+                if(previousStartEvents.isNotEmpty())
+                    txBuilder.addReferenceState(previousStartEvents.single().referenced())
+            }
+        }
+
         // Stage 2.
         progressTracker.currentStep = VERIFYING_TRANSACTION
         // Verify that the transaction is valid.

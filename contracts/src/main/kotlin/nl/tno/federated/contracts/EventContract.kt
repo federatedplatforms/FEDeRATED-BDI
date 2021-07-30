@@ -21,6 +21,7 @@ class EventContract : Contract {
 
         val outputStates = tx.outputStates
         val inputStates = tx.inputStates.filterIsInstance<EventState>()
+        val referenceStates = tx.referenceStates.filterIsInstance<EventState>()
 
         val eventState = outputStates.filterIsInstance<EventState>().single()
 
@@ -61,20 +62,48 @@ class EventContract : Contract {
                             "Digital twins in the previous START event must equal to those in the current STOP event" using (
                                             inputStates.single().hasSameDigitalTwins(eventState)
                                     )
+                            // TODO check last timestamp of START is EXECUTED
                         }
                         // TODO other constraints for stop case?
                     }
                 }
             }
 
-            is Commands.UpdateEstimatedTime -> {
+            is Commands.UpdateEstimatedTime, is Commands.ExecuteEvent -> {
                 requireThat{
+                    "There must be a previous corresponding event as input" using (inputStates.isNotEmpty())
                     "Besides times, id and participants, input and output states must be equal" using (inputStates.single().equals(eventState))
-
                     val oldTimestamps = inputStates.single().timestamps
                     val newTimestamps = eventState.timestamps
+                    "Last element of old timestamps cannot be of type ACTUAL" using (oldTimestamps.last().type != TimeType.ACTUAL)
+                    "First element of old timestamps must be of type PLANNED" using (oldTimestamps.first().type == TimeType.PLANNED)
                     "Old timestamps and new timestamps must be equal, net of the last element" using (oldTimestamps == newTimestamps - newTimestamps.last())
+                }
+            }
+
+            is Commands.UpdateEstimatedTime -> {
+                val newTimestamps = eventState.timestamps
+                requireThat{
                     "The last (added) timestamp must be of type ESTIMATED" using (newTimestamps.last().type == TimeType.ESTIMATED)
+                }
+            }
+
+            is Commands.ExecuteEvent -> {
+                val newTimestamps = eventState.timestamps
+                requireThat{
+                    "The last (added) timestamp must be of type ACTUAL" using (newTimestamps.last().type == TimeType.ACTUAL)
+                }
+
+                when(eventState.milestone) {
+                    Milestone.STOP -> {
+                        requireThat{
+                            "There must be only one previous START event" using (referenceStates.size == 1)
+                            val correspondingStartEvent = referenceStates.single()
+                            "The corresponding START event must involve the same digital twins" using (correspondingStartEvent.hasSameDigitalTwins(eventState))
+                            "The last timestamps of the corresponding START event must be of type ACTUAL" using (
+                                    correspondingStartEvent.timestamps.last().type == TimeType.ACTUAL )
+                        }
+                    }
                 }
             }
         }
