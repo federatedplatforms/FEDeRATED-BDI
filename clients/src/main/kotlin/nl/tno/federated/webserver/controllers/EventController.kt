@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.flows.DigitalTwinPair
+import nl.tno.federated.flows.ExecuteEventFlow
 import nl.tno.federated.flows.NewEventFlow
 import nl.tno.federated.flows.UpdateEstimatedTimeFlow
 import nl.tno.federated.states.*
@@ -56,6 +57,22 @@ class EventController(rpc: NodeRPCConnection) {
                         time
                 ).returnValue.get()
                 val createdEventId = (updateEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
+                ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
+            } catch (e: Exception) {
+                return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
+            }
+    }
+
+    @ApiOperation(value = "Execute an event")
+    @PostMapping(value = ["/executeevent"])
+    private fun executeEvent(@RequestBody eventUUID: UUID, time: Date): ResponseEntity<String> {
+        return try {
+                val executeEventTx = proxy.startFlowDynamic(
+                        ExecuteEventFlow::class.java,
+                        eventUUID,
+                        time
+                ).returnValue.get()
+                val createdEventId = (executeEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
                 ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
             } catch (e: Exception) {
                 return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
