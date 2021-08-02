@@ -109,7 +109,7 @@ class NewEventFlow(
                     "There cannot be a previous equal start event" using (previousEvents.isEmpty())
                 }
 
-                newEventState = EventState(goods, transportMean, location, otherDT, Date(), listOf(TimeAndType(time, TimeType.PLANNED)), eCMRuri, milestone, allParties - notary)
+                newEventState = EventState(goods, transportMean, location, otherDT, Date(), listOf(TimeAndType(time, TimeType.PLANNED)), emptyList(), eCMRuri, milestone, allParties - notary)
             }
             Milestone.STOP -> {
 
@@ -117,11 +117,11 @@ class NewEventFlow(
                     "There must be one previous event only" using ( previousEvents.size <= 1 )
                 }
 
-                newEventState = EventState(goods, transportMean, location, otherDT, Date(), listOf(TimeAndType(time, TimeType.PLANNED)), eCMRuri, milestone, allParties - notary)
+                newEventState = EventState(goods, transportMean, location, otherDT, Date(), listOf(TimeAndType(time, TimeType.PLANNED)), emptyList(), eCMRuri, milestone, allParties - notary)
             }
             else -> {
                 // Make the contract and the tx fail (by setting all dt fields to empty)
-                newEventState = EventState(emptyList(), emptyList(), emptyList(), emptyList(), Date(), listOf(TimeAndType(time, TimeType.PLANNED)), eCMRuri, milestone, allParties - notary)
+                newEventState = EventState(emptyList(), emptyList(), emptyList(), emptyList(), Date(), listOf(TimeAndType(time, TimeType.PLANNED)), emptyList(), eCMRuri, milestone, allParties - notary)
             }
         }
 
@@ -328,33 +328,46 @@ class ExecuteEventFlow(
 
         val newEventState : EventState
 
-        val retrievedEvent = serviceHub.vaultService.queryBy<EventState>().states
+        val retrievedEvents = serviceHub.vaultService.queryBy<EventState>().states
                 .filter{ it.state.data.linearId.id == eventUUID }
 
         requireThat{
-            "There must be a corresponding event" using (retrievedEvent.isNotEmpty())
+            "There must be one corresponding event" using (retrievedEvents.size == 1)
         }
 
-        newEventState = retrievedEvent.single().state.data.copy(
-                timestamps = retrievedEvent.single().state.data.timestamps + TimeAndType(time, TimeType.ACTUAL)
-        )
+        val correspondingEvent = retrievedEvents.single().state.data
 
         val txBuilder = TransactionBuilder(notary)
-                .addOutputState(newEventState, EventContract.ID)
-                .addCommand(Command(EventContract.Commands.ExecuteEvent(), newEventState.participants.map { it.owningKey }))
+                .addCommand(Command(EventContract.Commands.ExecuteEvent(), correspondingEvent.participants.map { it.owningKey }))
 
-        if(retrievedEvent.isNotEmpty())
-            txBuilder.addInputState(retrievedEvent.single())
+        if(retrievedEvents.isNotEmpty())
+            txBuilder.addInputState(retrievedEvents.single())
 
-        when(newEventState.milestone) {
+        when(correspondingEvent.milestone) {
             Milestone.STOP -> {
                 val previousStartEvents = serviceHub.vaultService.queryBy<EventState>(/*isTheSame*/).states
-                        .filter{ it.state.data.hasSameDigitalTwins(newEventState) && it.state.data.milestone == Milestone.START }
+                        .filter{ it.state.data.hasSameDigitalTwins(correspondingEvent) && it.state.data.milestone == Milestone.START }
 
-                if(previousStartEvents.isNotEmpty())
+                if(previousStartEvents.isNotEmpty()) {
                     txBuilder.addInputState(previousStartEvents.single())
+                    newEventState = correspondingEvent.copy(
+                            timestamps = correspondingEvent.timestamps + TimeAndType(time, TimeType.ACTUAL),
+                            startTimestamps = previousStartEvents.single().state.data.timestamps
+                    )
+                } else {
+                    newEventState = correspondingEvent.copy(
+                            timestamps = correspondingEvent.timestamps + TimeAndType(time, TimeType.ACTUAL)
+                    )
+                }
+            }
+            else -> {
+                newEventState = correspondingEvent.copy(
+                        timestamps = correspondingEvent.timestamps + TimeAndType(time, TimeType.ACTUAL)
+                )
             }
         }
+
+        txBuilder.addOutputState(newEventState, EventContract.ID)
 
         // Stage 2.
         progressTracker.currentStep = VERIFYING_TRANSACTION

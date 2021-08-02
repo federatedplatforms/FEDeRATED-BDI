@@ -22,11 +22,12 @@ data class EventState(
         override val otherDigitalTwins: List<UUID>,
         override val eventCreationtime: Date,
         override val timestamps: List<TimeAndType>,
+        override val startTimestamps: List<TimeAndType>,
         override val ecmruri: String,
         override val milestone: Milestone,
         override val participants: List<AbstractParty> = listOf(),
         override val linearId: UniqueIdentifier = UniqueIdentifier()
-) : LinearState, Event(goods, transportMean, location, otherDigitalTwins, eventCreationtime, timestamps, ecmruri, milestone), QueryableState {
+) : LinearState, Event(goods, transportMean, location, otherDigitalTwins, eventCreationtime, timestamps, startTimestamps, ecmruri, milestone), QueryableState {
 
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         if (schema is EventSchemaV1) {
@@ -116,6 +117,7 @@ open class Event(
         open val otherDigitalTwins: List<UUID>,
         open val eventCreationtime: Date,
         open val timestamps: List<TimeAndType>,
+        open val startTimestamps: List<TimeAndType>,
         open val ecmruri: String,
         open val milestone: Milestone
 )
