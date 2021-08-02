@@ -36,7 +36,6 @@ class EventContract : Contract {
                             }
                             )
                 }
-                // TODO other general creation constraints?
 
                 when(eventState.milestone) {
                     Milestone.START -> {
@@ -62,9 +61,7 @@ class EventContract : Contract {
                             "Digital twins in the previous START event must equal to those in the current STOP event" using (
                                         referenceStates.single().hasSameDigitalTwins(eventState)
                                     )
-                            // TODO check last timestamp of START is EXECUTED
                         }
-                        // TODO other constraints for stop case?
                     }
                 }
             }
@@ -83,11 +80,10 @@ class EventContract : Contract {
             }
 
             is Commands.ExecuteEvent -> {
-                val newTimestamps = eventState.timestamps
                 val correspondingEvent = inputStates.filter{
                     it.milestone == eventState.milestone
                     /* This filtering is to leave out previous states with
-                    * a different mileston, which should happen only in the case
+                    * a different milestone, which should happen only in the case
                     * of executing a STOP event, where in the flow also the START
                     * event is passed. */
                 }

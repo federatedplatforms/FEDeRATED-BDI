@@ -88,12 +88,6 @@ class NewEventFlow(
 
         val newEventState : EventState
 
-        // TODO This criteria raises some nullpointerexception when running tests
-        /*val isTheSame = QueryCriteria.VaultCustomQueryCriteria(EventNewSchemaV1.PersistentEvent::goods.equal(goods))
-                .and(QueryCriteria.VaultCustomQueryCriteria( EventNewSchemaV1.PersistentEvent::transportMean.equal(transportMean)))
-                .and(QueryCriteria.VaultCustomQueryCriteria(EventNewSchemaV1.PersistentEvent::location.equal(location)))
-                .and(QueryCriteria.VaultCustomQueryCriteria(EventNewSchemaV1.PersistentEvent::otherDigitalTwins.equal(otherDT)))*/
-
         val previousEvents = serviceHub.vaultService.queryBy<EventState>(/*isTheSame*/).states
                 .filter{ it.state.data.milestone == Milestone.START &&
                         it.state.data.goods == goods &&
