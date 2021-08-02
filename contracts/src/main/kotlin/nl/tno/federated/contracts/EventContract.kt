@@ -69,7 +69,7 @@ class EventContract : Contract {
                 }
             }
 
-            is Commands.UpdateEstimatedTime, is Commands.ExecuteEvent -> {
+            is Commands.UpdateEstimatedTime -> {
                 requireThat{
                     "There must be a previous corresponding event as input" using (inputStates.isNotEmpty())
                     "Besides times, id and participants, input and output states must be equal" using (inputStates.single().equals(eventState))
@@ -78,30 +78,39 @@ class EventContract : Contract {
                     "Last element of old timestamps cannot be of type ACTUAL" using (oldTimestamps.last().type != TimeType.ACTUAL)
                     "First element of old timestamps must be of type PLANNED" using (oldTimestamps.first().type == TimeType.PLANNED)
                     "Old timestamps and new timestamps must be equal, net of the last element" using (oldTimestamps == newTimestamps - newTimestamps.last())
-                }
-            }
-
-            is Commands.UpdateEstimatedTime -> {
-                val newTimestamps = eventState.timestamps
-                requireThat{
                     "The last (added) timestamp must be of type ESTIMATED" using (newTimestamps.last().type == TimeType.ESTIMATED)
                 }
             }
 
             is Commands.ExecuteEvent -> {
                 val newTimestamps = eventState.timestamps
+                val correspondingEvent = inputStates.filter{
+                    it.milestone == eventState.milestone
+                    /* This filtering is to leave out previous states with
+                    * a different mileston, which should happen only in the case
+                    * of executing a STOP event, where in the flow also the START
+                    * event is passed. */
+                }
+                val correspondingStartEvent = inputStates - correspondingEvent
+
                 requireThat{
+                    "There must be a previous corresponding event as input" using (correspondingEvent.isNotEmpty())
+                    "Besides times, id and participants, input and output states must be equal" using (correspondingEvent.single().equals(eventState))
+                    val oldTimestamps = correspondingEvent.single().timestamps
+                    val newTimestamps = eventState.timestamps
+                    "Last element of old timestamps cannot be of type ACTUAL" using (oldTimestamps.last().type != TimeType.ACTUAL)
+                    "First element of old timestamps must be of type PLANNED" using (oldTimestamps.first().type == TimeType.PLANNED)
+                    "Old timestamps and new timestamps must be equal, net of the last element" using (oldTimestamps == newTimestamps - newTimestamps.last())
                     "The last (added) timestamp must be of type ACTUAL" using (newTimestamps.last().type == TimeType.ACTUAL)
                 }
 
                 when(eventState.milestone) {
                     Milestone.STOP -> {
                         requireThat{
-                            "There must be only one previous START event" using (referenceStates.size == 1)
-                            val correspondingStartEvent = referenceStates.single()
-                            "The corresponding START event must involve the same digital twins" using (correspondingStartEvent.hasSameDigitalTwins(eventState))
+                            "There must be only one previous START event" using (correspondingStartEvent.size == 1)
+                            "The corresponding START event must involve the same digital twins" using (correspondingStartEvent.single().hasSameDigitalTwins(eventState))
                             "The last timestamps of the corresponding START event must be of type ACTUAL" using (
-                                    correspondingStartEvent.timestamps.last().type == TimeType.ACTUAL )
+                                    correspondingStartEvent.single().timestamps.last().type == TimeType.ACTUAL )
                         }
                     }
                 }

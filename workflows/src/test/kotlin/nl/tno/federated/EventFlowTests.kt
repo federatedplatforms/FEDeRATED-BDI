@@ -253,9 +253,20 @@ class EventFlowTests {
 
         // Retrieving ID of the new event
         var newlyCreatedEvent = a.services.vaultService.queryBy<EventState>().states
-                .filter{ it.state.data.milestone == Milestone.STOP }
-        var idOfNewlyCreatedEvent = newlyCreatedEvent.map { it.state.data.linearId }.single().id
+                .filter{ it.state.data.milestone == Milestone.START }
+        var idOfNewlyCreatedEvent = newlyCreatedEvent.map{ it.state.data.linearId }.single().id
 
+        val flowExecutedStart = ExecuteEventFlow(idOfNewlyCreatedEvent, Date())
+        val futureExecutedStart = a.startFlow(flowExecutedStart)
+        network.runNetwork()
+
+        val signedTxExecStart = futureExecutedStart.getOrThrow()
+        signedTxExecStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+
+        // Retrieving ID of the new event
+        newlyCreatedEvent = a.services.vaultService.queryBy<EventState>().states
+                .filter{ it.state.data.milestone == Milestone.STOP }
+        idOfNewlyCreatedEvent = newlyCreatedEvent.map{ it.state.data.linearId }.single().id
 
         val flowExecuted = ExecuteEventFlow(idOfNewlyCreatedEvent, Date())
         val futureExecuted = a.startFlow(flowExecuted)

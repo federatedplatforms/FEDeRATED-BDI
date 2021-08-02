@@ -352,7 +352,7 @@ class ExecuteEventFlow(
                         .filter{ it.state.data.hasSameDigitalTwins(newEventState) && it.state.data.milestone == Milestone.START }
 
                 if(previousStartEvents.isNotEmpty())
-                    txBuilder.addReferenceState(previousStartEvents.single().referenced())
+                    txBuilder.addInputState(previousStartEvents.single())
             }
         }
 
