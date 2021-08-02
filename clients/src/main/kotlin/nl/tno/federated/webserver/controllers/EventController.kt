@@ -32,11 +32,12 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
-    private fun newEvent(@RequestBody digitalTwins: List<DigitalTwinPair>, eCMRuri: String, milestone: Milestone): ResponseEntity<String> {
+    private fun newEvent(@RequestBody digitalTwins: List<DigitalTwinPair>, time: Date, eCMRuri: String, milestone: Milestone): ResponseEntity<String> {
         return try {
                 val newEventTx = proxy.startFlowDynamic(
                         NewEventFlow::class.java,
                         digitalTwins,
+                        time,
                         eCMRuri,
                         milestone
                 ).returnValue.get()

@@ -18,7 +18,7 @@ import java.util.*
 @StartableByRPC
 class NewEventFlow(
     val digitalTwins: List<DigitalTwinPair>,
-    val time: TimeAndType,
+    val time: Date,
     val eCMRuri: String,
     val milestone: Milestone
     ) : FlowLogic<SignedTransaction>() {
@@ -109,7 +109,7 @@ class NewEventFlow(
                     "There cannot be a previous equal start event" using (previousEvents.isEmpty())
                 }
 
-                newEventState = EventState(goods, transportMean, location, otherDT, Date(), listOf(time), eCMRuri, milestone, allParties - notary)
+                newEventState = EventState(goods, transportMean, location, otherDT, Date(), listOf(TimeAndType(time, TimeType.PLANNED)), eCMRuri, milestone, allParties - notary)
             }
             Milestone.STOP -> {
 
@@ -117,11 +117,11 @@ class NewEventFlow(
                     "There must be one previous event only" using ( previousEvents.size <= 1 )
                 }
 
-                newEventState = EventState(goods, transportMean, location, otherDT, Date(), listOf(time), eCMRuri, milestone, allParties - notary)
+                newEventState = EventState(goods, transportMean, location, otherDT, Date(), listOf(TimeAndType(time, TimeType.PLANNED)), eCMRuri, milestone, allParties - notary)
             }
             else -> {
                 // Make the contract and the tx fail (by setting all dt fields to empty)
-                newEventState = EventState(emptyList(), emptyList(), emptyList(), emptyList(), Date(), listOf(time), eCMRuri, milestone, allParties - notary)
+                newEventState = EventState(emptyList(), emptyList(), emptyList(), emptyList(), Date(), listOf(TimeAndType(time, TimeType.PLANNED)), eCMRuri, milestone, allParties - notary)
             }
         }
 
@@ -130,7 +130,7 @@ class NewEventFlow(
                 .addCommand(EventContract.Commands.Create(), newEventState.participants.map { it.owningKey })
 
         if(previousEvents.isNotEmpty())
-            txBuilder.addInputState(previousEvents.single())
+            txBuilder.addReferenceState(previousEvents.single().referenced())
 
         // Stage 2.
         progressTracker.currentStep = VERIFYING_TRANSACTION

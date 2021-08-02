@@ -27,7 +27,7 @@ class ContractTests {
             emptyList(),
             listOf(UniqueIdentifier().id, UniqueIdentifier().id),
             Timestamp(System.currentTimeMillis()),
-            listOf(TimeAndType(Date(),TimeType.ACTUAL)),
+            listOf(TimeAndType(Date(),TimeType.PLANNED)),
             eCMRuriExample, Milestone.START, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
     private val eventNewStateTransportAndLocation = EventState(
@@ -36,7 +36,7 @@ class ContractTests {
             listOf(UniqueIdentifier().id),
             listOf(UniqueIdentifier().id, UniqueIdentifier().id),
             Timestamp(System.currentTimeMillis()),
-            listOf(TimeAndType(Date(),TimeType.ACTUAL)),
+            listOf(TimeAndType(Date(),TimeType.PLANNED)),
             eCMRuriExample, Milestone.START, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
     private val eventNewStateWrong = EventState(
@@ -45,7 +45,7 @@ class ContractTests {
             emptyList(),
             listOf(UniqueIdentifier().id, UniqueIdentifier().id),
             Timestamp(System.currentTimeMillis()),
-            listOf(TimeAndType(Date(),TimeType.ACTUAL)),
+            listOf(TimeAndType(Date(),TimeType.PLANNED)),
             eCMRuriExample, Milestone.START, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
     private val eventNewStateWrong2 = EventState(
@@ -54,7 +54,7 @@ class ContractTests {
             listOf(UniqueIdentifier().id),
             listOf(UniqueIdentifier().id, UniqueIdentifier().id),
             Timestamp(System.currentTimeMillis()),
-            listOf(TimeAndType(Date(),TimeType.ACTUAL)),
+            listOf(TimeAndType(Date(),TimeType.PLANNED)),
             eCMRuriExample, Milestone.START, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
 

@@ -29,9 +29,9 @@ class EventContract : Contract {
             is Commands.Create -> {
                 requireThat{
                     "There must be exactly one timestamp at time of creation" using (eventState.timestamps.size == 1)
-                    "The type of the timestamp must be either PLANNED or ACTUAL" using (
+                    "The type of the timestamp must be PLANNED" using (
                             when(eventState.timestamps.single().type) {
-                                TimeType.PLANNED, TimeType.ACTUAL -> true
+                                TimeType.PLANNED -> true
                                 else -> false
                             }
                             )
@@ -57,10 +57,10 @@ class EventContract : Contract {
 
                     Milestone.STOP -> {
                         requireThat{
-                            "There must be 1 previous event" using (inputStates.size == 1)
-                            "Previous event must be of type START" using (inputStates.single().milestone == Milestone.START)
+                            "There must be 1 previous event" using (referenceStates.size == 1)
+                            "Previous event must be of type START" using (referenceStates.single().milestone == Milestone.START)
                             "Digital twins in the previous START event must equal to those in the current STOP event" using (
-                                            inputStates.single().hasSameDigitalTwins(eventState)
+                                        referenceStates.single().hasSameDigitalTwins(eventState)
                                     )
                             // TODO check last timestamp of START is EXECUTED
                         }
