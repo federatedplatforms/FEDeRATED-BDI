@@ -11,6 +11,7 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
+import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.states.*
 import java.util.*
 
@@ -27,7 +28,7 @@ class NewEventFlow(
      * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
      */
     companion object {
-        object GENERATING_TRANSACTION : Step("Generating transaction based on new IOU.")
+        object GENERATING_TRANSACTION : Step("Generating transaction.")
         object VERIFYING_TRANSACTION : Step("Verifying contract constraints.")
         object SIGNING_TRANSACTION : Step("Signing transaction with our private key.")
         object GATHERING_SIGS : Step("Gathering the counterparty's signature.") {
@@ -126,6 +127,8 @@ class NewEventFlow(
         if(previousEvents.isNotEmpty())
             txBuilder.addReferenceState(previousEvents.single().referenced())
 
+        GraphDBService.test()
+
         // Stage 2.
         progressTracker.currentStep = VERIFYING_TRANSACTION
         // Verify that the transaction is valid.
@@ -177,7 +180,7 @@ class UpdateEstimatedTimeFlow(
      * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
      */
     companion object {
-        object GENERATING_TRANSACTION : Step("Generating transaction based on new IOU.")
+        object GENERATING_TRANSACTION : Step("Generating transaction.")
         object VERIFYING_TRANSACTION : Step("Verifying contract constraints.")
         object SIGNING_TRANSACTION : Step("Signing transaction with our private key.")
         object GATHERING_SIGS : Step("Gathering the counterparty's signature.") {
@@ -283,7 +286,7 @@ class ExecuteEventFlow(
      * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
      */
     companion object {
-        object GENERATING_TRANSACTION : Step("Generating transaction based on new IOU.")
+        object GENERATING_TRANSACTION : Step("Generating transaction.")
         object VERIFYING_TRANSACTION : Step("Verifying contract constraints.")
         object SIGNING_TRANSACTION : Step("Signing transaction with our private key.")
         object GATHERING_SIGS : Step("Gathering the counterparty's signature.") {

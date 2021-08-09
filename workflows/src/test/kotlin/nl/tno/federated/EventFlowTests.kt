@@ -1,5 +1,7 @@
 package nl.tno.federated
 
+import io.mockk.every
+import io.mockk.mockkObject
 import net.corda.core.contracts.TransactionVerificationException
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
@@ -12,7 +14,10 @@ import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
 import nl.tno.federated.flows.*
-import nl.tno.federated.states.*
+import nl.tno.federated.services.GraphDBService
+import nl.tno.federated.states.EventState
+import nl.tno.federated.states.Milestone
+import nl.tno.federated.states.PhysicalObject
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -27,9 +32,9 @@ class EventFlowTests {
     lateinit var b: StartedMockNode
     lateinit var c: StartedMockNode
 
-    val eCMRuriExample = "This is a URI example for an eCMR"
+    private val eCMRuriExample = "This is a URI example for an eCMR"
 
-    val digitalTwinsWrong = listOf(
+    private val digitalTwinsWrong = listOf(
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.GOOD),
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.GOOD),
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.TRANSPORTMEAN),
@@ -37,7 +42,7 @@ class EventFlowTests {
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER)
     )
 
-    val digitalTwinsWrong2 = listOf(
+    private val digitalTwinsWrong2 = listOf(
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.GOOD),
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.TRANSPORTMEAN),
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.LOCATION),
@@ -45,7 +50,7 @@ class EventFlowTests {
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER)
     )
 
-    val digitalTwinsTransportAndLocation = listOf(
+    private val digitalTwinsTransportAndLocation = listOf(
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.TRANSPORTMEAN),
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.LOCATION),
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER),
@@ -61,6 +66,9 @@ class EventFlowTests {
 
     @Before
     fun setup() {
+        mockkObject(GraphDBService) // applies mocking to an Object
+        every { GraphDBService.test() } returns 200
+
         network = MockNetwork(
                 listOf("nl.tno.federated"),
                 notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","Brussels","BE"))),
@@ -236,7 +244,6 @@ class EventFlowTests {
 
     @Test
     fun `Simple flow start and execution of stop event`() {
-
         val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START)
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
@@ -294,9 +301,9 @@ class EventFlowTests {
         signedTxStop.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
         // Retrieving ID of the new event
-        var newlyCreatedEvent = a.services.vaultService.queryBy<EventState>().states
+        val newlyCreatedEvent = a.services.vaultService.queryBy<EventState>().states
                 .filter{ it.state.data.milestone == Milestone.STOP}
-        var idOfNewlyCreatedEvent = newlyCreatedEvent.map { it.state.data.linearId }.single().id
+        val idOfNewlyCreatedEvent = newlyCreatedEvent.map { it.state.data.linearId }.single().id
 
 
         val flowExecuted = ExecuteEventFlow(idOfNewlyCreatedEvent, Date())

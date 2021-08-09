@@ -1,8 +1,13 @@
 package nl.tno.federated.contracts
 
-import net.corda.core.contracts.*
+import net.corda.core.contracts.CommandData
+import net.corda.core.contracts.Contract
+import net.corda.core.contracts.requireSingleCommand
+import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
-import nl.tno.federated.states.*
+import nl.tno.federated.states.EventState
+import nl.tno.federated.states.Milestone
+import nl.tno.federated.states.TimeType
 
 // ************
 // * Contract *
@@ -69,7 +74,7 @@ class EventContract : Contract {
             is Commands.UpdateEstimatedTime -> {
                 requireThat{
                     "There must be a previous corresponding event as input" using (inputStates.isNotEmpty())
-                    "Besides times, id and participants, input and output states must be equal" using (inputStates.single().equals(eventState))
+                    "Besides times, id and participants, input and output states must be equal" using (inputStates.single().equalsExceptTimesAndParticipants(eventState))
                     val oldTimestamps = inputStates.single().timestamps
                     val newTimestamps = eventState.timestamps
                     "Last element of old timestamps cannot be of type ACTUAL" using (oldTimestamps.last().type != TimeType.ACTUAL)
@@ -91,7 +96,7 @@ class EventContract : Contract {
 
                 requireThat{
                     "There must be a previous corresponding event as input" using (correspondingEvent.isNotEmpty())
-                    "Besides times, id and participants, input and output states must be equal" using (correspondingEvent.single().equals(eventState))
+                    "Besides times, id and participants, input and output states must be equal" using (correspondingEvent.single().equalsExceptTimesAndParticipants(eventState))
                     val oldTimestamps = correspondingEvent.single().timestamps
                     val newTimestamps = eventState.timestamps
                     "Last element of old timestamps cannot be of type ACTUAL" using (oldTimestamps.last().type != TimeType.ACTUAL)

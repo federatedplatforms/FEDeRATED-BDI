@@ -2,7 +2,6 @@ package nl.tno.federated.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command
-import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.transactions.SignedTransaction
@@ -13,7 +12,6 @@ import nl.tno.federated.contracts.AccessPoliciesContract
 import nl.tno.federated.states.AccessPolicyState
 import nl.tno.federated.states.IdsAction
 import nl.tno.federated.states.Target
-import javax.accessibility.AccessibleState
 
 
 //////  CARGO CREATION  /////
@@ -34,7 +32,7 @@ class CreateAccessPolicyFlow(
      * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
      */
     companion object {
-        object GENERATING_TRANSACTION : Step("Generating transaction based on new IOU.")
+        object GENERATING_TRANSACTION : Step("Generating transaction.")
         object VERIFYING_TRANSACTION : Step("Verifying contract constraints.")
         object SIGNING_TRANSACTION : Step("Signing transaction with our private key.")
         object GATHERING_SIGS : Step("Gathering the counterparty's signature.") {
