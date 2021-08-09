@@ -1,7 +1,5 @@
 package nl.tno.federated
 
-import io.mockk.every
-import io.mockk.mockkObject
 import net.corda.core.contracts.TransactionVerificationException
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
@@ -14,7 +12,6 @@ import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
 import nl.tno.federated.flows.*
-import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.states.EventState
 import nl.tno.federated.states.Milestone
 import nl.tno.federated.states.PhysicalObject
@@ -66,9 +63,6 @@ class EventFlowTests {
 
     @Before
     fun setup() {
-        mockkObject(GraphDBService) // applies mocking to an Object
-        every { GraphDBService.test() } returns 200
-
         network = MockNetwork(
                 listOf("nl.tno.federated"),
                 notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","Brussels","BE"))),

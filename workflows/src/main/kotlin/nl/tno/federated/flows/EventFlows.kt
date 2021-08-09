@@ -11,7 +11,6 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
-import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.states.*
 import java.util.*
 
@@ -126,8 +125,6 @@ class NewEventFlow(
 
         if(previousEvents.isNotEmpty())
             txBuilder.addReferenceState(previousEvents.single().referenced())
-
-        GraphDBService.test()
 
         // Stage 2.
         progressTracker.currentStep = VERIFYING_TRANSACTION
