@@ -28,7 +28,7 @@ class CreateCargoFlow(
      * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
      */
     companion object {
-        object GENERATING_TRANSACTION : Step("Generating transaction based on new IOU.")
+        object GENERATING_TRANSACTION : Step("Generating transaction.")
         object VERIFYING_TRANSACTION : Step("Verifying contract constraints.")
         object SIGNING_TRANSACTION : Step("Signing transaction with our private key.")
         object GATHERING_SIGS : Step("Gathering the counterparty's signature.") {
@@ -111,7 +111,7 @@ class CreateTruckFlow(
      * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
      */
     companion object {
-        object GENERATING_TRANSACTION : Step("Generating transaction based on new IOU.")
+        object GENERATING_TRANSACTION : Step("Generating transaction.")
         object VERIFYING_TRANSACTION : Step("Verifying contract constraints.")
         object SIGNING_TRANSACTION : Step("Signing transaction with our private key.")
         object GATHERING_SIGS : Step("Gathering the counterparty's signature.") {

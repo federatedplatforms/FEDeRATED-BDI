@@ -20,12 +20,14 @@ data class EventState(
         override val transportMean: List<UUID>,
         override val location: List<UUID>,
         override val otherDigitalTwins: List<UUID>,
-        override val time: Date,
+        override val eventCreationtime: Date,
+        override val timestamps: List<TimeAndType>,
+        override val startTimestamps: List<TimeAndType>,
         override val ecmruri: String,
         override val milestone: Milestone,
         override val participants: List<AbstractParty> = listOf(),
         override val linearId: UniqueIdentifier = UniqueIdentifier()
-) : LinearState, Event(goods, transportMean, location, otherDigitalTwins, time, ecmruri, milestone), QueryableState {
+) : LinearState, Event(goods, transportMean, location, otherDigitalTwins, eventCreationtime, timestamps, startTimestamps, ecmruri, milestone), QueryableState {
 
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         if (schema is EventSchemaV1) {
@@ -52,7 +54,7 @@ data class EventState(
                     pTransportMean,
                     pLocation,
                     pOtherDigitalTwins,
-                    time,
+                    eventCreationtime,
                     ecmruri,
                     milestone
             )
@@ -61,6 +63,28 @@ data class EventState(
     }
 
     override fun supportedSchemas(): Iterable<MappedSchema> = listOf(EventSchemaV1)
+
+    /**
+     * Returns true if everything besides times, participants and linearId are the same
+     */
+    fun equalsExceptTimesAndParticipants(other: EventState): Boolean {
+        return super.goods == other.goods &&
+                super.transportMean == other.transportMean &&
+                super.location == other.location &&
+                super.otherDigitalTwins == other.otherDigitalTwins &&
+                super.ecmruri == other.ecmruri &&
+                super.milestone == other.milestone
+    }
+
+    /**
+     * Returns true if digital twins are the same
+     */
+    fun hasSameDigitalTwins(other: EventState): Boolean {
+        return super.goods == other.goods &&
+                super.transportMean == other.transportMean &&
+                super.location == other.location &&
+                super.otherDigitalTwins == other.otherDigitalTwins
+    }
 }
 
 @CordaSerializable
@@ -68,13 +92,26 @@ enum class Milestone {
     START, STOP
 }
 
+@CordaSerializable
+enum class TimeType {
+    PLANNED, ESTIMATED, ACTUAL
+}
+
+@CordaSerializable
+data class TimeAndType (
+    val time : Date,
+    val type : TimeType
+)
+
 
 open class Event(
         open val goods: List<UUID>,
         open val transportMean: List<UUID>,
         open val location: List<UUID>,
         open val otherDigitalTwins: List<UUID>,
-        open val time: Date,
+        open val eventCreationtime: Date,
+        open val timestamps: List<TimeAndType>,
+        open val startTimestamps: List<TimeAndType>,
         open val ecmruri: String,
         open val milestone: Milestone
 )
