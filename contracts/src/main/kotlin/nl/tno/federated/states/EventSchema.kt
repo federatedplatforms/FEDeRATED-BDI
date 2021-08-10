@@ -2,10 +2,12 @@ package nl.tno.federated.states
 
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
-import org.hibernate.annotations.Type
 import java.io.Serializable
 import java.util.*
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.ElementCollection
+import javax.persistence.Entity
+import javax.persistence.Table
 
 // Family of schemas
 object EventSchema
@@ -26,8 +28,7 @@ object EventSchemaV1 : MappedSchema(
     @Table(name = "EVENT_DETAIL")
     class PersistentEvent(
         @Column(name = "event_id")
-        @Type(type = "uuid-char")
-        val linearId: UUID,
+        val linearId: String,
         @ElementCollection
         val goods: List<UUID>,
         @ElementCollection
@@ -44,7 +45,7 @@ object EventSchemaV1 : MappedSchema(
         val milestone: Milestone
     ) : PersistentState(), Serializable {
         constructor() : this(
-            UUID.randomUUID(),
+            "no ID provided",
             emptyList<UUID>(),
             emptyList<UUID>(),
             emptyList<UUID>(),

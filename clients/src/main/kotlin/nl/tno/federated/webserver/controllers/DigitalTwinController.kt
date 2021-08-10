@@ -66,16 +66,20 @@ class DigitalTwinController(rpc: NodeRPCConnection) {
     @GetMapping(value = ["/cargo"])
     private fun cargo(): Map<UUID, Cargo> {
         val hasCargo = QueryCriteria.VaultCustomQueryCriteria(DigitalTwinSchemaV1.PersistentDigitalTwin::cargo.notNull())
-        return proxy.vaultQueryByCriteria(hasCargo, DigitalTwinState::class.java).states
-            .map { it.state.data.linearId.id to it.state.data.cargo!! }.toMap()
+        return proxy.vaultQueryByCriteria(
+            hasCargo,
+            DigitalTwinState::class.java
+        ).states.associate { it.state.data.linearId.id to it.state.data.cargo!! }
     }
 
     @ApiOperation(value = "Return all trucks")
     @GetMapping(value = ["/trucks"])
     private fun trucks(): Map<UUID, Truck> {
         val hasTruck = QueryCriteria.VaultCustomQueryCriteria(DigitalTwinSchemaV1.PersistentDigitalTwin::truck.notNull())
-        return proxy.vaultQueryByCriteria(hasTruck, DigitalTwinState::class.java).states
-            .map { it.state.data.linearId.id to it.state.data.truck!! }.toMap()
+        return proxy.vaultQueryByCriteria(
+            hasTruck,
+            DigitalTwinState::class.java
+        ).states.associate { it.state.data.linearId.id to it.state.data.truck!! }
     }
 
     @ApiOperation(value = "Return a piece of cargo")

@@ -2,14 +2,16 @@ package nl.tno.federated.webserver.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
-import nl.tno.federated.flows.DigitalTwinPair
 import nl.tno.federated.flows.ExecuteEventFlow
 import nl.tno.federated.flows.NewEventFlow
 import nl.tno.federated.flows.UpdateEstimatedTimeFlow
-import nl.tno.federated.states.*
+import nl.tno.federated.states.Event
+import nl.tno.federated.states.EventState
 import nl.tno.federated.webserver.NodeRPCConnection
+import nl.tno.federated.webserver.dtos.NewEvent
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -32,14 +34,21 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
-    private fun newEvent(@RequestBody digitalTwins: List<DigitalTwinPair>, time: Date, eCMRuri: String, milestone: Milestone): ResponseEntity<String> {
+    private fun newEvent(@RequestBody event: NewEvent): ResponseEntity<String> {
+        if (!event.force && event.id.isNotBlank()) {
+            if (eventById(event.id).isNotEmpty()) {
+                return ResponseEntity("Event with this id already exists. If you want to insert anyway, set the force parameter.", HttpStatus.BAD_REQUEST)
+            }
+        }
+
         return try {
                 val newEventTx = proxy.startFlowDynamic(
                         NewEventFlow::class.java,
-                        digitalTwins,
-                        time,
-                        eCMRuri,
-                        milestone
+                        event.digitalTwins,
+                        event.time,
+                        event.eCMRuri,
+                        event.milestone,
+                        UniqueIdentifier(event.id, UUID.randomUUID())
                 ).returnValue.get()
                 val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
                 ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
@@ -49,12 +58,12 @@ class EventController(rpc: NodeRPCConnection) {
     }
 
     @ApiOperation(value = "Update an event estimated time")
-    @PostMapping(value = ["/updatetime"])
-    private fun updateEvent(@RequestBody eventUUID: UUID, time: Date): ResponseEntity<String> {
+    @PutMapping(value = ["/updatetime"])
+    private fun updateEvent(@RequestBody eventId: String, time: Date): ResponseEntity<String> {
         return try {
                 val updateEventTx = proxy.startFlowDynamic(
                         UpdateEstimatedTimeFlow::class.java,
-                        eventUUID,
+                        eventId,
                         time
                 ).returnValue.get()
                 val createdEventId = (updateEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
@@ -65,12 +74,12 @@ class EventController(rpc: NodeRPCConnection) {
     }
 
     @ApiOperation(value = "Execute an event")
-    @PostMapping(value = ["/executeevent"])
-    private fun executeEvent(@RequestBody eventUUID: UUID, time: Date): ResponseEntity<String> {
+    @PutMapping(value = ["/execute"])
+    private fun executeEvent(@RequestBody eventId: String, time: Date): ResponseEntity<String> {
         return try {
                 val executeEventTx = proxy.startFlowDynamic(
                         ExecuteEventFlow::class.java,
-                        eventUUID,
+                        eventId,
                         time
                 ).returnValue.get()
                 val createdEventId = (executeEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
@@ -86,19 +95,19 @@ class EventController(rpc: NodeRPCConnection) {
     private fun events() : Map<UUID, Event> {
         val eventStates = proxy.vaultQuery(EventState::class.java).states.map { it.state.data }
 
-        return eventStates.map { it.linearId.id to Event(it.goods, it.transportMean, it.location, it.otherDigitalTwins, it.eventCreationtime, it.timestamps, it.startTimestamps, it.ecmruri, it.milestone) }.toMap()
+        return eventStatesToEventMap(eventStates)
     }
 
     @ApiOperation(value = "Return an event")
     @GetMapping(value = ["/{id}"])
-    private fun event(@PathVariable id: UUID): Map<UUID, Event> {
-        val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(id))
+    private fun eventById(@PathVariable id: String): Map<UUID, Event> {
+        val criteria = QueryCriteria.LinearStateQueryCriteria(externalId = listOf(id))
         val state = proxy.vaultQueryBy<EventState>(criteria).states.map { it.state.data }
-        return state.map { it.linearId.id to Event(it.goods, it.transportMean, it.location, it.otherDigitalTwins, it.eventCreationtime, it.timestamps, it.startTimestamps, it.ecmruri, it.milestone) }.toMap()
+        return eventStatesToEventMap(state)
     }
 
     @ApiOperation(value = "Return events by digital twin ID")
-    @GetMapping(value = ["/digitaltwin/{dtuuid}"])
+    @GetMapping(value = ["/digitaltwin/id"])
     private fun eventBydtUUID(@PathVariable dtuuid: UUID): Map<UUID, Event> {
         val eventStates = proxy.vaultQueryBy<EventState>().states.filter {
                     it.state.data.goods.contains(dtuuid) ||
@@ -107,6 +116,22 @@ class EventController(rpc: NodeRPCConnection) {
                     it.state.data.otherDigitalTwins.contains(dtuuid)
         }.map{ it.state.data }
 
-        return eventStates.map { it.linearId.id to Event(it.goods, it.transportMean, it.location, it.otherDigitalTwins, it.eventCreationtime, it.timestamps, it.startTimestamps, it.ecmruri, it.milestone) }.toMap()
+        return eventStatesToEventMap(eventStates)
     }
+
+    private fun eventStatesToEventMap(eventStates: List<EventState>) =
+        eventStates.associate {
+            it.linearId.id to Event(
+                it.goods,
+                it.transportMean,
+                it.location,
+                it.otherDigitalTwins,
+                it.eventCreationtime,
+                it.timestamps,
+                it.startTimestamps,
+                it.ecmruri,
+                it.milestone,
+                it.linearId.externalId ?: it.linearId.id.toString()
+            )
+        }
 }

@@ -6,7 +6,10 @@ import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockServices
 import net.corda.testing.node.ledger
-import nl.tno.federated.states.*
+import nl.tno.federated.states.EventState
+import nl.tno.federated.states.Milestone
+import nl.tno.federated.states.TimeAndType
+import nl.tno.federated.states.TimeType
 import org.junit.Test
 import java.sql.Timestamp
 import java.util.*
@@ -28,7 +31,7 @@ class ContractTests {
             listOf(UniqueIdentifier().id, UniqueIdentifier().id),
             Timestamp(System.currentTimeMillis()),
             listOf(TimeAndType(Date(),TimeType.PLANNED)), emptyList(),
-            eCMRuriExample, Milestone.START, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
+            eCMRuriExample, Milestone.START, listOf(sender.party, enterpriseDE.party), UniqueIdentifier(externalId = "KLM7915-20210801"))
 
     private val eventNewStateTransportAndLocation = EventState(
             emptyList(),

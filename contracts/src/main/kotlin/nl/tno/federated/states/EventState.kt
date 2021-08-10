@@ -27,7 +27,7 @@ data class EventState(
         override val milestone: Milestone,
         override val participants: List<AbstractParty> = listOf(),
         override val linearId: UniqueIdentifier = UniqueIdentifier()
-) : LinearState, Event(goods, transportMean, location, otherDigitalTwins, eventCreationtime, timestamps, startTimestamps, ecmruri, milestone), QueryableState {
+) : LinearState, Event(goods, transportMean, location, otherDigitalTwins, eventCreationtime, timestamps, startTimestamps, ecmruri, milestone, linearId.externalId ?: linearId.id.toString()), QueryableState {
 
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         if (schema is EventSchemaV1) {
@@ -49,7 +49,7 @@ data class EventState(
             }.toMutableList()
 
             return EventSchemaV1.PersistentEvent(
-                    linearId.id,
+                    linearId.externalId ?: linearId.id.toString(),
                     pGoods,
                     pTransportMean,
                     pLocation,
@@ -113,5 +113,6 @@ open class Event(
         open val timestamps: List<TimeAndType>,
         open val startTimestamps: List<TimeAndType>,
         open val ecmruri: String,
-        open val milestone: Milestone
+        open val milestone: Milestone,
+        open val id: String
 )
