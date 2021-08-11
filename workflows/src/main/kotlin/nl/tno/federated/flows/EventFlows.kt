@@ -2,6 +2,7 @@ package nl.tno.federated.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command
+import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.node.services.queryBy
@@ -20,7 +21,8 @@ class NewEventFlow(
     val digitalTwins: List<DigitalTwinPair>,
     val time: Date,
     val eCMRuri: String,
-    val milestone: Milestone
+    val milestone: Milestone,
+    val id: UniqueIdentifier
     ) : FlowLogic<SignedTransaction>() {
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
@@ -83,10 +85,9 @@ class NewEventFlow(
                 PhysicalObject.OTHER -> {
                     otherDT.add(it.uuid)
                 }
+                PhysicalObject.CARGO -> otherDT.add(it.uuid)
             }
         }
-
-        val newEventState : EventState
 
         val previousEvents = serviceHub.vaultService.queryBy<EventState>(/*isTheSame*/).states
                 .filter{ it.state.data.milestone == Milestone.START &&
@@ -96,28 +97,26 @@ class NewEventFlow(
                         it.state.data.otherDigitalTwins == otherDT
                 }
 
-        when(milestone) {
-            Milestone.START -> {
-
-                requireThat {
-                    "There cannot be a previous equal start event" using (previousEvents.isEmpty())
-                }
-
-                newEventState = EventState(goods, transportMean, location, otherDT, Date(), listOf(TimeAndType(time, TimeType.PLANNED)), emptyList(), eCMRuri, milestone, allParties - notary)
-            }
-            Milestone.STOP -> {
-
-                requireThat {
-                    "There must be one previous event only" using ( previousEvents.size <= 1 )
-                }
-
-                newEventState = EventState(goods, transportMean, location, otherDT, Date(), listOf(TimeAndType(time, TimeType.PLANNED)), emptyList(), eCMRuri, milestone, allParties - notary)
-            }
-            else -> {
-                // Make the contract and the tx fail (by setting all dt fields to empty)
-                newEventState = EventState(emptyList(), emptyList(), emptyList(), emptyList(), Date(), listOf(TimeAndType(time, TimeType.PLANNED)), emptyList(), eCMRuri, milestone, allParties - notary)
-            }
+        if (milestone == Milestone.START) {
+            require(previousEvents.isEmpty()) { "There cannot be a previous equal start event" }
         }
+        else if (milestone == Milestone.STOP) {
+            require (previousEvents.size <= 1) { "There must be one previous event only" }
+        }
+
+        val newEventState : EventState = EventState(
+            goods = goods,
+            transportMean = transportMean,
+            location = location,
+            otherDigitalTwins = otherDT,
+            eventCreationtime = Date(),
+            timestamps = listOf(TimeAndType(time, TimeType.PLANNED)),
+            startTimestamps = emptyList(),
+            ecmruri = eCMRuri,
+            milestone = milestone,
+            participants = allParties - notary,
+            linearId = id
+        )
 
         val txBuilder = TransactionBuilder(notary)
                 .addOutputState(newEventState, EventContract.ID)
@@ -342,15 +341,15 @@ class ExecuteEventFlow(
                 val previousStartEvents = serviceHub.vaultService.queryBy<EventState>(/*isTheSame*/).states
                         .filter{ it.state.data.hasSameDigitalTwins(correspondingEvent) && it.state.data.milestone == Milestone.START }
 
-                if(previousStartEvents.isNotEmpty()) {
+                newEventState = if(previousStartEvents.isNotEmpty()) {
                     txBuilder.addInputState(previousStartEvents.single())
-                    newEventState = correspondingEvent.copy(
-                            timestamps = correspondingEvent.timestamps + TimeAndType(time, TimeType.ACTUAL),
-                            startTimestamps = previousStartEvents.single().state.data.timestamps
+                    correspondingEvent.copy(
+                        timestamps = correspondingEvent.timestamps + TimeAndType(time, TimeType.ACTUAL),
+                        startTimestamps = previousStartEvents.single().state.data.timestamps
                     )
                 } else {
-                    newEventState = correspondingEvent.copy(
-                            timestamps = correspondingEvent.timestamps + TimeAndType(time, TimeType.ACTUAL)
+                    correspondingEvent.copy(
+                        timestamps = correspondingEvent.timestamps + TimeAndType(time, TimeType.ACTUAL)
                     )
                 }
             }

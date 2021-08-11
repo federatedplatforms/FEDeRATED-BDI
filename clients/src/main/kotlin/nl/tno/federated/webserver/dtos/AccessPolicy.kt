@@ -1,4 +1,4 @@
-package nl.tno.federated.webserver.DTOs
+package nl.tno.federated.webserver.dtos
 
 import net.corda.core.serialization.CordaSerializable
 import nl.tno.federated.states.AccessPolicyState

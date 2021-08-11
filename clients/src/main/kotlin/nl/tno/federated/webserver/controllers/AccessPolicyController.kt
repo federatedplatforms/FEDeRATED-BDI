@@ -8,8 +8,8 @@ import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.flows.CreateAccessPolicyFlow
 import nl.tno.federated.states.AccessPolicySchemaV1
 import nl.tno.federated.states.AccessPolicyState
-import nl.tno.federated.webserver.DTOs.AccessPolicy
 import nl.tno.federated.webserver.NodeRPCConnection
+import nl.tno.federated.webserver.dtos.AccessPolicy
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
