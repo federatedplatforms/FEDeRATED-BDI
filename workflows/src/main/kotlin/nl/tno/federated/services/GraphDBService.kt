@@ -4,7 +4,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 object GraphDBService {
-    fun test(): Int {
+    fun validateData(): Int {
         val url = URL("http://examplaoeuaoueaaoeue.com")
         val con: HttpURLConnection = url.openConnection() as HttpURLConnection
         con.requestMethod = "GET"

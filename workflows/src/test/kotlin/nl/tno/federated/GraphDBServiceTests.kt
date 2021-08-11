@@ -14,7 +14,7 @@ class GraphDBServiceTests {
     @Before
     fun setup() {
         mockkObject(GraphDBService) // applies mocking to an Object
-        every { GraphDBService.test() } returns 200
+        every { GraphDBService.validateData() } returns 200
 
 
     }
@@ -25,7 +25,7 @@ class GraphDBServiceTests {
 
     @Test
     fun `Simple flow transaction`() {
-        assertEquals(GraphDBService.test(),200)
+        assertEquals(GraphDBService.validateData(),200)
     }
 
 }

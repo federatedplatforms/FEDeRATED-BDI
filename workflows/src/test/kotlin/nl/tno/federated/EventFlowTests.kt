@@ -57,7 +57,7 @@ class EventFlowTests {
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER)
     )
 
-    val digitalTwinsGoodsAndTransport = listOf(
+    private val digitalTwinsGoodsAndTransport = listOf(
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.GOOD),
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.TRANSPORTMEAN),
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER),
@@ -67,7 +67,7 @@ class EventFlowTests {
     @Before
     fun setup() {
         mockkObject(GraphDBService) // applies mocking to an Object
-        every { GraphDBService.test() } returns 200
+        every { GraphDBService.validateData() } returns 200
 
         network = MockNetwork(
                 listOf("nl.tno.federated"),
@@ -91,8 +91,7 @@ class EventFlowTests {
     }
 
     @Test
-    fun `Simple flow transaction`() {
-
+    fun `Start event with goods and transport`() {
         val flow = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
         val future = a.startFlow(flow)
         network.runNetwork()
@@ -102,8 +101,17 @@ class EventFlowTests {
     }
 
     @Test
-    fun `Simple flow start and stop event`() {
+    fun `Start event with transport and location`() {
+        val flow = NewEventFlow(digitalTwinsTransportAndLocation, Date(), eCMRuriExample, Milestone.START)
+        val future = a.startFlow(flow)
+        network.runNetwork()
 
+        val signedTx = future.getOrThrow()
+        signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+    }
+
+    @Test
+    fun `Start and stop event`() {
         val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
@@ -120,8 +128,16 @@ class EventFlowTests {
     }
 
     @Test
-    fun `Start and stop event failed because no previous start event`() {
+    fun `Stop event fails without start event`() {
+        val flowStop = NewEventFlow(digitalTwinsTransportAndLocation, Date(), eCMRuriExample, Milestone.STOP)
+        val futureStop = a.startFlow(flowStop)
+        network.runNetwork()
 
+        assertFailsWith<TransactionVerificationException> { futureStop.getOrThrow() }
+    }
+
+    @Test
+    fun `Stop event fails without relevant start event`() {
         val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
@@ -137,8 +153,7 @@ class EventFlowTests {
     }
 
     @Test
-    fun `Two identical start events`() {
-
+    fun `Duplicate start events fail`() {
         val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
@@ -146,11 +161,11 @@ class EventFlowTests {
         val signedTxStart = futureStart.getOrThrow()
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
-        val flowStop = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
-        val futureStop = a.startFlow(flowStop)
+        val secondStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
+        val futureStart2 = a.startFlow(secondStart)
         network.runNetwork()
 
-        assertFailsWith<IllegalArgumentException>("There cannot be a previous equal start event") { futureStop.getOrThrow() }
+        assertFailsWith<IllegalArgumentException>("There cannot be a previous equal start event") { futureStart2.getOrThrow() }
     }
 
     @Test
@@ -166,7 +181,6 @@ class EventFlowTests {
 
     @Test
     fun `fail flow transaction because too many goods`() {
-
         val flow = NewEventFlow(digitalTwinsWrong, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
         val future = a.startFlow(flow)
         network.runNetwork()
