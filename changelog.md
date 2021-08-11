@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Use custom IDs instead of mandated UUIDs. This is more user-friendly, as the user no longer has to keep track of an external ID.
+- STOP events no longer need an accompanying START event.
 
 ### Removed
 - Nothing yet.

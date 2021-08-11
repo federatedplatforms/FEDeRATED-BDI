@@ -157,21 +157,6 @@ class ContractTests {
     }
 
     @Test
-    fun `fail - no previous event when STOP is created`() {
-        val outputState = eventNewStateGoodsAndTransport.copy(
-                milestone = Milestone.STOP
-        )
-        ledgerServices.ledger {
-            transaction {
-                command(sender.publicKey, EventContract.Commands.Create())
-                output(EventContract.ID, outputState)
-
-                `fails with` ("There must be 1 previous event")
-            }
-        }
-    }
-
-    @Test
     fun `fail - STOP is created but previous event is not START`() {
         val outputState = eventNewStateGoodsAndTransport.copy(
                 milestone = Milestone.STOP

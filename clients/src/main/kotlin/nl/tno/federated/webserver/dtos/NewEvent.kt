@@ -12,5 +12,5 @@ data class NewEvent(
     val milestone: Milestone,
     val time: Date = Date(),
     val id: String = "",
-    val force: Boolean = false
+    val uniqueId: Boolean = true
 )

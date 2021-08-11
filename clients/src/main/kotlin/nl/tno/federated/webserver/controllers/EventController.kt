@@ -35,9 +35,9 @@ class EventController(rpc: NodeRPCConnection) {
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
     private fun newEvent(@RequestBody event: NewEvent): ResponseEntity<String> {
-        if (!event.force && event.id.isNotBlank()) {
+        if (event.uniqueId && event.id.isNotBlank()) {
             if (eventById(event.id).isNotEmpty()) {
-                return ResponseEntity("Event with this id already exists. If you want to insert anyway, set the force parameter.", HttpStatus.BAD_REQUEST)
+                return ResponseEntity("Event with this id already exists. If you want to insert anyway, unset the uniqueId parameter.", HttpStatus.BAD_REQUEST)
             }
         }
 
@@ -106,8 +106,8 @@ class EventController(rpc: NodeRPCConnection) {
         return eventStatesToEventMap(state)
     }
 
-    @ApiOperation(value = "Return events by digital twin ID")
-    @GetMapping(value = ["/digitaltwin/id"])
+    @ApiOperation(value = "Return events by digital twin UUID")
+    @GetMapping(value = ["/digitaltwin/{dtuuid}"])
     private fun eventBydtUUID(@PathVariable dtuuid: UUID): Map<UUID, Event> {
         val eventStates = proxy.vaultQueryBy<EventState>().states.filter {
                     it.state.data.goods.contains(dtuuid) ||
