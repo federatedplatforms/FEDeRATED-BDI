@@ -37,8 +37,6 @@ object EventSchemaV1 : MappedSchema(
         val location: List<UUID>,
         @ElementCollection
         val otherDigitalTwins: List<UUID>,
-        @Column(name = "time")
-        val time: Date,
         @Column(name = "eCMRuri")
         val eCMRuri: String,
         @Column(name = "milestone")
@@ -50,7 +48,6 @@ object EventSchemaV1 : MappedSchema(
             emptyList<UUID>(),
             emptyList<UUID>(),
             emptyList<UUID>(),
-            Date(),
             "no URI provided",
             Milestone.START
         )

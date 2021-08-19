@@ -12,7 +12,11 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
-import nl.tno.federated.states.*
+import nl.tno.federated.services.GraphDBService
+import nl.tno.federated.states.EventState
+import nl.tno.federated.states.EventType
+import nl.tno.federated.states.Milestone
+import nl.tno.federated.states.PhysicalObject
 import java.util.*
 
 @InitiatingFlow
@@ -22,7 +26,8 @@ class NewEventFlow(
     val time: Date,
     val eCMRuri: String,
     val milestone: Milestone,
-    val id: UniqueIdentifier
+    val id: UniqueIdentifier,
+    val fullEvent: String
     ) : FlowLogic<SignedTransaction>() {
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
@@ -104,16 +109,15 @@ class NewEventFlow(
             require (previousEvents.size <= 1) { "There must be one previous event only" }
         }
 
-        val newEventState : EventState = EventState(
+        val newEventState = EventState(
             goods = goods,
             transportMean = transportMean,
             location = location,
             otherDigitalTwins = otherDT,
-            eventCreationtime = Date(),
-            timestamps = listOf(TimeAndType(time, TimeType.PLANNED)),
-            startTimestamps = emptyList(),
+            timestamps = linkedMapOf(Pair(EventType.PLANNED, time)),
             ecmruri = eCMRuri,
             milestone = milestone,
+            fullEvent = fullEvent,
             participants = allParties - notary,
             linearId = id
         )
@@ -150,17 +154,37 @@ class NewEventFlow(
 
 @InitiatedBy(NewEventFlow::class)
 class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
+
+    companion object {
+        object VERIFYING_STRING_INTEGRITY : Step("Verifying that accompanying full event is acceptable.")
+        object SIGNING : Step("Responding to CollectSignaturesFlow.")
+        object FINALISATION : Step("Finalising a transaction.")
+
+        fun tracker() = ProgressTracker(
+            VERIFYING_STRING_INTEGRITY,
+            SIGNING,
+            FINALISATION
+        )
+    }
+
+    override val progressTracker: ProgressTracker = tracker()
+
     @Suspendable
     override fun call(): SignedTransaction {
+        progressTracker.currentStep = VERIFYING_STRING_INTEGRITY
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
+                val outputState = stx.tx.outputStates.single() as EventState
+                require(GraphDBService.isDataValid(outputState))
                 // TODO what to check in the counterparty flow?
                 // especially: if I'm not passing all previous states in the tx (see "requires" in the flow)
                 // then I want the counterparties to check by themselves that everything's legit
             }
         }
+        progressTracker.currentStep = SIGNING
         val txId = subFlow(signTransactionFlow).id
 
+        progressTracker.currentStep = FINALISATION
         return subFlow(ReceiveFinalityFlow(counterpartySession, expectedTxId = txId))
     }
 }
@@ -218,12 +242,14 @@ class UpdateEstimatedTimeFlow(
         val retrievedEvent = serviceHub.vaultService.queryBy<EventState>().states
                 .filter{ it.state.data.linearId.id == eventUUID }
 
-        requireThat{
-            "There must be a corresponding event" using (retrievedEvent.isNotEmpty())
-        }
+        require(retrievedEvent.isNotEmpty()){ "There must be a corresponding event" }
 
-        newEventState = retrievedEvent.single().state.data.copy(
-                timestamps = retrievedEvent.single().state.data.timestamps + TimeAndType(time, TimeType.ESTIMATED)
+        val retrievedEventData = retrievedEvent.single().state.data
+
+        val newTimestamp = retrievedEventData.timestamps
+        newTimestamp[EventType.ESTIMATED] = time
+        newEventState = retrievedEventData.copy(
+                timestamps = newTimestamp
         )
 
         val txBuilder = TransactionBuilder(notary)
@@ -336,27 +362,17 @@ class ExecuteEventFlow(
         if(retrievedEvents.isNotEmpty())
             txBuilder.addInputState(retrievedEvents.single())
 
-        when(correspondingEvent.milestone) {
-            Milestone.STOP -> {
-                val previousStartEvents = serviceHub.vaultService.queryBy<EventState>(/*isTheSame*/).states
-                        .filter{ it.state.data.hasSameDigitalTwins(correspondingEvent) && it.state.data.milestone == Milestone.START }
+        val newTimestamps = correspondingEvent.timestamps
+        newTimestamps[EventType.ACTUAL] = time
+        newEventState = correspondingEvent.copy(
+            timestamps = newTimestamps
+        )
+        if (correspondingEvent.milestone == Milestone.STOP) {
+            val previousStartEvents = serviceHub.vaultService.queryBy<EventState>(/*isTheSame*/).states
+                .filter{ it.state.data.hasSameDigitalTwins(correspondingEvent) && it.state.data.milestone == Milestone.START }
 
-                newEventState = if(previousStartEvents.isNotEmpty()) {
-                    txBuilder.addInputState(previousStartEvents.single())
-                    correspondingEvent.copy(
-                        timestamps = correspondingEvent.timestamps + TimeAndType(time, TimeType.ACTUAL),
-                        startTimestamps = previousStartEvents.single().state.data.timestamps
-                    )
-                } else {
-                    correspondingEvent.copy(
-                        timestamps = correspondingEvent.timestamps + TimeAndType(time, TimeType.ACTUAL)
-                    )
-                }
-            }
-            else -> {
-                newEventState = correspondingEvent.copy(
-                        timestamps = correspondingEvent.timestamps + TimeAndType(time, TimeType.ACTUAL)
-                )
+            if(previousStartEvents.isNotEmpty()) {
+                txBuilder.addInputState(previousStartEvents.single())
             }
         }
 

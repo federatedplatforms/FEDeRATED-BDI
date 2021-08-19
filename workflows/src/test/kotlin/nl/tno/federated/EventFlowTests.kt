@@ -64,10 +64,12 @@ class EventFlowTests {
             DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER)
     )
 
+    private val sampleEvent = ""
+
     @Before
     fun setup() {
         mockkObject(GraphDBService) // applies mocking to an Object
-        every { GraphDBService.validateData() } returns 200
+        every { GraphDBService.isDataValid() } returns true
 
         network = MockNetwork(
                 listOf("nl.tno.federated"),
@@ -92,7 +94,7 @@ class EventFlowTests {
 
     @Test
     fun `Start event with goods and transport`() {
-        val flow = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
+        val flow = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -102,7 +104,7 @@ class EventFlowTests {
 
     @Test
     fun `Start event with transport and location`() {
-        val flow = NewEventFlow(digitalTwinsTransportAndLocation, Date(), eCMRuriExample, Milestone.START)
+        val flow = NewEventFlow(digitalTwinsTransportAndLocation, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -112,14 +114,14 @@ class EventFlowTests {
 
     @Test
     fun `Start and stop event`() {
-        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
+        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
         val signedTxStart = futureStart.getOrThrow()
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
-        val flowStop = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.STOP, UniqueIdentifier("KLM7915-20210801"))
+        val flowStop = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.STOP, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
         val futureStop = a.startFlow(flowStop)
         network.runNetwork()
 
@@ -129,7 +131,7 @@ class EventFlowTests {
 
     @Test
     fun `Stop event fails without start event`() {
-        val flowStop = NewEventFlow(digitalTwinsTransportAndLocation, Date(), eCMRuriExample, Milestone.STOP)
+        val flowStop = NewEventFlow(digitalTwinsTransportAndLocation, Date(), eCMRuriExample, Milestone.STOP, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
         val futureStop = a.startFlow(flowStop)
         network.runNetwork()
 
@@ -138,14 +140,14 @@ class EventFlowTests {
 
     @Test
     fun `Stop event fails without relevant start event`() {
-        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
+        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
         val signedTxStart = futureStart.getOrThrow()
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
-        val flowStop = NewEventFlow(digitalTwinsTransportAndLocation, Date(), eCMRuriExample, Milestone.STOP, UniqueIdentifier("KLM7915-20210801"))
+        val flowStop = NewEventFlow(digitalTwinsTransportAndLocation, Date(), eCMRuriExample, Milestone.STOP, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
         val futureStop = a.startFlow(flowStop)
         network.runNetwork()
 
@@ -154,14 +156,14 @@ class EventFlowTests {
 
     @Test
     fun `Duplicate start events fail`() {
-        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
+        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
         val signedTxStart = futureStart.getOrThrow()
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
-        val secondStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
+        val secondStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
         val futureStart2 = a.startFlow(secondStart)
         network.runNetwork()
 
@@ -171,7 +173,7 @@ class EventFlowTests {
     @Test
     fun `Simple flow transaction 2`() {
 
-        val flow = NewEventFlow(digitalTwinsTransportAndLocation, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
+        val flow = NewEventFlow(digitalTwinsTransportAndLocation, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -181,7 +183,7 @@ class EventFlowTests {
 
     @Test
     fun `fail flow transaction because too many goods`() {
-        val flow = NewEventFlow(digitalTwinsWrong, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
+        val flow = NewEventFlow(digitalTwinsWrong, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -191,7 +193,7 @@ class EventFlowTests {
     @Test
     fun `fail flow transaction because goods are linked to locations`() {
 
-        val flow = NewEventFlow(digitalTwinsWrong2, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
+        val flow = NewEventFlow(digitalTwinsWrong2, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -201,7 +203,7 @@ class EventFlowTests {
     @Test
     fun `Simple flow start and update event`() {
 
-        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
+        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
@@ -224,7 +226,7 @@ class EventFlowTests {
     @Test
     fun `Simple flow start and update and execute event`() {
 
-        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
+        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
@@ -258,14 +260,14 @@ class EventFlowTests {
 
     @Test
     fun `Simple flow start and execution of stop event`() {
-        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
+        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
         val signedTxStart = futureStart.getOrThrow()
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
-        val flowStop = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.STOP, UniqueIdentifier("KLM7915-20210801"))
+        val flowStop = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.STOP, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
         val futureStop = a.startFlow(flowStop)
         network.runNetwork()
 
@@ -300,14 +302,14 @@ class EventFlowTests {
     @Test
     fun `failed stop event after execution with just planned start event`() {
 
-        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"))
+        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
         val signedTxStart = futureStart.getOrThrow()
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
-        val flowStop = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.STOP, UniqueIdentifier("KLM7915-20210801"))
+        val flowStop = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.STOP, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
         val futureStop = a.startFlow(flowStop)
         network.runNetwork()
 

@@ -1,7 +1,5 @@
 package nl.tno.federated
 
-import io.mockk.every
-import io.mockk.mockkObject
 import nl.tno.federated.services.GraphDBService
 import org.junit.After
 import org.junit.Before
@@ -13,10 +11,6 @@ class GraphDBServiceTests {
 
     @Before
     fun setup() {
-        mockkObject(GraphDBService) // applies mocking to an Object
-        every { GraphDBService.validateData() } returns 200
-
-
     }
 
     @After
@@ -24,8 +18,23 @@ class GraphDBServiceTests {
     }
 
     @Test
-    fun `Simple flow transaction`() {
-        assertEquals(GraphDBService.validateData(),200)
+    fun `Query everything`() {
+        val result = GraphDBService.queryData()
+        assertEquals("", result)
     }
 
+    @Test
+    fun `Insert new event`() {
+        val event = ""
+        val result = GraphDBService.insertEvent()
+        assertEquals(true, result)
+    }
+
+
+
+    @Test
+    fun `Verify repository is available`() {
+        val resultTrue = GraphDBService.isRepositoryAvailable()
+        assertEquals(true, resultTrue)
+    }
 }
