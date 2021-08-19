@@ -25,7 +25,7 @@ object GraphDBService {
         return body == "Missing parameter: query"
     }
 
-    fun isDataValid(): Boolean {
+    fun isDataValid(eventState: EventState): Boolean {
         val sparql = ""
         val result = performSparql(sparql, RequestMethod.GET)
         return "fail" !in result
@@ -72,11 +72,6 @@ object GraphDBService {
                 return it.readText()
             }
         }
-    }
-
-    fun isDataValid(eventState: EventState): Boolean {
-        // TODO
-        return true
     }
 
     enum class RequestMethod {

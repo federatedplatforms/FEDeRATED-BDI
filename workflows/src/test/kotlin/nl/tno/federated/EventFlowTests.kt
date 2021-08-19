@@ -68,8 +68,8 @@ class EventFlowTests {
 
     @Before
     fun setup() {
-        mockkObject(GraphDBService) // applies mocking to an Object
-        every { GraphDBService.isDataValid() } returns true
+        mockkObject(GraphDBService)
+        every { GraphDBService.isDataValid(any()) } returns true
 
         network = MockNetwork(
                 listOf("nl.tno.federated"),
@@ -101,6 +101,17 @@ class EventFlowTests {
         val signedTx = future.getOrThrow()
         signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
     }
+
+    @Test
+    fun `fail Start event with invalid rdf`() {
+        every { GraphDBService.isDataValid(any()) } returns false
+        val flow = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"), sampleEvent)
+        val future = a.startFlow(flow)
+        network.runNetwork()
+
+        assertFailsWith<IllegalArgumentException>("Illegal rdf") { future.getOrThrow() }
+    }
+
 
     @Test
     fun `Start event with transport and location`() {

@@ -12,7 +12,7 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
-import nl.tno.federated.services.GraphDBService
+import nl.tno.federated.services.GraphDBService.isDataValid
 import nl.tno.federated.states.EventState
 import nl.tno.federated.states.EventType
 import nl.tno.federated.states.Milestone
@@ -121,6 +121,7 @@ class NewEventFlow(
             participants = allParties - notary,
             linearId = id
         )
+        require(isDataValid(newEventState)) { "RDF data is not valid or does not match event"}
 
         val txBuilder = TransactionBuilder(notary)
                 .addOutputState(newEventState, EventContract.ID)
@@ -175,7 +176,7 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 val outputState = stx.tx.outputStates.single() as EventState
-                require(GraphDBService.isDataValid(outputState))
+                require(isDataValid(outputState)) { "RDF data is not valid or does not match event"}
                 // TODO what to check in the counterparty flow?
                 // especially: if I'm not passing all previous states in the tx (see "requires" in the flow)
                 // then I want the counterparties to check by themselves that everything's legit
@@ -252,6 +253,8 @@ class UpdateEstimatedTimeFlow(
                 timestamps = newTimestamp
         )
 
+        require(isDataValid(newEventState)) { "RDF data is not valid or does not match event"}
+
         val txBuilder = TransactionBuilder(notary)
                 .addOutputState(newEventState, EventContract.ID)
                 .addCommand(Command(EventContract.Commands.UpdateEstimatedTime(), newEventState.participants.map { it.owningKey }))
@@ -284,15 +287,34 @@ class UpdateEstimatedTimeFlow(
 
 @InitiatedBy(UpdateEstimatedTimeFlow::class)
 class UpdateEstimatedTimeResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
+    companion object {
+        object VERIFYING_STRING_INTEGRITY : Step("Verifying that accompanying full event is acceptable.")
+        object SIGNING : Step("Responding to CollectSignaturesFlow.")
+        object FINALISATION : Step("Finalising a transaction.")
+
+        fun tracker() = ProgressTracker(
+            VERIFYING_STRING_INTEGRITY,
+            SIGNING,
+            FINALISATION
+        )
+    }
+
+    override val progressTracker: ProgressTracker = tracker()
+
     @Suspendable
     override fun call(): SignedTransaction {
+        progressTracker.currentStep = VERIFYING_STRING_INTEGRITY
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
-                // TODO what to check in the counterparty flow (update estimate)?
+                val outputState = stx.tx.outputStates.single() as EventState
+                require(isDataValid(outputState)) { "RDF data is not valid or does not match event"}
+                // TODO what to check in the counterparty flow? (update estimate)
             }
         }
+        progressTracker.currentStep = SIGNING
         val txId = subFlow(signTransactionFlow).id
 
+        progressTracker.currentStep = FINALISATION
         return subFlow(ReceiveFinalityFlow(counterpartySession, expectedTxId = txId))
     }
 }
@@ -355,6 +377,7 @@ class ExecuteEventFlow(
         }
 
         val correspondingEvent = retrievedEvents.single().state.data
+        require(isDataValid(correspondingEvent)) { "RDF data is not valid or does not match event"}
 
         val txBuilder = TransactionBuilder(notary)
                 .addCommand(Command(EventContract.Commands.ExecuteEvent(), correspondingEvent.participants.map { it.owningKey }))
@@ -371,7 +394,7 @@ class ExecuteEventFlow(
             val previousStartEvents = serviceHub.vaultService.queryBy<EventState>(/*isTheSame*/).states
                 .filter{ it.state.data.hasSameDigitalTwins(correspondingEvent) && it.state.data.milestone == Milestone.START }
 
-            if(previousStartEvents.isNotEmpty()) {
+            if (previousStartEvents.isNotEmpty()) {
                 txBuilder.addInputState(previousStartEvents.single())
             }
         }
@@ -403,15 +426,34 @@ class ExecuteEventFlow(
 
 @InitiatedBy(ExecuteEventFlow::class)
 class ExecuteEventResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
+    companion object {
+        object VERIFYING_STRING_INTEGRITY : Step("Verifying that accompanying full event is acceptable.")
+        object SIGNING : Step("Responding to CollectSignaturesFlow.")
+        object FINALISATION : Step("Finalising a transaction.")
+
+        fun tracker() = ProgressTracker(
+            VERIFYING_STRING_INTEGRITY,
+            SIGNING,
+            FINALISATION
+        )
+    }
+
+    override val progressTracker: ProgressTracker = tracker()
+
     @Suspendable
     override fun call(): SignedTransaction {
+        progressTracker.currentStep = VERIFYING_STRING_INTEGRITY
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
-                // TODO what to check in the counterparty flow (update estimate)?
+                val outputState = stx.tx.outputStates.single() as EventState
+                require(isDataValid(outputState)) { "RDF data is not valid or does not match event"}
+                // TODO what to check in the counterparty flow (execute)?
             }
         }
+        progressTracker.currentStep = SIGNING
         val txId = subFlow(signTransactionFlow).id
 
+        progressTracker.currentStep = FINALISATION
         return subFlow(ReceiveFinalityFlow(counterpartySession, expectedTxId = txId))
     }
 }
