@@ -12,6 +12,7 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
+import nl.tno.federated.services.GraphDBService.insertEvent
 import nl.tno.federated.services.GraphDBService.isDataValid
 import nl.tno.federated.states.EventState
 import nl.tno.federated.states.EventType
@@ -149,6 +150,8 @@ class NewEventFlow(
         // Stage 5.
         progressTracker.currentStep = FINALISING_TRANSACTION
         // Notarise and record the transaction in both parties' vaults.
+
+        require(insertEvent(newEventState.fullEvent)) { "Unable to insert event data into the triple store."}
         return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
     }
 }
@@ -176,7 +179,7 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 val outputState = stx.tx.outputStates.single() as EventState
-                require(isDataValid(outputState)) { "RDF data is not valid or does not match event"}
+                require(insertEvent(outputState.fullEvent)) { "Unable to insert event data into the triple store."}
                 // TODO what to check in the counterparty flow?
                 // especially: if I'm not passing all previous states in the tx (see "requires" in the flow)
                 // then I want the counterparties to check by themselves that everything's legit
@@ -281,6 +284,7 @@ class UpdateEstimatedTimeFlow(
         // Stage 5.
         progressTracker.currentStep = FINALISING_TRANSACTION
         // Notarise and record the transaction in both parties' vaults.
+        require(insertEvent(newEventState.fullEvent)) { "Unable to insert event data into the triple store."}
         return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
     }
 }
@@ -307,7 +311,7 @@ class UpdateEstimatedTimeResponder(val counterpartySession: FlowSession) : FlowL
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 val outputState = stx.tx.outputStates.single() as EventState
-                require(isDataValid(outputState)) { "RDF data is not valid or does not match event"}
+                require(insertEvent(outputState.fullEvent)) { "Unable to insert event data into the triple store."}
                 // TODO what to check in the counterparty flow? (update estimate)
             }
         }
@@ -420,6 +424,7 @@ class ExecuteEventFlow(
         // Stage 5.
         progressTracker.currentStep = FINALISING_TRANSACTION
         // Notarise and record the transaction in both parties' vaults.
+        require(insertEvent(newEventState.fullEvent)) { "Unable to insert event data into the triple store."}
         return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
     }
 }
@@ -446,7 +451,7 @@ class ExecuteEventResponder(val counterpartySession: FlowSession) : FlowLogic<Si
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 val outputState = stx.tx.outputStates.single() as EventState
-                require(isDataValid(outputState)) { "RDF data is not valid or does not match event"}
+                require(insertEvent(outputState.fullEvent)) { "Unable to insert event data into the triple store."}
                 // TODO what to check in the counterparty flow (execute)?
             }
         }

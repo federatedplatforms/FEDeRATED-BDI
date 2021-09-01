@@ -126,11 +126,10 @@ class EventController(rpc: NodeRPCConnection) {
                 it.transportMean,
                 it.location,
                 it.otherDigitalTwins,
-                it.eventCreationtime,
                 it.timestamps,
-                it.startTimestamps,
                 it.ecmruri,
                 it.milestone,
+                it.fullEvent,
                 it.linearId.externalId ?: it.linearId.id.toString()
             )
         }
