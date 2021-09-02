@@ -48,6 +48,21 @@ object GraphDBService {
         return parseEventLabels(results)
     }
 
+    fun queryEventById(id: String): String {
+        val sparql = """
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
+            PREFIX ex: <http://example.com/base#>
+            SELECT ?subject ?object 
+            WHERE {
+                ?subject rdfs:label ?object .
+                FILTER (?subject = ex:Event-$id)
+            }
+            """.trimIndent()
+        val result = performSparql(sparql, RequestMethod.GET)
+        return result // why parseEventLabels(result) ?
+    }
+
     private fun parseEventLabels(json: String): Map<String, String> { // or List<String>, you decide
         return emptyMap() // TODO return parsed event ids and rdf labels
     }

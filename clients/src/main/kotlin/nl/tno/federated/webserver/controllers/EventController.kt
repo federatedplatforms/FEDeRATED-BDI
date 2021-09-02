@@ -7,6 +7,7 @@ import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.flows.ExecuteEventFlow
 import nl.tno.federated.flows.NewEventFlow
+import nl.tno.federated.flows.QueryGraphDBFlow
 import nl.tno.federated.flows.UpdateEstimatedTimeFlow
 import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
@@ -117,6 +118,20 @@ class EventController(rpc: NodeRPCConnection) {
         }.map{ it.state.data }
 
         return eventStatesToEventMap(eventStates)
+    }
+
+    @ApiOperation(value = "Return RDF data by event ID from GraphDB instance")
+    @GetMapping(value = ["/gdb/{id}"])
+    private fun gdbQueryEventById(@PathVariable id: String): ResponseEntity<String> {
+        return try {
+            val gdbQuery = proxy.startFlowDynamic(
+                    QueryGraphDBFlow::class.java,
+                    id
+            ).returnValue.get()
+            ResponseEntity("Query result: $gdbQuery", HttpStatus.ACCEPTED)
+        } catch (e: Exception) {
+            return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
+        }
     }
 
     private fun eventStatesToEventMap(eventStates: List<EventState>) =

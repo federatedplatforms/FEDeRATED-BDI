@@ -14,6 +14,7 @@ import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
 import nl.tno.federated.services.GraphDBService.insertEvent
 import nl.tno.federated.services.GraphDBService.isDataValid
+import nl.tno.federated.services.GraphDBService.queryEventById
 import nl.tno.federated.states.EventState
 import nl.tno.federated.states.EventType
 import nl.tno.federated.states.Milestone
@@ -460,6 +461,18 @@ class ExecuteEventResponder(val counterpartySession: FlowSession) : FlowLogic<Si
 
         progressTracker.currentStep = FINALISATION
         return subFlow(ReceiveFinalityFlow(counterpartySession, expectedTxId = txId))
+    }
+}
+
+@InitiatingFlow
+@StartableByRPC
+class QueryGraphDBFlow(
+        val id: String
+) : FlowLogic<String>() {
+
+    @Suspendable
+    override fun call(): String {
+        return queryEventById(id)
     }
 }
 
