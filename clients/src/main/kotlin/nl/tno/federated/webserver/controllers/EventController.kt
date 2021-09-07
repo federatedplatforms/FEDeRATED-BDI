@@ -5,10 +5,7 @@ import io.swagger.annotations.ApiOperation
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
-import nl.tno.federated.flows.ExecuteEventFlow
-import nl.tno.federated.flows.NewEventFlow
-import nl.tno.federated.flows.QueryGraphDBbyIdFlow
-import nl.tno.federated.flows.UpdateEstimatedTimeFlow
+import nl.tno.federated.flows.*
 import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
 import nl.tno.federated.webserver.NodeRPCConnection
@@ -127,6 +124,20 @@ class EventController(rpc: NodeRPCConnection) {
             val gdbQuery = proxy.startFlowDynamic(
                     QueryGraphDBbyIdFlow::class.java,
                     id
+            ).returnValue.get()
+            ResponseEntity("Query result: $gdbQuery", HttpStatus.ACCEPTED)
+        } catch (e: Exception) {
+            return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+    }
+
+    @ApiOperation(value = "Return result of a custom SPARQL query")
+    @GetMapping(value = ["/gdb/sparql/"])
+    private fun gdbGeneralSparqlQuery(@RequestBody query: String): ResponseEntity<String> {
+        return try {
+            val gdbQuery = proxy.startFlowDynamic(
+                    GeneralSPARQLqueryFlow::class.java,
+                    query
             ).returnValue.get()
             ResponseEntity("Query result: $gdbQuery", HttpStatus.ACCEPTED)
         } catch (e: Exception) {

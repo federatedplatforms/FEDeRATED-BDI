@@ -33,6 +33,18 @@ class GraphDBServiceTests {
     }
 
     @Test
+    fun `Query event by ID`() {
+        val result = GraphDBService.queryEventById("a2a19d3a-48b2-4d77-b4b2-0da12ba9ef89")
+        assert(result.contains("a2a19d3a-48b2-4d77-b4b2-0da12ba9ef89"))
+    }
+
+    @Test
+    fun `Query with a custom sparql query`() {
+        val result = GraphDBService.generalSPARQLquery("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>\nPREFIX ex: <http://example.com/base#>\nSELECT ?subject ?object \nWHERE {\n?subject rdfs:label ?object .\nFILTER (?subject = ex:Event-a2a19d3a-48b2-4d77-b4b2-0da12ba9ef89)\n}")
+        assert(result.contains("a2a19d3a-48b2-4d77-b4b2-0da12ba9ef89"))
+    }
+
+    @Test
     fun `Insert new event`() {
         val successfulInsertion = GraphDBService.insertEvent(validSampleTtl)
         assert(successfulInsertion)

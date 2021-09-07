@@ -12,6 +12,7 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
+import nl.tno.federated.services.GraphDBService.generalSPARQLquery
 import nl.tno.federated.services.GraphDBService.insertEvent
 import nl.tno.federated.services.GraphDBService.isDataValid
 import nl.tno.federated.services.GraphDBService.queryEventById
@@ -473,6 +474,18 @@ class QueryGraphDBbyIdFlow(
     @Suspendable
     override fun call(): String {
         return queryEventById(id)
+    }
+}
+
+@InitiatingFlow
+@StartableByRPC
+class GeneralSPARQLqueryFlow(
+        val query: String
+) : FlowLogic<String>() {
+
+    @Suspendable
+    override fun call(): String {
+        return generalSPARQLquery(query)
     }
 }
 
