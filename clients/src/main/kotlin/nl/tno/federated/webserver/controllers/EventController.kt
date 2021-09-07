@@ -118,7 +118,7 @@ class EventController(rpc: NodeRPCConnection) {
     }
 
     @ApiOperation(value = "Return RDF data by event ID from GraphDB instance")
-    @GetMapping(value = ["/gdb/{id}"])
+    @GetMapping(value = ["/rdfevent/{id}"])
     private fun gdbQueryEventById(@PathVariable id: String): ResponseEntity<String> {
         return try {
             val gdbQuery = proxy.startFlowDynamic(
@@ -132,8 +132,8 @@ class EventController(rpc: NodeRPCConnection) {
     }
 
     @ApiOperation(value = "Return result of a custom SPARQL query")
-    @GetMapping(value = ["/gdb/sparql/"])
-    private fun gdbGeneralSparqlQuery(@RequestBody query: String): ResponseEntity<String> {
+    @GetMapping(value = ["/gdbsparql/"])
+    private fun gdbGeneralSparqlQuery(query: String): ResponseEntity<String> {
         return try {
             val gdbQuery = proxy.startFlowDynamic(
                     GeneralSPARQLqueryFlow::class.java,
