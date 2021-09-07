@@ -466,7 +466,7 @@ class ExecuteEventResponder(val counterpartySession: FlowSession) : FlowLogic<Si
 
 @InitiatingFlow
 @StartableByRPC
-class QueryGraphDBFlow(
+class QueryGraphDBbyIdFlow(
         val id: String
 ) : FlowLogic<String>() {
 

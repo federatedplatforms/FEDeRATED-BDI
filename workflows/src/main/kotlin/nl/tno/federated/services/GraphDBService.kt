@@ -48,6 +48,10 @@ object GraphDBService {
         return parseEventLabels(results)
     }
 
+    fun generalSPARQLquery(query: String): String {
+        return performSparql(query.trimIndent(), RequestMethod.GET)
+    }
+
     fun queryEventById(id: String): String {
         val sparql = """
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>

@@ -7,7 +7,7 @@ import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.flows.ExecuteEventFlow
 import nl.tno.federated.flows.NewEventFlow
-import nl.tno.federated.flows.QueryGraphDBFlow
+import nl.tno.federated.flows.QueryGraphDBbyIdFlow
 import nl.tno.federated.flows.UpdateEstimatedTimeFlow
 import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
@@ -125,7 +125,7 @@ class EventController(rpc: NodeRPCConnection) {
     private fun gdbQueryEventById(@PathVariable id: String): ResponseEntity<String> {
         return try {
             val gdbQuery = proxy.startFlowDynamic(
-                    QueryGraphDBFlow::class.java,
+                    QueryGraphDBbyIdFlow::class.java,
                     id
             ).returnValue.get()
             ResponseEntity("Query result: $gdbQuery", HttpStatus.ACCEPTED)
