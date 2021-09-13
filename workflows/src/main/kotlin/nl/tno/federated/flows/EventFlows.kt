@@ -181,7 +181,7 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 val outputState = stx.tx.outputStates.single() as EventState
-                require(insertEvent(outputState.fullEvent)) { "Unable to insert event data into the triple store."}
+//                require(insertEvent(outputState.fullEvent)) { "Unable to insert event data into the triple store."}
                 // TODO what to check in the counterparty flow?
                 // especially: if I'm not passing all previous states in the tx (see "requires" in the flow)
                 // then I want the counterparties to check by themselves that everything's legit

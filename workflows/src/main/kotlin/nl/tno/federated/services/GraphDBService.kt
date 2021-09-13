@@ -18,15 +18,15 @@ object GraphDBService {
     }
 
     private fun getRepositoryURI(): URI {
-        val propertyFile = FileReader("src/test/resources/database.properties") // TODO automatically grab the right properties file from the right resources folder
+        /*val propertyFile = FileReader("src/main/resources/database.properties") // TODO automatically grab the right properties file from the right resources folder
         val properties = Properties()
         properties.load(propertyFile)
         val protocol = properties.getProperty("triplestore.protocol")
         val host = properties.getProperty("triplestore.host")
         val port = properties.getProperty("triplestore.port")
-        val repository = properties.getProperty("triplestore.repository")
+        val repository = properties.getProperty("triplestore.repository")*/
 
-        return URI("$protocol://$host:$port/repositories/$repository")
+        return URI("http://federated.sensorlab.tno.nl:7200/repositories/federated-shacl") // URI("$protocol://$host:$port/repositories/$repository")
     }
 
     fun isDataValid(eventState: EventState): Boolean { // TODO ideally match eventstate contents to its eventString too
