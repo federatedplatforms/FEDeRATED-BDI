@@ -14,7 +14,11 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.net.HttpURLConnection
+import java.net.URL
+import java.nio.charset.StandardCharsets
 import java.util.*
+
 
 /**
  * Create and query events.
@@ -95,6 +99,66 @@ class EventController(rpc: NodeRPCConnection) {
         val eventStates = proxy.vaultQuery(EventState::class.java).states.map { it.state.data }
 
         return eventStatesToEventMap(eventStates)
+    }
+
+    @ApiOperation(value = "Validate an access token")
+    @PostMapping(value = ["/tokenisvalid"])
+    private fun validateToken(@RequestBody token: String) : Boolean {
+
+
+        val url = URL("http://federated.sensorlab.tno.nl:1003/validate/token")
+        val body = """
+            {
+                "access_token": "Bearer $token"
+            }
+            """.trimIndent()
+        val result = retrieveUrlBody(url,
+                RequestMethod.POST,
+                body
+                )
+
+        return extractAuthorizationResult(result)
+    }
+
+    private fun retrieveUrlBody(url: URL, requestMethod: RequestMethod, body: String = ""): String {
+        val con = url.openConnection() as HttpURLConnection
+        con.requestMethod = requestMethod.toString()
+        con.connectTimeout = 5000
+        con.readTimeout = 5000
+        con.setRequestProperty("Content-Type", "text/turtle");
+        con.setRequestProperty("Accept", "application/json")
+
+        if (body.isNotBlank()) {
+            con.doOutput = true;
+            con.outputStream.use { os ->
+                val input: ByteArray = body.toByteArray(StandardCharsets.UTF_8)
+                os.write(input, 0, input.size)
+            }
+        }
+
+        if (con.responseCode in 200..299) {
+            con.inputStream.bufferedReader().use {
+                return it.readText()
+            }
+        }
+        else {
+            con.errorStream.bufferedReader().use {
+                return it.readText()
+            }
+        }
+    }
+
+    enum class RequestMethod {
+        GET, POST
+    }
+
+    private fun extractAuthorizationResult(authorizationResult: String): Boolean {
+        val polishedString = authorizationResult.split('\n')
+        for(line in polishedString) {
+            if(line.contains("success"))
+                return line.contains("true")
+        }
+        return false
     }
 
     @ApiOperation(value = "Return an event")
