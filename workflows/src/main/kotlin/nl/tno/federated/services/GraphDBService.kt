@@ -26,6 +26,7 @@ object GraphDBService {
         val port = properties.getProperty("triplestore.port")
         val repository = properties.getProperty("triplestore.repository")*/
 
+        // CHANGE THE UNDERMENTIONED ADDRESS TO SET A DIFFERENT LOCATION
         return URI("http://federated.sensorlab.tno.nl:7200/repositories/federated-shacl") // URI("$protocol://$host:$port/repositories/$repository")
     }
 
@@ -82,7 +83,8 @@ object GraphDBService {
     }
 
     private fun performSparql(sparql: String, requestMethod: RequestMethod): String {
-        val url = URI("http", "//federated.sensorlab.tno.nl:7200/repositories/federated-shacl?query=$sparql", null).toURL()
+        val uri = getRepositoryURI()
+        val url = URI("$uri?query=$sparql").toURL()
         return retrieveUrlBody(url, requestMethod)
     }
 
