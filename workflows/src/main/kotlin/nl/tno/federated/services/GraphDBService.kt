@@ -1,10 +1,16 @@
 package nl.tno.federated.services
 
+import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
+import nl.tno.federated.states.EventType
+import nl.tno.federated.states.Milestone
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URL
 import java.nio.charset.StandardCharsets.UTF_8
+import java.text.*
+import java.util.*
+import kotlin.collections.LinkedHashMap
 
 
 object GraphDBService {
@@ -106,6 +112,65 @@ object GraphDBService {
                 return it.readText()
             }
         }
+    }
+
+    private fun parseRDFtoEvent(rdfFullData: String ) : Event {
+
+        val goods = emptyList<UUID>().toMutableList()
+        val transportMean = emptyList<UUID>().toMutableList()
+        val location = emptyList<UUID>().toMutableList()
+        val otherDT = emptyList<UUID>().toMutableList()
+        var id = ""
+        var timestamps: LinkedHashMap<EventType, Date> = linkedMapOf()
+
+        val lines = rdfFullData.split("\n")
+
+        for(line in lines) {
+
+            // Extract Event ID
+            if(line.contains("ex:Event-")) {
+                id = line.substringAfter("ex:Event-").split(" ")[0]
+            }
+
+            // Extract Timestamp
+            if(line.contains("Event:hasTimestamp")) {
+                val words = line
+                        .substringAfter("Event:hasTimestamp")
+                        .split("\"", "T")
+
+                val stringDate = words[1] + " " + words[2]
+
+                val formatter = SimpleDateFormat("yyyy-mm-dd hh:mm:ss")
+                val eventDate = formatter.parse(stringDate)
+
+                // Extract the Type of timestamp
+                var type = EventType.PLANNED // Default type if not found
+                for(lineSecondScan in lines) {
+                    if(lineSecondScan.contains("Event:hasDateTimeType")) {
+                        val stringType = lineSecondScan.split(" ")[1].split(":",";")[1]
+                        when(stringType.toLowerCase()) {
+                            "actual" -> type = EventType.ACTUAL
+                            "estimated" -> type = EventType.ESTIMATED
+                            // when "planned" it's like default, EventType.PLANNED
+                        }
+                    }
+                }
+
+                timestamps[type] = eventDate
+            }
+        }
+
+        return Event(
+                emptyList(),
+                emptyList(),
+                emptyList(),
+                emptyList(),
+                timestamps,
+                "ecmruri",
+                Milestone.START,
+                rdfFullData,
+                id
+        )
     }
 
     enum class RequestMethod {
