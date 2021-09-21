@@ -128,8 +128,9 @@ object GraphDBService {
         val otherDT = emptyList<UUID>().toMutableList()
         var id = ""
         var timestamps: LinkedHashMap<EventType, Date> = linkedMapOf()
+        var milestone = Milestone.START
 
-        val lines = rdfFullData.split("\n")
+        val lines = rdfFullData.trimIndent().split("\n")
 
         for(line in lines) {
 
@@ -161,8 +162,13 @@ object GraphDBService {
                         }
                     }
                 }
-
                 timestamps[type] = eventDate
+            }
+
+            // Extract Milestone
+            if(line.contains("Event:hasMilestone")) {
+                if(line.toLowerCase().contains("stop")) milestone = Milestone.STOP
+                // if it contains "start" it can stay as default (start)
             }
         }
 
@@ -173,7 +179,7 @@ object GraphDBService {
                 emptyList(),
                 timestamps,
                 "ecmruri",
-                Milestone.START,
+                milestone,
                 rdfFullData,
                 id
         )
