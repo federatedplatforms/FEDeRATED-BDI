@@ -167,13 +167,26 @@ object GraphDBService {
 
             // Extract Milestone
             if(line.contains("Event:hasMilestone")) {
-                if(line.toLowerCase().contains("stop")) milestone = Milestone.STOP
+                if(line.toLowerCase().contains("end")) milestone = Milestone.STOP
                 // if it contains "start" it can stay as default (start)
+            }
+
+            // Extract Goods
+            if(line.contains("ex:Equipment-")) {
+                val words = line.split(" ")
+                for(word in words) {
+                    if(word.contains("ex:Equipment-"))
+                        goods.add(
+                                UUID.fromString(
+                                        word.split("ex:Equipment-",";")[1]
+                                )
+                        )
+                }
             }
         }
 
         return Event(
-                emptyList(),
+                goods,
                 emptyList(),
                 emptyList(),
                 emptyList(),
