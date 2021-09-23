@@ -190,12 +190,26 @@ object GraphDBService {
                         )
                 }
             }
+
+            // Extract Location
+            if(line.contains("Event:involvesPhysicalInfrastructure")) {
+                val words = line.split(" ")
+                for (word in words) {
+                    if (word.contains(":physicalInfrastructure-")) {
+                        val physicalInfrastructureCode = word.split(":physicalInfrastructure-", ";", ",")[1]
+
+                        // This construction holds until it's clarified how to store location info
+                        val fakeUUID = UUID.nameUUIDFromBytes(physicalInfrastructureCode.toByteArray())
+                        location.add(fakeUUID)
+                    }
+                }
+            }
         }
 
         return Event(
                 goods,
                 transportMean,
-                emptyList(),
+                location,
                 emptyList(),
                 timestamps,
                 "ecmruri",
