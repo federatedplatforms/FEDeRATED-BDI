@@ -135,8 +135,8 @@ object GraphDBService {
         for(line in lines) {
 
             // Extract Event ID
-            if(line.contains("ex:Event-")) {
-                id = line.substringAfter("ex:Event-").split(" ")[0]
+            if(line.contains(":Event-")) {
+                id = line.substringAfter(":Event-").split(" ")[0]
             }
 
             // Extract Timestamp
@@ -172,13 +172,13 @@ object GraphDBService {
             }
 
             // Extract Goods
-            if(line.contains("ex:Equipment-")) {
+            if(line.contains(":Equipment-")) {
                 val words = line.split(" ")
                 for(word in words) {
-                    if(word.contains("ex:Equipment-"))
+                    if(word.contains(":Equipment-"))
                         goods.add(
                                 UUID.fromString(
-                                        word.split("ex:Equipment-", ";", ",")[1]
+                                        word.split(":Equipment-", ";", ",")[1]
                                 )
                         )
                 }
@@ -188,10 +188,10 @@ object GraphDBService {
             if(line.contains("Event:involvesDigitalTwin")) {
                 val words = line.split(" ")
                 for (word in words) {
-                    if (word.contains("ex:DigitalTwin-"))
+                    if (word.contains(":DigitalTwin-"))
                         transportMean.add(
                                 UUID.fromString(
-                                        word.split("ex:DigitalTwin-", ";", ",")[1]
+                                        word.split(":DigitalTwin-", ";", ",")[1]
                                 )
                         )
                 }
