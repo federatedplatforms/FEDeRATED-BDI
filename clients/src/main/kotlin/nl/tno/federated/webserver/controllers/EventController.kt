@@ -125,7 +125,7 @@ class EventController(rpc: NodeRPCConnection) {
         con.requestMethod = requestMethod.toString()
         con.connectTimeout = 5000
         con.readTimeout = 5000
-        con.setRequestProperty("Content-Type", "text/turtle");
+        con.setRequestProperty("Content-Type", "application/json");
         con.setRequestProperty("Accept", "application/json")
 
         if (body.isNotBlank()) {
