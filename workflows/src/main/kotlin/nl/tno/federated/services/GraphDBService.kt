@@ -114,7 +114,7 @@ object GraphDBService {
         }
     }
 
-    private fun parseRDFtoEvent(rdfFullData: String ) : Event {
+    fun parseRDFtoEvent(rdfFullData: String ) : Event {
 
         val goods = emptyList<UUID>().toMutableList()
         val transportMean = emptyList<UUID>().toMutableList()
@@ -148,7 +148,9 @@ object GraphDBService {
                 var type = EventType.PLANNED // Default type if not found
                 for(lineSecondScan in lines) {
                     if(lineSecondScan.contains("Event:hasDateTimeType")) {
-                        val stringType = lineSecondScan.split(" ")[1].split(":",";")[1]
+                        val stringType = lineSecondScan
+                                .substringAfter("Event:hasDateTimeType ")
+                                .split(":",";")[1]
                         when(stringType.toLowerCase()) {
                             "actual" -> type = EventType.ACTUAL
                             "estimated" -> type = EventType.ESTIMATED
