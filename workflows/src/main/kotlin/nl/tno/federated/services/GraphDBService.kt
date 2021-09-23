@@ -178,7 +178,20 @@ object GraphDBService {
                     if(word.contains("ex:Equipment-"))
                         goods.add(
                                 UUID.fromString(
-                                        word.split("ex:Equipment-",";")[1]
+                                        word.split("ex:Equipment-", ";", ",")[1]
+                                )
+                        )
+                }
+            }
+
+            // Extract Transport Means
+            if(line.contains("Event:involvesDigitalTwin")) {
+                val words = line.split(" ")
+                for (word in words) {
+                    if (word.contains("ex:DigitalTwin-"))
+                        transportMean.add(
+                                UUID.fromString(
+                                        word.split("ex:DigitalTwin-", ";", ",")[1]
                                 )
                         )
                 }
@@ -187,7 +200,7 @@ object GraphDBService {
 
         return Event(
                 goods,
-                emptyList(),
+                transportMean,
                 emptyList(),
                 emptyList(),
                 timestamps,
