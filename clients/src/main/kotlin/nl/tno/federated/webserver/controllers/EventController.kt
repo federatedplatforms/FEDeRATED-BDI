@@ -104,7 +104,7 @@ class EventController(rpc: NodeRPCConnection) {
     @ApiOperation(value = "Validate an access token")
     @PostMapping(value = ["/tokenisvalid"])
     private fun validateToken(@RequestBody token: String) : Boolean {
-
+        if(!isJWTFormatValid(token)) return false
 
         val url = URL("http://federated.sensorlab.tno.nl:1003/validate/token")
         val body = """
@@ -118,6 +118,15 @@ class EventController(rpc: NodeRPCConnection) {
                 )
 
         return extractAuthorizationResult(result)
+    }
+
+    private fun isLettersOrDigits(chars: String): Boolean {
+        return chars.none { it !in 'A'..'Z' && it !in 'a'..'z' && it !in '0'..'9' && it != '-' && it != '_' }
+    }
+
+    private fun isJWTFormatValid(token: String) : Boolean {
+        val splitToken = token.split(".")
+        return (splitToken.size == 3 && splitToken.all { isLettersOrDigits(it) } )
     }
 
     private fun retrieveUrlBody(url: URL, requestMethod: RequestMethod, body: String = ""): String {
@@ -155,8 +164,7 @@ class EventController(rpc: NodeRPCConnection) {
     private fun extractAuthorizationResult(authorizationResult: String): Boolean {
         val polishedString = authorizationResult.split('\n')
         for(line in polishedString) {
-            if(line.contains("success"))
-                return line.contains("true")
+            if(line.contains("success") && line.contains("true")) return true
         }
         return false
     }
