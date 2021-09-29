@@ -29,7 +29,7 @@ class GraphDBServiceTests {
     @Test
     fun `Query everything`() {
         val result = GraphDBService.queryEventIds()
-        assert(result.containsKey("12345"))
+        assert(result.contains("12345"))
     }
 
     @Test
@@ -62,6 +62,7 @@ class GraphDBServiceTests {
         assert(resultTrue)
     }
 
+    @Ignore("Enable this when we find a shacl endpoint")
     @Test
     fun `Validate invalid event - nonsense RDF`() {
         val eventState = EventState(emptyList(),
@@ -78,6 +79,7 @@ class GraphDBServiceTests {
         assert(!GraphDBService.isDataValid(eventState))
     }
 
+    @Ignore("Enable this when we find a shacl endpoint")
     @Test
     fun `Validate invalid event - valid RDF`() {
         val eventState = EventState(emptyList(),

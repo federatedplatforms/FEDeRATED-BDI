@@ -1,12 +1,10 @@
 package nl.tno.federated.services
 
 import nl.tno.federated.states.EventState
-import java.io.FileReader
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URL
 import java.nio.charset.StandardCharsets.UTF_8
-import java.util.*
 
 
 object GraphDBService {
@@ -36,7 +34,7 @@ object GraphDBService {
         return "fail" !in result
     }
 
-    fun queryEventIds(): Map<String, String> { // TODO return only list of event ids?
+    fun queryEventIds(): String {
         val sparql = """
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
@@ -45,8 +43,7 @@ object GraphDBService {
               ?x a Event:Event
             }         
         """.trimIndent()
-        val results = performSparql(sparql, RequestMethod.GET)
-        return parseEventLabels(results)
+        return performSparql(sparql, RequestMethod.GET)
     }
 
     fun generalSPARQLquery(query: String): String {
@@ -64,12 +61,7 @@ object GraphDBService {
                 FILTER (?subject = ex:Event-$id)
             }
             """.trimIndent()
-        val result = performSparql(sparql, RequestMethod.GET)
-        return result // why parseEventLabels(result) ?
-    }
-
-    private fun parseEventLabels(json: String): Map<String, String> { // or List<String>, you decide
-        return emptyMap() // TODO return parsed event ids and rdf labels
+        return performSparql(sparql, RequestMethod.GET)
     }
 
     fun insertEvent(ttl: String): Boolean {
@@ -84,7 +76,7 @@ object GraphDBService {
 
     private fun performSparql(sparql: String, requestMethod: RequestMethod): String {
         val uri = getRepositoryURI()
-        val url = URI("$uri?query=$sparql").toURL()
+        val url = URI(uri.scheme, "//" + uri.host + ":" + uri.port + uri.path + "?query=$sparql", null).toURL()
         return retrieveUrlBody(url, requestMethod)
     }
 
