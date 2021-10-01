@@ -77,8 +77,6 @@ class GraphDBServiceTests {
 
         val parsedEvent = GraphDBService.parseRDFtoEvent(testRdfEvent)
 
-        println(parsedEvent.timestamps)
-
         assert(parsedEvent.goods.single().toString() == "a891b64d-d29f-4ef2-88ad-9ec4c88e0833")
         assert(parsedEvent.transportMean.single().toString() == "20ea72f7-90ed-42ff-ad9d-161593ba9fc5")
         // No check for location yet, as it is faked
