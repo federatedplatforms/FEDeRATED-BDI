@@ -81,7 +81,7 @@ class GraphDBServiceTests {
         assert(parsedEvent.transportMean.single().toString() == "20ea72f7-90ed-42ff-ad9d-161593ba9fc5")
         // No check for location yet, as it is faked
         assert(parsedEvent.timestamps.keys.single().toString() == "ACTUAL")
-        assert(parsedEvent.timestamps[EventType.ACTUAL].toString() == "Fri Jan 18 10:22:00 CET 2019")
+        assert(parsedEvent.timestamps[EventType.ACTUAL].toString() == "Fri Oct 18 10:22:00 CET 2019")
         assert(parsedEvent.milestone == Milestone.START)
         assert(parsedEvent.id == "f99a5b51-039e-4f69-8238-2e11764f4835")
     }

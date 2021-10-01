@@ -8,7 +8,7 @@ import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URL
 import java.nio.charset.StandardCharsets.UTF_8
-import java.text.*
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.LinkedHashMap
 
@@ -121,7 +121,7 @@ object GraphDBService {
         val location = emptyList<UUID>().toMutableList()
         val otherDT = emptyList<UUID>().toMutableList()
         var id = ""
-        var timestamps: LinkedHashMap<EventType, Date> = linkedMapOf()
+        val timestamps: LinkedHashMap<EventType, Date> = linkedMapOf()
         var milestone = Milestone.START
 
         val lines = rdfFullData.trimIndent().split("\n")
