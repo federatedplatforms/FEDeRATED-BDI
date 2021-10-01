@@ -141,7 +141,7 @@ object GraphDBService {
 
                 val stringDate = words[1] + " " + words[2]
 
-                val formatter = SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+                val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                 val eventDate = formatter.parse(stringDate)
 
                 // Extract the Type of timestamp

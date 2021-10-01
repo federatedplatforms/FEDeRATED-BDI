@@ -68,12 +68,12 @@ class GraphDBServiceTests {
             
             ex:Event-f99a5b51-039e-4f69-8238-2e11764f4835 a Event:Event, owl:NamedIndividual;
               rdfs:label "GateIn", "Actual gate in";
-              Event:hasTimestamp "2019-10-18T10:22:00"^^xsd:dateTime;
+              Event:hasTimestamp "2019-10-18T10:22:00Z"^^xsd:dateTime;
               Event:hasDateTimeType Event:Actual;
               Event:involvesDigitalTwin ex:DigitalTwin-20ea72f7-90ed-42ff-ad9d-161593ba9fc5, ex:Equipment-a891b64d-d29f-4ef2-88ad-9ec4c88e0833;
               Event:involvesBusinessTransaction ex:businessTransaction-ca6c007a-6ea9-4142-8234-6df28a2b1a82;
               Event:hasMilestone Event:Start;
-              Event:hasSubmissionTimestamp "2019-10-18T11:18:25"^^xsd:dateTime .
+              Event:hasSubmissionTimestamp "2019-10-18T11:18:25Z"^^xsd:dateTime .
             """.trimIndent()
 
         val parsedEvent = GraphDBService.parseRDFtoEvent(testRdfEvent)
