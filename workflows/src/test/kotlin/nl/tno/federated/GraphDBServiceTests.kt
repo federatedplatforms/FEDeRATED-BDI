@@ -11,6 +11,7 @@ import org.junit.Ignore
 import org.junit.Test
 import java.io.File
 import java.util.*
+import kotlin.test.assertEquals
 
 
 class GraphDBServiceTests {
@@ -77,13 +78,13 @@ class GraphDBServiceTests {
 
         val parsedEvent = GraphDBService.parseRDFtoEvent(testRdfEvent)
 
-        assert(parsedEvent.goods.single().toString() == "a891b64d-d29f-4ef2-88ad-9ec4c88e0833")
-        assert(parsedEvent.transportMean.single().toString() == "20ea72f7-90ed-42ff-ad9d-161593ba9fc5")
+        assertEquals("a891b64d-d29f-4ef2-88ad-9ec4c88e0833", parsedEvent.goods.single().toString())
+        assertEquals("20ea72f7-90ed-42ff-ad9d-161593ba9fc5", parsedEvent.transportMean.single().toString())
         // No check for location yet, as it is faked
-        assert(parsedEvent.timestamps.keys.single().toString() == "ACTUAL")
-        assert(parsedEvent.timestamps[EventType.ACTUAL].toString() == "Fri Oct 18 10:22:00 CET 2019")
-        assert(parsedEvent.milestone == Milestone.START)
-        assert(parsedEvent.id == "f99a5b51-039e-4f69-8238-2e11764f4835")
+        assertEquals("ACTUAL", parsedEvent.timestamps.keys.single().toString())
+        assertEquals("Fri Oct 18 10:22:00 CEST 2019", parsedEvent.timestamps[EventType.ACTUAL].toString())
+        assertEquals(Milestone.START, parsedEvent.milestone)
+        assertEquals("f99a5b51-039e-4f69-8238-2e11764f4835", parsedEvent.id)
     }
 
     @Test
