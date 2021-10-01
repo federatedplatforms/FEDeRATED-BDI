@@ -82,6 +82,8 @@ class GraphDBServiceTests {
         assertEquals("20ea72f7-90ed-42ff-ad9d-161593ba9fc5", parsedEvent.transportMean.single().toString())
         // No check for location yet, as it is faked
         assertEquals("ACTUAL", parsedEvent.timestamps.keys.single().toString())
+
+        println(parsedEvent.timestamps)
         assertEquals("Fri Oct 18 10:22:00 CEST 2019", parsedEvent.timestamps[EventType.ACTUAL].toString())
         assertEquals(Milestone.START, parsedEvent.milestone)
         assertEquals("f99a5b51-039e-4f69-8238-2e11764f4835", parsedEvent.id)
@@ -154,10 +156,5 @@ class GraphDBServiceTests {
             linearId = UniqueIdentifier()
         )
         assert(GraphDBService.isDataValid(eventState))
-    }
-
-    @Test
-    fun `Parse id from queried event`() {
-        val result = GraphDBService.queryEventIds()
     }
 }
