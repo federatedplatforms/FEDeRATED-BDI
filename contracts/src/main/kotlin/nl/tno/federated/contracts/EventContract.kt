@@ -5,9 +5,7 @@ import net.corda.core.contracts.Contract
 import net.corda.core.contracts.requireSingleCommand
 import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
-import nl.tno.federated.states.EventState
-import nl.tno.federated.states.Milestone
-import nl.tno.federated.states.TimeType
+import nl.tno.federated.states.*
 
 // ************
 // * Contract *
@@ -21,11 +19,10 @@ class EventContract : Contract {
     // A transaction is valid if the verify() function of the contract of all the transaction's input and output states
     // does not throw an exception.
     override fun verify(tx: LedgerTransaction) {
-
         val command = tx.commands.requireSingleCommand<Commands>()
 
-        val outputStates = tx.outputStates
         val inputStates = tx.inputStates.filterIsInstance<EventState>()
+        val outputStates = tx.outputStates
         val referenceStates = tx.referenceStates.filterIsInstance<EventState>()
 
         val eventState = outputStates.filterIsInstance<EventState>().single()
@@ -34,18 +31,13 @@ class EventContract : Contract {
             is Commands.Create -> {
                 requireThat{
                     "There must be exactly one timestamp at time of creation" using (eventState.timestamps.size == 1)
-                    "The type of the timestamp must be PLANNED" using (
-                            when(eventState.timestamps.single().type) {
-                                TimeType.PLANNED -> true
-                                else -> false
-                            }
-                            )
+                    "The type of the timestamp must be PLANNED" using (eventState.timestamps.single().first == EventType.PLANNED)
                 }
 
                 when(eventState.milestone) {
                     Milestone.START -> {
                         requireThat{
-                            "Goods and locations cannot be linked together" using (!(eventState.goods.isNotEmpty() && eventState.location.isNotEmpty()))
+                            "Goods and locations cannot be linked together" using !(eventState.goods.isNotEmpty() && eventState.location.isNotEmpty())
                             "There can be one location only" using (eventState.location.size <= 1)
                             "There can be one good only" using (eventState.goods.size <= 1)
                             "There can be one transport mean only" using (eventState.transportMean.size <= 1)
@@ -73,14 +65,14 @@ class EventContract : Contract {
 
             is Commands.UpdateEstimatedTime -> {
                 requireThat{
-                    "There must be a previous corresponding event as input" using (inputStates.isNotEmpty())
+                    "There must be a previous corresponding event as input" using (inputStates.size == 1)
                     "Besides times, id and participants, input and output states must be equal" using (inputStates.single().equalsExceptTimesAndParticipants(eventState))
                     val oldTimestamps = inputStates.single().timestamps
                     val newTimestamps = eventState.timestamps
-                    "Last element of old timestamps cannot be of type ACTUAL" using (oldTimestamps.last().type != TimeType.ACTUAL)
-                    "First element of old timestamps must be of type PLANNED" using (oldTimestamps.first().type == TimeType.PLANNED)
-                    "Old timestamps and new timestamps must be equal, net of the last element" using (oldTimestamps == newTimestamps - newTimestamps.last())
-                    "The last (added) timestamp must be of type ESTIMATED" using (newTimestamps.last().type == TimeType.ESTIMATED)
+                    "Last element of old timestamps cannot be of type ACTUAL" using (oldTimestamps.last().first != EventType.ACTUAL)
+                    "First element of old timestamps must be of type PLANNED" using (oldTimestamps.first().first == EventType.PLANNED)
+                    "Old timestamps and new timestamps must be equal, net of the new or changed element" using (oldTimestamps.numberOfDifferingEntries(newTimestamps) == 1)
+                    "The last (added) timestamp must be of type ESTIMATED" using (newTimestamps.last().first == EventType.ESTIMATED)
                 }
             }
 
@@ -99,20 +91,18 @@ class EventContract : Contract {
                     "Besides times, id and participants, input and output states must be equal" using (correspondingEvent.single().equalsExceptTimesAndParticipants(eventState))
                     val oldTimestamps = correspondingEvent.single().timestamps
                     val newTimestamps = eventState.timestamps
-                    "Last element of old timestamps cannot be of type ACTUAL" using (oldTimestamps.last().type != TimeType.ACTUAL)
-                    "First element of old timestamps must be of type PLANNED" using (oldTimestamps.first().type == TimeType.PLANNED)
-                    "Old timestamps and new timestamps must be equal, net of the last element" using (oldTimestamps == newTimestamps - newTimestamps.last())
-                    "The last (added) timestamp must be of type ACTUAL" using (newTimestamps.last().type == TimeType.ACTUAL)
+                    "Last element of old timestamps cannot be of type ACTUAL" using (oldTimestamps.last().first != EventType.ACTUAL)
+                    "First element of old timestamps must be of type PLANNED" using (oldTimestamps.first().first == EventType.PLANNED)
+                    "The last (added) timestamp must be of type ACTUAL" using (newTimestamps.last().first == EventType.ACTUAL)
+                    "Old timestamps and new timestamps must be equal, net of the new or changed element" using (oldTimestamps.numberOfDifferingEntries(newTimestamps) == 1)
                 }
 
-                when(eventState.milestone) {
-                    Milestone.STOP -> {
-                        requireThat{
-                            "There must be only one previous START event" using (correspondingStartEvent.size == 1)
-                            "The corresponding START event must involve the same digital twins" using (correspondingStartEvent.single().hasSameDigitalTwins(eventState))
-                            "The last timestamps of the corresponding START event must be of type ACTUAL" using (
-                                    correspondingStartEvent.single().timestamps.last().type == TimeType.ACTUAL )
-                        }
+                if (eventState.milestone == Milestone.STOP) {
+                    requireThat{
+                        "There must be only one previous START event" using (correspondingStartEvent.size == 1)
+                        "The corresponding START event must involve the same digital twins" using (correspondingStartEvent.single().hasSameDigitalTwins(eventState))
+                        "The last timestamps of the corresponding START event must be of type ACTUAL" using (
+                                correspondingStartEvent.single().timestamps.last().first == EventType.ACTUAL )
                     }
                 }
             }
@@ -127,3 +117,4 @@ class EventContract : Contract {
         class ExecuteEvent : Commands
     }
 }
+
