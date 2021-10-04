@@ -195,7 +195,7 @@ class ContractTests {
             timestamps = timestampsIn
         )
         val outputState = eventNewStateGoodsAndTransport.copy(
-                timestamps = timestampsOut
+            timestamps = timestampsOut
         )
 
         ledgerServices.ledger {

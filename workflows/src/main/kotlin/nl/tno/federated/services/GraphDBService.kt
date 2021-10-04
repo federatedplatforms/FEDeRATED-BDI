@@ -8,7 +8,7 @@ import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URL
 import java.nio.charset.StandardCharsets.UTF_8
-import java.text.*
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.LinkedHashMap
 
@@ -40,7 +40,7 @@ object GraphDBService {
         return "fail" !in result
     }
 
-    fun queryEventIds(): Map<String, String> { // TODO return only list of event ids?
+    fun queryEventIds(): String {
         val sparql = """
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
@@ -49,8 +49,7 @@ object GraphDBService {
               ?x a Event:Event
             }         
         """.trimIndent()
-        val results = performSparql(sparql, RequestMethod.GET)
-        return parseEventLabels(results)
+        return performSparql(sparql, RequestMethod.GET)
     }
 
     fun generalSPARQLquery(query: String): String {
@@ -68,12 +67,7 @@ object GraphDBService {
                 FILTER (?subject = ex:Event-$id)
             }
             """.trimIndent()
-        val result = performSparql(sparql, RequestMethod.GET)
-        return result // why parseEventLabels(result) ?
-    }
-
-    private fun parseEventLabels(json: String): Map<String, String> { // or List<String>, you decide
-        return emptyMap() // TODO return parsed event ids and rdf labels
+        return performSparql(sparql, RequestMethod.GET)
     }
 
     fun insertEvent(ttl: String): Boolean {
@@ -88,7 +82,7 @@ object GraphDBService {
 
     private fun performSparql(sparql: String, requestMethod: RequestMethod): String {
         val uri = getRepositoryURI()
-        val url = URI("$uri?query=$sparql").toURL()
+        val url = URI(uri.scheme, "//" + uri.host + ":" + uri.port + uri.path + "?query=$sparql", null).toURL()
         return retrieveUrlBody(url, requestMethod)
     }
 
@@ -127,7 +121,7 @@ object GraphDBService {
         val location = emptyList<UUID>().toMutableList()
         val otherDT = emptyList<UUID>().toMutableList()
         var id = ""
-        var timestamps: LinkedHashMap<EventType, Date> = linkedMapOf()
+        val timestamps: LinkedHashMap<EventType, Date> = linkedMapOf()
         var milestone = Milestone.START
 
         val lines = rdfFullData.trimIndent().split("\n")
@@ -147,7 +141,7 @@ object GraphDBService {
 
                 val stringDate = words[1] + " " + words[2]
 
-                val formatter = SimpleDateFormat("yyyy-mm-dd hh:mm:ss")
+                val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                 val eventDate = formatter.parse(stringDate)
 
                 // Extract the Type of timestamp

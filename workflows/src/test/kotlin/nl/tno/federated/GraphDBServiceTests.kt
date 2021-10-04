@@ -11,6 +11,7 @@ import org.junit.Ignore
 import org.junit.Test
 import java.io.File
 import java.util.*
+import kotlin.test.assertEquals
 
 
 class GraphDBServiceTests {
@@ -29,7 +30,7 @@ class GraphDBServiceTests {
     @Test
     fun `Query everything`() {
         val result = GraphDBService.queryEventIds()
-        assert(result.containsKey("12345"))
+        assert(result.contains("12345"))
     }
 
     @Test
@@ -67,25 +68,25 @@ class GraphDBServiceTests {
             
             ex:Event-f99a5b51-039e-4f69-8238-2e11764f4835 a Event:Event, owl:NamedIndividual;
               rdfs:label "GateIn", "Actual gate in";
-              Event:hasTimestamp "2019-10-18T10:22:00"^^xsd:dateTime;
+              Event:hasTimestamp "2019-10-18T10:22:00Z"^^xsd:dateTime;
               Event:hasDateTimeType Event:Actual;
               Event:involvesDigitalTwin ex:DigitalTwin-20ea72f7-90ed-42ff-ad9d-161593ba9fc5, ex:Equipment-a891b64d-d29f-4ef2-88ad-9ec4c88e0833;
               Event:involvesBusinessTransaction ex:businessTransaction-ca6c007a-6ea9-4142-8234-6df28a2b1a82;
               Event:hasMilestone Event:Start;
-              Event:hasSubmissionTimestamp "2019-10-18T11:18:25"^^xsd:dateTime .
+              Event:hasSubmissionTimestamp "2019-10-18T11:18:25Z"^^xsd:dateTime .
             """.trimIndent()
 
         val parsedEvent = GraphDBService.parseRDFtoEvent(testRdfEvent)
 
-        println(parsedEvent.timestamps)
-
-        assert(parsedEvent.goods.single().toString() == "a891b64d-d29f-4ef2-88ad-9ec4c88e0833")
-        assert(parsedEvent.transportMean.single().toString() == "20ea72f7-90ed-42ff-ad9d-161593ba9fc5")
+        assertEquals("a891b64d-d29f-4ef2-88ad-9ec4c88e0833", parsedEvent.goods.single().toString())
+        assertEquals("20ea72f7-90ed-42ff-ad9d-161593ba9fc5", parsedEvent.transportMean.single().toString())
         // No check for location yet, as it is faked
-        assert(parsedEvent.timestamps.keys.single().toString() == "ACTUAL")
-        assert(parsedEvent.timestamps[EventType.ACTUAL].toString() == "Fri Jan 18 10:22:00 CET 2019")
-        assert(parsedEvent.milestone == Milestone.START)
-        assert(parsedEvent.id == "f99a5b51-039e-4f69-8238-2e11764f4835")
+        assertEquals("ACTUAL", parsedEvent.timestamps.keys.single().toString())
+
+        println(parsedEvent.timestamps)
+        assertEquals("Fri Oct 18 10:22:00 CEST 2019", parsedEvent.timestamps[EventType.ACTUAL].toString())
+        assertEquals(Milestone.START, parsedEvent.milestone)
+        assertEquals("f99a5b51-039e-4f69-8238-2e11764f4835", parsedEvent.id)
     }
 
     @Test
@@ -106,6 +107,7 @@ class GraphDBServiceTests {
         assert(resultTrue)
     }
 
+    @Ignore("Enable this when we find a shacl endpoint")
     @Test
     fun `Validate invalid event - nonsense RDF`() {
         val eventState = EventState(emptyList(),
@@ -122,6 +124,7 @@ class GraphDBServiceTests {
         assert(!GraphDBService.isDataValid(eventState))
     }
 
+    @Ignore("Enable this when we find a shacl endpoint")
     @Test
     fun `Validate invalid event - valid RDF`() {
         val eventState = EventState(emptyList(),
@@ -153,10 +156,5 @@ class GraphDBServiceTests {
             linearId = UniqueIdentifier()
         )
         assert(GraphDBService.isDataValid(eventState))
-    }
-
-    @Test
-    fun `Parse id from queried event`() {
-        val result = GraphDBService.queryEventIds()
     }
 }
