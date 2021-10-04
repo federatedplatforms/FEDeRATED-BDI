@@ -135,13 +135,12 @@ object GraphDBService {
 
             // Extract Timestamp
             if(line.contains("Event:hasTimestamp")) {
-                val words = line
+                val stringDate = line
                         .substringAfter("Event:hasTimestamp")
-                        .split("\"", "T")
+                        .substringAfter("\"")
+                    .substringBefore("\"")
 
-                val stringDate = words[1] + " " + words[2]
-
-                val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
                 val eventDate = formatter.parse(stringDate)
 
                 // Extract the Type of timestamp
