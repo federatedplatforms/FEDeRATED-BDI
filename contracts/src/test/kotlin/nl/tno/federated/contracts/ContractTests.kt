@@ -189,8 +189,8 @@ class ContractTests {
 
     @Test
     fun `update estimated time simple transaction`() {
-        val timestampsIn = linkedMapOf(Pair(EventType.PLANNED, Date()), Pair(EventType.ESTIMATED, Date(2021,1,1,1,1,1)))
-        val timestampsOut = linkedMapOf(Pair(EventType.PLANNED, Date()), Pair(EventType.ESTIMATED, Date(2021,1,1,1,1,2)))
+        val timestampsIn = linkedMapOf(Pair(EventType.PLANNED, Date()), Pair(EventType.ESTIMATED, Date(121,1,1,1,1,1)))
+        val timestampsOut = linkedMapOf(Pair(EventType.PLANNED, Date()), Pair(EventType.ESTIMATED, Date(121,1,1,1,1,2)))
         val inputState = eventNewStateGoodsAndTransport.copy(
             timestamps = timestampsIn
         )
