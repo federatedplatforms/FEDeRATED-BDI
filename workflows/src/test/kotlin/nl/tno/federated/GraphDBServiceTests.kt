@@ -83,8 +83,7 @@ class GraphDBServiceTests {
         // No check for location yet, as it is faked
         assertEquals("ACTUAL", parsedEvent.timestamps.keys.single().toString())
 
-        println(parsedEvent.timestamps)
-        assertEquals("Fri Oct 18 10:22:00 CEST 2019", parsedEvent.timestamps[EventType.ACTUAL].toString())
+        assertEquals(1571386920000, parsedEvent.timestamps[EventType.ACTUAL]!!.time)
         assertEquals(Milestone.START, parsedEvent.milestone)
         assertEquals("f99a5b51-039e-4f69-8238-2e11764f4835", parsedEvent.id)
     }
