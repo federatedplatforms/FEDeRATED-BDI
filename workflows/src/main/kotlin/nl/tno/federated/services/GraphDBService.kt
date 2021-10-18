@@ -117,7 +117,7 @@ object GraphDBService {
     fun parseRDFtoEvent(rdfFullData: String ) : Event {
 
         val goods = emptyList<UUID>().toMutableList()
-        val transportMean = emptyList<UUID>().toMutableList()
+        val transportMeans = emptyList<UUID>().toMutableList()
         val location = emptyList<UUID>().toMutableList()
         val otherDT = emptyList<UUID>().toMutableList()
         var id = ""
@@ -166,29 +166,22 @@ object GraphDBService {
                 // if it contains "start" it can stay as default (start)
             }
 
-            // Extract Goods
-            if(line.contains(":Equipment-")) {
-                val words = line.split(" ")
-                for(word in words) {
-                    if(word.contains(":Equipment-"))
-                        goods.add(
-                                UUID.fromString(
-                                        word.split(":Equipment-", ";", ",")[1]
-                                )
-                        )
-                }
-            }
-
-            // Extract Transport Means
+            // Extract Digital Twins
             if(line.contains("Event:involvesDigitalTwin")) {
-                val words = line.split(" ")
-                for (word in words) {
-                    if (word.contains(":DigitalTwin-"))
-                        transportMean.add(
-                                UUID.fromString(
-                                        word.split(":DigitalTwin-", ";", ",")[1]
-                                )
-                        )
+
+                val listOfDigitalTwins = line.substringAfter("Event:involvesDigitalTwin ").split(" ")
+
+                for(digitalTwin in listOfDigitalTwins) {
+                    val DTuuid = digitalTwin.substringAfter("DigitalTwin-").substring(0,36)
+
+                    for(lineSecondScan in lines) {
+                        if(lineSecondScan.contains(DTuuid) && lineSecondScan.contains("a DigitalTwin:")) {
+                            val DTtype = lineSecondScan.substringAfter("a DigitalTwin:").split(" ",",",";")[0]
+
+                            if(DTtype == "Equipment") goods.add( UUID.fromString(DTuuid) )
+                            if(DTtype == "TransportMeans") transportMeans.add( UUID.fromString(DTuuid) )
+                        }
+                    }
                 }
             }
 
@@ -209,7 +202,7 @@ object GraphDBService {
 
         return Event(
                 goods,
-                transportMean,
+                transportMeans,
                 location,
                 emptyList(),
                 timestamps,
