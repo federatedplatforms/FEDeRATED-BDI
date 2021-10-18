@@ -48,44 +48,50 @@ class GraphDBServiceTests {
     @Test
     fun `Parse event`() {
         val testRdfEvent = """
-            @base <http://example.com/base/> .
-            @prefix pi: <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#> .
-            @prefix classifications: <https://ontology.tno.nl/logistics/federated/Classifications#> .
-            @prefix dcterms: <http://purl.org/dc/terms/> .
-            @prefix LogisticsRoles: <https://ontology.tno.nl/logistics/federated/LogisticsRoles#> .
-            @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-            @prefix owl: <http://www.w3.org/2002/07/owl#> .
-            @prefix Event: <https://ontology.tno.nl/logistics/federated/Event#> .
-            @prefix ReusableTags: <https://ontology.tno.nl/logistics/federated/ReusableTags#> .
-            @prefix businessService: <https://ontology.tno.nl/logistics/federated/BusinessService#> .
-            @prefix DigitalTwin: <https://ontology.tno.nl/logistics/federated/DigitalTwin#> .
-            @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
-            @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-            @prefix ex: <http://example.com/base#> .
-            @prefix time: <http://www.w3.org/2006/time#> .
-            @prefix dc: <http://purl.org/dc/elements/1.1/> .
-            @prefix era: <http://era.europa.eu/ns#> .
+            :Event-5edc2423-d258-4002-8d6c-9fb3b1f6ff9a a Event:Event, owl:NamedIndividual;
+              rdfs:label "GateOut", "Planned gate out";
+              Event:hasTimestamp "2020-01-25T18:00:00Z"^^xsd:dateTime;
+              Event:hasDateTimeType Event:Planned;
+              Event:involvesDigitalTwin :DigitalTwin-5edc2423-d258-4002-8d6c-9fb3b1f6ff9a, :DigitalTwin-6c7edb9c-cfee-4b0c-998d-435cca8eeb39;
+              Event:involvesBusinessTransaction :businessTransaction-6c7edb9c-cfee-4b0c-998d-435cca8eeb39;
+              Event:involvesPhysicalInfrastructure :physicalInfrastructure-BEDEU01;
+              Event:hasMilestone Event:End;
+              Event:hasSubmissionTimestamp "2020-01-21T14:24:36"^^xsd:dateTime .
             
-            ex:Event-f99a5b51-039e-4f69-8238-2e11764f4835 a Event:Event, owl:NamedIndividual;
-              rdfs:label "GateIn", "Actual gate in";
-              Event:hasTimestamp "2019-10-18T10:22:00Z"^^xsd:dateTime;
-              Event:hasDateTimeType Event:Actual;
-              Event:involvesDigitalTwin ex:DigitalTwin-20ea72f7-90ed-42ff-ad9d-161593ba9fc5, ex:Equipment-a891b64d-d29f-4ef2-88ad-9ec4c88e0833;
-              Event:involvesBusinessTransaction ex:businessTransaction-ca6c007a-6ea9-4142-8234-6df28a2b1a82;
-              Event:hasMilestone Event:Start;
-              Event:hasSubmissionTimestamp "2019-10-18T11:18:25Z"^^xsd:dateTime .
+            :DigitalTwin-5edc2423-d258-4002-8d6c-9fb3b1f6ff9a a DigitalTwin:TransportMeans,
+                owl:NamedIndividual .
+            
+            :businessTransaction-6c7edb9c-cfee-4b0c-998d-435cca8eeb39 a businessService:Consignment,
+                owl:NamedIndividual;
+              businessService:consignmentCreationTime "2021-05-13T21:23:04"^^xsd:dateTime;
+              businessService:involvedActor :LegalPerson-Maersk .
+            
+            :LegalPerson-Maersk a businessService:LegalPerson, owl:NamedIndividual, businessService:PrivateEnterprise;
+              businessService:actorName "Maersk" .
+            
+            :physicalInfrastructure-BEDEU01 a pi:Terminal, pi:LogisticalFunction, owl:NamedIndividual;
+              rdfs:label "BEDEU01";
+              pi:locatedAt :Location-BEDEG .
+            
+            :Location-BEDEG a pi:Location, owl:NamedIndividual;
+              pi:cityName "Deurne, BE";
+              pi:cityLoCode "BEDEG" .
+            
+            :DigitalTwin-6c7edb9c-cfee-4b0c-998d-435cca8eeb39 a DigitalTwin:Equipment, owl:NamedIndividual;
+              DigitalTwin:containerID "XINU4010266" .
+
             """.trimIndent()
 
         val parsedEvent = GraphDBService.parseRDFtoEvent(testRdfEvent)
 
-        assertEquals("a891b64d-d29f-4ef2-88ad-9ec4c88e0833", parsedEvent.goods.single().toString())
-        assertEquals("20ea72f7-90ed-42ff-ad9d-161593ba9fc5", parsedEvent.transportMean.single().toString())
+        assertEquals("6c7edb9c-cfee-4b0c-998d-435cca8eeb39", parsedEvent.goods.single().toString())
+        assertEquals("5edc2423-d258-4002-8d6c-9fb3b1f6ff9a", parsedEvent.transportMean.single().toString())
         // No check for location yet, as it is faked
-        assertEquals("ACTUAL", parsedEvent.timestamps.keys.single().toString())
+        assertEquals("PLANNED", parsedEvent.timestamps.keys.single().toString())
 
-        assertEquals(1571394120000, parsedEvent.timestamps[EventType.ACTUAL]!!.time)
-        assertEquals(Milestone.START, parsedEvent.milestone)
-        assertEquals("f99a5b51-039e-4f69-8238-2e11764f4835", parsedEvent.id)
+        assertEquals(1579975200000, parsedEvent.timestamps[EventType.PLANNED]!!.time)
+        assertEquals(Milestone.STOP, parsedEvent.milestone)
+        assertEquals("5edc2423-d258-4002-8d6c-9fb3b1f6ff9a", parsedEvent.id)
     }
 
     @Test
