@@ -122,16 +122,16 @@ class ContractTests {
     }
 
     @Test
-    fun `fail - timestamp is not planned at time of creation`() {
+    fun `fail - timestamp is not planned or actual at time of creation`() {
         val outputState = eventNewStateGoodsAndTransport.copy(
-                timestamps = linkedMapOf(Pair(EventType.ACTUAL, Date()))
+                timestamps = linkedMapOf(Pair(EventType.ESTIMATED, Date()))
         )
         ledgerServices.ledger {
             transaction {
                 command(sender.publicKey, EventContract.Commands.Create())
                 output(EventContract.ID, outputState)
 
-                `fails with` ("The type of the timestamp must be PLANNED")
+                `fails with` ("The type of the timestamp must be PLANNED or ACTUAL")
             }
         }
     }
