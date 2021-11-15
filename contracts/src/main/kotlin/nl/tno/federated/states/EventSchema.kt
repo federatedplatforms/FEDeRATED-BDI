@@ -34,7 +34,7 @@ object EventSchemaV1 : MappedSchema(
         @ElementCollection
         val transportMean: List<UUID>,
         @ElementCollection
-        val location: List<UUID>,
+        val location: List<String>,
         @ElementCollection
         val otherDigitalTwins: List<UUID>,
         @Column(name = "eCMRuri")
@@ -46,7 +46,7 @@ object EventSchemaV1 : MappedSchema(
             "no ID provided",
             emptyList<UUID>(),
             emptyList<UUID>(),
-            emptyList<UUID>(),
+            emptyList<String>(),
             emptyList<UUID>(),
             "no URI provided",
             Milestone.START

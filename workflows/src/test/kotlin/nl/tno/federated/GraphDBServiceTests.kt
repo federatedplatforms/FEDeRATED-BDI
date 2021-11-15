@@ -117,7 +117,7 @@ class GraphDBServiceTests {
     fun `Validate invalid event - nonsense RDF`() {
         val eventState = EventState(emptyList(),
             transportMean = emptyList(),
-            location = listOf(UUID.randomUUID()),
+            location = listOf("random string"),
             otherDigitalTwins = listOf(UUID.randomUUID()),
             timestamps = linkedMapOf(Pair(EventType.ESTIMATED, Date())),
             ecmruri = "",
@@ -134,7 +134,7 @@ class GraphDBServiceTests {
     fun `Validate invalid event - valid RDF`() {
         val eventState = EventState(emptyList(),
             transportMean = emptyList(),
-            location = listOf(UUID.randomUUID()),
+            location = listOf("random string"),
             otherDigitalTwins = listOf(UUID.randomUUID()),
             timestamps = linkedMapOf(Pair(EventType.ESTIMATED, Date())),
             ecmruri = "",
@@ -151,7 +151,7 @@ class GraphDBServiceTests {
     fun `Validate valid event`() {
         val eventState = EventState(emptyList(),
             transportMean = emptyList(),
-            location = listOf(UUID.randomUUID()),
+            location = listOf("random string"),
             otherDigitalTwins = listOf(UUID.randomUUID()),
             timestamps = linkedMapOf(Pair(EventType.ESTIMATED, Date())),
             ecmruri = "",

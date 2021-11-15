@@ -35,33 +35,33 @@ class EventFlowTests {
     private val eCMRuriExample = "This is a URI example for an eCMR"
 
     private val digitalTwinsWrong = listOf(
-            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.GOOD),
-            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.GOOD),
-            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.TRANSPORTMEAN),
-            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER),
-            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER)
+            DigitalTwinPair(UniqueIdentifier().id.toString(), PhysicalObject.GOOD),
+            DigitalTwinPair(UniqueIdentifier().id.toString(), PhysicalObject.GOOD),
+            DigitalTwinPair(UniqueIdentifier().id.toString(), PhysicalObject.TRANSPORTMEAN),
+            DigitalTwinPair(UniqueIdentifier().id.toString(), PhysicalObject.OTHER),
+            DigitalTwinPair(UniqueIdentifier().id.toString(), PhysicalObject.OTHER)
     )
 
     private val digitalTwinsWrong2 = listOf(
-            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.GOOD),
-            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.TRANSPORTMEAN),
-            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.LOCATION),
-            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER),
-            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER)
+            DigitalTwinPair(UniqueIdentifier().id.toString(), PhysicalObject.GOOD),
+            DigitalTwinPair(UniqueIdentifier().id.toString(), PhysicalObject.TRANSPORTMEAN),
+            DigitalTwinPair(UniqueIdentifier().id.toString(), PhysicalObject.LOCATION),
+            DigitalTwinPair(UniqueIdentifier().id.toString(), PhysicalObject.OTHER),
+            DigitalTwinPair(UniqueIdentifier().id.toString(), PhysicalObject.OTHER)
     )
 
     private val digitalTwinsTransportAndLocation = listOf(
-            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.TRANSPORTMEAN),
-            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.LOCATION),
-            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER),
-            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER)
+            DigitalTwinPair(UniqueIdentifier().id.toString(), PhysicalObject.TRANSPORTMEAN),
+            DigitalTwinPair(UniqueIdentifier().id.toString(), PhysicalObject.LOCATION),
+            DigitalTwinPair(UniqueIdentifier().id.toString(), PhysicalObject.OTHER),
+            DigitalTwinPair(UniqueIdentifier().id.toString(), PhysicalObject.OTHER)
     )
 
     private val digitalTwinsGoodsAndTransport = listOf(
-            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.GOOD),
-            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.TRANSPORTMEAN),
-            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER),
-            DigitalTwinPair(UniqueIdentifier().id, PhysicalObject.OTHER)
+            DigitalTwinPair(UniqueIdentifier().id.toString(), PhysicalObject.GOOD),
+            DigitalTwinPair(UniqueIdentifier().id.toString(), PhysicalObject.TRANSPORTMEAN),
+            DigitalTwinPair(UniqueIdentifier().id.toString(), PhysicalObject.OTHER),
+            DigitalTwinPair(UniqueIdentifier().id.toString(), PhysicalObject.OTHER)
     )
 
     private val sampleEvent = ""

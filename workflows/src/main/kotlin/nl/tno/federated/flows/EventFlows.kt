@@ -76,24 +76,24 @@ class NewEventFlow(
 
         val goods = emptyList<UUID>().toMutableList()
         val transportMean = emptyList<UUID>().toMutableList()
-        val location = emptyList<UUID>().toMutableList()
+        val location = emptyList<String>().toMutableList()
         val otherDT = emptyList<UUID>().toMutableList()
 
         digitalTwins.forEach{
             when(it.type) {
                 PhysicalObject.GOOD -> {
-                    goods.add(it.uuid)
+                    goods.add(UUID.fromString(it.content))
                 }
                 PhysicalObject.TRANSPORTMEAN -> {
-                    transportMean.add(it.uuid)
+                    transportMean.add(UUID.fromString(it.content))
                 }
                 PhysicalObject.LOCATION -> {
-                    location.add(it.uuid)
+                    location.add(it.content)
                 }
                 PhysicalObject.OTHER -> {
-                    otherDT.add(it.uuid)
+                    otherDT.add(UUID.fromString(it.content))
                 }
-                PhysicalObject.CARGO -> otherDT.add(it.uuid)
+                PhysicalObject.CARGO -> otherDT.add(UUID.fromString(it.content))
             }
         }
 
@@ -491,6 +491,6 @@ class GeneralSPARQLqueryFlow(
 
 @CordaSerializable
 data class DigitalTwinPair(
-        val uuid : UUID,
+        val content : String,
         val type: PhysicalObject
 )

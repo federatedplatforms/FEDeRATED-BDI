@@ -183,7 +183,6 @@ class EventController(rpc: NodeRPCConnection) {
         val eventStates = proxy.vaultQueryBy<EventState>().states.filter {
                     it.state.data.goods.contains(dtuuid) ||
                     it.state.data.transportMean.contains(dtuuid) ||
-                    it.state.data.location.contains(dtuuid) ||
                     it.state.data.otherDigitalTwins.contains(dtuuid)
         }.map{ it.state.data }
 
