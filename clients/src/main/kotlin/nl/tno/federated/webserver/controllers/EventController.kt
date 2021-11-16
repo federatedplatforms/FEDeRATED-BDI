@@ -36,7 +36,7 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
-    private fun newEvent(@RequestBody event: NewEvent, fullEvent: String): ResponseEntity<String> {
+    private fun newEvent(@RequestBody event: NewEvent, fullEvent: String, countriesInvolved: List<String>): ResponseEntity<String> {
         if (event.uniqueId && event.id.isNotBlank()) {
             if (eventById(event.id).isNotEmpty()) {
                 return ResponseEntity("Event with this id already exists. If you want to insert anyway, unset the uniqueId parameter.", HttpStatus.BAD_REQUEST)
@@ -51,7 +51,8 @@ class EventController(rpc: NodeRPCConnection) {
                         event.ecmruri,
                         event.milestone,
                         UniqueIdentifier(event.id, UUID.randomUUID()),
-                        fullEvent
+                        fullEvent,
+                        countriesInvolved
                 ).returnValue.get()
                 val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
                 ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
@@ -134,11 +135,11 @@ class EventController(rpc: NodeRPCConnection) {
         con.requestMethod = requestMethod.toString()
         con.connectTimeout = 5000
         con.readTimeout = 5000
-        con.setRequestProperty("Content-Type", "application/json");
+        con.setRequestProperty("Content-Type", "application/json")
         con.setRequestProperty("Accept", "application/json")
 
         if (body.isNotBlank()) {
-            con.doOutput = true;
+            con.doOutput = true
             con.outputStream.use { os ->
                 val input: ByteArray = body.toByteArray(StandardCharsets.UTF_8)
                 os.write(input, 0, input.size)

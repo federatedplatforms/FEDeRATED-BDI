@@ -30,7 +30,8 @@ class NewEventFlow(
     val eCMRuri: String,
     val milestone: Milestone,
     val id: UniqueIdentifier,
-    val fullEvent: String
+    val fullEvent: String,
+    val countriesInvolved: List<String>
     ) : FlowLogic<SignedTransaction>() {
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
@@ -70,9 +71,9 @@ class NewEventFlow(
         progressTracker.currentStep = GENERATING_TRANSACTION
 
         // Retrieving counterparties (sending to all nodes, for now)
-        val allParties = serviceHub.networkMapCache.allNodes.flatMap {it.legalIdentities}
         val me = serviceHub.myInfo.legalIdentities.first()
-        val counterParties = allParties - notary - me
+        val counterParties = serviceHub.networkMapCache.allNodes.flatMap {it.legalIdentities}.filter{ countriesInvolved.contains(it.name.country) }
+        val allParties = counterParties + notary + me
 
         val goods = emptyList<UUID>().toMutableList()
         val transportMean = emptyList<UUID>().toMutableList()
@@ -180,7 +181,7 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
         progressTracker.currentStep = VERIFYING_STRING_INTEGRITY
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
-                val outputState = stx.tx.outputStates.single() as EventState
+//                val outputState = stx.tx.outputStates.single() as EventState
 //                require(insertEvent(outputState.fullEvent)) { "Unable to insert event data into the triple store."}
                 // TODO what to check in the counterparty flow?
                 // especially: if I'm not passing all previous states in the tx (see "requires" in the flow)
