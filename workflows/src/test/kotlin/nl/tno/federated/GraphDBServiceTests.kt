@@ -11,6 +11,7 @@ import org.junit.Ignore
 import org.junit.Test
 import java.io.File
 import java.util.*
+import kotlin.test.assertEquals
 
 
 class GraphDBServiceTests {
@@ -45,6 +46,55 @@ class GraphDBServiceTests {
     }
 
     @Test
+    fun `Parse event`() {
+        val testRdfEvent = """
+            :Event-5edc2423-d258-4002-8d6c-9fb3b1f6ff9a a Event:Event, owl:NamedIndividual;
+              rdfs:label "GateOut", "Planned gate out";
+              Event:hasTimestamp "2020-01-25T18:00:00Z"^^xsd:dateTime;
+              Event:hasDateTimeType Event:Planned;
+              Event:involvesDigitalTwin :DigitalTwin-5edc2423-d258-4002-8d6c-9fb3b1f6ff9a, :DigitalTwin-6c7edb9c-cfee-4b0c-998d-435cca8eeb39;
+              Event:involvesBusinessTransaction :businessTransaction-6c7edb9c-cfee-4b0c-998d-435cca8eeb39;
+              Event:involvesPhysicalInfrastructure :physicalInfrastructure-BEDEU01;
+              Event:hasMilestone Event:End;
+              Event:hasSubmissionTimestamp "2020-01-21T14:24:36"^^xsd:dateTime .
+            
+            :DigitalTwin-5edc2423-d258-4002-8d6c-9fb3b1f6ff9a a DigitalTwin:TransportMeans,
+                owl:NamedIndividual .
+            
+            :businessTransaction-6c7edb9c-cfee-4b0c-998d-435cca8eeb39 a businessService:Consignment,
+                owl:NamedIndividual;
+              businessService:consignmentCreationTime "2021-05-13T21:23:04"^^xsd:dateTime;
+              businessService:involvedActor :LegalPerson-Maersk .
+            
+            :LegalPerson-Maersk a businessService:LegalPerson, owl:NamedIndividual, businessService:PrivateEnterprise;
+              businessService:actorName "Maersk" .
+            
+            :physicalInfrastructure-BEDEU01 a pi:Terminal, pi:LogisticalFunction, owl:NamedIndividual;
+              rdfs:label "BEDEU01";
+              pi:locatedAt :Location-BEDEG .
+            
+            :Location-BEDEG a pi:Location, owl:NamedIndividual;
+              pi:cityName "Deurne, BE";
+              pi:cityLoCode "BEDEG" .
+            
+            :DigitalTwin-6c7edb9c-cfee-4b0c-998d-435cca8eeb39 a DigitalTwin:Equipment, owl:NamedIndividual;
+              DigitalTwin:containerID "XINU4010266" .
+
+            """.trimIndent()
+
+        val parsedEvent = GraphDBService.parseRDFtoEvent(testRdfEvent)
+
+        assertEquals("6c7edb9c-cfee-4b0c-998d-435cca8eeb39", parsedEvent.goods.single().toString())
+        assertEquals("5edc2423-d258-4002-8d6c-9fb3b1f6ff9a", parsedEvent.transportMean.single().toString())
+        // No check for location yet, as it is faked
+        assertEquals("PLANNED", parsedEvent.timestamps.keys.single().toString())
+
+        assertEquals(1579975200000, parsedEvent.timestamps[EventType.PLANNED]!!.time)
+        assertEquals(Milestone.STOP, parsedEvent.milestone)
+        assertEquals("5edc2423-d258-4002-8d6c-9fb3b1f6ff9a", parsedEvent.id)
+    }
+
+    @Test
     fun `Insert new event`() {
         val successfulInsertion = GraphDBService.insertEvent(validSampleTtl)
         assert(successfulInsertion)
@@ -67,7 +117,7 @@ class GraphDBServiceTests {
     fun `Validate invalid event - nonsense RDF`() {
         val eventState = EventState(emptyList(),
             transportMean = emptyList(),
-            location = listOf(UUID.randomUUID()),
+            location = listOf("random string"),
             otherDigitalTwins = listOf(UUID.randomUUID()),
             timestamps = linkedMapOf(Pair(EventType.ESTIMATED, Date())),
             ecmruri = "",
@@ -84,7 +134,7 @@ class GraphDBServiceTests {
     fun `Validate invalid event - valid RDF`() {
         val eventState = EventState(emptyList(),
             transportMean = emptyList(),
-            location = listOf(UUID.randomUUID()),
+            location = listOf("random string"),
             otherDigitalTwins = listOf(UUID.randomUUID()),
             timestamps = linkedMapOf(Pair(EventType.ESTIMATED, Date())),
             ecmruri = "",
@@ -101,7 +151,7 @@ class GraphDBServiceTests {
     fun `Validate valid event`() {
         val eventState = EventState(emptyList(),
             transportMean = emptyList(),
-            location = listOf(UUID.randomUUID()),
+            location = listOf("random string"),
             otherDigitalTwins = listOf(UUID.randomUUID()),
             timestamps = linkedMapOf(Pair(EventType.ESTIMATED, Date())),
             ecmruri = "",
@@ -111,10 +161,5 @@ class GraphDBServiceTests {
             linearId = UniqueIdentifier()
         )
         assert(GraphDBService.isDataValid(eventState))
-    }
-
-    @Test
-    fun `Parse id from queried event`() {
-        val result = GraphDBService.queryEventIds()
     }
 }

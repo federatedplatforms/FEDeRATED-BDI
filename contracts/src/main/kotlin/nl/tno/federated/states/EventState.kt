@@ -19,7 +19,7 @@ import kotlin.collections.LinkedHashMap
 data class EventState(
     override val goods: List<UUID>,
     override val transportMean: List<UUID>,
-    override val location: List<UUID>,
+    override val location: List<String>,
     override val otherDigitalTwins: List<UUID>,
     override val timestamps: LinkedHashMap<EventType, Date>,
     override val ecmruri: String,
@@ -99,7 +99,7 @@ enum class EventType {
 open class Event(
     open val goods: List<UUID>,
     open val transportMean: List<UUID>,
-    open val location: List<UUID>,
+    open val location: List<String>,
     open val otherDigitalTwins: List<UUID>,
     open val timestamps: LinkedHashMap<EventType, Date>,
     open val ecmruri: String,

@@ -38,7 +38,7 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
-    private fun newEvent(@RequestBody event: NewEvent, fullEvent: String, accessToken: String): ResponseEntity<String> {
+    private fun newEvent(@RequestBody event: NewEvent, fullEvent: String, countriesInvolved: List<String>, accessToken: String): ResponseEntity<String> {
 
         if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
@@ -56,7 +56,8 @@ class EventController(rpc: NodeRPCConnection) {
                         event.ecmruri,
                         event.milestone,
                         UniqueIdentifier(event.id, UUID.randomUUID()),
-                        fullEvent
+                        fullEvent,
+                        countriesInvolved
                 ).returnValue.get()
                 val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
                 ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
@@ -243,6 +244,26 @@ class EventController(rpc: NodeRPCConnection) {
             if(line.contains("success") && line.contains("true")) return true
         }
         return false
+    }
+
+    @ApiOperation(value = "Return an event")
+    @GetMapping(value = ["/{id}"])
+    private fun eventById(@PathVariable id: String): Map<UUID, Event> {
+        val criteria = QueryCriteria.LinearStateQueryCriteria(externalId = listOf(id))
+        val state = proxy.vaultQueryBy<EventState>(criteria).states.map { it.state.data }
+        return eventStatesToEventMap(state)
+    }
+
+    @ApiOperation(value = "Return events by digital twin UUID")
+    @GetMapping(value = ["/digitaltwin/{dtuuid}"])
+    private fun eventBydtUUID(@PathVariable dtuuid: UUID): Map<UUID, Event> {
+        val eventStates = proxy.vaultQueryBy<EventState>().states.filter {
+            it.state.data.goods.contains(dtuuid) ||
+                    it.state.data.transportMean.contains(dtuuid) ||
+                    it.state.data.otherDigitalTwins.contains(dtuuid)
+        }.map{ it.state.data }
+
+        return eventStatesToEventMap(eventStates)
     }
 
     private fun userIsAuthorized(token: String) : Boolean {

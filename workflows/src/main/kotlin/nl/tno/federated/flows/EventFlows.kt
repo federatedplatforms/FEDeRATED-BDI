@@ -30,7 +30,8 @@ class NewEventFlow(
     val eCMRuri: String,
     val milestone: Milestone,
     val id: UniqueIdentifier,
-    val fullEvent: String
+    val fullEvent: String,
+    val countriesInvolved: List<String>
     ) : FlowLogic<SignedTransaction>() {
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
@@ -70,30 +71,30 @@ class NewEventFlow(
         progressTracker.currentStep = GENERATING_TRANSACTION
 
         // Retrieving counterparties (sending to all nodes, for now)
-        val allParties = serviceHub.networkMapCache.allNodes.flatMap {it.legalIdentities}
         val me = serviceHub.myInfo.legalIdentities.first()
-        val counterParties = allParties - notary - me
+        val counterParties = serviceHub.networkMapCache.allNodes.flatMap {it.legalIdentities}.filter{ countriesInvolved.contains(it.name.country) }
+        val allParties = counterParties + notary + me
 
         val goods = emptyList<UUID>().toMutableList()
         val transportMean = emptyList<UUID>().toMutableList()
-        val location = emptyList<UUID>().toMutableList()
+        val location = emptyList<String>().toMutableList()
         val otherDT = emptyList<UUID>().toMutableList()
 
         digitalTwins.forEach{
             when(it.type) {
                 PhysicalObject.GOOD -> {
-                    goods.add(it.uuid)
+                    goods.add(UUID.fromString(it.content))
                 }
                 PhysicalObject.TRANSPORTMEAN -> {
-                    transportMean.add(it.uuid)
+                    transportMean.add(UUID.fromString(it.content))
                 }
                 PhysicalObject.LOCATION -> {
-                    location.add(it.uuid)
+                    location.add(it.content)
                 }
                 PhysicalObject.OTHER -> {
-                    otherDT.add(it.uuid)
+                    otherDT.add(UUID.fromString(it.content))
                 }
-                PhysicalObject.CARGO -> otherDT.add(it.uuid)
+                PhysicalObject.CARGO -> otherDT.add(UUID.fromString(it.content))
             }
         }
 
@@ -180,7 +181,7 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
         progressTracker.currentStep = VERIFYING_STRING_INTEGRITY
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
-                val outputState = stx.tx.outputStates.single() as EventState
+//                val outputState = stx.tx.outputStates.single() as EventState
 //                require(insertEvent(outputState.fullEvent)) { "Unable to insert event data into the triple store."}
                 // TODO what to check in the counterparty flow?
                 // especially: if I'm not passing all previous states in the tx (see "requires" in the flow)
@@ -491,6 +492,6 @@ class GeneralSPARQLqueryFlow(
 
 @CordaSerializable
 data class DigitalTwinPair(
-        val uuid : UUID,
+        val content : String,
         val type: PhysicalObject
 )

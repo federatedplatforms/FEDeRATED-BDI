@@ -1,10 +1,16 @@
 package nl.tno.federated.services
 
+import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
+import nl.tno.federated.states.EventType
+import nl.tno.federated.states.Milestone
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URL
 import java.nio.charset.StandardCharsets.UTF_8
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.LinkedHashMap
 import java.util.*
 
 
@@ -106,6 +112,103 @@ object GraphDBService {
                 return it.readText()
             }
         }
+    }
+
+    fun parseRDFtoEvent(rdfFullData: String ) : Event {
+
+        val goods = emptyList<UUID>().toMutableList()
+        val transportMeans = emptyList<UUID>().toMutableList()
+        val location = emptyList<String>().toMutableList()
+        val otherDT = emptyList<UUID>().toMutableList()
+        var id = ""
+        val timestamps: LinkedHashMap<EventType, Date> = linkedMapOf()
+        var milestone = Milestone.START
+
+        val lines = rdfFullData.trimIndent().split("\n")
+
+        for(line in lines) {
+
+            // Extract Event ID
+            if(line.contains(":Event-")) {
+                id = line.substringAfter(":Event-").split(" ")[0]
+            }
+
+            // Extract Timestamp
+            if(line.contains("Event:hasTimestamp")) {
+                val stringDate = line
+                        .substringAfter("Event:hasTimestamp")
+                        .substringAfter("\"")
+                    .substringBefore("\"")
+
+                val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
+                val eventDate = formatter.parse(stringDate)
+
+                // Extract the Type of timestamp
+                var type = EventType.PLANNED // Default type if not found
+                for(lineSecondScan in lines) {
+                    if(lineSecondScan.contains("Event:hasDateTimeType")) {
+                        val stringType = lineSecondScan
+                                .substringAfter("Event:hasDateTimeType ")
+                                .split(":",";")[1]
+                        when(stringType.toLowerCase()) {
+                            "actual" -> type = EventType.ACTUAL
+                            "estimated" -> type = EventType.ESTIMATED
+                            // when "planned" it's like default, EventType.PLANNED
+                        }
+                    }
+                }
+                timestamps[type] = eventDate
+            }
+
+            // Extract Milestone
+            if(line.contains("Event:hasMilestone")) {
+                if(line.toLowerCase().contains("end")) milestone = Milestone.STOP
+                // if it contains "start" it can stay as default (start)
+            }
+
+            // Extract Digital Twins
+            if(line.contains("Event:involvesDigitalTwin")) {
+
+                val listOfDigitalTwins = line.substringAfter("Event:involvesDigitalTwin ").split(" ")
+
+                for(digitalTwin in listOfDigitalTwins) {
+                    val DTuuid = digitalTwin.substringAfter("DigitalTwin-").substring(0,36)
+
+                    for(lineSecondScan in lines) {
+                        if(lineSecondScan.contains(DTuuid) && lineSecondScan.contains("a DigitalTwin:")) {
+                            val DTtype = lineSecondScan.substringAfter("a DigitalTwin:").split(" ",",",";")[0]
+
+                            if(DTtype == "Equipment") goods.add( UUID.fromString(DTuuid) )
+                            if(DTtype == "TransportMeans") transportMeans.add( UUID.fromString(DTuuid) )
+                        }
+                    }
+                }
+            }
+
+            // Extract Location
+            if(line.contains("Event:involvesPhysicalInfrastructure")) {
+                val words = line.split(" ")
+                for (word in words) {
+                    if (word.contains(":physicalInfrastructure-")) {
+                        val physicalInfrastructureCode = word.split(":physicalInfrastructure-", ";", ",")[1]
+
+                        location.add(physicalInfrastructureCode)
+                    }
+                }
+            }
+        }
+
+        return Event(
+                goods,
+                transportMeans,
+                location,
+                emptyList(),
+                timestamps,
+                "ecmruri",
+                milestone,
+                rdfFullData,
+                id
+        )
     }
 
     enum class RequestMethod {

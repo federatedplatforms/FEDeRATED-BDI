@@ -31,7 +31,8 @@ class EventContract : Contract {
             is Commands.Create -> {
                 requireThat{
                     "There must be exactly one timestamp at time of creation" using (eventState.timestamps.size == 1)
-                    "The type of the timestamp must be PLANNED" using (eventState.timestamps.single().first == EventType.PLANNED)
+                    "The type of the timestamp must be PLANNED or ACTUAL" using (
+                            eventState.timestamps.single().first == EventType.PLANNED || eventState.timestamps.single().first == EventType.ACTUAL)
                 }
 
                 when(eventState.milestone) {
