@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.*
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.StandardCharsets
-import java.util.*
 import java.security.MessageDigest
+import java.util.*
 import javax.naming.AuthenticationException
 
 
@@ -199,7 +199,8 @@ class EventController(rpc: NodeRPCConnection) {
         return chars.none { it !in 'A'..'Z' && it !in 'a'..'z' && it !in '0'..'9' && it != '-' && it != '_' }
     }
 
-    private fun isJWTFormatValid(token: String) : Boolean {
+    private fun isJWTFormatValid(token: String?) : Boolean {
+        if(token == null) return false
         val splitToken = token.split(".")
         return (splitToken.size == 3 && splitToken.all { isLettersOrDigits(it) } )
     }
