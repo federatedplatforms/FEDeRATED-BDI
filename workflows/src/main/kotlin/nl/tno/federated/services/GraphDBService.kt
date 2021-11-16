@@ -4,6 +4,7 @@ import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
 import nl.tno.federated.states.EventType
 import nl.tno.federated.states.Milestone
+import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URL
@@ -91,11 +92,11 @@ object GraphDBService {
         con.requestMethod = requestMethod.toString()
         con.connectTimeout = 5000
         con.readTimeout = 5000
-        con.setRequestProperty("Content-Type", "text/turtle");
+        con.setRequestProperty("Content-Type", "text/turtle")
         con.setRequestProperty("Accept", "application/json")
 
         if (body.isNotBlank()) {
-            con.doOutput = true;
+            con.doOutput = true
             con.outputStream.use { os ->
                 val input: ByteArray = body.toByteArray(UTF_8)
                 os.write(input, 0, input.size)
@@ -126,11 +127,14 @@ object GraphDBService {
 
         val lines = rdfFullData.trimIndent().split("\n")
 
+        val missingParams = mutableListOf("milestone", "timestamps", "id")
+
         for(line in lines) {
 
             // Extract Event ID
             if(line.contains(":Event-")) {
                 id = line.substringAfter(":Event-").split(" ")[0]
+                missingParams.remove("id")
             }
 
             // Extract Timestamp
@@ -144,26 +148,27 @@ object GraphDBService {
                 val eventDate = formatter.parse(stringDate)
 
                 // Extract the Type of timestamp
-                var type = EventType.PLANNED // Default type if not found
                 for(lineSecondScan in lines) {
                     if(lineSecondScan.contains("Event:hasDateTimeType")) {
                         val stringType = lineSecondScan
                                 .substringAfter("Event:hasDateTimeType ")
                                 .split(":",";")[1]
                         when(stringType.toLowerCase()) {
-                            "actual" -> type = EventType.ACTUAL
-                            "estimated" -> type = EventType.ESTIMATED
-                            // when "planned" it's like default, EventType.PLANNED
+                            "actual" -> timestamps[EventType.ACTUAL] = eventDate
+                            "estimated" -> timestamps[EventType.ESTIMATED] = eventDate
+                            "planned" -> timestamps[EventType.PLANNED] = eventDate
+                            else -> throw IllegalArgumentException("The type of the timestamp must be specified")
                         }
                     }
                 }
-                timestamps[type] = eventDate
+                missingParams.remove("timestamps")
             }
 
             // Extract Milestone
             if(line.contains("Event:hasMilestone")) {
-                if(line.toLowerCase().contains("end")) milestone = Milestone.STOP
-                // if it contains "start" it can stay as default (start)
+                milestone = if(line.toLowerCase().contains("end")) Milestone.STOP else Milestone.START
+
+                missingParams.remove("milestone")
             }
 
             // Extract Digital Twins
@@ -178,8 +183,11 @@ object GraphDBService {
                         if(lineSecondScan.contains(DTuuid) && lineSecondScan.contains("a DigitalTwin:")) {
                             val DTtype = lineSecondScan.substringAfter("a DigitalTwin:").split(" ",",",";")[0]
 
-                            if(DTtype == "Equipment") goods.add( UUID.fromString(DTuuid) )
-                            if(DTtype == "TransportMeans") transportMeans.add( UUID.fromString(DTuuid) )
+                            when (DTtype) {
+                                "Equipment" -> goods.add( UUID.fromString(DTuuid) )
+                                "TransportMeans" -> transportMeans.add( UUID.fromString(DTuuid) )
+                                else -> otherDT.add( UUID.fromString(DTuuid) )
+                            }
                         }
                     }
                 }
@@ -190,13 +198,15 @@ object GraphDBService {
                 val words = line.split(" ")
                 for (word in words) {
                     if (word.contains(":physicalInfrastructure-")) {
-                        val physicalInfrastructureCode = word.split(":physicalInfrastructure-", ";", ",")[1]
+                        val physicalInfrastructureCode = word.substringAfter(":physicalInfrastructure-").split(";", ",")[0]
 
                         location.add(physicalInfrastructureCode)
                     }
                 }
             }
         }
+
+        require(missingParams.isEmpty()) { "The following params are missing: " + missingParams }
 
         return Event(
                 goods,

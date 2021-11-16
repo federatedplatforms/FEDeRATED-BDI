@@ -46,7 +46,7 @@ class GraphDBServiceTests {
     }
 
     @Test
-    fun `Parse event`() {
+    fun `Parse event - 1`() {
         val testRdfEvent = """
             :Event-5edc2423-d258-4002-8d6c-9fb3b1f6ff9a a Event:Event, owl:NamedIndividual;
               rdfs:label "GateOut", "Planned gate out";
@@ -86,12 +86,48 @@ class GraphDBServiceTests {
 
         assertEquals("6c7edb9c-cfee-4b0c-998d-435cca8eeb39", parsedEvent.goods.single().toString())
         assertEquals("5edc2423-d258-4002-8d6c-9fb3b1f6ff9a", parsedEvent.transportMean.single().toString())
-        // No check for location yet, as it is faked
+
+        assertEquals("BEDEU01", parsedEvent.location.single().toString())
+
         assertEquals("PLANNED", parsedEvent.timestamps.keys.single().toString())
 
         assertEquals(1579975200000, parsedEvent.timestamps[EventType.PLANNED]!!.time)
         assertEquals(Milestone.STOP, parsedEvent.milestone)
         assertEquals("5edc2423-d258-4002-8d6c-9fb3b1f6ff9a", parsedEvent.id)
+    }
+
+    @Test
+    fun `Parse event - 2`() {
+        val testRdfEvent = """
+            :Event-0c1e0ed5-636c-48b2-8f52-542e6f4d156a a Event:Event, owl:NamedIndividual;
+              rdfs:label "GateIn", "Planned gate in";
+              Event:hasTimestamp "2020-01-25T22:00:00Z"^^xsd:dateTime;
+              Event:hasDateTimeType Event:Planned;
+              Event:involvesDigitalTwin :DigitalTwin-0c1e0ed5-636c-48b2-8f52-542e6f4d156a, :DigitalTwin-6c7edb9c-cfee-4b0c-998d-435cca8eeb39;
+              Event:involvesBusinessTransaction :businessTransaction-6c7edb9c-cfee-4b0c-998d-435cca8eeb39;
+              Event:involvesPhysicalInfrastructure :physicalInfrastructure-BEANTMP;
+              Event:hasMilestone Event:Start;
+              Event:hasSubmissionTimestamp "2020-01-21T14:24:39Z"^^xsd:dateTime .
+            
+            :DigitalTwin-0c1e0ed5-636c-48b2-8f52-542e6f4d156a a DigitalTwin:TransportMeans,
+                owl:NamedIndividual .
+            
+            :physicalInfrastructure-BEANTMP a pi:Terminal, pi:LogisticalFunction, owl:NamedIndividual;
+              rdfs:label "BEANTMP";
+              pi:locatedAt :Location-BEANR .
+            """.trimIndent()
+
+        val parsedEvent = GraphDBService.parseRDFtoEvent(testRdfEvent)
+
+        assertEquals("0c1e0ed5-636c-48b2-8f52-542e6f4d156a", parsedEvent.transportMean.single().toString())
+
+        assertEquals("BEANTMP", parsedEvent.location.single().toString())
+
+        assertEquals("PLANNED", parsedEvent.timestamps.keys.single().toString())
+
+        assertEquals(1579989600000, parsedEvent.timestamps[EventType.PLANNED]!!.time)
+        assertEquals(Milestone.START, parsedEvent.milestone)
+        assertEquals("0c1e0ed5-636c-48b2-8f52-542e6f4d156a", parsedEvent.id)
     }
 
     @Test
