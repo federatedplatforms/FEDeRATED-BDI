@@ -5,6 +5,7 @@ import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URL
 import java.nio.charset.StandardCharsets.UTF_8
+import java.util.*
 
 
 object GraphDBService {
@@ -16,16 +17,15 @@ object GraphDBService {
     }
 
     private fun getRepositoryURI(): URI {
-        /*val propertyFile = FileReader("src/main/resources/database.properties") // TODO automatically grab the right properties file from the right resources folder
+        val propertyFile = GraphDBService::class.java.classLoader.getResourceAsStream("database.properties")
         val properties = Properties()
         properties.load(propertyFile)
         val protocol = properties.getProperty("triplestore.protocol")
         val host = properties.getProperty("triplestore.host")
         val port = properties.getProperty("triplestore.port")
-        val repository = properties.getProperty("triplestore.repository")*/
+        val repository = properties.getProperty("triplestore.repository")
 
-        // CHANGE THE UNDERMENTIONED ADDRESS TO SET A DIFFERENT LOCATION
-        return URI("http://federated.sensorlab.tno.nl:7200/repositories/federated-shacl") // URI("$protocol://$host:$port/repositories/$repository")
+        return URI("$protocol://$host:$port/repositories/$repository")
     }
 
     fun isDataValid(eventState: EventState): Boolean { // TODO ideally match eventstate contents to its eventString too
