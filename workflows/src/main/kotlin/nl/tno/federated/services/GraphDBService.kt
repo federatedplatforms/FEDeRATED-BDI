@@ -118,7 +118,7 @@ object GraphDBService {
 
         val goods = emptyList<UUID>().toMutableList()
         val transportMeans = emptyList<UUID>().toMutableList()
-        val location = emptyList<UUID>().toMutableList()
+        val location = emptyList<String>().toMutableList()
         val otherDT = emptyList<UUID>().toMutableList()
         var id = ""
         val timestamps: LinkedHashMap<EventType, Date> = linkedMapOf()
@@ -192,9 +192,7 @@ object GraphDBService {
                     if (word.contains(":physicalInfrastructure-")) {
                         val physicalInfrastructureCode = word.split(":physicalInfrastructure-", ";", ",")[1]
 
-                        // This construction holds until it's clarified how to store location info
-                        val fakeUUID = UUID.nameUUIDFromBytes(physicalInfrastructureCode.toByteArray())
-                        location.add(fakeUUID)
+                        location.add(physicalInfrastructureCode)
                     }
                 }
             }
