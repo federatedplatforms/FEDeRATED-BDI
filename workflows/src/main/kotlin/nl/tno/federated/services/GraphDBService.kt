@@ -32,7 +32,8 @@ object GraphDBService {
         val repository = properties.getProperty("triplestore.repository")*/
 
         // CHANGE THE UNDERMENTIONED ADDRESS TO SET A DIFFERENT LOCATION
-        return URI("http://federated.sensorlab.tno.nl:7200/repositories/federated-shacl") // URI("$protocol://$host:$port/repositories/$repository")
+//        return URI("http://federated.sensorlab.tno.nl:7200/repositories/federated-shacl") // URI("$protocol://$host:$port/repositories/$repository")
+        return URI("http://federated-node-1.westeurope.cloudapp.azure.com:7200/repositories/federated-shacl") // URI("$protocol://$host:$port/repositories/$repository")
     }
 
     fun isDataValid(eventState: EventState): Boolean { // TODO ideally match eventstate contents to its eventString too

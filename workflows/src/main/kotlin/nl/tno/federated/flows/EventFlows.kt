@@ -31,7 +31,7 @@ class NewEventFlow(
     val milestone: Milestone,
     val id: UniqueIdentifier,
     val fullEvent: String,
-    val countriesInvolved: List<String>
+    val countriesInvolved: Set<String>
     ) : FlowLogic<SignedTransaction>() {
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each

@@ -12,5 +12,7 @@ data class NewEvent(
         val milestone: Milestone,
         val time: Date = Date(),
         val id: String = "",
-        val uniqueId: Boolean = true
+        val uniqueId: Boolean = true,
+        val fullEvent: String,
+        val countriesInvolved : Set<String>
 )
