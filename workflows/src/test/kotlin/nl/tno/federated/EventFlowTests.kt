@@ -22,7 +22,8 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import java.util.*
-import kotlin.test.*
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 
 class EventFlowTests {
@@ -67,7 +68,7 @@ class EventFlowTests {
 
     private val sampleEvent = ""
 
-    private val countriesInvolved = listOf("NL", "DE", "FR")
+    private val countriesInvolved = setOf("NL", "DE", "FR")
 
     @Before
     fun setup() {
@@ -347,7 +348,7 @@ class EventFlowTests {
     @Test
     fun `Data is distributed only to countries included in countriesInvolved`() {
 
-        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"), sampleEvent, listOf("DE"))
+        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"), sampleEvent, setOf("DE"))
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
@@ -366,7 +367,7 @@ class EventFlowTests {
     @Test
     fun `Data is distributed only to countries included in countriesInvolved - 2`() {
 
-        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"), sampleEvent, listOf("DE", "FR"))
+        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransport, Date(), eCMRuriExample, Milestone.START, UniqueIdentifier("KLM7915-20210801"), sampleEvent, setOf("DE", "FR"))
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
