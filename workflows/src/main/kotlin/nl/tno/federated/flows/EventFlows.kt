@@ -5,6 +5,7 @@ import net.corda.core.contracts.Command
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
+import net.corda.core.identity.Party
 import net.corda.core.node.services.queryBy
 import net.corda.core.serialization.CordaSerializable
 import net.corda.core.transactions.SignedTransaction
@@ -31,7 +32,7 @@ class NewEventFlow(
     val milestone: Milestone,
     val id: UniqueIdentifier,
     val fullEvent: String,
-    val countriesInvolved: List<String>
+    val countriesInvolved: Set<String>
     ) : FlowLogic<SignedTransaction>() {
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
@@ -72,9 +73,15 @@ class NewEventFlow(
 
         // Retrieving counterparties (sending to all nodes, for now)
         val me = serviceHub.myInfo.legalIdentities.first()
-        val counterParties = serviceHub.networkMapCache.allNodes.flatMap {it.legalIdentities}.filter{ countriesInvolved.contains(it.name.country) }
-        val allParties = counterParties + notary + me
 
+
+        val counterParties : MutableList<Party> = mutableListOf()
+        countriesInvolved.forEach { involvedCountry ->
+            counterParties.add(serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
+                .first { it.name.country == involvedCountry })
+        }
+
+        val allParties = counterParties + mutableListOf(notary, me)
         val goods = emptyList<UUID>().toMutableList()
         val transportMean = emptyList<UUID>().toMutableList()
         val location = emptyList<String>().toMutableList()
