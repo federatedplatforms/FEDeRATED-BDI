@@ -73,13 +73,14 @@ class EventFlowTests {
     fun setup() {
         mockkObject(GraphDBService)
         every { GraphDBService.isDataValid(any()) } returns true
+        every { GraphDBService.insertEvent(any()) } returns true
 
         network = MockNetwork(
                 listOf("nl.tno.federated"),
                 notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","Brussels","BE"))),
                 networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
         )
-        a = network.createNode(MockNodeParameters())
+        a = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyA","Reykjavik","IS")))
         b = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyB","Rotterdam","NL")))
         c = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyC","Berlin","DE")))
         d = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyD","Paris","FR")))
