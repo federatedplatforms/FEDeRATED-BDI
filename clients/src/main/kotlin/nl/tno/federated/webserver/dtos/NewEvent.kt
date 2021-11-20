@@ -7,12 +7,12 @@ import java.util.*
 
 @CordaSerializable
 data class NewEvent(
-        val digitalTwins: List<DigitalTwinPair>,
+        /*val digitalTwins: List<DigitalTwinPair>,
         val ecmruri: String,
         val milestone: Milestone,
         val time: Date = Date(),
         val id: String = "",
         val uniqueId: Boolean = true,
-        val fullEvent: String,
+        val fullEvent: String,*/
         val countriesInvolved : Set<String>
 )

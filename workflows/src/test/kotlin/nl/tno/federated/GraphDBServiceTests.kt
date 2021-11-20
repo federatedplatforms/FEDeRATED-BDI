@@ -156,7 +156,6 @@ class GraphDBServiceTests {
         assertEquals("5b856159-4788-11ec-a78e-5c879c8043a4", parsedEvent.id)
     }
 
-
     @Test
     fun `Parse event - 4`() {
         val testRdfEvent = """
@@ -181,6 +180,31 @@ class GraphDBServiceTests {
 //        assertEquals(1579989600000, parsedEvent.timestamps[EventType.PLANNED]!!.time)
         assertEquals(Milestone.STOP, parsedEvent.milestone)
         assertEquals("5b8699f1-4788-11ec-b5e4-5c879c8043a4", parsedEvent.id)
+    }
+
+    @Test
+    fun `Parse event - 5`() {
+        val testRdfEvent = """
+            data:event-f223c17c-c3ab-4871-9b78-3536d121925c a event:Event, event:ArrivalEvent;
+                event:hasMilestone event:Start;
+                event:hasDateTimeType event:Actual;
+                event:hasTimestamp "2021-11-10T08:44:07Z"^^xsd:dateTime;
+                event:involvesDigitalTwin data:DigitalTwin-43691f54-091c-4378-a176-b730a4966996;
+                event:involvesPhysicalInfrastructure data:PhysicalInfrastructure-b4d51938-5ae5-330d-af2e-a198dd2c16ab.
+            
+            data:DigitalTwin-43691f54-091c-4378-a176-b730a4966996 a DigitalTwin:TransportMeans.
+            """.trimIndent()
+
+        val parsedEvent = GraphDBService.parseRDFtoEvent(testRdfEvent)
+
+        assertEquals("43691f54-091c-4378-a176-b730a4966996", parsedEvent.transportMean.single().toString())
+        assertEquals("b4d51938-5ae5-330d-af2e-a198dd2c16ab", parsedEvent.location.single().toString())
+
+        assertEquals("ACTUAL", parsedEvent.timestamps.keys.single().toString())
+
+//        assertEquals(1579989600000, parsedEvent.timestamps[EventType.PLANNED]!!.time)
+        assertEquals(Milestone.START, parsedEvent.milestone)
+        assertEquals("f223c17c-c3ab-4871-9b78-3536d121925c", parsedEvent.id)
     }
 
     @Test

@@ -36,22 +36,17 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
-    private fun newEvent(@RequestBody event: NewEvent): ResponseEntity<String> {
-        if (event.uniqueId && event.id.isNotBlank()) {
+    private fun newEvent(@RequestBody event: NewEvent, fullEvent: String): ResponseEntity<String> {
+        /*if (event.uniqueId && event.id.isNotBlank()) {
             if (eventById(event.id).isNotEmpty()) {
                 return ResponseEntity("Event with this id already exists. If you want to insert anyway, unset the uniqueId parameter.", HttpStatus.BAD_REQUEST)
             }
-        }
+        }*/
 
         return try {
                 val newEventTx = proxy.startFlowDynamic(
                         NewEventFlow::class.java,
-                        event.digitalTwins,
-                        event.time,
-                        event.ecmruri,
-                        event.milestone,
-                        UniqueIdentifier(event.id, UUID.randomUUID()),
-                        event.fullEvent,
+                        fullEvent,
                         event.countriesInvolved
                 ).returnValue.get()
                 val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
