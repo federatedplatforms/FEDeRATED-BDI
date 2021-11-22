@@ -2,7 +2,6 @@ package nl.tno.federated.webserver.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
-import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.flows.*
@@ -36,7 +35,7 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
-    private fun newEvent(@RequestBody event: NewEvent, fullEvent: String): ResponseEntity<String> {
+    private fun newEvent(@RequestBody event: NewEvent): ResponseEntity<String> {
         /*if (event.uniqueId && event.id.isNotBlank()) {
             if (eventById(event.id).isNotEmpty()) {
                 return ResponseEntity("Event with this id already exists. If you want to insert anyway, unset the uniqueId parameter.", HttpStatus.BAD_REQUEST)
@@ -46,7 +45,7 @@ class EventController(rpc: NodeRPCConnection) {
         return try {
                 val newEventTx = proxy.startFlowDynamic(
                         NewEventFlow::class.java,
-                        fullEvent,
+                        event.fullEvent,
                         event.countriesInvolved
                 ).returnValue.get()
                 val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
