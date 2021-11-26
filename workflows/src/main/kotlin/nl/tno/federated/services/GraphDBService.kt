@@ -4,6 +4,7 @@ import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
 import nl.tno.federated.states.EventType
 import nl.tno.federated.states.Milestone
+import java.io.File
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URL
@@ -11,7 +12,6 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.LinkedHashMap
-import java.util.*
 
 
 object GraphDBService {
@@ -23,7 +23,7 @@ object GraphDBService {
     }
 
     private fun getRepositoryURI(): URI {
-        val propertyFile = GraphDBService::class.java.classLoader.getResourceAsStream("database.properties")
+        val propertyFile = File("database.properties").inputStream()
         val properties = Properties()
         properties.load(propertyFile)
         val protocol = properties.getProperty("triplestore.protocol")
@@ -91,11 +91,11 @@ object GraphDBService {
         con.requestMethod = requestMethod.toString()
         con.connectTimeout = 5000
         con.readTimeout = 5000
-        con.setRequestProperty("Content-Type", "text/turtle");
+        con.setRequestProperty("Content-Type", "text/turtle")
         con.setRequestProperty("Accept", "application/json")
 
         if (body.isNotBlank()) {
-            con.doOutput = true;
+            con.doOutput = true
             con.outputStream.use { os ->
                 val input: ByteArray = body.toByteArray(UTF_8)
                 os.write(input, 0, input.size)
