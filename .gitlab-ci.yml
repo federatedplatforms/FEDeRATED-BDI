@@ -8,3 +8,15 @@ contract_and_flow_test:
   image: azul/zulu-openjdk:8
   script:
     - ./gradlew clean test
+
+build-l0:
+  tags:
+    - corda
+  stage: build
+  image: azul/zulu-openjdk:8
+  script:
+    - ./gradlew deployNodes
+  artifacts:
+    paths: 
+      - build/nodes
+    expire_in: 1 week
