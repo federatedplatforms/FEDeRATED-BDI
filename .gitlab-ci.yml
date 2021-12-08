@@ -21,3 +21,11 @@ build-l0:
     paths: 
       - build/nodes
     expire_in: 1 week
+
+deploy_sensorlab_1:
+  stage: deploy
+  script:
+    - echo "Deploy first node to sensorlab"
+  environment:
+    name: sensorlab_1
+    url: https://federated.sensorlab.tno.nl
