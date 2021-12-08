@@ -1,6 +1,7 @@
 stages:
   - build
   - test
+  - deploy
 
 contract_and_flow_test:
   tags:
