@@ -19,6 +19,10 @@ contract_and_flow_test:
   stage: test
   script:
     - ./gradlew clean test
+  artifacts:
+    paths:
+      - builds/gitlab/semantic-ledger-technology/platform-corda/workflows/build/reports/tests/test/index.html
+    expire_in: 1 month
 
 build-l0:
   tags:
