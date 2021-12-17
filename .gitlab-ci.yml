@@ -22,7 +22,7 @@ contract_and_flow_test:
   artifacts:
     when: on_failure
     paths:
-      - workflows/build/reports/tests/test/index.html
+      - workflows/build/reports
     expire_in: 1 month
 
 build-l0:
