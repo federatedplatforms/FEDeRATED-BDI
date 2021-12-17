@@ -35,18 +35,18 @@ class GraphDBServiceTests {
 
     @Test
     fun `Query event by ID`() {
-        val result = GraphDBService.queryEventById("a2a19d3a-48b2-4d77-b4b2-0da12ba9ef89")
-        assert(result.contains("a2a19d3a-48b2-4d77-b4b2-0da12ba9ef89"))
+        val result = GraphDBService.queryEventById("3bc54ecf-c111-43b0-9437-09d6df211e37")
+        assert(result.contains("3bc54ecf-c111-43b0-9437-09d6df211e37"))
     }
 
     @Test
     fun `Query with a custom sparql query`() {
-        val result = GraphDBService.generalSPARQLquery("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>\nPREFIX ex: <http://example.com/base#>\nSELECT ?subject ?object \nWHERE {\n?subject rdfs:label ?object .\nFILTER (?subject = ex:Event-a2a19d3a-48b2-4d77-b4b2-0da12ba9ef89)\n}")
-        assert(result.contains("a2a19d3a-48b2-4d77-b4b2-0da12ba9ef89"))
+        val result = GraphDBService.generalSPARQLquery("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>\nPREFIX ex: <http://example.com/base#>\nSELECT ?subject ?object \nWHERE {\n?subject rdfs:label ?object .\nFILTER (?subject = ex:Event-3bc54ecf-c111-43b0-9437-09d6df211e37)\n}")
+        assert(result.contains("3bc54ecf-c111-43b0-9437-09d6df211e37"))
     }
 
     @Test
-    fun `Parse event`() {
+    fun `Parse event - 1`() {
         val testRdfEvent = """
             :Event-5edc2423-d258-4002-8d6c-9fb3b1f6ff9a a Event:Event, owl:NamedIndividual;
               rdfs:label "GateOut", "Planned gate out";
@@ -86,7 +86,9 @@ class GraphDBServiceTests {
 
         assertEquals("6c7edb9c-cfee-4b0c-998d-435cca8eeb39", parsedEvent.goods.single().toString())
         assertEquals("5edc2423-d258-4002-8d6c-9fb3b1f6ff9a", parsedEvent.transportMean.single().toString())
-        // No check for location yet, as it is faked
+
+        assertEquals("BEDEU01".toLowerCase(), parsedEvent.location.single().toString())
+
         assertEquals("PLANNED", parsedEvent.timestamps.keys.single().toString())
 
         assertEquals(1579975200000, parsedEvent.timestamps[EventType.PLANNED]!!.time)
@@ -95,11 +97,123 @@ class GraphDBServiceTests {
     }
 
     @Test
+    fun `Parse event - 2`() {
+        val testRdfEvent = """
+            :Event-0c1e0ed5-636c-48b2-8f52-542e6f4d156a a Event:Event, owl:NamedIndividual;
+              rdfs:label "GateIn", "Planned gate in";
+              Event:hasTimestamp "2020-01-25T22:00:00Z"^^xsd:dateTime;
+              Event:hasDateTimeType Event:Planned;
+              Event:involvesDigitalTwin :DigitalTwin-0c1e0ed5-636c-48b2-8f52-542e6f4d156a, :DigitalTwin-6c7edb9c-cfee-4b0c-998d-435cca8eeb39;
+              Event:involvesBusinessTransaction :businessTransaction-6c7edb9c-cfee-4b0c-998d-435cca8eeb39;
+              Event:involvesPhysicalInfrastructure :physicalInfrastructure-BEANTMP;
+              Event:hasMilestone Event:Start;
+              Event:hasSubmissionTimestamp "2020-01-21T14:24:39Z"^^xsd:dateTime .
+            
+            :DigitalTwin-0c1e0ed5-636c-48b2-8f52-542e6f4d156a a DigitalTwin:TransportMeans,
+                owl:NamedIndividual .
+            
+            :physicalInfrastructure-BEANTMP a pi:Terminal, pi:LogisticalFunction, owl:NamedIndividual;
+              rdfs:label "BEANTMP";
+              pi:locatedAt :Location-BEANR .
+            """.trimIndent()
+
+        val parsedEvent = GraphDBService.parseRDFtoEvent(testRdfEvent)
+
+        assertEquals("0c1e0ed5-636c-48b2-8f52-542e6f4d156a", parsedEvent.transportMean.single().toString())
+
+        assertEquals("BEANTMP".toLowerCase(), parsedEvent.location.single().toString())
+
+        assertEquals("PLANNED", parsedEvent.timestamps.keys.single().toString())
+
+        assertEquals(1579989600000, parsedEvent.timestamps[EventType.PLANNED]!!.time)
+        assertEquals(Milestone.START, parsedEvent.milestone)
+        assertEquals("0c1e0ed5-636c-48b2-8f52-542e6f4d156a", parsedEvent.id)
+    }
+
+    @Test
+    fun `Parse event - 3`() {
+        val testRdfEvent = """
+            data:event-5b856159-4788-11ec-a78e-5c879c8043a4 a event:Event, event:ArrivalEvent;
+                event:hasMilestone event:Start;
+                event:hasDateTimeType event:Actual;
+                event:hasTimestamp "2021-11-10T08:44:07Z"^^xsd:dateTime;
+                event:involvesDigitalTwin data:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a;
+                event:involvesPhysicalInfrastructure data:PhysicalInfrastructure-b4d51938-5ae5-330d-af2e-a198dd2c16ab.
+            
+            data:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a a DigitalTwin:TransportMeans.
+            """.trimIndent()
+
+        val parsedEvent = GraphDBService.parseRDFtoEvent(testRdfEvent)
+
+        assertEquals("c5836199-8809-3930-9cf8-1d14a54d242a", parsedEvent.transportMean.single().toString())
+
+        assertEquals("b4d51938-5ae5-330d-af2e-a198dd2c16ab", parsedEvent.location.single().toString())
+
+        assertEquals("ACTUAL", parsedEvent.timestamps.keys.single().toString())
+
+//        assertEquals(1579989600000, parsedEvent.timestamps[EventType.PLANNED]!!.time)
+        assertEquals(Milestone.START, parsedEvent.milestone)
+        assertEquals("5b856159-4788-11ec-a78e-5c879c8043a4", parsedEvent.id)
+    }
+
+    @Test
+    fun `Parse event - 4`() {
+        val testRdfEvent = """
+            data:event-5b8699f1-4788-11ec-b5e4-5c879c8043a4 a event:Event, event:DischargeEvent;
+                event:hasMilestone event:End;
+                event:hasDateTimeType event:Planned;
+                event:hasTimestamp "2021-11-10T18:51:20Z"^^xsd:dateTime;
+                event:involvesDigitalTwin data:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a, data:DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1.
+            
+            data:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a a DigitalTwin:TransportMeans.
+            
+            data:DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1 a DigitalTwin:Goods.
+            """.trimIndent()
+
+        val parsedEvent = GraphDBService.parseRDFtoEvent(testRdfEvent)
+
+        assertEquals("c5836199-8809-3930-9cf8-1d14a54d242a", parsedEvent.transportMean.single().toString())
+        assertEquals("ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1", parsedEvent.goods.single().toString())
+
+        assertEquals("PLANNED", parsedEvent.timestamps.keys.single().toString())
+
+//        assertEquals(1579989600000, parsedEvent.timestamps[EventType.PLANNED]!!.time)
+        assertEquals(Milestone.STOP, parsedEvent.milestone)
+        assertEquals("5b8699f1-4788-11ec-b5e4-5c879c8043a4", parsedEvent.id)
+    }
+
+    @Test
+    fun `Parse event - 5`() {
+        val testRdfEvent = """
+            data:event-f223c17c-c3ab-4871-9b78-3536d121925c a event:Event, event:ArrivalEvent;
+                event:hasMilestone event:Start;
+                event:hasDateTimeType event:Actual;
+                event:hasTimestamp "2021-11-10T08:44:07Z"^^xsd:dateTime;
+                event:involvesDigitalTwin data:DigitalTwin-43691f54-091c-4378-a176-b730a4966996;
+                event:involvesPhysicalInfrastructure data:PhysicalInfrastructure-b4d51938-5ae5-330d-af2e-a198dd2c16ab.
+            
+            data:DigitalTwin-43691f54-091c-4378-a176-b730a4966996 a DigitalTwin:TransportMeans.
+            """.trimIndent()
+
+        val parsedEvent = GraphDBService.parseRDFtoEvent(testRdfEvent)
+
+        assertEquals("43691f54-091c-4378-a176-b730a4966996", parsedEvent.transportMean.single().toString())
+        assertEquals("b4d51938-5ae5-330d-af2e-a198dd2c16ab", parsedEvent.location.single().toString())
+
+        assertEquals("ACTUAL", parsedEvent.timestamps.keys.single().toString())
+
+//        assertEquals(1579989600000, parsedEvent.timestamps[EventType.PLANNED]!!.time)
+        assertEquals(Milestone.START, parsedEvent.milestone)
+        assertEquals("f223c17c-c3ab-4871-9b78-3536d121925c", parsedEvent.id)
+    }
+
+    @Test
     fun `Insert new event`() {
         val successfulInsertion = GraphDBService.insertEvent(validSampleTtl)
         assert(successfulInsertion)
     }
 
+    @Ignore("Enable this when shacl validation is back working")
     @Test
     fun `Insert invalid event`() {
         val successfulInsertion = GraphDBService.insertEvent(invalidSampleTTL)

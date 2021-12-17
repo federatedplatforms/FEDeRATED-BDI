@@ -126,17 +126,20 @@ object GraphDBService {
 
         val lines = rdfFullData.trimIndent().split("\n")
 
+        val missingParams = mutableListOf("milestone", "timestamps", "id")
+
         for(line in lines) {
 
             // Extract Event ID
-            if(line.contains(":Event-")) {
-                id = line.substringAfter(":Event-").split(" ")[0]
+            if(line.toLowerCase().contains(":event-")) {
+                id = line.toLowerCase().substringAfter(":event-").split(" ")[0]
+                missingParams.remove("id")
             }
 
             // Extract Timestamp
-            if(line.contains("Event:hasTimestamp")) {
+            if(line.contains(":hasTimestamp")) {
                 val stringDate = line
-                        .substringAfter("Event:hasTimestamp")
+                        .substringAfter(":hasTimestamp")
                         .substringAfter("\"")
                     .substringBefore("\"")
 
@@ -144,59 +147,66 @@ object GraphDBService {
                 val eventDate = formatter.parse(stringDate)
 
                 // Extract the Type of timestamp
-                var type = EventType.PLANNED // Default type if not found
                 for(lineSecondScan in lines) {
-                    if(lineSecondScan.contains("Event:hasDateTimeType")) {
+                    if(lineSecondScan.contains(":hasDateTimeType")) {
                         val stringType = lineSecondScan
-                                .substringAfter("Event:hasDateTimeType ")
+                                .substringAfter(":hasDateTimeType ")
                                 .split(":",";")[1]
                         when(stringType.toLowerCase()) {
-                            "actual" -> type = EventType.ACTUAL
-                            "estimated" -> type = EventType.ESTIMATED
-                            // when "planned" it's like default, EventType.PLANNED
+                            "actual" -> timestamps[EventType.ACTUAL] = eventDate
+                            "estimated" -> timestamps[EventType.ESTIMATED] = eventDate
+                            "planned" -> timestamps[EventType.PLANNED] = eventDate
+                            else -> throw IllegalArgumentException("The type of the timestamp must be specified")
                         }
                     }
                 }
-                timestamps[type] = eventDate
+                missingParams.remove("timestamps")
             }
 
             // Extract Milestone
-            if(line.contains("Event:hasMilestone")) {
-                if(line.toLowerCase().contains("end")) milestone = Milestone.STOP
-                // if it contains "start" it can stay as default (start)
+            if(line.contains(":hasMilestone")) {
+                milestone = if(line.toLowerCase().contains("end")) Milestone.STOP else Milestone.START
+
+                missingParams.remove("milestone")
             }
 
             // Extract Digital Twins
-            if(line.contains("Event:involvesDigitalTwin")) {
+            if(line.contains(":involvesDigitalTwin")) {
 
-                val listOfDigitalTwins = line.substringAfter("Event:involvesDigitalTwin ").split(" ")
+                val listOfDigitalTwins = line.toLowerCase().substringAfter(":involvesdigitaltwin ").split(" ")
 
                 for(digitalTwin in listOfDigitalTwins) {
-                    val DTuuid = digitalTwin.substringAfter("DigitalTwin-").substring(0,36)
+                    val DTuuid = digitalTwin.substringAfter("digitaltwin-").substring(0,36)
 
-                    for(lineSecondScan in lines) {
-                        if(lineSecondScan.contains(DTuuid) && lineSecondScan.contains("a DigitalTwin:")) {
-                            val DTtype = lineSecondScan.substringAfter("a DigitalTwin:").split(" ",",",";")[0]
+                    for(lineSecondScan in lines.map { it.toLowerCase() }) {
+                        if(lineSecondScan.contains(DTuuid) && lineSecondScan.contains("a digitaltwin:")) {
+                            val DTtype = lineSecondScan.substringAfter("a digitaltwin:").split(" ",",",";",".")[0]
 
-                            if(DTtype == "Equipment") goods.add( UUID.fromString(DTuuid) )
-                            if(DTtype == "TransportMeans") transportMeans.add( UUID.fromString(DTuuid) )
+                            when (DTtype) {
+                                "goods" -> goods.add( UUID.fromString(DTuuid) )
+                                "equipment" -> goods.add( UUID.fromString(DTuuid) )
+                                "transportmeans" -> transportMeans.add( UUID.fromString(DTuuid) )
+                                else -> otherDT.add( UUID.fromString(DTuuid) )
+                            }
                         }
                     }
                 }
             }
 
             // Extract Location
-            if(line.contains("Event:involvesPhysicalInfrastructure")) {
-                val words = line.split(" ")
+            if(line.contains(":involvesPhysicalInfrastructure")) {
+                val words = line.toLowerCase().split(" ")
                 for (word in words) {
-                    if (word.contains(":physicalInfrastructure-")) {
-                        val physicalInfrastructureCode = word.split(":physicalInfrastructure-", ";", ",")[1]
+                    if (word.contains(":physicalinfrastructure-")) {
+                        val physicalInfrastructureCode = word.substringAfter(":physicalinfrastructure-").split(" ",",",";",".")[0]
 
                         location.add(physicalInfrastructureCode)
                     }
                 }
             }
         }
+
+        require(missingParams.isEmpty()) { "The following params are missing: " + missingParams }
 
         return Event(
                 goods,

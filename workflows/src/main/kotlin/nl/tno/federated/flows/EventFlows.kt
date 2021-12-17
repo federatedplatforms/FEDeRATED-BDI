@@ -13,6 +13,7 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
+import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.services.GraphDBService.generalSPARQLquery
 import nl.tno.federated.services.GraphDBService.insertEvent
 import nl.tno.federated.services.GraphDBService.isDataValid
@@ -26,11 +27,6 @@ import java.util.*
 @InitiatingFlow
 @StartableByRPC
 class NewEventFlow(
-    val digitalTwins: List<DigitalTwinPair>,
-    val time: Date,
-    val eCMRuri: String,
-    val milestone: Milestone,
-    val id: UniqueIdentifier,
     val fullEvent: String,
     val countriesInvolved: Set<String>
     ) : FlowLogic<SignedTransaction>() {
@@ -74,7 +70,6 @@ class NewEventFlow(
         // Retrieving counterparties (sending to all nodes, for now)
         val me = serviceHub.myInfo.legalIdentities.first()
 
-
         val counterParties : MutableList<Party> = mutableListOf()
         countriesInvolved.forEach { involvedCountry ->
             counterParties.add(serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
@@ -87,7 +82,9 @@ class NewEventFlow(
         val location = emptyList<String>().toMutableList()
         val otherDT = emptyList<UUID>().toMutableList()
 
-        digitalTwins.forEach{
+        val newEvent = GraphDBService.parseRDFtoEvent(fullEvent)
+
+        /*digitalTwins.forEach{
             when(it.type) {
                 PhysicalObject.GOOD -> {
                     goods.add(UUID.fromString(it.content))
@@ -103,34 +100,33 @@ class NewEventFlow(
                 }
                 PhysicalObject.CARGO -> otherDT.add(UUID.fromString(it.content))
             }
-        }
+        }*/
 
         val previousEvents = serviceHub.vaultService.queryBy<EventState>(/*isTheSame*/).states
                 .filter{ it.state.data.milestone == Milestone.START &&
-                        it.state.data.goods == goods &&
-                        it.state.data.transportMean == transportMean &&
-                        it.state.data.location == location &&
-                        it.state.data.otherDigitalTwins == otherDT
+                        it.state.data.goods == newEvent.goods &&
+                        it.state.data.transportMean == newEvent.transportMean &&
+                        it.state.data.location == newEvent.location
                 }
 
-        if (milestone == Milestone.START) {
+        if (newEvent.milestone == Milestone.START) {
             require(previousEvents.isEmpty()) { "There cannot be a previous equal start event" }
         }
-        else if (milestone == Milestone.STOP) {
+        else if (newEvent.milestone == Milestone.STOP) {
             require (previousEvents.size <= 1) { "There must be one previous event only" }
         }
 
         val newEventState = EventState(
-            goods = goods,
-            transportMean = transportMean,
-            location = location,
-            otherDigitalTwins = otherDT,
-            timestamps = linkedMapOf(Pair(EventType.PLANNED, time)),
-            ecmruri = eCMRuri,
-            milestone = milestone,
+            goods = newEvent.goods,
+            transportMean = newEvent.transportMean,
+            location = newEvent.location,
+            otherDigitalTwins = emptyList(),
+            timestamps = newEvent.timestamps,
+            ecmruri = newEvent.ecmruri,
+            milestone = newEvent.milestone,
             fullEvent = fullEvent,
             participants = allParties - notary,
-            linearId = id
+            linearId = UniqueIdentifier(newEvent.id)
         )
         require(isDataValid(newEventState)) { "RDF data is not valid or does not match event"}
 
@@ -188,7 +184,7 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
         progressTracker.currentStep = VERIFYING_STRING_INTEGRITY
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
-//                val outputState = stx.tx.outputStates.single() as EventState
+                val outputState = stx.tx.outputStates.single() as EventState
 //                require(insertEvent(outputState.fullEvent)) { "Unable to insert event data into the triple store."}
                 // TODO what to check in the counterparty flow?
                 // especially: if I'm not passing all previous states in the tx (see "requires" in the flow)

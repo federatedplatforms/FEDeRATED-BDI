@@ -6,7 +6,8 @@ import nl.tno.federated.states.Milestone
 import java.util.*
 
 @CordaSerializable
-data class PostEventDTO(
+
+data class NewEvent(
         val digitalTwins: List<DigitalTwinPair>,
         val ecmruri: String,
         val milestone: Milestone,
@@ -14,5 +15,5 @@ data class PostEventDTO(
         val id: String = "",
         val uniqueId: Boolean = true,
         val fullEvent: String,
-        val countriesInvolved: Set<String>
+        val countriesInvolved : Set<String>
 )

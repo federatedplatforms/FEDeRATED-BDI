@@ -2,14 +2,13 @@ package nl.tno.federated.webserver.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
-import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.flows.*
 import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
 import nl.tno.federated.webserver.NodeRPCConnection
-import nl.tno.federated.webserver.dtos.PostEventDTO
+import nl.tno.federated.webserver.dtos.NewEvent
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -38,9 +37,8 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
-    private fun newEvent(@RequestBody event: PostEventDTO, accessToken: String): ResponseEntity<String> {
-
-        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
+    private fun newEvent(@RequestBody event: NewEvent, accessToken: String): ResponseEntity<String> {
+        if (!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
         if (event.uniqueId && event.id.isNotBlank()) {
             if (eventById(event.id, accessToken).isNotEmpty()) {
@@ -48,23 +46,23 @@ class EventController(rpc: NodeRPCConnection) {
             }
         }
 
-        return try {
-                val newEventTx = proxy.startFlowDynamic(
+                return try {
+                    val newEventTx = proxy.startFlowDynamic(
                         NewEventFlow::class.java,
-                        event.digitalTwins,
-                        event.time,
-                        event.ecmruri,
-                        event.milestone,
-                        UniqueIdentifier(event.id, UUID.randomUUID()),
+//                        event.digitalTwins,
+//                        event.time,
+//                        event.ecmruri,
+//                        event.milestone,
+//                        UniqueIdentifier(event.id, UUID.randomUUID()),
                         event.fullEvent,
                         event.countriesInvolved
-                ).returnValue.get()
-                val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
-                ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
-            } catch (e: Exception) {
-                return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
-            }
-    }
+                    ).returnValue.get()
+                    val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
+                    ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
+                } catch (e: Exception) {
+                    return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
+                }
+        }
 
     @ApiOperation(value = "Update an event estimated time")
     @PutMapping(value = ["/updatetime"])
