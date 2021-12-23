@@ -23,7 +23,8 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import java.util.*
-import kotlin.test.*
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 
 class EventFlowTests {
@@ -36,6 +37,67 @@ class EventFlowTests {
 
     private val eCMRuriExample = "This is a URI example for an eCMR"
 
+    private val digitalTwinsTooManyGoodsAndTransportStartEvent = """
+            data:event-5b8699f1-4788-11ec-b5e4-5c879c8043a4 a event:Event, event:DischargeEvent;
+                event:hasMilestone event:Start;
+                event:hasDateTimeType event:Planned;
+                event:hasTimestamp "2021-11-10T18:51:20Z"^^xsd:dateTime;
+                event:involvesDigitalTwin data:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a, data:DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d2, data:DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1.
+            
+            data:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a a DigitalTwin:TransportMeans.
+            
+            data:DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1 a DigitalTwin:Goods.
+            
+            data:DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d2 a DigitalTwin:Goods.
+            """
+
+    private val digitalTwinsGoodsAndTransportAndLocationStartEvent = """
+        data:event-5b856159-4788-11ec-a78e-5c879c8043a4 a event:Event, event:ArrivalEvent;
+            event:hasMilestone event:Start;
+            event:hasDateTimeType event:Actual;
+            event:hasTimestamp "2021-11-10T08:44:07Z"^^xsd:dateTime;
+            event:involvesDigitalTwin data:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a, data:DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1;
+            event:involvesPhysicalInfrastructure data:PhysicalInfrastructure-b4d51938-5ae5-330d-af2e-a198dd2c16ab.   
+            
+            data:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a a DigitalTwin:TransportMeans.     
+            
+            data:DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1 a DigitalTwin:Goods.
+        """
+
+    private val digitalTwinsTransportAndLocationStartEvent = """
+        data:event-5b856159-4788-11ec-a78e-5c879c8043a4 a event:Event, event:ArrivalEvent;
+            event:hasMilestone event:Start;
+            event:hasDateTimeType event:Actual;
+            event:hasTimestamp "2021-11-10T08:44:07Z"^^xsd:dateTime;
+            event:involvesDigitalTwin data:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a;
+            event:involvesPhysicalInfrastructure data:PhysicalInfrastructure-b4d51938-5ae5-330d-af2e-a198dd2c16ab.   
+            
+            data:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a a DigitalTwin:TransportMeans.     
+        """
+
+    private val digitalTwinsGoodsAndTransportStartEvent = """
+            data:event-5b8699f1-4788-11ec-b5e4-5c879c8043a4 a event:Event, event:DischargeEvent;
+                event:hasMilestone event:Start;
+                event:hasDateTimeType event:Planned;
+                event:hasTimestamp "2021-11-10T18:51:20Z"^^xsd:dateTime;
+                event:involvesDigitalTwin data:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a, data:DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1.
+            
+            data:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a a DigitalTwin:TransportMeans.
+            
+            data:DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1 a DigitalTwin:Goods.
+            """
+
+    private val digitalTwinsGoodsAndTransportStopEvent = """
+            data:event-5b8699f1-4788-12ec-b5e4-5c879c8043a4 a event:Event, event:DischargeEvent;
+                event:hasMilestone event:End;
+                event:hasDateTimeType event:Planned;
+                event:hasTimestamp "2021-12-10T18:51:20Z"^^xsd:dateTime;
+                event:involvesDigitalTwin data:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a, data:DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1.
+            
+            data:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a a DigitalTwin:TransportMeans.
+            
+            data:DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1 a DigitalTwin:Goods.
+            """
     private val digitalTwinsTooManyGoodsAndTransportStartEvent = """
             data:event-5b8699f1-4788-11ec-b5e4-5c879c8043a4 a event:Event, event:DischargeEvent;
                 event:hasMilestone event:Start;
@@ -381,6 +443,7 @@ class EventFlowTests {
 
     @Test
     fun `Data is distributed only to countries included in countriesInvolved`() {
+        val flowStart = NewEventFlow(digitalTwinsGoodsAndTransportStartEvent, setOf("DE"))
 
         val flowStart = NewEventFlow(digitalTwinsGoodsAndTransportStartEvent, setOf("DE"))
         val futureStart = a.startFlow(flowStart)
@@ -400,7 +463,6 @@ class EventFlowTests {
 
     @Test
     fun `Data is distributed only to countries included in countriesInvolved - 2`() {
-
         val flowStart = NewEventFlow(digitalTwinsGoodsAndTransportStartEvent, setOf("DE", "FR"))
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()

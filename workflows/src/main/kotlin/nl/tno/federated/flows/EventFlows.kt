@@ -5,6 +5,7 @@ import net.corda.core.contracts.Command
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
+import net.corda.core.identity.Party
 import net.corda.core.node.services.queryBy
 import net.corda.core.serialization.CordaSerializable
 import net.corda.core.transactions.SignedTransaction
@@ -71,6 +72,13 @@ class NewEventFlow(
         val counterParties = serviceHub.networkMapCache.allNodes.flatMap {it.legalIdentities}.filter{ countriesInvolved.contains(it.name.country) } - me
         val allParties = counterParties + notary + me
 
+        val counterParties : MutableList<Party> = mutableListOf()
+        countriesInvolved.forEach { involvedCountry ->
+            counterParties.add(serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
+                .first { it.name.country == involvedCountry })
+        }
+
+        val allParties = counterParties + mutableListOf(notary, me)
         val goods = emptyList<UUID>().toMutableList()
         val transportMean = emptyList<UUID>().toMutableList()
         val location = emptyList<String>().toMutableList()

@@ -4,6 +4,7 @@ import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
 import nl.tno.federated.states.EventType
 import nl.tno.federated.states.Milestone
+import java.io.File
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URI
@@ -23,17 +24,15 @@ object GraphDBService {
     }
 
     private fun getRepositoryURI(): URI {
-        /*val propertyFile = FileReader("src/main/resources/database.properties") // TODO automatically grab the right properties file from the right resources folder
+        val propertyFile = File("database.properties").inputStream()
         val properties = Properties()
         properties.load(propertyFile)
         val protocol = properties.getProperty("triplestore.protocol")
         val host = properties.getProperty("triplestore.host")
         val port = properties.getProperty("triplestore.port")
-        val repository = properties.getProperty("triplestore.repository")*/
+        val repository = properties.getProperty("triplestore.repository")
 
-        // CHANGE THE UNDERMENTIONED ADDRESS TO SET A DIFFERENT LOCATION
-//        return URI("http://federated.sensorlab.tno.nl:7200/repositories/federated-shacl") // URI("$protocol://$host:$port/repositories/$repository")
-        return URI("http://federated-node-1.westeurope.cloudapp.azure.com:7200/repositories/federated-shacl") // URI("$protocol://$host:$port/repositories/$repository")
+        return URI("$protocol://$host:$port/repositories/$repository")
     }
 
     fun isDataValid(eventState: EventState): Boolean { // TODO ideally match eventstate contents to its eventString too
