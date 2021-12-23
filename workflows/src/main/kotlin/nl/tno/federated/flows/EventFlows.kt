@@ -69,9 +69,6 @@ class NewEventFlow(
 
         // Retrieving counterparties (sending to all nodes, for now)
         val me = serviceHub.myInfo.legalIdentities.first()
-        val counterParties = serviceHub.networkMapCache.allNodes.flatMap {it.legalIdentities}.filter{ countriesInvolved.contains(it.name.country) } - me
-        val allParties = counterParties + notary + me
-
         val counterParties : MutableList<Party> = mutableListOf()
         countriesInvolved.forEach { involvedCountry ->
             counterParties.add(serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
