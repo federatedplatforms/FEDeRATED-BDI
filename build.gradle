@@ -113,6 +113,28 @@ task ganache {
     }
 }
 
+//Task to deploy a single node. Note that to use this node a notary node and any other nodes should be set up separately
+// and the additional-node-infos should be populated. Alternatively a network map service can be configured.
+task deploySingleNode(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
+    nodeDefaults {
+        projectCordapp {
+            deploy = false
+        }
+        cordapp project(':contracts')
+        cordapp project(':workflows')
+        runSchemaMigration = false
+    }
+    node {
+        name "O=SingleNode,L=TestCity,C=NL,OU=SN"
+        p2pAddress "localhost:10005"
+        rpcSettings {
+            address("localhost:10006")
+            adminAddress("localhost:10046")
+        }
+        rpcUsers = [[ user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
+    }
+}
+
 //Task to deploy the nodes in order to bootstrap a network
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
 
@@ -134,7 +156,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     node {
         name "O=Notary,L=Luxemburg,C=LU,OU=Notary"
         notary = [validating : false]
-        p2pAddress "federated.sensorlab.tno.nl:10002"
+        p2pAddress "localhost:10002"
         rpcSettings {
             address("localhost:10003")
             adminAddress("localhost:10043")
@@ -142,7 +164,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     }
     node {
         name "O=Netherlands,L=Soesterberg,C=NL,OU=MS"
-        p2pAddress "federated.sensorlab.tno.nl:10005"
+        p2pAddress "localhost:10005"
         rpcSettings {
             address("localhost:10006")
             adminAddress("localhost:10046")
@@ -151,7 +173,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     }
     node {
         name "O=Planet Express,L=Den Haag,C=DE,OU=LSP"
-        p2pAddress "40.119.132.179:10008"
+        p2pAddress "localhost:10008"
         rpcSettings {
             address("localhost:10009")
             adminAddress("localhost:10049")
@@ -160,7 +182,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     }
     node {
         name "O=Belgium,L=Brussels,C=BE,OU=MS"
-        p2pAddress "40.119.132.179:10011"
+        p2pAddress "localhost:10011"
         rpcSettings {
             address("localhost:10012")
             adminAddress("localhost:10052")
