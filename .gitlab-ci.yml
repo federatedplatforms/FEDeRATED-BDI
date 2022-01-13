@@ -40,7 +40,6 @@ build-l0:
 build-l1:
   tags:
     - corda
-    - spring boot
   stage: build
   script:
     - cd clients
