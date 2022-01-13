@@ -105,7 +105,7 @@ class NewEventFlow(
             participants = allParties - notary,
             linearId = UniqueIdentifier(newEvent.id)
         )
-        require(isDataValid(newEventState)) { "RDF data is not valid or does not match event"}
+        require(isDataValid(newEventState)) { "RDF data is not valid"}
 
         val txBuilder = TransactionBuilder(notary)
                 .addOutputState(newEventState, EventContract.ID)

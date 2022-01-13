@@ -25,34 +25,34 @@ class ContractTests {
     private val currentDate = Date()
 
     private val eventNewStateGoodsAndTransport = EventState(
-            listOf(UniqueIdentifier().id),
-            listOf(UniqueIdentifier().id),
-            emptyList(),
-            listOf(UniqueIdentifier().id, UniqueIdentifier().id),
+            setOf(UniqueIdentifier().id),
+            setOf(UniqueIdentifier().id),
+            emptySet(),
+            setOf(UniqueIdentifier().id, UniqueIdentifier().id),
             linkedMapOf(Pair(EventType.PLANNED, currentDate)),
             eCMRuriExample, Milestone.START, validRdf, listOf(sender.party, enterpriseDE.party), UniqueIdentifier(externalId = "KLM7915-20210801"))
 
     private val eventNewStateTransportAndLocation = EventState(
-            emptyList(),
-            listOf(UniqueIdentifier().id),
-            listOf("Fake string for location"),
-            listOf(UniqueIdentifier().id, UniqueIdentifier().id),
+            emptySet(),
+            setOf(UniqueIdentifier().id),
+            setOf("Fake string for location"),
+            setOf(UniqueIdentifier().id, UniqueIdentifier().id),
             linkedMapOf(Pair(EventType.PLANNED, currentDate)),
             eCMRuriExample, Milestone.START, validRdf, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
     private val eventNewStateWrong = EventState(
-            listOf(UniqueIdentifier().id, UniqueIdentifier().id),
-            listOf(UniqueIdentifier().id),
-            emptyList(),
-            listOf(UniqueIdentifier().id, UniqueIdentifier().id),
+            setOf(UniqueIdentifier().id, UniqueIdentifier().id),
+            setOf(UniqueIdentifier().id),
+            emptySet(),
+            setOf(UniqueIdentifier().id, UniqueIdentifier().id),
             linkedMapOf(Pair(EventType.PLANNED, currentDate)),
             eCMRuriExample, Milestone.START, validRdf, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
     private val eventNewStateWrong2 = EventState(
-            listOf(UniqueIdentifier().id),
-            listOf(UniqueIdentifier().id),
-            listOf("Fake string for location"),
-            listOf(UniqueIdentifier().id, UniqueIdentifier().id),
+            setOf(UniqueIdentifier().id),
+            setOf(UniqueIdentifier().id),
+            setOf("Fake string for location"),
+            setOf(UniqueIdentifier().id, UniqueIdentifier().id),
             linkedMapOf(Pair(EventType.PLANNED, currentDate)),
             eCMRuriExample, Milestone.START, validRdf, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
@@ -140,7 +140,7 @@ class ContractTests {
     @Test
     fun `fail - no connection between DT is made`() {
         val outputState = eventNewStateGoodsAndTransport.copy(
-                goods = emptyList(), transportMean = emptyList(), location = emptyList(), otherDigitalTwins = emptyList()
+                goods = emptySet(), transportMean = emptySet(), location = emptySet(), otherDigitalTwins = emptySet()
         )
         ledgerServices.ledger {
             transaction {
@@ -174,7 +174,7 @@ class ContractTests {
                 milestone = Milestone.STOP
         )
         val referenceState = eventNewStateGoodsAndTransport.copy(
-                goods = listOf(UniqueIdentifier().id)
+                goods = setOf(UniqueIdentifier().id)
         )
 
         ledgerServices.ledger {
@@ -233,7 +233,7 @@ class ContractTests {
             timestamps = timestampsIn
         )
         val outputState = inputState.copy(
-            goods = listOf(UniqueIdentifier().id),
+            goods = setOf(UniqueIdentifier().id),
             timestamps = timestampsOut
         )
 
@@ -430,7 +430,7 @@ class ContractTests {
         )
         val inputStopState = outputState.copy(
                 timestamps = timestamps3,
-                goods = listOf(UniqueIdentifier().id)
+                goods = setOf(UniqueIdentifier().id)
         )
 
         val inputStartState = outputState.copy(
@@ -599,7 +599,7 @@ class ContractTests {
         val inputStartState = outputState.copy(
                 milestone = Milestone.START,
                 timestamps = timestampsInStart,
-                goods = listOf(UniqueIdentifier().id)
+                goods = setOf(UniqueIdentifier().id)
         )
 
         ledgerServices.ledger {

@@ -54,7 +54,7 @@ class EventContract : Contract {
 
                     Milestone.STOP -> {
                         requireThat{
-                            "There must be 1 previous event" using (referenceStates.size <= 1)
+                            "There must be 1 previous event" using (referenceStates.size == 1)
                             "Previous event must be of type START" using (referenceStates.single().milestone == Milestone.START)
                             "Digital twins in the previous START event must equal to those in the current STOP event" using (
                                         referenceStates.single().hasSameDigitalTwins(eventState)
