@@ -76,30 +76,8 @@ class NewEventFlow(
         }
 
         val allParties = counterParties + mutableListOf(notary, me)
-        val goods = emptyList<UUID>().toMutableList()
-        val transportMean = emptyList<UUID>().toMutableList()
-        val location = emptyList<String>().toMutableList()
-        val otherDT = emptyList<UUID>().toMutableList()
 
-        val newEvent = GraphDBService.parseRDFtoEvent(fullEvent)
-
-        /*digitalTwins.forEach{
-            when(it.type) {
-                PhysicalObject.GOOD -> {
-                    goods.add(UUID.fromString(it.content))
-                }
-                PhysicalObject.TRANSPORTMEAN -> {
-                    transportMean.add(UUID.fromString(it.content))
-                }
-                PhysicalObject.LOCATION -> {
-                    location.add(it.content)
-                }
-                PhysicalObject.OTHER -> {
-                    otherDT.add(UUID.fromString(it.content))
-                }
-                PhysicalObject.CARGO -> otherDT.add(UUID.fromString(it.content))
-            }
-        }*/
+        val newEvent = GraphDBService.parseRDFtoEventNew(fullEvent).first()
 
         val previousEvents = serviceHub.vaultService.queryBy<EventState>(/*isTheSame*/).states
                 .filter{ it.state.data.milestone == Milestone.START &&

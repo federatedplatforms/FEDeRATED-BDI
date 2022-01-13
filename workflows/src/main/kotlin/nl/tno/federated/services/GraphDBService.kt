@@ -250,7 +250,7 @@ object GraphDBService {
         val objectTypes = digitalTwins.objects().map { it.toString()}
 
         return if (objectTypes.contains("https://ontology.tno.nl/logistics/federated/DigitalTwin#TransportMeans")) PhysicalObject.TRANSPORTMEAN
-        else if (objectTypes.any { it in listOf("https://ontology.tno.nl/logistics/federated/DigitalTwin#Good", "https://ontology.tno.nl/logistics/federated/DigitalTwin#Equipment") })  PhysicalObject.GOOD
+        else if (objectTypes.any { it in listOf("https://ontology.tno.nl/logistics/federated/DigitalTwin#Goods", "https://ontology.tno.nl/logistics/federated/DigitalTwin#Equipment") })  PhysicalObject.GOOD
         else if (objectTypes.contains("https://ontology.tno.nl/logistics/federated/DigitalTwin#Location")) PhysicalObject.LOCATION
         else if (objectTypes.contains("https://ontology.tno.nl/logistics/federated/DigitalTwin#Cargo")) PhysicalObject.CARGO
         else PhysicalObject.OTHER
@@ -267,113 +267,6 @@ object GraphDBService {
         rdfParser.setRDFHandler(StatementCollector(model))
         rdfParser.parse(rdfFullData.byteInputStream())
         return model
-    }
-
-    fun parseRDFtoEvent(rdfFullData: String ) : Event {
-
-        val goods = emptyList<UUID>().toMutableSet()
-        val transportMeans = emptyList<UUID>().toMutableSet()
-        val location = emptyList<String>().toMutableSet()
-        val otherDT = emptyList<UUID>().toMutableSet()
-        var id = ""
-        val timestamps: LinkedHashMap<EventType, Date> = linkedMapOf()
-        var milestone = Milestone.START
-
-        val lines = rdfFullData.trimIndent().split("\n")
-
-        val missingParams = mutableListOf("milestone", "timestamps", "id")
-
-        for(line in lines) {
-
-            // Extract Event ID
-            if(line.toLowerCase().contains(":event-")) {
-                id = line.toLowerCase().substringAfter(":event-").split(" ")[0]
-                missingParams.remove("id")
-            }
-
-            // Extract Timestamp
-            if(line.contains(":hasTimestamp")) {
-                val stringDate = line
-                        .substringAfter(":hasTimestamp")
-                        .substringAfter("\"")
-                    .substringBefore("\"")
-
-                val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
-                val eventDate = formatter.parse(stringDate)
-
-                // Extract the Type of timestamp
-                for(lineSecondScan in lines) {
-                    if(lineSecondScan.contains(":hasDateTimeType")) {
-                        val stringType = lineSecondScan
-                                .substringAfter(":hasDateTimeType ")
-                                .split(":",";")[1]
-                        when(stringType.toLowerCase()) {
-                            "actual" -> timestamps[EventType.ACTUAL] = eventDate
-                            "estimated" -> timestamps[EventType.ESTIMATED] = eventDate
-                            "planned" -> timestamps[EventType.PLANNED] = eventDate
-                            else -> throw IllegalArgumentException("The type of the timestamp must be specified")
-                        }
-                    }
-                }
-                missingParams.remove("timestamps")
-            }
-
-            // Extract Milestone
-            if(line.contains(":hasMilestone")) {
-                milestone = if(line.toLowerCase().contains("end")) Milestone.STOP else Milestone.START
-
-                missingParams.remove("milestone")
-            }
-
-            // Extract Digital Twins
-            if(line.contains(":involvesDigitalTwin")) {
-
-                val listOfDigitalTwins = line.toLowerCase().substringAfter(":involvesdigitaltwin ").split(" ")
-
-                for(digitalTwin in listOfDigitalTwins) {
-                    val DTuuid = digitalTwin.substringAfter("digitaltwin-").substring(0,36)
-
-                    for(lineSecondScan in lines.map { it.toLowerCase() }) {
-                        if(lineSecondScan.contains(DTuuid) && lineSecondScan.contains("a digitaltwin:")) {
-                            val DTtype = lineSecondScan.substringAfter("a digitaltwin:").split(" ",",",";",".")[0]
-
-                            when (DTtype) {
-                                "goods", "equipment" -> goods.add( UUID.fromString(DTuuid) )
-                                "equipment" -> goods.add( UUID.fromString(DTuuid) )
-                                "transportmeans" -> transportMeans.add( UUID.fromString(DTuuid) )
-                                else -> otherDT.add( UUID.fromString(DTuuid) )
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Extract Location
-            if(line.contains(":involvesPhysicalInfrastructure")) {
-                val words = line.toLowerCase().split(" ")
-                for (word in words) {
-                    if (word.contains(":physicalinfrastructure-")) {
-                        val physicalInfrastructureCode = word.substringAfter(":physicalinfrastructure-").split(" ",",",";",".")[0]
-
-                        location.add(physicalInfrastructureCode)
-                    }
-                }
-            }
-        }
-
-        require(missingParams.isEmpty()) { "The following params are missing: " + missingParams }
-
-        return Event(
-                goods,
-                transportMeans,
-                location,
-                otherDT,
-                timestamps,
-                "ecmruri",
-                milestone,
-                rdfFullData,
-                id
-        )
     }
 
     enum class RequestMethod {
