@@ -97,6 +97,76 @@ class GraphDBServiceTests {
     }
 
     @Test
+    fun `Parse event - 1 - alt`() {
+        val testRdfEvent = """
+            @base <http://example.com/base/> . 
+            @prefix : <https://ontology.tno.nl/logistics/federated/Event#> .
+            @prefix pi: <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#> . 
+            @prefix classifications: <https://ontology.tno.nl/logistics/federated/Classifications#> . 
+            @prefix dcterms: <http://purl.org/dc/terms/> . 
+            @prefix LogisticsRoles: <https://ontology.tno.nl/logistics/federated/LogisticsRoles#> . 
+            @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . 
+            @prefix owl: <http://www.w3.org/2002/07/owl#> . 
+            @prefix Event: <https://ontology.tno.nl/logistics/federated/Event#> . 
+            @prefix ReusableTags: <https://ontology.tno.nl/logistics/federated/ReusableTags#> .
+            @prefix businessService: <https://ontology.tno.nl/logistics/federated/BusinessService#> . 
+            @prefix DigitalTwin: <https://ontology.tno.nl/logistics/federated/DigitalTwin#> . 
+            @prefix skos: <http://www.w3.org/2004/02/skos/core#> . 
+            @prefix xsd: <http://www.w3.org/2001/XMLSchema#> . 
+            @prefix ex: <http://example.com/base#> . 
+            @prefix time: <http://www.w3.org/2006/time#> . 
+            @prefix dc: <http://purl.org/dc/elements/1.1/> . 
+            @prefix era: <http://era.europa.eu/ns#> .  
+            :Event-5edc2423-d258-4002-8d6c-9fb3b1f6ff9a a Event:Event, owl:NamedIndividual;
+              rdfs:label "GateOut", "Planned gate out";
+              Event:hasTimestamp "2020-01-25T18:00:00Z"^^xsd:dateTime;
+              Event:hasDateTimeType Event:Planned;
+              Event:involvesDigitalTwin :DigitalTwin-5edc2423-d258-4002-8d6c-9fb3b1f6ff9a, :DigitalTwin-6c7edb9c-cfee-4b0c-998d-435cca8eeb39;
+              Event:involvesBusinessTransaction :businessTransaction-6c7edb9c-cfee-4b0c-998d-435cca8eeb39;
+              Event:involvesPhysicalInfrastructure :physicalInfrastructure-BEDEU01;
+              Event:hasMilestone Event:End;
+              Event:hasSubmissionTimestamp "2020-01-21T14:24:36"^^xsd:dateTime .
+            
+            :DigitalTwin-5edc2423-d258-4002-8d6c-9fb3b1f6ff9a a DigitalTwin:TransportMeans,
+                owl:NamedIndividual .
+            
+            :businessTransaction-6c7edb9c-cfee-4b0c-998d-435cca8eeb39 a businessService:Consignment,
+                owl:NamedIndividual;
+              businessService:consignmentCreationTime "2021-05-13T21:23:04"^^xsd:dateTime;
+              businessService:involvedActor :LegalPerson-Maersk .
+            
+            :LegalPerson-Maersk a businessService:LegalPerson, owl:NamedIndividual, businessService:PrivateEnterprise;
+              businessService:actorName "Maersk" .
+            
+            :physicalInfrastructure-BEDEU01 a pi:Terminal, pi:LogisticalFunction, owl:NamedIndividual;
+              rdfs:label "BEDEU01";
+              pi:locatedAt :Location-BEDEG .
+            
+            :Location-BEDEG a pi:Location, owl:NamedIndividual;
+              pi:cityName "Deurne, BE";
+              pi:cityLoCode "BEDEG" .
+            
+            :DigitalTwin-6c7edb9c-cfee-4b0c-998d-435cca8eeb39 a DigitalTwin:Equipment, owl:NamedIndividual;
+              DigitalTwin:containerID "XINU4010266" .
+
+            """.trimIndent()
+        val parsedEvents = GraphDBService.parseRDFtoEventNew(testRdfEvent)
+        assertEquals(1, parsedEvents.size)
+        val parsedEvent = parsedEvents.single()
+
+        assertEquals("6c7edb9c-cfee-4b0c-998d-435cca8eeb39", parsedEvent.goods.single().toString())
+        assertEquals("5edc2423-d258-4002-8d6c-9fb3b1f6ff9a", parsedEvent.transportMean.single().toString())
+
+        assertEquals("BEDEU01", parsedEvent.location.single().toString())
+
+        assertEquals("PLANNED", parsedEvent.timestamps.keys.single().toString())
+
+        assertEquals(1579975200000, parsedEvent.timestamps[EventType.PLANNED]!!.time)
+        assertEquals(Milestone.STOP, parsedEvent.milestone)
+        assertEquals("5edc2423-d258-4002-8d6c-9fb3b1f6ff9a", parsedEvent.id)
+    }
+
+    @Test
     fun `Parse event - 2`() {
         val testRdfEvent = """
             :Event-0c1e0ed5-636c-48b2-8f52-542e6f4d156a a Event:Event, owl:NamedIndividual;
@@ -229,10 +299,10 @@ class GraphDBServiceTests {
     @Ignore("Enable this when we find a shacl endpoint")
     @Test
     fun `Validate invalid event - nonsense RDF`() {
-        val eventState = EventState(emptyList(),
-            transportMean = emptyList(),
-            location = listOf("random string"),
-            otherDigitalTwins = listOf(UUID.randomUUID()),
+        val eventState = EventState(emptySet(),
+            transportMean = emptySet(),
+            location = setOf("random string"),
+            otherDigitalTwins = setOf(UUID.randomUUID()),
             timestamps = linkedMapOf(Pair(EventType.ESTIMATED, Date())),
             ecmruri = "",
             milestone = Milestone.START,
@@ -246,10 +316,10 @@ class GraphDBServiceTests {
     @Ignore("Enable this when we find a shacl endpoint")
     @Test
     fun `Validate invalid event - valid RDF`() {
-        val eventState = EventState(emptyList(),
-            transportMean = emptyList(),
-            location = listOf("random string"),
-            otherDigitalTwins = listOf(UUID.randomUUID()),
+        val eventState = EventState(emptySet(),
+            transportMean = emptySet(),
+            location = setOf("random string"),
+            otherDigitalTwins = setOf(UUID.randomUUID()),
             timestamps = linkedMapOf(Pair(EventType.ESTIMATED, Date())),
             ecmruri = "",
             milestone = Milestone.START,
@@ -263,10 +333,10 @@ class GraphDBServiceTests {
     @Ignore("Enable this when we can parse the whole event string")
     @Test
     fun `Validate valid event`() {
-        val eventState = EventState(emptyList(),
-            transportMean = emptyList(),
-            location = listOf("random string"),
-            otherDigitalTwins = listOf(UUID.randomUUID()),
+        val eventState = EventState(emptySet(),
+            transportMean = emptySet(),
+            location = setOf("random string"),
+            otherDigitalTwins = setOf(UUID.randomUUID()),
             timestamps = linkedMapOf(Pair(EventType.ESTIMATED, Date())),
             ecmruri = "",
             milestone = Milestone.START,

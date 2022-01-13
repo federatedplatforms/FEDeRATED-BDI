@@ -119,7 +119,7 @@ class NewEventFlow(
             goods = newEvent.goods,
             transportMean = newEvent.transportMean,
             location = newEvent.location,
-            otherDigitalTwins = emptyList(),
+            otherDigitalTwins = emptySet(),
             timestamps = newEvent.timestamps,
             ecmruri = newEvent.ecmruri,
             milestone = newEvent.milestone,

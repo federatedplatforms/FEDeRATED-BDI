@@ -44,10 +44,10 @@ object EventSchemaV1 : MappedSchema(
     ) : PersistentState(), Serializable {
         constructor() : this(
             "no ID provided",
-            emptyList<UUID>(),
-            emptyList<UUID>(),
-            emptyList<String>(),
-            emptyList<UUID>(),
+            emptyList(),
+            emptyList(),
+            emptyList(),
+            emptyList(),
             "no URI provided",
             Milestone.START
         )
