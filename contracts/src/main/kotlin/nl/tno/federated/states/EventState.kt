@@ -17,10 +17,10 @@ import kotlin.collections.LinkedHashMap
 // *********
 @BelongsToContract(EventContract::class)
 data class EventState(
-    override val goods: List<UUID>,
-    override val transportMean: List<UUID>,
-    override val location: List<UUID>,
-    override val otherDigitalTwins: List<UUID>,
+    override val goods: Set<UUID>,
+    override val transportMean: Set<UUID>,
+    override val location: Set<String>,
+    override val otherDigitalTwins: Set<UUID>,
     override val timestamps: LinkedHashMap<EventType, Date>,
     override val ecmruri: String,
     override val milestone: Milestone,
@@ -50,10 +50,10 @@ data class EventState(
 
             return EventSchemaV1.PersistentEvent(
                     linearId.externalId ?: linearId.id.toString(),
-                    pGoods,
-                    pTransportMean,
+                    pGoods.toList(),
+                    pTransportMean.toList(),
                     pLocation,
-                    pOtherDigitalTwins,
+                    pOtherDigitalTwins.toList(),
                     ecmruri,
                     milestone
             )
@@ -97,10 +97,10 @@ enum class EventType {
 }
 
 open class Event(
-    open val goods: List<UUID>,
-    open val transportMean: List<UUID>,
-    open val location: List<UUID>,
-    open val otherDigitalTwins: List<UUID>,
+    open val goods: Set<UUID>,
+    open val transportMean: Set<UUID>,
+    open val location: Set<String>,
+    open val otherDigitalTwins: Set<UUID>,
     open val timestamps: LinkedHashMap<EventType, Date>,
     open val ecmruri: String,
     open val milestone: Milestone,

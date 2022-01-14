@@ -23,20 +23,35 @@ contract_and_flow_test:
     when: on_failure
     paths:
       - workflows/build/reports
-    expire_in: 1 month
+    expire_in: 30 days
 
 build-l0:
   tags:
     - corda
   stage: build
   script:
-    - ./gradlew deployNodes
+    - ./gradlew deploySingleNode
   artifacts:
     paths: 
-      - build/nodes
-    expire_in: 1 week
+      - build/nodes/SingleNode_SN/cordapps
+      - build/nodes/SingleNode_SN/corda.jar
+    expire_in: 30 days
+
+build-l1:
+  tags:
+    - corda
+  stage: build
+  script:
+    - cd clients
+    - ./gradlew build
+  artifacts:
+    paths:
+      - clients/build/libs/clients-0.1.jar
+    expire_in: 30 days
 
 deploy_sensorlab_1:
+  tags:
+    - corda
   stage: deploy
   script:
     - echo "Deploy first node to sensorlab"

@@ -2,7 +2,6 @@ package nl.tno.federated.webserver.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
-import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.flows.*
@@ -17,8 +16,8 @@ import org.springframework.web.bind.annotation.*
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.StandardCharsets
-import java.util.*
 import java.security.MessageDigest
+import java.util.*
 import javax.naming.AuthenticationException
 
 
@@ -38,25 +37,21 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
-    private fun newEvent(@RequestBody event: NewEvent, fullEvent: String, accessToken: String): ResponseEntity<String> {
+    private fun newEvent(@RequestBody event: NewEvent, accessToken: String): ResponseEntity<String> {
+        if (!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
-        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
-
+        /*
         if (event.uniqueId && event.id.isNotBlank()) {
             if (eventById(event.id, accessToken).isNotEmpty()) {
                 return ResponseEntity("Event with this id already exists. If you want to insert anyway, unset the uniqueId parameter.", HttpStatus.BAD_REQUEST)
             }
-        }
+        }*/
 
-        return try {
-                val newEventTx = proxy.startFlowDynamic(
+                return try {
+                    val newEventTx = proxy.startFlowDynamic(
                         NewEventFlow::class.java,
-                        event.digitalTwins,
-                        event.time,
-                        event.ecmruri,
-                        event.milestone,
-                        UniqueIdentifier(event.id, UUID.randomUUID()),
-                        fullEvent
+                        event.fullEvent,
+                        event.countriesInvolved
                 ).returnValue.get()
                 val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
                 ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
@@ -135,7 +130,6 @@ class EventController(rpc: NodeRPCConnection) {
         val eventStates = proxy.vaultQueryBy<EventState>().states.filter {
             it.state.data.goods.contains(dtuuid) ||
                     it.state.data.transportMean.contains(dtuuid) ||
-                    it.state.data.location.contains(dtuuid) ||
                     it.state.data.otherDigitalTwins.contains(dtuuid)
         }.map{ it.state.data }
 
@@ -199,7 +193,8 @@ class EventController(rpc: NodeRPCConnection) {
         return chars.none { it !in 'A'..'Z' && it !in 'a'..'z' && it !in '0'..'9' && it != '-' && it != '_' }
     }
 
-    private fun isJWTFormatValid(token: String) : Boolean {
+    private fun isJWTFormatValid(token: String?) : Boolean {
+        if(token == null) return false
         val splitToken = token.split(".")
         return (splitToken.size == 3 && splitToken.all { isLettersOrDigits(it) } )
     }

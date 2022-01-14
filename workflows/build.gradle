@@ -44,6 +44,10 @@ dependencies {
     testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     testCompile "junit:junit:$junit_version"
     testImplementation("io.mockk:mockk:1.9.3")
+    implementation("org.eclipse.rdf4j:rdf4j-bom:3.7.4")
+    // -storage includes everything. We might be able to reduce to -rio-rdfxml.
+    // Alternatively -repository-http if we move to a microservice
+    implementation("org.eclipse.rdf4j:rdf4j-storage:3.7.4")
 
     // Corda dependencies.
     cordaCompile "$corda_core_release_group:corda-core:$corda_core_release_version"
