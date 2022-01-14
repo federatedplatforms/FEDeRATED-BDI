@@ -50,6 +50,8 @@ build-l1:
     expire_in: 30 days
 
 deploy_sensorlab_1:
+  tags:
+    - corda
   stage: deploy
   script:
     - echo "Deploy first node to sensorlab"
