@@ -247,10 +247,10 @@ object GraphDBService {
 
         val objectTypes = digitalTwins.objects().map { it.toString()}
 
-        return if (objectTypes.contains("https://ontology.tno.nl/logistics/federated/DigitalTwin#TransportMeans")) PhysicalObject.TRANSPORTMEAN
-        else if (objectTypes.any { it in listOf("https://ontology.tno.nl/logistics/federated/DigitalTwin#Goods", "https://ontology.tno.nl/logistics/federated/DigitalTwin#Equipment") })  PhysicalObject.GOOD
-        else if (objectTypes.contains("https://ontology.tno.nl/logistics/federated/DigitalTwin#Location")) PhysicalObject.LOCATION
-        else if (objectTypes.contains("https://ontology.tno.nl/logistics/federated/DigitalTwin#Cargo")) PhysicalObject.CARGO
+        return if (objectTypes.contains("TransportMeans")) PhysicalObject.TRANSPORTMEAN
+        else if (objectTypes.any { it in listOf("Goods", "Equipment") })  PhysicalObject.GOOD
+        else if (objectTypes.contains("Location")) PhysicalObject.LOCATION
+        else if (objectTypes.contains("Cargo")) PhysicalObject.CARGO
         else PhysicalObject.OTHER
     }
 
