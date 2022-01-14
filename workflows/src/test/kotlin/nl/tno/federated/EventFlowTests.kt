@@ -1,8 +1,8 @@
 package nl.tno.federated
 
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkObject
+import io.mockk.unmockkAll
 import net.corda.core.contracts.TransactionVerificationException
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
@@ -97,7 +97,7 @@ class EventFlowTests {
     @After
     fun tearDown() {
         network.stopNodes()
-        clearAllMocks()
+        unmockkAll()
     }
 
     @Test
