@@ -106,7 +106,11 @@ open class Event(
     open val milestone: Milestone,
     open val fullEvent: String,
     open val id: String
-)
+) {
+    override fun toString(): String {
+        return "Event(goods=$goods, transportMean=$transportMean, location=$location, otherDigitalTwins=$otherDigitalTwins, timestamps=$timestamps, ecmruri='$ecmruri', milestone=$milestone, fullEvent='$fullEvent', id='$id')"
+    }
+}
 
 fun <K, V> LinkedHashMap<K, V>.last(): Pair<K, V> {
     if (this.isEmpty()) throw NoSuchElementException("Map is empty.")
