@@ -77,7 +77,7 @@ class NewEventFlow(
 
         val allParties = counterParties + mutableListOf(notary, me)
 
-        val newEvent = GraphDBService.parseRDFtoEventNew(fullEvent).first()
+        val newEvent = GraphDBService.parseRDFToEvents(fullEvent).first()
 
         val previousEvents = serviceHub.vaultService.queryBy<EventState>(/*isTheSame*/).states
                 .filter{ it.state.data.milestone == Milestone.START &&

@@ -100,7 +100,7 @@ class GraphDBServiceTests {
               DigitalTwin:containerID "XINU4010266" .
 
             """.trimIndent()
-        val parsedEvents = GraphDBService.parseRDFtoEventNew(testRdfEvent)
+        val parsedEvents = GraphDBService.parseRDFToEvents(testRdfEvent)
         assertEquals(1, parsedEvents.size)
         val parsedEvent = parsedEvents.single()
 
@@ -155,7 +155,7 @@ class GraphDBServiceTests {
               pi:locatedAt :Location-BEANR .
             """.trimIndent()
 
-        val parsedEvent = GraphDBService.parseRDFtoEventNew(testRdfEvent).first()
+        val parsedEvent = GraphDBService.parseRDFToEvents(testRdfEvent).first()
 
         assertEquals("0c1e0ed5-636c-48b2-8f52-542e6f4d156a", parsedEvent.transportMean.single().toString())
 
@@ -199,7 +199,7 @@ class GraphDBServiceTests {
             :DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a a DigitalTwin:TransportMeans.
             """.trimIndent()
 
-        val parsedEvent = GraphDBService.parseRDFtoEventNew(testRdfEvent).first()
+        val parsedEvent = GraphDBService.parseRDFToEvents(testRdfEvent).first()
 
         assertEquals("c5836199-8809-3930-9cf8-1d14a54d242a", parsedEvent.transportMean.single().toString())
 
@@ -244,7 +244,7 @@ class GraphDBServiceTests {
             :DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1 a DigitalTwin:Goods.
             """.trimIndent()
 
-        val parsedEvent = GraphDBService.parseRDFtoEventNew(testRdfEvent).single()
+        val parsedEvent = GraphDBService.parseRDFToEvents(testRdfEvent).single()
 
         assertEquals("c5836199-8809-3930-9cf8-1d14a54d242a", parsedEvent.transportMean.single().toString())
         assertEquals("ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1", parsedEvent.goods.single().toString())
@@ -287,7 +287,7 @@ class GraphDBServiceTests {
             :DigitalTwin-43691f54-091c-4378-a176-b730a4966996 a DigitalTwin:TransportMeans.
             """.trimIndent()
 
-        val parsedEvent = GraphDBService.parseRDFtoEventNew(testRdfEvent).single()
+        val parsedEvent = GraphDBService.parseRDFToEvents(testRdfEvent).single()
 
         assertEquals("43691f54-091c-4378-a176-b730a4966996", parsedEvent.transportMean.single().toString())
         assertEquals("b4d51938-5ae5-330d-af2e-a198dd2c16ab", parsedEvent.location.single().toString())

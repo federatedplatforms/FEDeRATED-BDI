@@ -118,13 +118,11 @@ object GraphDBService {
         }
     }
 
-    fun parseRDFtoEventNew(rdfFullData: String) : List<Event> {
+    fun parseRDFToEvents(rdfFullData: String) : List<Event> {
         val model = parseRDFToModel(rdfFullData)
 
         val eventIds = eventIdsFromModel(model)
         require(eventIds.isNotEmpty()) { "No events found in RDF data. "}
-
-        val factory = SimpleValueFactory.getInstance()
 
         return eventIds.map {
             eventFromModel(model, it)
