@@ -104,6 +104,7 @@ class GraphDBServiceTests {
         assertEquals(1, parsedEvents.size)
         val parsedEvent = parsedEvents.single()
 
+        assertEquals("sanity", parsedEvent.toString())
         assertEquals("6c7edb9c-cfee-4b0c-998d-435cca8eeb39", parsedEvent.goods.single().toString())
         assertEquals("5edc2423-d258-4002-8d6c-9fb3b1f6ff9a", parsedEvent.transportMean.single().toString())
 
