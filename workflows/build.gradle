@@ -38,16 +38,14 @@ configurations {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.9.7'
-    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testCompile "junit:junit:$junit_version"
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testImplementation "junit:junit:$junit_version"
     testImplementation("io.mockk:mockk:1.9.3")
-    implementation("org.eclipse.rdf4j:rdf4j-bom:3.7.4")
-    // -storage includes everything. We might be able to reduce to -rio-rdfxml.
-    // Alternatively -repository-http if we move to a microservice
-    implementation("org.eclipse.rdf4j:rdf4j-storage:3.7.4")
+    implementation platform("org.eclipse.rdf4j:rdf4j-bom:3.7.4")
+    implementation("org.eclipse.rdf4j:rdf4j-rio-turtle")
 
     // Corda dependencies.
     cordaCompile "$corda_core_release_group:corda-core:$corda_core_release_version"

@@ -43,7 +43,7 @@ build-l1:
   stage: build
   script:
     - cd clients
-    - ./gradlew build
+    - ./gradlew bootJar
   artifacts:
     paths:
       - clients/build/libs/clients-0.1.jar
