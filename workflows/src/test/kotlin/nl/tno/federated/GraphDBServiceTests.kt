@@ -5,6 +5,7 @@ import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.states.EventState
 import nl.tno.federated.states.EventType
 import nl.tno.federated.states.Milestone
+import nl.tno.federated.states.Timestamp
 import org.junit.After
 import org.junit.Before
 import org.junit.Ignore
@@ -109,11 +110,11 @@ class GraphDBServiceTests {
 
         assertEquals("BEDEU01", parsedEvent.location.single().toString())
 
-        assertEquals("PLANNED", parsedEvent.timestamps.keys.single().toString())
+        assertEquals(EventType.PLANNED, parsedEvent.timestamps.single().type)
 
-        assertEquals(1579975200000, parsedEvent.timestamps[EventType.PLANNED]!!.time)
+        assertEquals(1579975200000, parsedEvent.timestamps.single().time.time)
         assertEquals(Milestone.STOP, parsedEvent.milestone)
-        assertEquals("5edc2423-d258-4002-8d6c-9fb3b1f6ff9a", parsedEvent.id)
+        assertEquals("5edc2423-d258-4002-8d6c-9fb3b1f6ff9a", parsedEvent.timestamps.single().id)
     }
 
     @Test
@@ -161,11 +162,11 @@ class GraphDBServiceTests {
 
         assertEquals("BEANTMP", parsedEvent.location.single().toString())
 
-        assertEquals("PLANNED", parsedEvent.timestamps.keys.single().toString())
+        assertEquals(EventType.PLANNED, parsedEvent.timestamps.single().type)
 
-        assertEquals(1579989600000, parsedEvent.timestamps[EventType.PLANNED]!!.time)
+        assertEquals(1579989600000, parsedEvent.timestamps.single().time.time)
         assertEquals(Milestone.START, parsedEvent.milestone)
-        assertEquals("0c1e0ed5-636c-48b2-8f52-542e6f4d156a", parsedEvent.id)
+        assertEquals("0c1e0ed5-636c-48b2-8f52-542e6f4d156a", parsedEvent.timestamps.single().id)
     }
 
     @Test
@@ -205,11 +206,11 @@ class GraphDBServiceTests {
 
         assertEquals("b4d51938-5ae5-330d-af2e-a198dd2c16ab", parsedEvent.location.single().toString())
 
-        assertEquals("ACTUAL", parsedEvent.timestamps.keys.single().toString())
+        assertEquals(EventType.ACTUAL, parsedEvent.timestamps.single().type)
 
-        assertEquals(1636533847000, parsedEvent.timestamps[EventType.ACTUAL]!!.time)
+        assertEquals(1636533847000, parsedEvent.timestamps.single().time.time)
         assertEquals(Milestone.START, parsedEvent.milestone)
-        assertEquals("5b856159-4788-11ec-a78e-5c879c8043a4", parsedEvent.id)
+        assertEquals("5b856159-4788-11ec-a78e-5c879c8043a4", parsedEvent.timestamps.single().id)
     }
 
     @Test
@@ -249,11 +250,11 @@ class GraphDBServiceTests {
         assertEquals("c5836199-8809-3930-9cf8-1d14a54d242a", parsedEvent.transportMean.single().toString())
         assertEquals("ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1", parsedEvent.goods.single().toString())
 
-        assertEquals("PLANNED", parsedEvent.timestamps.keys.single().toString())
+        assertEquals(EventType.PLANNED, parsedEvent.timestamps.single().type)
 
-        assertEquals(1636570280000, parsedEvent.timestamps[EventType.PLANNED]!!.time)
+        assertEquals(1636570280000, parsedEvent.timestamps.single().time.time)
         assertEquals(Milestone.STOP, parsedEvent.milestone)
-        assertEquals("5b8699f1-4788-11ec-b5e4-5c879c8043a4", parsedEvent.id)
+        assertEquals("5b8699f1-4788-11ec-b5e4-5c879c8043a4", parsedEvent.timestamps.single().id)
     }
 
     @Test
@@ -292,11 +293,11 @@ class GraphDBServiceTests {
         assertEquals("43691f54-091c-4378-a176-b730a4966996", parsedEvent.transportMean.single().toString())
         assertEquals("b4d51938-5ae5-330d-af2e-a198dd2c16ab", parsedEvent.location.single().toString())
 
-        assertEquals("ACTUAL", parsedEvent.timestamps.keys.single().toString())
+        assertEquals(EventType.ACTUAL, parsedEvent.timestamps.single().type)
 
-        assertEquals(1636533847000, parsedEvent.timestamps[EventType.ACTUAL]!!.time)
+        assertEquals(1636533847000, parsedEvent.timestamps.single().time.time)
         assertEquals(Milestone.START, parsedEvent.milestone)
-        assertEquals("f223c17c-c3ab-4871-9b78-3536d121925c", parsedEvent.id)
+        assertEquals("f223c17c-c3ab-4871-9b78-3536d121925c", parsedEvent.timestamps.single().id)
     }
 
     @Test
@@ -325,12 +326,11 @@ class GraphDBServiceTests {
             transportMean = emptySet(),
             location = setOf("random string"),
             otherDigitalTwins = setOf(UUID.randomUUID()),
-            timestamps = linkedMapOf(Pair(EventType.ESTIMATED, Date())),
+            timestamps = setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ESTIMATED)),
             ecmruri = "",
             milestone = Milestone.START,
             fullEvent = invalidSampleTTL,
-            participants = emptyList(),
-            linearId = UniqueIdentifier()
+            participants = emptyList()
         )
         assert(!GraphDBService.isDataValid(eventState))
     }
@@ -342,12 +342,11 @@ class GraphDBServiceTests {
             transportMean = emptySet(),
             location = setOf("random string"),
             otherDigitalTwins = setOf(UUID.randomUUID()),
-            timestamps = linkedMapOf(Pair(EventType.ESTIMATED, Date())),
+            timestamps = setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ESTIMATED)),
             ecmruri = "",
             milestone = Milestone.START,
             fullEvent = validSampleTtl,
-            participants = emptyList(),
-            linearId = UniqueIdentifier()
+            participants = emptyList()
         )
         assert(!GraphDBService.isDataValid(eventState))
     }
@@ -359,12 +358,11 @@ class GraphDBServiceTests {
             transportMean = emptySet(),
             location = setOf("random string"),
             otherDigitalTwins = setOf(UUID.randomUUID()),
-            timestamps = linkedMapOf(Pair(EventType.ESTIMATED, Date())),
+            timestamps = setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ESTIMATED)),
             ecmruri = "",
             milestone = Milestone.START,
             fullEvent = "valid RDF matching this state", // TODO
-            participants = emptyList(),
-            linearId = UniqueIdentifier()
+            participants = emptyList()
         )
         assert(GraphDBService.isDataValid(eventState))
     }

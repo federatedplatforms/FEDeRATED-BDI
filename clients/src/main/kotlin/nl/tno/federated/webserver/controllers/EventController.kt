@@ -264,8 +264,7 @@ class EventController(rpc: NodeRPCConnection) {
                 it.timestamps,
                 it.ecmruri,
                 it.milestone,
-                it.fullEvent,
-                it.linearId.externalId ?: it.linearId.id.toString()
+                it.fullEvent
             )
         }
 }
