@@ -9,6 +9,7 @@ import net.corda.testing.node.ledger
 import nl.tno.federated.states.EventState
 import nl.tno.federated.states.EventType
 import nl.tno.federated.states.Milestone
+import nl.tno.federated.states.Timestamp
 import org.junit.Test
 import java.util.*
 
@@ -29,7 +30,7 @@ class ContractTests {
             setOf(UniqueIdentifier().id),
             emptySet(),
             setOf(UniqueIdentifier().id, UniqueIdentifier().id),
-            linkedMapOf(Pair(EventType.PLANNED, currentDate)),
+            setOf(Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED)),
             eCMRuriExample, Milestone.START, validRdf, listOf(sender.party, enterpriseDE.party), UniqueIdentifier(externalId = "KLM7915-20210801"))
 
     private val eventNewStateTransportAndLocation = EventState(
@@ -37,7 +38,7 @@ class ContractTests {
             setOf(UniqueIdentifier().id),
             setOf("Fake string for location"),
             setOf(UniqueIdentifier().id, UniqueIdentifier().id),
-            linkedMapOf(Pair(EventType.PLANNED, currentDate)),
+            setOf(Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED)),
             eCMRuriExample, Milestone.START, validRdf, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
     private val eventNewStateWrong = EventState(
@@ -45,7 +46,7 @@ class ContractTests {
             setOf(UniqueIdentifier().id),
             emptySet(),
             setOf(UniqueIdentifier().id, UniqueIdentifier().id),
-            linkedMapOf(Pair(EventType.PLANNED, currentDate)),
+            setOf(Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED)),
             eCMRuriExample, Milestone.START, validRdf, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
     private val eventNewStateWrong2 = EventState(
@@ -53,7 +54,7 @@ class ContractTests {
             setOf(UniqueIdentifier().id),
             setOf("Fake string for location"),
             setOf(UniqueIdentifier().id, UniqueIdentifier().id),
-            linkedMapOf(Pair(EventType.PLANNED, currentDate)),
+            setOf(Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED)),
             eCMRuriExample, Milestone.START, validRdf, listOf(sender.party, enterpriseDE.party), UniqueIdentifier())
 
 
@@ -110,8 +111,12 @@ class ContractTests {
     @Test
     fun `fail - more than one timestamp at time of creation`() {
         val outputState = eventNewStateGoodsAndTransport.copy(
-                timestamps = linkedMapOf(Pair(EventType.ESTIMATED, currentDate), Pair(EventType.PLANNED, currentDate))
+                timestamps = setOf(
+                        Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED),
+                        Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED)
+                )
         )
+
         ledgerServices.ledger {
             transaction {
                 command(sender.publicKey, EventContract.Commands.Create())
@@ -125,8 +130,9 @@ class ContractTests {
     @Test
     fun `fail - timestamp is not planned or actual at time of creation`() {
         val outputState = eventNewStateGoodsAndTransport.copy(
-                timestamps = linkedMapOf(Pair(EventType.ESTIMATED, currentDate))
+                timestamps = setOf(Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED))
         )
+
         ledgerServices.ledger {
             transaction {
                 command(sender.publicKey, EventContract.Commands.Create())
@@ -190,8 +196,17 @@ class ContractTests {
 
     @Test
     fun `update estimated time simple transaction`() {
-        val timestampsIn = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, Date(121,1,1,1,1,1)))
-        val timestampsOut = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, Date(121,1,1,1,1,2)))
+        val uuid1 = UniqueIdentifier().id.toString()
+        val uuid2 = UniqueIdentifier().id.toString()
+        val timestampsIn = setOf(
+                Timestamp(uuid1, currentDate, EventType.PLANNED),
+                Timestamp(uuid2, Date(121,1,1,1,1,1), EventType.ESTIMATED)
+        )
+        val timestampsOut = setOf(
+                Timestamp(uuid1, currentDate, EventType.PLANNED),
+                Timestamp(uuid2, Date(121,1,1,1,1,1), EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), Date(121,1,1,1,1,2), EventType.ESTIMATED)
+        )
         val inputState = eventNewStateGoodsAndTransport.copy(
             timestamps = timestampsIn
         )
@@ -226,9 +241,13 @@ class ContractTests {
 
     @Test
     fun `fail - input and output different when updating estimate`() {
-
-        val timestampsIn = linkedMapOf(Pair(EventType.PLANNED, currentDate))
-        val timestampsOut = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate))
+        val timestampsIn = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED)
+        )
+        val timestampsOut = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED)
+        )
         val inputState = eventNewStateGoodsAndTransport.copy(
             timestamps = timestampsIn
         )
@@ -251,8 +270,15 @@ class ContractTests {
     @Test
     fun `fail - updating estimate of a state whose last element in timestamps is ACTUAL`() {
 
-        val timestampsIn = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ACTUAL, currentDate))
-        val timestampsOut = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ACTUAL, currentDate), Pair(EventType.ESTIMATED, currentDate))
+        val timestampsIn = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
+        val timestampsOut = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED)
+        )
         val inputState = eventNewStateGoodsAndTransport.copy(timestamps = timestampsIn)
         val outputState = inputState.copy(timestamps = timestampsOut)
 
@@ -270,8 +296,13 @@ class ContractTests {
     @Test
     fun `fail - updating estimate of a state whose first element in timestamps is not PLANNED`() {
 
-        val timestamps = linkedMapOf(Pair(EventType.ACTUAL, currentDate), Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate))
-        val timestamps2 = linkedMapOf(Pair(EventType.ACTUAL, currentDate), Pair(EventType.PLANNED, currentDate))
+        val timestamps = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED)
+        )
+        val timestamps2 = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
         val outputState = eventNewStateGoodsAndTransport.copy(
                 timestamps = timestamps
         )
@@ -293,8 +324,18 @@ class ContractTests {
     @Test
     fun `fail - updating estimate but last timestamp is not ESTIMATED`() {
 
-        val timestampsIn = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate))
-        val timestampsOut = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ACTUAL, currentDate))
+        val uuid1 = UniqueIdentifier().id.toString()
+        val uuid2 = UniqueIdentifier().id.toString()
+
+        val timestampsIn = setOf(
+                Timestamp(uuid1, currentDate, EventType.PLANNED),
+                Timestamp(uuid2, currentDate, EventType.ESTIMATED)
+        )
+        val timestampsOut = setOf(
+                Timestamp(uuid1, currentDate, EventType.PLANNED),
+                Timestamp(uuid2, currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
         val inputState = eventNewStateGoodsAndTransport.copy(
             timestamps = timestampsIn
         )
@@ -315,8 +356,17 @@ class ContractTests {
 
     @Test
     fun `fail - updating estimate but timestamps don't match`() {
-        val timestampsIn = linkedMapOf(Pair(EventType.PLANNED, Date(2021,1,2,1,1,1)), Pair(EventType.ESTIMATED, currentDate))
-        val timestampsOut = linkedMapOf(Pair(EventType.PLANNED, Date(2021,1,1,1,1,1)), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ACTUAL, currentDate))
+        val uuid1 = UniqueIdentifier().id.toString()
+        val uuid2 = UniqueIdentifier().id.toString()
+        val timestampsIn = setOf(
+                Timestamp(uuid1, Date(2021,1,2,1,1,1), EventType.PLANNED),
+                Timestamp(uuid2, currentDate, EventType.ESTIMATED)
+        )
+        val timestampsOut = setOf(
+                Timestamp(uuid1, Date(2021,1,1,1,1,1), EventType.PLANNED),
+                Timestamp(uuid2, currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED)
+        )
         val inputState = eventNewStateGoodsAndTransport.copy(
             timestamps = timestampsIn
         )
@@ -330,16 +380,25 @@ class ContractTests {
                 output(EventContract.ID, outputState)
                 input(EventContract.ID, inputState)
 
-                `fails with` ("Old timestamps and new timestamps must be equal, net of the new or changed element")
+                `fails with` ("Old timestamps and new timestamps must be equal, net of the new element")
             }
         }
     }
 
     @Test
     fun `execute START event simple transaction`() {
+        val uuid1 = UniqueIdentifier().id.toString()
+        val uuid2 = UniqueIdentifier().id.toString()
 
-        val timestamps = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ACTUAL, currentDate))
-        val timestamps2 = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate))
+        val timestamps = setOf(
+                Timestamp(uuid1, currentDate, EventType.PLANNED),
+                Timestamp(uuid2, currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
+        val timestamps2 = setOf(
+                Timestamp(uuid1, currentDate, EventType.PLANNED),
+                Timestamp(uuid2, currentDate, EventType.ESTIMATED)
+        )
 
         val outputState = eventNewStateGoodsAndTransport.copy(
                 timestamps = timestamps
@@ -361,9 +420,23 @@ class ContractTests {
 
     @Test
     fun `execute STOP event simple transaction`() {
-        val timestamps1 = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ACTUAL, currentDate))
-        val timestamps2 = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ACTUAL, currentDate))
-        val timestamps3 = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate))
+        val uuid1 = UniqueIdentifier().id.toString()
+        val uuid2 = UniqueIdentifier().id.toString()
+
+        val timestamps1 = setOf(
+                Timestamp(uuid1, currentDate, EventType.PLANNED),
+                Timestamp(uuid2, currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
+        val timestamps2 = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
+        val timestamps3 = setOf(
+                Timestamp(uuid1, currentDate, EventType.PLANNED),
+                Timestamp(uuid2, currentDate, EventType.ESTIMATED)
+        )
 
         val outputState = eventNewStateGoodsAndTransport.copy(
             milestone = Milestone.STOP,
@@ -392,9 +465,17 @@ class ContractTests {
     @Test
     fun `fail - execute event without input`() {
 
-        val timestamps = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ACTUAL, currentDate))
+        val timestamps = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
 
-        val timestamps2 = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ACTUAL, currentDate))
+        val timestamps2 = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
 
         val outputState = eventNewStateGoodsAndTransport.copy(
                 milestone = Milestone.STOP,
@@ -419,10 +500,21 @@ class ContractTests {
     @Test
     fun `fail - execution of event whose previous has different DT`() {
 
-        val timestamps1 = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ACTUAL, currentDate))
-        val timestamps3 = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate))
+        val timestamps1 = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
+        val timestamps3 = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED)
+        )
 
-        val timestamps2 = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ACTUAL, currentDate))
+        val timestamps2 = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
 
         val outputState = eventNewStateGoodsAndTransport.copy(
                 milestone = Milestone.STOP,
@@ -453,9 +545,20 @@ class ContractTests {
     @Test
     fun `fail - execution of event whose previous has last timestamp ACTUAL`() {
 
-        val timestamps1 = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ACTUAL, currentDate), Pair(EventType.ACTUAL, currentDate))
-        val timestamps2 = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ACTUAL, currentDate))
-        val timestamps3 = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ACTUAL, currentDate))
+        val timestamps1 = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
+        val timestamps2 = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
+        val timestamps3 = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
 
         val outputState = eventNewStateGoodsAndTransport.copy(
                 milestone = Milestone.STOP,
@@ -485,9 +588,20 @@ class ContractTests {
     @Test
     fun `fail - execution of event whose previous has first timestamp not PLANNED`() {
 
-        val timestamps1 = linkedMapOf(Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ACTUAL, currentDate))
-        val timestamps2 = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ACTUAL, currentDate))
-        val timestamps3 = linkedMapOf(Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ESTIMATED, currentDate))
+        val timestamps1 = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
+        val timestamps2 = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
+        val timestamps3 = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED)
+        )
 
         val outputState = eventNewStateGoodsAndTransport.copy(
                 milestone = Milestone.STOP,
@@ -517,10 +631,21 @@ class ContractTests {
     @Test
     fun `fail - execution of event whose last timestamp is not ACTUAL`() {
 
-        val timestamps1 = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ESTIMATED, currentDate))
+        val timestamps1 = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED)
+        )
 
-        val timestamps2 = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ACTUAL, currentDate))
-        val timestamps3 = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate))
+        val timestamps2 = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
+        val timestamps3 = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED)
+        )
 
         val outputState = eventNewStateGoodsAndTransport.copy(
                 milestone = Milestone.STOP,
@@ -549,9 +674,18 @@ class ContractTests {
 
     @Test
     fun `fail - execution of event with two previous START event`() {
+        val uuid1 = UniqueIdentifier().id.toString()
+        val uuid2 = UniqueIdentifier().id.toString()
 
-        val timestamps = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ACTUAL, currentDate))
-        val timestamps2 = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate))
+        val timestamps = setOf(
+                Timestamp(uuid1, currentDate, EventType.PLANNED),
+                Timestamp(uuid2, currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
+        val timestamps2 = setOf(
+                Timestamp(uuid1, currentDate, EventType.PLANNED),
+                Timestamp(uuid2, currentDate, EventType.ESTIMATED)
+        )
 
         val outputState = eventNewStateGoodsAndTransport.copy(
                 milestone = Milestone.STOP,
@@ -581,11 +715,24 @@ class ContractTests {
 
     @Test
     fun `fail - execution of event with previous START event involving different DT`() {
+        val uuid1 = UniqueIdentifier().id.toString()
+        val uuid2 = UniqueIdentifier().id.toString()
 
-        val timestampsInStop = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate))
-        val timestampsOut = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ACTUAL, currentDate))
+        val timestampsInStop = setOf(
+                Timestamp(uuid1, currentDate, EventType.PLANNED),
+                Timestamp(uuid2, currentDate, EventType.ESTIMATED)
+        )
+        val timestampsOut = setOf(
+                Timestamp(uuid1, currentDate, EventType.PLANNED),
+                Timestamp(uuid2, currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
 
-        val timestampsInStart = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ACTUAL, currentDate))
+        val timestampsInStart = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
 
         val inputStopState = eventNewStateGoodsAndTransport.copy(
             milestone = Milestone.STOP,
@@ -616,11 +763,24 @@ class ContractTests {
 
     @Test
     fun `fail - execution of event with previous START whose last timestamp is not ACTUAL`() {
+        val uuid1 = UniqueIdentifier().id.toString()
+        val uuid2 = UniqueIdentifier().id.toString()
 
-        val timestamps1 = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ACTUAL, currentDate))
-        val timestamps1Deleted = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate))
+        val timestamps1 = setOf(
+                Timestamp(uuid1, currentDate, EventType.PLANNED),
+                Timestamp(uuid2, currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ACTUAL)
+        )
+        val timestamps1Deleted = setOf(
+                Timestamp(uuid1, currentDate, EventType.PLANNED),
+                Timestamp(uuid2, currentDate, EventType.ESTIMATED)
+        )
 
-        val timestamps2 = linkedMapOf(Pair(EventType.PLANNED, currentDate), Pair(EventType.ESTIMATED, currentDate), Pair(EventType.ESTIMATED, currentDate))
+        val timestamps2 = setOf(
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.PLANNED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED),
+                Timestamp(UniqueIdentifier().id.toString(), currentDate, EventType.ESTIMATED)
+        )
 
         val outputState = eventNewStateGoodsAndTransport.copy(
                 milestone = Milestone.STOP,

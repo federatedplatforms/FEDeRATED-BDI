@@ -18,10 +18,7 @@ import nl.tno.federated.services.GraphDBService.generalSPARQLquery
 import nl.tno.federated.services.GraphDBService.insertEvent
 import nl.tno.federated.services.GraphDBService.isDataValid
 import nl.tno.federated.services.GraphDBService.queryEventById
-import nl.tno.federated.states.EventState
-import nl.tno.federated.states.EventType
-import nl.tno.federated.states.Milestone
-import nl.tno.federated.states.PhysicalObject
+import nl.tno.federated.states.*
 import java.util.*
 
 @InitiatingFlow
@@ -103,8 +100,7 @@ class NewEventFlow(
             ecmruri = newEvent.ecmruri,
             milestone = newEvent.milestone,
             fullEvent = fullEvent,
-            participants = allParties - notary,
-            linearId = UniqueIdentifier(newEvent.id)
+            participants = allParties - notary
         )
         require(isDataValid(newEventState)) { "RDF data is not valid"}
 
@@ -234,8 +230,9 @@ class UpdateEstimatedTimeFlow(
 
         val retrievedEventData = retrievedEvent.single().state.data
 
-        val newTimestamp = retrievedEventData.timestamps
-        newTimestamp[EventType.ESTIMATED] = time
+        val uuidTEMP = UniqueIdentifier().id.toString() // TODO Change to the correct ID from submitted event
+        val newTimestamp = retrievedEventData.timestamps + Timestamp(uuidTEMP, time, EventType.ESTIMATED)
+
         newEventState = retrievedEventData.copy(
                 timestamps = newTimestamp
         )
@@ -373,8 +370,9 @@ class ExecuteEventFlow(
         if(retrievedEvents.isNotEmpty())
             txBuilder.addInputState(retrievedEvents.single())
 
-        val newTimestamps = correspondingEvent.timestamps
-        newTimestamps[EventType.ACTUAL] = time
+        val uuidTEMP = UniqueIdentifier().id.toString() // TODO Change to the correct ID from submitted event
+        val newTimestamps = correspondingEvent.timestamps + Timestamp(uuidTEMP, time, EventType.ESTIMATED)
+
         newEventState = correspondingEvent.copy(
             timestamps = newTimestamps
         )

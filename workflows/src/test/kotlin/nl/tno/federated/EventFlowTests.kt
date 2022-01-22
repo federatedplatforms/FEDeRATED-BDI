@@ -103,9 +103,7 @@ class EventFlowTests {
 
     @Test
     fun `Start event with goods and transport`() {
-        val event = Event(setOf(UniqueIdentifier().id), setOf(UniqueIdentifier().id), emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), linkedMapOf(
-            EventType.PLANNED to Date()), eCMRuriExample, Milestone.START, sampleEvent, UniqueIdentifier().id.toString()
-        )
+        val event = Event(setOf(UniqueIdentifier().id), setOf(UniqueIdentifier().id), emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
         val flow = NewEventFlow("unused event", existingCountries)
         val future = a.startFlow(flow)
@@ -117,9 +115,7 @@ class EventFlowTests {
 
     @Test
     fun `fail Start event with invalid rdf`() {
-        val event = Event(setOf(), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), linkedMapOf(
-            EventType.PLANNED to Date()), eCMRuriExample, Milestone.START, sampleEvent, UniqueIdentifier().id.toString()
-        )
+        val event = Event(setOf(), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
         every { GraphDBService.isDataValid(any()) } returns false
         val flow = NewEventFlow("invalid data", existingCountries)
@@ -144,9 +140,7 @@ class EventFlowTests {
 
     @Test
     fun `Start event with transport and location`() {
-        val event = Event(setOf(), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), linkedMapOf(
-            EventType.PLANNED to Date()), eCMRuriExample, Milestone.START, sampleEvent, UniqueIdentifier().id.toString()
-        )
+        val event = Event(setOf(), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
         val flow = NewEventFlow("unused event", existingCountries)
         val future = a.startFlow(flow)
@@ -161,9 +155,7 @@ class EventFlowTests {
         val goods = setOf(UniqueIdentifier().id)
         val transportMean = setOf(UniqueIdentifier().id)
         val startEvent = Event(goods,
-            transportMean, emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), linkedMapOf(
-            EventType.PLANNED to Date()), eCMRuriExample, Milestone.START, sampleEvent, UniqueIdentifier().id.toString()
-        )
+            transportMean, emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(startEvent)
 
         val flowStart = NewEventFlow("unused event", existingCountries)
@@ -173,9 +165,7 @@ class EventFlowTests {
         val signedTxStart = futureStart.getOrThrow()
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
-        val stopEvent = Event(goods, transportMean, emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), linkedMapOf(
-            EventType.PLANNED to Date()), eCMRuriExample, Milestone.STOP, sampleEvent, UniqueIdentifier().id.toString()
-        )
+        val stopEvent = Event(goods, transportMean, emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.STOP, sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(stopEvent)
         val flowStop = NewEventFlow("unused event", existingCountries)
         val futureStop = a.startFlow(flowStop)
@@ -187,9 +177,7 @@ class EventFlowTests {
 
     @Test
     fun `Stop event fails without start event`() {
-        val stopEvent = Event(setOf(UniqueIdentifier().id), setOf(UniqueIdentifier().id), emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), linkedMapOf(
-            EventType.PLANNED to Date()), eCMRuriExample, Milestone.STOP, sampleEvent, UniqueIdentifier().id.toString()
-        )
+        val stopEvent = Event(setOf(UniqueIdentifier().id), setOf(UniqueIdentifier().id), emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.STOP, sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(stopEvent)
 
         val flowStop = NewEventFlow("unused event", existingCountries)
@@ -204,9 +192,7 @@ class EventFlowTests {
         val goods = setOf(UniqueIdentifier().id)
         val transportMean = setOf(UniqueIdentifier().id)
         val startEvent = Event(goods,
-            transportMean, emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), linkedMapOf(
-                EventType.PLANNED to Date()), eCMRuriExample, Milestone.START, sampleEvent, UniqueIdentifier().id.toString()
-        )
+            transportMean, emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(startEvent)
 //        val flowStart = NewEventFlow(digitalTwinsTransportAndLocationStartEvent, countriesInvolved)
         val flowStart = NewEventFlow("unused event", existingCountries)
@@ -217,9 +203,7 @@ class EventFlowTests {
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
         val otherGoods = setOf(UniqueIdentifier().id)
-        val stopEvent = Event(otherGoods, transportMean, emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), linkedMapOf(
-            EventType.PLANNED to Date()), eCMRuriExample, Milestone.STOP, sampleEvent, UniqueIdentifier().id.toString()
-        )
+        val stopEvent = Event(otherGoods, transportMean, emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.STOP, sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(stopEvent)
         val flowStop = NewEventFlow("unused event", existingCountries)
         val futureStop = a.startFlow(flowStop)
@@ -230,9 +214,7 @@ class EventFlowTests {
 
     @Test
     fun `Duplicate start events fail`() {
-        val event = Event(setOf(), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), linkedMapOf(
-            EventType.PLANNED to Date()), eCMRuriExample, Milestone.START, sampleEvent, UniqueIdentifier().id.toString()
-        )
+        val event = Event(setOf(), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
 
         val flowStart = NewEventFlow("", existingCountries)
@@ -251,9 +233,7 @@ class EventFlowTests {
 
     @Test
     fun `Simple flow transaction 2`() { // TODO what does this test? seems redundant
-        val event = Event(setOf(), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), linkedMapOf(
-            EventType.PLANNED to Date()), eCMRuriExample, Milestone.START, sampleEvent, UniqueIdentifier().id.toString()
-        )
+        val event = Event(setOf(), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
         val flow = NewEventFlow("", existingCountries)
         val future = a.startFlow(flow)
@@ -265,9 +245,7 @@ class EventFlowTests {
 
     @Test
     fun `fail flow transaction because too many goods`() {
-        val event = Event(setOf(UniqueIdentifier().id, UniqueIdentifier().id), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), linkedMapOf(
-            EventType.PLANNED to Date()), eCMRuriExample, Milestone.START, sampleEvent, UniqueIdentifier().id.toString()
-        )
+        val event = Event(setOf(UniqueIdentifier().id, UniqueIdentifier().id), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
         val flow = NewEventFlow("", existingCountries)
         val future = a.startFlow(flow)
@@ -278,9 +256,7 @@ class EventFlowTests {
 
     @Test
     fun `fail flow transaction because goods are linked to locations`() {
-        val event = Event(setOf(UniqueIdentifier().id), setOf(), setOf("some location"), emptySet(), linkedMapOf(
-            EventType.PLANNED to Date()), eCMRuriExample, Milestone.START, sampleEvent, UniqueIdentifier().id.toString()
-        )
+        val event = Event(setOf(UniqueIdentifier().id), setOf(), setOf("some location"), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
         val flow = NewEventFlow("", existingCountries)
         val future = a.startFlow(flow)
@@ -427,9 +403,7 @@ class EventFlowTests {
 
     @Test
     fun `Data is distributed only to countries included in countriesInvolved`() {
-        val event = Event(setOf(), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), linkedMapOf(
-            EventType.PLANNED to Date()), eCMRuriExample, Milestone.START, sampleEvent, UniqueIdentifier().id.toString()
-        )
+        val event = Event(setOf(), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
         val flowStart = NewEventFlow("", setOf("DE"))
 
@@ -450,9 +424,7 @@ class EventFlowTests {
 
     @Test
     fun `Data is distributed only to countries included in countriesInvolved - 2`() {
-        val event = Event(setOf(), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), linkedMapOf(
-            EventType.PLANNED to Date()), eCMRuriExample, Milestone.START, sampleEvent, UniqueIdentifier().id.toString()
-        )
+        val event = Event(setOf(), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
         val flowStart = NewEventFlow("unused event", setOf("DE", "FR"))
         val futureStart = a.startFlow(flowStart)

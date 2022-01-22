@@ -32,7 +32,7 @@ class EventContract : Contract {
                 requireThat{
                     "There must be exactly one timestamp at time of creation" using (eventState.timestamps.size == 1)
                     "The type of the timestamp must be PLANNED or ACTUAL" using (
-                            eventState.timestamps.single().first == EventType.PLANNED || eventState.timestamps.single().first == EventType.ACTUAL)
+                            eventState.timestamps.single().type == EventType.PLANNED || eventState.timestamps.single().type == EventType.ACTUAL)
                 }
 
                 when(eventState.milestone) {
@@ -70,10 +70,10 @@ class EventContract : Contract {
                     "Besides times, id and participants, input and output states must be equal" using (inputStates.single().equalsExceptTimesAndParticipants(eventState))
                     val oldTimestamps = inputStates.single().timestamps
                     val newTimestamps = eventState.timestamps
-                    "Last element of old timestamps cannot be of type ACTUAL" using (oldTimestamps.last().first != EventType.ACTUAL)
-                    "First element of old timestamps must be of type PLANNED" using (oldTimestamps.first().first == EventType.PLANNED)
-                    "Old timestamps and new timestamps must be equal, net of the new or changed element" using (oldTimestamps.numberOfDifferingEntries(newTimestamps) == 1)
-                    "The last (added) timestamp must be of type ESTIMATED" using (newTimestamps.last().first == EventType.ESTIMATED)
+                    "First element of old timestamps must be of type PLANNED" using (oldTimestamps.first().type == EventType.PLANNED)
+                    "Last element of old timestamps cannot be of type ACTUAL" using (oldTimestamps.last().type != EventType.ACTUAL)
+                    "Old timestamps and new timestamps must be equal, net of the new element" using (oldTimestamps == newTimestamps-newTimestamps.last())
+                    "The last (added) timestamp must be of type ESTIMATED" using (newTimestamps.last().type == EventType.ESTIMATED)
                 }
             }
 
@@ -92,10 +92,10 @@ class EventContract : Contract {
                     "Besides times, id and participants, input and output states must be equal" using (correspondingEvent.single().equalsExceptTimesAndParticipants(eventState))
                     val oldTimestamps = correspondingEvent.single().timestamps
                     val newTimestamps = eventState.timestamps
-                    "Last element of old timestamps cannot be of type ACTUAL" using (oldTimestamps.last().first != EventType.ACTUAL)
-                    "First element of old timestamps must be of type PLANNED" using (oldTimestamps.first().first == EventType.PLANNED)
-                    "The last (added) timestamp must be of type ACTUAL" using (newTimestamps.last().first == EventType.ACTUAL)
-                    "Old timestamps and new timestamps must be equal, net of the new or changed element" using (oldTimestamps.numberOfDifferingEntries(newTimestamps) == 1)
+                    "Last element of old timestamps cannot be of type ACTUAL" using (oldTimestamps.last().type != EventType.ACTUAL)
+                    "First element of old timestamps must be of type PLANNED" using (oldTimestamps.first().type == EventType.PLANNED)
+                    "The last (added) timestamp must be of type ACTUAL" using (newTimestamps.last().type == EventType.ACTUAL)
+                    "Old timestamps and new timestamps must be equal, net of the new element" using (oldTimestamps == newTimestamps-newTimestamps.last())
                 }
 
                 if (eventState.milestone == Milestone.STOP) {
@@ -103,7 +103,7 @@ class EventContract : Contract {
                         "There must be only one previous START event" using (correspondingStartEvent.size == 1)
                         "The corresponding START event must involve the same digital twins" using (correspondingStartEvent.single().hasSameDigitalTwins(eventState))
                         "The last timestamps of the corresponding START event must be of type ACTUAL" using (
-                                correspondingStartEvent.single().timestamps.last().first == EventType.ACTUAL )
+                                correspondingStartEvent.single().timestamps.last().type == EventType.ACTUAL )
                     }
                 }
             }
