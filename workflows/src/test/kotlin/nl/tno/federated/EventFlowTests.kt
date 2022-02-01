@@ -69,7 +69,8 @@ class EventFlowTests {
     private val sampleEvent = ""
 
 
-    private val countriesInvolved = setOf("NL", "DE", "FR")
+    private val existingCountries = setOf("NL", "DE", "FR")
+    private val unknownCountries = setOf("NL", "ZZ")
 
     @Before
     fun setup() {
@@ -106,7 +107,7 @@ class EventFlowTests {
             EventType.PLANNED to Date()), eCMRuriExample, Milestone.START, sampleEvent, UniqueIdentifier().id.toString()
         )
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
-        val flow = NewEventFlow("unused event", countriesInvolved)
+        val flow = NewEventFlow("unused event", existingCountries)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -121,11 +122,24 @@ class EventFlowTests {
         )
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
         every { GraphDBService.isDataValid(any()) } returns false
-        val flow = NewEventFlow("invalid data", countriesInvolved)
+        val flow = NewEventFlow("invalid data", existingCountries)
         val future = a.startFlow(flow)
         network.runNetwork()
 
         assertFailsWith<IllegalArgumentException>("Illegal rdf") { future.getOrThrow() }
+    }
+
+    @Test
+    fun `fail Start event with unknown country`() {
+        val event = Event(setOf(), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), linkedMapOf(
+            EventType.PLANNED to Date()), eCMRuriExample, Milestone.START, sampleEvent, UniqueIdentifier().id.toString()
+        )
+        every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
+        val flow = NewEventFlow("invalid data", unknownCountries)
+        val future = a.startFlow(flow)
+        network.runNetwork()
+
+        assertFailsWith<IllegalArgumentException>("One of the requested counterparties was not found") { future.getOrThrow() }
     }
 
     @Test
@@ -134,7 +148,7 @@ class EventFlowTests {
             EventType.PLANNED to Date()), eCMRuriExample, Milestone.START, sampleEvent, UniqueIdentifier().id.toString()
         )
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
-        val flow = NewEventFlow("unused event", countriesInvolved)
+        val flow = NewEventFlow("unused event", existingCountries)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -152,7 +166,7 @@ class EventFlowTests {
         )
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(startEvent)
 
-        val flowStart = NewEventFlow("unused event", countriesInvolved)
+        val flowStart = NewEventFlow("unused event", existingCountries)
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
@@ -163,7 +177,7 @@ class EventFlowTests {
             EventType.PLANNED to Date()), eCMRuriExample, Milestone.STOP, sampleEvent, UniqueIdentifier().id.toString()
         )
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(stopEvent)
-        val flowStop = NewEventFlow("unused event", countriesInvolved)
+        val flowStop = NewEventFlow("unused event", existingCountries)
         val futureStop = a.startFlow(flowStop)
         network.runNetwork()
 
@@ -178,7 +192,7 @@ class EventFlowTests {
         )
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(stopEvent)
 
-        val flowStop = NewEventFlow("unused event", countriesInvolved)
+        val flowStop = NewEventFlow("unused event", existingCountries)
         val futureStop = a.startFlow(flowStop)
         network.runNetwork()
 
@@ -195,7 +209,7 @@ class EventFlowTests {
         )
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(startEvent)
 //        val flowStart = NewEventFlow(digitalTwinsTransportAndLocationStartEvent, countriesInvolved)
-        val flowStart = NewEventFlow("unused event", countriesInvolved)
+        val flowStart = NewEventFlow("unused event", existingCountries)
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
@@ -207,7 +221,7 @@ class EventFlowTests {
             EventType.PLANNED to Date()), eCMRuriExample, Milestone.STOP, sampleEvent, UniqueIdentifier().id.toString()
         )
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(stopEvent)
-        val flowStop = NewEventFlow("unused event", countriesInvolved)
+        val flowStop = NewEventFlow("unused event", existingCountries)
         val futureStop = a.startFlow(flowStop)
         network.runNetwork()
 
@@ -221,14 +235,14 @@ class EventFlowTests {
         )
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
 
-        val flowStart = NewEventFlow("", countriesInvolved)
+        val flowStart = NewEventFlow("", existingCountries)
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
         val signedTxStart = futureStart.getOrThrow()
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
-        val secondStart = NewEventFlow("", countriesInvolved)
+        val secondStart = NewEventFlow("", existingCountries)
         val futureStart2 = a.startFlow(secondStart)
         network.runNetwork()
 
@@ -241,7 +255,7 @@ class EventFlowTests {
             EventType.PLANNED to Date()), eCMRuriExample, Milestone.START, sampleEvent, UniqueIdentifier().id.toString()
         )
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
-        val flow = NewEventFlow("", countriesInvolved)
+        val flow = NewEventFlow("", existingCountries)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -255,7 +269,7 @@ class EventFlowTests {
             EventType.PLANNED to Date()), eCMRuriExample, Milestone.START, sampleEvent, UniqueIdentifier().id.toString()
         )
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
-        val flow = NewEventFlow("", countriesInvolved)
+        val flow = NewEventFlow("", existingCountries)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -268,7 +282,7 @@ class EventFlowTests {
             EventType.PLANNED to Date()), eCMRuriExample, Milestone.START, sampleEvent, UniqueIdentifier().id.toString()
         )
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
-        val flow = NewEventFlow("", countriesInvolved)
+        val flow = NewEventFlow("", existingCountries)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -279,7 +293,7 @@ class EventFlowTests {
     @Test
     fun `Simple flow start and update event`() {
         // digitalTwinsGoodsAndTransportStartEvent
-        val flowStart = NewEventFlow("", countriesInvolved)
+        val flowStart = NewEventFlow("", existingCountries)
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
@@ -303,7 +317,7 @@ class EventFlowTests {
     @Test
     fun `Simple flow start and update and execute event`() {
         // digitalTwinsGoodsAndTransportStartEvent
-        val flowStart = NewEventFlow("", countriesInvolved)
+        val flowStart = NewEventFlow("", existingCountries)
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
@@ -339,7 +353,7 @@ class EventFlowTests {
     @Test
     fun `Simple flow start and execution of stop event`() {
         // digitalTwinsGoodsAndTransportStartEvent
-        val flowStart = NewEventFlow("", countriesInvolved)
+        val flowStart = NewEventFlow("", existingCountries)
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
@@ -347,7 +361,7 @@ class EventFlowTests {
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
         // digitalTwinsGoodsAndTransportStopEvent
-        val flowStop = NewEventFlow("", countriesInvolved)
+        val flowStop = NewEventFlow("", existingCountries)
         val futureStop = a.startFlow(flowStop)
         network.runNetwork()
 
@@ -383,7 +397,7 @@ class EventFlowTests {
     @Test
     fun `failed stop event after execution with just planned start event`() {
         // digitalTwinsGoodsAndTransportStartEvent
-        val flowStart = NewEventFlow("", countriesInvolved)
+        val flowStart = NewEventFlow("", existingCountries)
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
@@ -391,7 +405,7 @@ class EventFlowTests {
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
         // digitalTwinsGoodsAndTransportStopEvent
-        val flowStop = NewEventFlow("", countriesInvolved)
+        val flowStop = NewEventFlow("", existingCountries)
         val futureStop = a.startFlow(flowStop)
         network.runNetwork()
 

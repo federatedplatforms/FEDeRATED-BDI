@@ -61,6 +61,7 @@ allprojects { //Properties that you need to compile your project (The applicatio
         // This makes the JAR's SHA-256 hash repeatable.
         preserveFileTimestamps = false
         reproducibleFileOrder = true
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 }
 
@@ -96,6 +97,12 @@ dependencies {
     cordaCompile "org.apache.logging.log4j:log4j-slf4j-impl:${log4j_version}"
     cordaCompile "org.apache.logging.log4j:log4j-web:${log4j_version}"
     cordaCompile "org.slf4j:jul-to-slf4j:$slf4j_version"
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
 }
 
 //Task to build the jar for ganache.
@@ -135,6 +142,62 @@ task deploySingleNode(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     }
 }
 
+//Task to deploy the nodes in order to bootstrap a network
+task deployNodesForServers(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
+
+    /* This property will load the CorDapps to each of the node by default, including the Notary. You can find them
+     * in the cordapps folder of the node at build/nodes/Notary/cordapps. However, the notary doesn't really understand
+     * the notion of cordapps. In production, Notary does not need cordapps as well. This is just a short cut to load
+     * the Corda network bootstrapper.
+     */
+    nodeDefaults {
+        projectCordapp {
+            deploy = false
+        }
+        cordapp project(':contracts')
+        cordapp project(':workflows')
+        runSchemaMigration = false //This configuration is for any CorDapps with custom schema, We will leave this as true to avoid
+        //problems for developers who are not familiar with Corda. If you are not using custom schemas, you can change
+        //it to false for quicker project compiling time.
+    }
+    node {
+        name "O=Notary,L=Luxemburg,C=LU,OU=Notary"
+        notary = [validating : false]
+        p2pAddress "federated.sensorlab.tno.nl:10002"
+        rpcSettings {
+            address("localhost:10003")
+            adminAddress("localhost:10043")
+        }
+    }
+    node {
+        name "O=Netherlands,L=Soesterberg,C=NL,OU=MS"
+        p2pAddress "federated.sensorlab.tno.nl:10005"
+        rpcSettings {
+            address("localhost:10006")
+            adminAddress("localhost:10046")
+        }
+        rpcUsers = [[ user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
+    }
+    node {
+        name "O=Planet Express,L=Den Haag,C=DE,OU=LSP"
+        p2pAddress "40.119.132.179:10008"
+        rpcSettings {
+            address("localhost:10009")
+            adminAddress("localhost:10049")
+        }
+        rpcUsers = [[ user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
+    }
+    node {
+        name "O=Belgium,L=Brussels,C=BE,OU=MS"
+        p2pAddress "40.119.132.179:10011"
+        rpcSettings {
+            address("localhost:10012")
+            adminAddress("localhost:10052")
+        }
+        rpcUsers = [[ user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
+    }
+
+}
 //Task to deploy the nodes in order to bootstrap a network
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
 
