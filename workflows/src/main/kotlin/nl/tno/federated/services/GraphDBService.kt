@@ -38,7 +38,10 @@ object GraphDBService {
         return URI("$protocol://$host:$port/repositories/$repository")
     }
 
-    fun isDataValid(eventState: EventState): Boolean { // TODO ideally match eventstate contents to its eventString too
+    fun isDataValid(eventState: EventState): Boolean {
+        // TODO ideally match eventstate contents to its eventString too but:
+        // caveat: with new implementation of timestamp the corda state differs from RDF data as for timestamp
+        // to take this into account, the comparison should account for just the *last* added timestamp
         val sparql = ""
         val result = performSparql(sparql, RequestMethod.GET)
         return "fail" !in result
