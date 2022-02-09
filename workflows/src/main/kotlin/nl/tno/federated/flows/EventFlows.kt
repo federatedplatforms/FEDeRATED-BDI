@@ -66,14 +66,13 @@ class NewEventFlow(
 
         // Retrieving counterparties (sending to all nodes, for now)
         val me = serviceHub.myInfo.legalIdentities.first()
-        val counterParties : MutableList<Party?> = mutableListOf()
+        val counterParties : MutableList<Party> = mutableListOf()
         countriesInvolved.forEach { involvedCountry ->
             counterParties.add(serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
-                .firstOrNull { it.name.country == involvedCountry })
+                .first { it.name.country == involvedCountry })
         }
-        require(!counterParties.contains(null)) { "One of the requested counterparties was not found"}
 
-        val allParties = counterParties.map { it!! } + mutableListOf(notary, me)
+        val allParties = counterParties + mutableListOf(notary, me)
 
         val newEvent = GraphDBService.parseRDFToEvents(fullEvent).first()
 
@@ -128,7 +127,7 @@ class NewEventFlow(
                 // Stage 4.
                 progressTracker.currentStep = GATHERING_SIGS
                 // Send the state to the counterparty, and receive it back with their signature.
-                val otherPartySessions = counterParties.map { initiateFlow(it!!) }
+                val otherPartySessions = counterParties.map { initiateFlow(it) }
                 val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, otherPartySessions, GATHERING_SIGS.childProgressTracker()))
 
                 // Stage 5.
@@ -168,11 +167,11 @@ class NewEventFlow(
                 // Sign the transaction.
                 val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
 
-                // Stage 4.
-                progressTracker.currentStep = GATHERING_SIGS
-                // Send the state to the counterparty, and receive it back with their signature.
-                val otherPartySessions = counterParties.map { initiateFlow(it!!) }
-                val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, otherPartySessions, GATHERING_SIGS.childProgressTracker()))
+        // Stage 4.
+        progressTracker.currentStep = GATHERING_SIGS
+        // Send the state to the counterparty, and receive it back with their signature.
+        val otherPartySessions = counterParties.map { initiateFlow(it) }
+        val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, otherPartySessions, GATHERING_SIGS.childProgressTracker()))
 
                 // Stage 5.
                 progressTracker.currentStep = FINALISING_TRANSACTION
@@ -229,12 +228,11 @@ class NewEventFlow(
                 // Sign the transaction.
                 val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
 
-                // Stage 4.
-                progressTracker.currentStep = GATHERING_SIGS
-                // Send the state to the counterparty, and receive it back with their signature.
-                val otherPartySessions = counterParties.map { initiateFlow(it!!) }
-                val fullySignedTx =
-                        subFlow(CollectSignaturesFlow(partSignedTx, otherPartySessions, GATHERING_SIGS.childProgressTracker()))
+        // Stage 4.
+        progressTracker.currentStep = GATHERING_SIGS
+        // Send the state to the counterparty, and receive it back with their signature.
+        val otherPartySessions = counterParties.map { initiateFlow(it) }
+        val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, otherPartySessions, GATHERING_SIGS.childProgressTracker()))
 
                 // Stage 5.
                 progressTracker.currentStep = FINALISING_TRANSACTION
