@@ -44,8 +44,11 @@ dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     testImplementation "junit:junit:$junit_version"
     testImplementation("io.mockk:mockk:1.9.3")
-    implementation platform("org.eclipse.rdf4j:rdf4j-bom:3.7.4")
-    implementation("org.eclipse.rdf4j:rdf4j-rio-turtle")
+//    implementation platform("org.eclipse.rdf4j:rdf4j-bom:3.7.4")
+
+    // Replacing the below deprecated 'compile' with 'implementation' breaks the cordapp at runtime.
+    // Retry at Corda >=5.
+    compile "org.eclipse.rdf4j:rdf4j-rio-turtle:3.7.4"
 
     // Corda dependencies.
     cordaCompile "$corda_core_release_group:corda-core:$corda_core_release_version"
@@ -54,6 +57,7 @@ dependencies {
 
     // CorDapp dependencies.
     cordapp project(":contracts")
+
 }
 
 task integrationTest(type: Test, dependsOn: []) {
