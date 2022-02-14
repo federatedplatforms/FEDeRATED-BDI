@@ -229,11 +229,11 @@ class NewEventFlow(
                 // Sign the transaction.
                 val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
 
-        // Stage 4.
-        progressTracker.currentStep = GATHERING_SIGS
-        // Send the state to the counterparty, and receive it back with their signature.
-        val otherPartySessions = counterParties.map { initiateFlow(it!!) }
-        val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, otherPartySessions, GATHERING_SIGS.childProgressTracker()))
+                // Stage 4.
+                progressTracker.currentStep = GATHERING_SIGS
+                // Send the state to the counterparty, and receive it back with their signature.
+                val otherPartySessions = counterParties.map { initiateFlow(it!!) }
+                val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, otherPartySessions, GATHERING_SIGS.childProgressTracker()))
 
                 // Stage 5.
                 progressTracker.currentStep = FINALISING_TRANSACTION

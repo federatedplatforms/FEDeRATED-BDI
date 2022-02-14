@@ -204,6 +204,24 @@ task deployNodesForServers(type: net.corda.plugins.Cordform, dependsOn: ['jar'])
         rpcUsers = [[ user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
     }
 
+    doLast {
+        copy {
+            from 'workflows/src/main/resources/database.properties'
+            into "build/nodes/Netherlands_MS"
+        }
+        copy {
+            from 'workflows/src/main/resources/database.properties'
+            into "build/nodes/Belgium_MS"
+        }
+        copy {
+            from 'workflows/src/main/resources/database.properties'
+            into "build/nodes/Notary_Notary"
+        }
+        copy {
+            from 'workflows/src/main/resources/database.properties'
+            into "build/nodes/PlanetExpress_LSP"
+        }
+    }
 }
 //Task to deploy the nodes in order to bootstrap a network
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
@@ -278,5 +296,4 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
             into "build/nodes/PlanetExpress_LSP"
         }
     }
-
 }
