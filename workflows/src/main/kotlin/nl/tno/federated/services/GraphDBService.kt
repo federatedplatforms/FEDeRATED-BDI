@@ -38,7 +38,10 @@ object GraphDBService {
         return URI("$protocol://$host:$port/repositories/$repository")
     }
 
-    fun isDataValid(eventState: EventState): Boolean { // TODO ideally match eventstate contents to its eventString too
+    fun isDataValid(eventState: EventState): Boolean {
+        // TODO ideally match eventstate contents to its eventString too but:
+        // caveat: with new implementation of timestamp the corda state differs from RDF data as for timestamp
+        // to take this into account, the comparison should account for just the *last* added timestamp
         val sparql = ""
         val result = performSparql(sparql, RequestMethod.GET)
         return "fail" !in result
@@ -144,11 +147,10 @@ object GraphDBService {
             transportMean = transportMeans,
             location = locationsFromModel(model, eventId),
             otherDigitalTwins = otherDigitalTwins,
-            timestamps = timestampFromModel(model, eventId),
+            timestamps = setOf(timestampFromModel(model, eventId)),
             ecmruri = "ecmruri", // TODO?
             milestone = milestoneFromModel(model, eventId),
-            fullEvent = fullEventFromModel(model, eventId),
-            id = uuidFromModel(eventId).toString()
+            fullEvent = fullEventFromModel(model, eventId)
         )
     }
 
@@ -188,7 +190,7 @@ object GraphDBService {
     private fun timestampFromModel(
         model: Model,
         eventId: String
-    ): LinkedHashMap<EventType, Date> {
+    ): Timestamp {
         val factory = SimpleValueFactory.getInstance()
         val timestampType = model.filter(
             factory.createIRI(eventId),
@@ -212,7 +214,7 @@ object GraphDBService {
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
         val timestamp = timestamps.first() as SimpleLiteral
         val eventDate = formatter.parse(timestamp.label)
-        return linkedMapOf(eventType to eventDate)
+        return Timestamp(uuidFromModel(eventId).toString(), eventDate, eventType)
     }
 
     private fun digitalTwinsFromModel(

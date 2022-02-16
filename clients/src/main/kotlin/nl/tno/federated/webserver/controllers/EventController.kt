@@ -60,45 +60,6 @@ class EventController(rpc: NodeRPCConnection) {
             }
     }
 
-    @ApiOperation(value = "Update an event estimated time")
-    @PutMapping(value = ["/updatetime"])
-    private fun updateEvent(@RequestBody eventId: String, time: Date, accessToken: String): ResponseEntity<String> {
-
-        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
-
-        return try {
-                val updateEventTx = proxy.startFlowDynamic(
-                        UpdateEstimatedTimeFlow::class.java,
-                        eventId,
-                        time
-                ).returnValue.get()
-                val createdEventId = (updateEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
-                ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
-            } catch (e: Exception) {
-                return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
-            }
-    }
-
-    @ApiOperation(value = "Execute an event")
-    @PutMapping(value = ["/execute"])
-    private fun executeEvent(@RequestBody eventId: String, time: Date, accessToken: String): ResponseEntity<String> {
-
-        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
-
-        return try {
-                val executeEventTx = proxy.startFlowDynamic(
-                        ExecuteEventFlow::class.java,
-                        eventId,
-                        time
-                ).returnValue.get()
-                val createdEventId = (executeEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
-                ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
-            } catch (e: Exception) {
-                return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
-            }
-    }
-
-
     @ApiOperation(value = "Return all known events")
     @GetMapping(value = [""])
     private fun events(accessToken: String) : Map<UUID, Event> {
@@ -264,8 +225,7 @@ class EventController(rpc: NodeRPCConnection) {
                 it.timestamps,
                 it.ecmruri,
                 it.milestone,
-                it.fullEvent,
-                it.linearId.externalId ?: it.linearId.id.toString()
+                it.fullEvent
             )
         }
 }

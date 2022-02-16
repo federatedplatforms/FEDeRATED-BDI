@@ -21,13 +21,13 @@ data class EventState(
     override val transportMean: Set<UUID>,
     override val location: Set<String>,
     override val otherDigitalTwins: Set<UUID>,
-    override val timestamps: LinkedHashMap<EventType, Date>,
+    override val timestamps: Set<Timestamp>,
     override val ecmruri: String,
     override val milestone: Milestone,
     override val fullEvent: String,
     override val participants: List<AbstractParty> = listOf(),
     override val linearId: UniqueIdentifier = UniqueIdentifier()
-) : LinearState, Event(goods, transportMean, location, otherDigitalTwins, timestamps, ecmruri, milestone, fullEvent, linearId.externalId ?: linearId.id.toString()), QueryableState {
+) : LinearState, Event(goods, transportMean, location, otherDigitalTwins, timestamps, ecmruri, milestone, fullEvent), QueryableState {
 
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         if (schema is EventSchemaV1) {
@@ -96,45 +96,20 @@ enum class EventType {
     PLANNED, ESTIMATED, ACTUAL
 }
 
+@CordaSerializable
+data class Timestamp (
+        val id: String,
+        val time: Date,
+        val type: EventType
+        )
+
 open class Event(
     open val goods: Set<UUID>,
     open val transportMean: Set<UUID>,
     open val location: Set<String>,
     open val otherDigitalTwins: Set<UUID>,
-    open val timestamps: LinkedHashMap<EventType, Date>,
+    open val timestamps: Set<Timestamp>,
     open val ecmruri: String,
     open val milestone: Milestone,
-    open val fullEvent: String,
-    open val id: String
+    open val fullEvent: String
 )
-
-fun <K, V> LinkedHashMap<K, V>.last(): Pair<K, V> {
-    if (this.isEmpty()) throw NoSuchElementException("Map is empty.")
-    val lastKey = this.keys.last()
-    return Pair(lastKey, this[lastKey]!!)
-}
-
-fun <K, V> LinkedHashMap<K, V>.single(): Pair<K,V> {
-    return when (size) {
-        0 -> throw NoSuchElementException("Map is empty.")
-        1 -> this.first()
-        else -> throw IllegalArgumentException("Map has more than one element.")
-    }
-}
-
-fun <K, V> LinkedHashMap<K, V>.first(): Pair<K, V> {
-    if (this.isEmpty()) throw NoSuchElementException("Map is empty.")
-    return Pair(this.keys.iterator().next(), this.values.iterator().next())
-}
-
-
-fun <K, V> java.util.LinkedHashMap<K, V>.numberOfDifferingEntries(other: java.util.LinkedHashMap<K, V>): Int {
-    var differing = 0
-    other.forEach { (k, v) -> if (!this.containsKey(k) || this[k] != v) differing++ }
-    return differing
-}
-
-fun <K, V> LinkedHashMap<K, V>.removeLast(): LinkedHashMap<K, V> {
-    this.remove(this.last().first)
-    return this
-}
