@@ -301,46 +301,40 @@ class GraphDBServiceTests {
         assertEquals("f223c17c-c3ab-4871-9b78-3536d121925c", parsedEvent.timestamps.single().id)
     }
 
-    // This test fails because of (supposedly) something wrong with the prefixes
-    @Ignore("Until more flexibility is introduced in the parser")
     @Test
     fun `Parse event - 6`() {
         val testRdfEvent = """
+            @prefix : <https://ontology.tno.nl/logistics/federated/Event#> .
             @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
             @prefix owl: <http://www.w3.org/2002/07/owl#>.
             @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
             @prefix sd: <http://www.w3.org/ns/sparql-service-description#>.
-            @prefix data: <https://ontology.tno.nl/logistics/federated/hessing#>.
             @prefix event: <https://ontology.tno.nl/logistics/federated/Event#>.
             @prefix dt: <https://ontology.tno.nl/logistics/federated/digitalTwin#>.
             @prefix bs: <https://ontology.tno.nl/logistics/federated/businessService#>.
             @prefix pi: <https://ontology.tno.nl/logistics/federated/physicalInfrastructure#>.
             @prefix cl: <https://ontology.tno.nl/logistics/federated/Classifications#>.
             
-            
-            data:event-41068e69-4be0-11ec-a52a-5c879c8043a5 a event:Event, event:ArrivalEvent;
+            :event-41068e69-4be0-11ec-a52a-5c879c8043a5 a event:Event, event:ArrivalEvent;
                 event:hasMilestone event:Start;
                 event:hasDateTimeType event:Planned;
                 event:hasTimestamp "2021-11-10T08:44:07Z"^^xsd:dateTime;
-                event:involvesDigitalTwin data:DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f;
-                event:involvesPhysicalInfrastructure data:PhysicalInfrastructure-be989099-2e25-3259-975b-9f17c63b0281.
+                event:involvesDigitalTwin :DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f;
+                event:involvesPhysicalInfrastructure :PhysicalInfrastructure-be989099-2e25-3259-975b-9f17c63b0281.
             
-            data:DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f a dt:TransportMeans, owl:NamedIndividual.
+            :DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f a dt:TransportMeans, owl:NamedIndividual.
             """.trimIndent()
 
         val parsedEvent = GraphDBService.parseRDFToEvents(testRdfEvent).single()
 
-        assertEquals("dce1774a-b2a1-338e-bd56-1902c57f836f", parsedEvent.transportMean.single().toString())
+        assertEquals("dce1774a-b2a1-338e-bd56-1902c57f836f", parsedEvent.otherDigitalTwins.single().toString())
         assertEquals("be989099-2e25-3259-975b-9f17c63b0281", parsedEvent.location.single().toString())
 
         assertEquals(EventType.PLANNED, parsedEvent.timestamps.single().type)
 
-//        assertEquals(1636533847000, parsedEvent.timestamps.single().time.time)
-        println("TIMESTAMPS")
-        println(parsedEvent.timestamps.size)
-        println(parsedEvent.timestamps.single())
+        assertEquals(1636533847000, parsedEvent.timestamps.single().time.time)
         assertEquals(Milestone.START, parsedEvent.milestone)
-//        assertEquals("f223c17c-c3ab-4871-9b78-3536d121925c", parsedEvent.timestamps.single().id)
+        assertEquals("41068e69-4be0-11ec-a52a-5c879c8043a5", parsedEvent.timestamps.single().id)
     }
 
     @Test
