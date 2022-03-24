@@ -81,6 +81,9 @@ test {
     testLogging {
         events "passed", "skipped", "failed", "standardOut", "standardError"
     }
+    test {
+        maxHeapSize = "4096m"
+    }
 }
 
 //Module dependencies
@@ -295,5 +298,13 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
             from 'workflows/src/main/resources/database.properties'
             into "build/nodes/PlanetExpress_LSP"
         }
+    }
+}
+
+
+task installQuasar(type: Copy) {
+    destinationDir rootProject.file("lib")
+    from(configurations.quasar) {
+        rename 'quasar-core(.*).jar', 'quasar.jar'
     }
 }
