@@ -174,8 +174,11 @@ class EventFlowTests {
     fun `Start and stop event`() {
         val goods = setOf(UniqueIdentifier().id)
         val transportMean = setOf(UniqueIdentifier().id)
+        val otherDigitalTwins = setOf(UniqueIdentifier().id, UniqueIdentifier().id)
+
         val startEvent = Event(goods,
-            transportMean, emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
+            transportMean, emptySet(),
+            otherDigitalTwins, setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(startEvent)
 
         val flowStart = NewEventFlow("unused event", countriesInvolved)
@@ -185,7 +188,8 @@ class EventFlowTests {
         val signedTxStart = futureStart.getOrThrow()
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
-        val stopEvent = Event(goods, transportMean, emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.STOP, sampleEvent)
+        val stopEvent = Event(goods, transportMean, emptySet(),
+            otherDigitalTwins, setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.STOP, sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(stopEvent)
         val flowStop = NewEventFlow("unused event", countriesInvolved)
         val futureStop = a.startFlow(flowStop)
