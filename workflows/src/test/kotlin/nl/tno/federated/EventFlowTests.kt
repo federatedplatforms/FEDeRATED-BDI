@@ -14,12 +14,13 @@ import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
-import nl.tno.federated.flows.*
+import nl.tno.federated.flows.DigitalTwinPair
+import nl.tno.federated.flows.NewEventFlow
+import nl.tno.federated.flows.NewEventResponder
 import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.states.*
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import java.util.*
 import kotlin.test.assertFailsWith
@@ -104,6 +105,27 @@ class EventFlowTests {
     @Test
     fun `Start event with goods and transport`() {
         val event = Event(setOf(UniqueIdentifier().id), setOf(UniqueIdentifier().id), emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
+        every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
+        val flow = NewEventFlow("unused event", countriesInvolved)
+        val future = a.startFlow(flow)
+        network.runNetwork()
+
+        val signedTx = future.getOrThrow()
+        signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+    }
+
+    @Test
+    fun `Start event with other DTs`() {
+        val event = Event(
+            goods = emptySet(),
+            transportMean = emptySet(),
+            location = emptySet(),
+            otherDigitalTwins = setOf(UniqueIdentifier().id, UniqueIdentifier().id),
+            timestamps = setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)),
+            ecmruri = eCMRuriExample,
+            milestone = Milestone.START,
+            fullEvent = sampleEvent
+        )
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
         val flow = NewEventFlow("unused event", countriesInvolved)
         val future = a.startFlow(flow)
