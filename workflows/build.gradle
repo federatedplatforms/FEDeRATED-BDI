@@ -63,3 +63,7 @@ task integrationTest(type: Test, dependsOn: []) {
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
 }
+
+test {
+    maxHeapSize = "4096m"
+}
