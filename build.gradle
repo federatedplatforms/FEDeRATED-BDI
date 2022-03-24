@@ -81,9 +81,6 @@ test {
     testLogging {
         events "passed", "skipped", "failed", "standardOut", "standardError"
     }
-    test {
-        maxHeapSize = "4096m"
-    }
 }
 
 //Module dependencies
