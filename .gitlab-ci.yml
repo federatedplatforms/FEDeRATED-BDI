@@ -42,7 +42,6 @@ build-l1:
     - corda
   stage: build
   script:
-    - cd clients
     - ./gradlew bootJar
   artifacts:
     paths:
