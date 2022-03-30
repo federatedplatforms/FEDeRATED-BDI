@@ -60,7 +60,7 @@ class NewEventFlow(
      */
     @Suspendable
     override fun call(): SignedTransaction {
-        val notary = serviceHub.networkMapCache.notaryIdentities.single() // METHOD 1
+        val notary = serviceHub.networkMapCache.notaryIdentities.first()
 
         // Stage 1.
         progressTracker.currentStep = GENERATING_TRANSACTION
