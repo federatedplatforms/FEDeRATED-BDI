@@ -59,7 +59,7 @@ class CreateAccessPolicyFlow(
 
         progressTracker.currentStep = GENERATING_TRANSACTION
 
-        val notary = serviceHub.networkMapCache.notaryIdentities.single()
+        val notary = serviceHub.networkMapCache.notaryIdentities.first()
         val me = serviceHub.myInfo.legalIdentities.first()
         val allParties = serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities } - notary
         val counterParties = allParties - me
