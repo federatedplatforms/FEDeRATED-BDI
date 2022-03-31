@@ -2,7 +2,6 @@ package nl.tno.federated.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command
-import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.identity.Party
@@ -18,8 +17,10 @@ import nl.tno.federated.services.GraphDBService.generalSPARQLquery
 import nl.tno.federated.services.GraphDBService.insertEvent
 import nl.tno.federated.services.GraphDBService.isDataValid
 import nl.tno.federated.services.GraphDBService.queryEventById
-import nl.tno.federated.states.*
-import java.util.*
+import nl.tno.federated.states.EventState
+import nl.tno.federated.states.EventType
+import nl.tno.federated.states.Milestone
+import nl.tno.federated.states.PhysicalObject
 
 @InitiatingFlow
 @StartableByRPC
@@ -59,7 +60,7 @@ class NewEventFlow(
      */
     @Suspendable
     override fun call(): SignedTransaction {
-        val notary = serviceHub.networkMapCache.notaryIdentities.single() // METHOD 1
+        val notary = serviceHub.networkMapCache.notaryIdentities.first()
 
         // Stage 1.
         progressTracker.currentStep = GENERATING_TRANSACTION
@@ -99,7 +100,7 @@ class NewEventFlow(
                         goods = newEvent.goods,
                         transportMean = newEvent.transportMean,
                         location = newEvent.location,
-                        otherDigitalTwins = emptySet(),
+                        otherDigitalTwins = newEvent.otherDigitalTwins,
                         timestamps = newEvent.timestamps,
                         ecmruri = newEvent.ecmruri,
                         milestone = newEvent.milestone,

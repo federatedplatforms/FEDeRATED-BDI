@@ -55,7 +55,7 @@ class CreateCargoFlow(
 
         progressTracker.currentStep = GENERATING_TRANSACTION
 
-        val notary = serviceHub.networkMapCache.notaryIdentities.single()
+        val notary = serviceHub.networkMapCache.notaryIdentities.first()
         val me = serviceHub.myInfo.legalIdentities.first()
 
 
@@ -138,7 +138,7 @@ class CreateTruckFlow(
 
         progressTracker.currentStep = GENERATING_TRANSACTION
 
-        val notary = serviceHub.networkMapCache.notaryIdentities.single()
+        val notary = serviceHub.networkMapCache.notaryIdentities.first()
         val me = serviceHub.myInfo.legalIdentities.first()
 
 
