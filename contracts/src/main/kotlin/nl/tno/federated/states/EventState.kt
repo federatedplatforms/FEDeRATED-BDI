@@ -113,3 +113,8 @@ open class Event(
     open val milestone: Milestone,
     open val fullEvent: String
 )
+
+@CordaSerializable
+enum class PhysicalObject {
+    CARGO, TRANSPORTMEAN, OTHER, GOOD, LOCATION
+}
