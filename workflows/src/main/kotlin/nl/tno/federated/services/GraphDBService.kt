@@ -1,6 +1,7 @@
 package nl.tno.federated.services
 
 import nl.tno.federated.states.*
+import org.eclipse.rdf4j.common.text.StringUtil.trimDoubleQuotes
 import org.eclipse.rdf4j.model.Model
 import org.eclipse.rdf4j.model.impl.LinkedHashModel
 import org.eclipse.rdf4j.model.impl.SimpleLiteral
@@ -15,7 +16,6 @@ import java.net.URL
 import java.nio.charset.StandardCharsets.UTF_8
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.LinkedHashMap
 
 
 object GraphDBService {
@@ -150,8 +150,19 @@ object GraphDBService {
             timestamps = setOf(timestampFromModel(model, eventId)),
             ecmruri = "ecmruri", // TODO?
             milestone = milestoneFromModel(model, eventId),
-            fullEvent = fullEventFromModel(model, eventId)
+            fullEvent = fullEventFromModel(model, eventId),
+            labels = labelFromModel(model, eventId)
         )
+    }
+
+    private fun labelFromModel(model: Model, eventId: String): Set<String> {
+        val factory = SimpleValueFactory.getInstance()
+        val labels = model.filter(
+            factory.createIRI(eventId),
+            factory.createIRI("http://www.w3.org/2000/01/rdf-schema#label"),
+            null
+        )
+        return labels.objects().mapTo(HashSet<String>()) { trimDoubleQuotes(it.toString()) }
     }
 
     private fun locationsFromModel(model: Model, eventId: String): Set<String> {

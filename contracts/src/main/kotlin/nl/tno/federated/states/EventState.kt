@@ -10,7 +10,6 @@ import net.corda.core.schemas.QueryableState
 import net.corda.core.serialization.CordaSerializable
 import nl.tno.federated.contracts.EventContract
 import java.util.*
-import kotlin.collections.LinkedHashMap
 
 // *********
 // * State *
@@ -25,9 +24,10 @@ data class EventState(
     override val ecmruri: String,
     override val milestone: Milestone,
     override val fullEvent: String,
+    override val labels: Set<String> = emptySet(),
     override val participants: List<AbstractParty> = listOf(),
     override val linearId: UniqueIdentifier = UniqueIdentifier()
-) : LinearState, Event(goods, transportMean, location, otherDigitalTwins, timestamps, ecmruri, milestone, fullEvent), QueryableState {
+) : LinearState, Event(goods, transportMean, location, otherDigitalTwins, timestamps, ecmruri, milestone, fullEvent, labels), QueryableState {
 
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         if (schema is EventSchemaV1) {
@@ -111,7 +111,8 @@ open class Event(
     open val timestamps: Set<Timestamp>,
     open val ecmruri: String,
     open val milestone: Milestone,
-    open val fullEvent: String
+    open val fullEvent: String,
+    open val labels: Set<String> = emptySet()
 )
 
 @CordaSerializable
