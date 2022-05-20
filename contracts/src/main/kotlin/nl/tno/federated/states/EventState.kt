@@ -24,9 +24,9 @@ data class EventState(
     override val ecmruri: String,
     override val milestone: Milestone,
     override val fullEvent: String,
-    override val labels: Set<String> = emptySet(),
     override val participants: List<AbstractParty> = listOf(),
-    override val linearId: UniqueIdentifier = UniqueIdentifier()
+    override val linearId: UniqueIdentifier = UniqueIdentifier(),
+    override val labels: Set<String> = emptySet()
 ) : LinearState, Event(goods, transportMean, location, otherDigitalTwins, timestamps, ecmruri, milestone, fullEvent, labels), QueryableState {
 
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
