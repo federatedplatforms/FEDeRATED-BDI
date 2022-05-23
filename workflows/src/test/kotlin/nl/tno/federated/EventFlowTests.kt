@@ -200,43 +200,6 @@ class EventFlowTests {
     }
 
     @Test
-    fun `Stop event fails without start event`() {
-        val stopEvent = Event(setOf(UniqueIdentifier().id), setOf(UniqueIdentifier().id), emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.STOP, sampleEvent)
-        every { GraphDBService.parseRDFToEvents(any()) } returns listOf(stopEvent)
-
-        val flowStop = NewEventFlow("unused event", countriesInvolved)
-        val futureStop = a.startFlow(flowStop)
-        network.runNetwork()
-
-        assertFailsWith<TransactionVerificationException> { futureStop.getOrThrow() }
-    }
-
-    @Test
-    fun `Stop event fails without relevant start event`() {
-        val goods = setOf(UniqueIdentifier().id)
-        val transportMean = setOf(UniqueIdentifier().id)
-        val startEvent = Event(goods,
-            transportMean, emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
-        every { GraphDBService.parseRDFToEvents(any()) } returns listOf(startEvent)
-//        val flowStart = NewEventFlow(digitalTwinsTransportAndLocationStartEvent, countriesInvolved)
-        val flowStart = NewEventFlow("unused event", countriesInvolved)
-        val futureStart = a.startFlow(flowStart)
-        network.runNetwork()
-
-        val signedTxStart = futureStart.getOrThrow()
-        signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
-
-        val otherGoods = setOf(UniqueIdentifier().id)
-        val stopEvent = Event(otherGoods, transportMean, emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.STOP, sampleEvent)
-        every { GraphDBService.parseRDFToEvents(any()) } returns listOf(stopEvent)
-        val flowStop = NewEventFlow("unused event", countriesInvolved)
-        val futureStop = a.startFlow(flowStop)
-        network.runNetwork()
-
-        assertFailsWith<TransactionVerificationException> { futureStop.getOrThrow() }
-    }
-
-    @Test
     fun `Duplicate start events fail`() {
         val event = Event(setOf(), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
@@ -265,28 +228,6 @@ class EventFlowTests {
 
         val signedTx = future.getOrThrow()
         signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
-    }
-
-    @Test
-    fun `fail flow transaction because too many goods`() {
-        val event = Event(setOf(UniqueIdentifier().id, UniqueIdentifier().id), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
-        every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
-        val flow = NewEventFlow("", countriesInvolved)
-        val future = a.startFlow(flow)
-        network.runNetwork()
-
-        assertFailsWith<TransactionVerificationException> { future.getOrThrow() }
-    }
-
-    @Test
-    fun `fail flow transaction because goods are linked to locations`() {
-        val event = Event(setOf(UniqueIdentifier().id), setOf(), setOf("some location"), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
-        every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
-        val flow = NewEventFlow("", countriesInvolved)
-        val future = a.startFlow(flow)
-        network.runNetwork()
-
-        assertFailsWith<TransactionVerificationException> { future.getOrThrow() }
     }
 
     @Test
@@ -405,45 +346,6 @@ class EventFlowTests {
 
         val signedTxExec = futureExecuted.getOrThrow()
         signedTxExec.verifySignaturesExcept(a.info.singleIdentity().owningKey)
-    }
-
-    @Test
-    fun `failed stop event after execution with just planned start event`() {
-
-        // Create first START event
-        val goodUUID = UniqueIdentifier().id
-        val transportMeanUUID = UniqueIdentifier().id
-        val event = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
-
-        every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
-
-        val flowStart = NewEventFlow("", countriesInvolved)
-        val futureStart = a.startFlow(flowStart)
-        network.runNetwork()
-
-        val signedTxStart = futureStart.getOrThrow()
-        signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
-
-        // Create corresponding STOP event
-        val stopEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.STOP, sampleEvent)
-        every { GraphDBService.parseRDFToEvents(any()) } returns listOf(stopEvent)
-
-        val flowStopped = NewEventFlow("", countriesInvolved)
-        val futureUpdated = a.startFlow(flowStopped)
-        network.runNetwork()
-
-        val signedTxStop = futureUpdated.getOrThrow()
-        signedTxStop.verifySignaturesExcept(a.info.singleIdentity().owningKey)
-
-        // Execute STOP event
-        val executedEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), eCMRuriExample, Milestone.STOP, sampleEvent)
-        every { GraphDBService.parseRDFToEvents(any()) } returns listOf(executedEvent)
-
-        val flowExecuted = NewEventFlow("", countriesInvolved)
-        val futureExecuted = a.startFlow(flowExecuted)
-        network.runNetwork()
-
-        assertFailsWith<TransactionVerificationException> { futureExecuted.getOrThrow() }
     }
 
     @Test
