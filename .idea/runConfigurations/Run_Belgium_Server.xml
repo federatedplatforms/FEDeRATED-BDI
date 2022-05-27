@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Run Template Server" type="JetRunConfigurationType" singleton="true">
+  <configuration default="false" name="Run Belgium Server" type="JetRunConfigurationType">
     <envs>
       <env name="server.port" value="10050" />
       <env name="config.rpc.host" value="localhost" />
-      <env name="config.rpc.port" value="10006" />
+      <env name="config.rpc.port" value="10012" />
       <env name="config.rpc.username" value="user1" />
       <env name="config.rpc.password" value="vzzuABeCut3jGoJfEp94" />
     </envs>

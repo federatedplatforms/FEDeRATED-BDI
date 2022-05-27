@@ -1,5 +1,6 @@
 package nl.tno.federated
 
+import com.google.common.collect.testing.Helpers.assertContainsAllOf
 import net.corda.core.contracts.UniqueIdentifier
 import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.states.EventState
@@ -402,5 +403,36 @@ class GraphDBServiceTests {
             participants = emptyList()
         )
         assert(GraphDBService.isDataValid(eventState))
+    }
+
+    @Test
+    fun `parse labels`() {
+        val testRdfEvent = """
+            @prefix : <https://ontology.tno.nl/logistics/federated/Event#> .
+            @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+            @prefix owl: <http://www.w3.org/2002/07/owl#>.
+            @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+            @prefix sd: <http://www.w3.org/ns/sparql-service-description#>.
+            @prefix event: <https://ontology.tno.nl/logistics/federated/Event#>.
+            @prefix dt: <https://ontology.tno.nl/logistics/federated/digitalTwin#>.
+            @prefix bs: <https://ontology.tno.nl/logistics/federated/businessService#>.
+            @prefix pi: <https://ontology.tno.nl/logistics/federated/physicalInfrastructure#>.
+            @prefix cl: <https://ontology.tno.nl/logistics/federated/Classifications#>.
+            
+            :event-41068e69-4be0-11ec-a52a-5c879c8043a5 a event:Event;
+                rdfs:label "GateOut test"^^xsd:string, "insuranceEvent"^^xsd:string;
+                event:hasMilestone event:Start;
+                event:hasDateTimeType event:Planned;
+                event:hasTimestamp "2021-11-10T08:44:07Z"^^xsd:dateTime;
+                event:involvesDigitalTwin :DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f;
+                event:involvesPhysicalInfrastructure :PhysicalInfrastructure-be989099-2e25-3259-975b-9f17c63b0281.
+            
+            :DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f a dt:TransportMeans, owl:NamedIndividual.
+            """.trimIndent()
+
+        val parsedEvent = GraphDBService.parseRDFToEvents(testRdfEvent).single()
+
+        assertEquals(2, parsedEvent.labels.size)
+        assertContainsAllOf(parsedEvent.labels, "GateOut test", "insuranceEvent")
     }
 }

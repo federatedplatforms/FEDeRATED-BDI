@@ -28,6 +28,7 @@ class EventContract : Contract {
         class Create : Commands
         class UpdateEstimatedTime : Commands
         class ExecuteEvent : Commands
+        class AccidentEvent : Commands
     }
 }
 

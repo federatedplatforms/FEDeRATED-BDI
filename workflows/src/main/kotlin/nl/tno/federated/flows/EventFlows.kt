@@ -67,12 +67,13 @@ class NewEventFlow(
 
         // Retrieving counterparties (sending to all nodes, for now)
         val me = serviceHub.myInfo.legalIdentities.first()
-        val counterParties : MutableList<Party?> = mutableListOf()
+        val counterPartiesAndMe : MutableList<Party?> = mutableListOf()
         countriesInvolved.forEach { involvedCountry ->
-            counterParties.add(serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
+            counterPartiesAndMe.add(serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
                 .firstOrNull { it.name.country == involvedCountry })
         }
-        require(!counterParties.contains(null)) { "One of the requested counterparties was not found"}
+        require(!counterPartiesAndMe.contains(null)) { "One of the requested counterparties was not found"}
+        val counterParties = counterPartiesAndMe.filter { it!!.owningKey != me.owningKey }
 
         val allParties = counterParties.map { it!! } + mutableListOf(notary, me)
 
