@@ -419,7 +419,7 @@ class GraphDBServiceTests {
             @prefix pi: <https://ontology.tno.nl/logistics/federated/physicalInfrastructure#>.
             @prefix cl: <https://ontology.tno.nl/logistics/federated/Classifications#>.
             
-            :event-41068e69-4be0-11ec-a52a-5c879c8043a5 a event:Event, event:ArrivalEvent;
+            :event-41068e69-4be0-11ec-a52a-5c879c8043a5 a event:Event;
                 rdfs:label "GateOut test"^^xsd:string, "insuranceEvent"^^xsd:string;
                 event:hasMilestone event:Start;
                 event:hasDateTimeType event:Planned;
