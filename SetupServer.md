@@ -6,7 +6,7 @@ Build the nodes locally. This command uses the config in `build.gradle` so make 
 `./gradlew deployNodes`
 
 Build the client locally.
-`/gradlew bootJar`
+`./gradlew bootJar`
 
 # Native
 ## Prerequisites
@@ -40,10 +40,14 @@ Get JRE 8 (or JDK8 if building on the server)
 ## Setup
 ### Graphdb
 `docker run -p 7200:7200 -v /opt/graphdb-data:/opt/graphdb/data --name graphdb-node-1 -t khaller/graphdb-free:9.8.0`
-
-Import shacl file: target graph named graph `http://rdf4j.org/schema/rdf4j#SHACLShapeGraph`
-Import ttl zip as default
-// TODO which ttls?
+1. Navigate to http://<server>:7200
+2. Setup -> Repository -> New free repository
+3. Provide a name, put this name in database.properties. The default is federated-shacl. 
+4. Tick the box to "Enable SHACL validation"
+5. Create
+6. (Optional) click the thumb-tack icon to set the new repository as the default and run it
+7. Import -> RDP -> Upload the ontology ttl zip. 
+8. Upload file event.shapes.ttl. Target graph, named graph: `http://rdf4j.org/schema/rdf4j#SHACLShapeGraph`
 
 ### Corda
 Edit `workflows/database.properties` to configure the location of the GraphDB instance.
