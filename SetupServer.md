@@ -46,8 +46,9 @@ Get JRE 8 (or JDK8 if building on the server)
 4. Tick the box to "Enable SHACL validation"
 5. Create
 6. (Optional) click the thumb-tack icon to set the new repository as the default and run it
-7. Import -> RDP -> Upload the ontology ttl zip. 
-8. Upload file event.shapes.ttl. Target graph, named graph: `http://rdf4j.org/schema/rdf4j#SHACLShapeGraph`
+7. Create a zip of the ttl in [this repository](https://github.com/silenroc1/FEDeRATED-copy)
+8. Import -> RDP -> Upload the ontology ttl zip 
+9. Upload file event.shapes.ttl. Target graph, named graph: `http://rdf4j.org/schema/rdf4j#SHACLShapeGraph`
 
 ### Corda
 Edit `workflows/database.properties` to configure the location of the GraphDB instance.
