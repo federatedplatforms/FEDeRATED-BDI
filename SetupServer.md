@@ -51,6 +51,7 @@ Get JRE 8 (or JDK8 if building on the server)
 9. Upload file event.shapes.ttl. Target graph, named graph: `http://rdf4j.org/schema/rdf4j#SHACLShapeGraph`
 
 ### Corda
+Edit build.gradle's deploy task to include your information.
 Edit `workflows/database.properties` to configure the location of the GraphDB instance.
 
 #### Non-docker
@@ -61,13 +62,13 @@ Copy the `build/nodes/<node-name>` folder to the server, for example using scp.
 docker run -ti \
  --memory=2048m \
  --cpus=2 \
- -v /home/graafewd/platform-corda/build/nodes/Netherlands_DCA:/etc/corda \
- -v /home/graafewd/platform-corda/build/nodes/Netherlands_DCA/certificates:/opt/corda/certificates \
- -v /home/graafewd/platform-corda/build/nodes/Netherlands_DCA:/opt/corda/persistence \
- -v /home/graafewd/platform-corda/build/nodes/Netherlands_DCA/logs:/opt/corda/logs \
- -v /home/graafewd/platform-corda/build/nodes/Netherlands_DCA/cordapps:/opt/corda/cordapps \
- -v /home/graafewd/platform-corda/build/nodes/Netherlands_DCA/additional-node-infos:/opt/corda/additional-node-infos \
- -v /home/graafewd/platform-corda/build/nodes/Netherlands_DCA/network-parameters:/opt/corda/network-parameters \
+ -v /home/graafewd/platform-corda/build/nodes/Netherlands_MS:/etc/corda \
+ -v /home/graafewd/platform-corda/build/nodes/Netherlands_MS/certificates:/opt/corda/certificates \
+ -v /home/graafewd/platform-corda/build/nodes/Netherlands_MS:/opt/corda/persistence \
+ -v /home/graafewd/platform-corda/build/nodes/Netherlands_MS/logs:/opt/corda/logs \
+ -v /home/graafewd/platform-corda/build/nodes/Netherlands_MS/cordapps:/opt/corda/cordapps \
+ -v /home/graafewd/platform-corda/build/nodes/Netherlands_MS/additional-node-infos:/opt/corda/additional-node-infos \
+ -v /home/graafewd/platform-corda/build/nodes/Netherlands_MS/network-parameters:/opt/corda/network-parameters \
  -p 10012:10200 \
  -p 10201:10201 \
  corda/corda-zulu-java1.8-4.5.8:latest
@@ -83,6 +84,19 @@ Run this command in the same folder as client-0.1.jar:
 Follow up with 
 `docker run -d corda-client`. 
 Make sure the client is on the same network as the Corda layer. If Corda is running natively, one could add `--network=host` to the above command.
+
+# Joining the FEDeRATED network
+Adapted from [the Cordite Network Map Service FAQ](https://gitlab.com/cordite/network-map-service/blob/master/FAQ.md).
+Download the network trust store
+`curl https://nms.basicdatasharinginfrastructure.net/network-map/truststore -o /tmp/network-truststore.jks`
+
+Prepare node and run registration
+```bash
+echo 'compatibilityZoneURL="https://nms.basicdatasharinginfrastructure.net"' >> node.conf
+echo 'devModeOptions.allowCompatibilityZone=true' >> node.conf
+rm -rf network-parameters nodeInfo-* persistence.mv.db certificates additional-node-infos
+java -jar corda.jar --initial-registration --network-root-truststore /tmp/network-truststore.jks --network-root-truststore-password trustpass
+```
 
 
 # Sample calls
