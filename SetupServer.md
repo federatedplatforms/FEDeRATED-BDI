@@ -62,13 +62,13 @@ Copy the `build/nodes/<node-name>` folder to the server, for example using scp.
 docker run -ti \
  --memory=2048m \
  --cpus=2 \
- -v /home/graafewd/platform-corda/build/nodes/Netherlands_MS:/etc/corda \
- -v /home/graafewd/platform-corda/build/nodes/Netherlands_MS/certificates:/opt/corda/certificates \
- -v /home/graafewd/platform-corda/build/nodes/Netherlands_MS:/opt/corda/persistence \
- -v /home/graafewd/platform-corda/build/nodes/Netherlands_MS/logs:/opt/corda/logs \
- -v /home/graafewd/platform-corda/build/nodes/Netherlands_MS/cordapps:/opt/corda/cordapps \
- -v /home/graafewd/platform-corda/build/nodes/Netherlands_MS/additional-node-infos:/opt/corda/additional-node-infos \
- -v /home/graafewd/platform-corda/build/nodes/Netherlands_MS/network-parameters:/opt/corda/network-parameters \
+ -v /path-to-node/Netherlands_MS:/etc/corda \
+ -v /path-to-node/Netherlands_MS/certificates:/opt/corda/certificates \
+ -v /path-to-node/Netherlands_MS:/opt/corda/persistence \
+ -v /path-to-node/Netherlands_MS/logs:/opt/corda/logs \
+ -v /path-to-node/Netherlands_MS/cordapps:/opt/corda/cordapps \
+ -v /path-to-node/Netherlands_MS/additional-node-infos:/opt/corda/additional-node-infos \
+ -v /path-to-node/Netherlands_MS/network-parameters:/opt/corda/network-parameters \
  -p 10012:10200 \
  -p 10201:10201 \
  corda/corda-zulu-java1.8-4.5.8:latest
