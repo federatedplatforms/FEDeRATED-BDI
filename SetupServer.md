@@ -87,11 +87,14 @@ Make sure the client is on the same network as the Corda layer. If Corda is runn
 
 # Joining the FEDeRATED network
 Adapted from [the Cordite Network Map Service FAQ](https://gitlab.com/cordite/network-map-service/blob/master/FAQ.md).
+
 Download the network trust store
-`curl https://nms.basicdatasharinginfrastructure.net/network-map/truststore -o /tmp/network-truststore.jks`
+```shell
+curl https://nms.basicdatasharinginfrastructure.net/network-map/truststore -o /tmp/network-truststore.jks
+```
 
 Prepare node and run registration
-```bash
+```shell
 echo 'compatibilityZoneURL="https://nms.basicdatasharinginfrastructure.net"' >> node.conf
 echo 'devModeOptions.allowCompatibilityZone=true' >> node.conf
 rm -rf network-parameters nodeInfo-* persistence.mv.db certificates additional-node-infos
@@ -106,7 +109,9 @@ Under Corda details, one can query the Corda node what nodes it knows. It should
 Play around with the `/events` calls too. In case you are prompted for an access token, you can use your iShare instance or enter `doitanyway` to skip this. 
 
 See the readme file for example data.
+```ttl
 @base <http://example.com/base/> . @prefix pi: <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#> . @prefix classifications: <https://ontology.tno.nl/logistics/federated/Classifications#> . @prefix dcterms: <http://purl.org/dc/terms/> . @prefix LogisticsRoles: <https://ontology.tno.nl/logistics/federated/LogisticsRoles#> . @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . @prefix owl: <http://www.w3.org/2002/07/owl#> . @prefix Event: <https://ontology.tno.nl/logistics/federated/Event#> . @prefix ReusableTags: <https://ontology.tno.nl/logistics/federated/ReusableTags#> . @prefix businessService: <https://ontology.tno.nl/logistics/federated/BusinessService#> . @prefix DigitalTwin: <https://ontology.tno.nl/logistics/federated/DigitalTwin#> . @prefix skos: <http://www.w3.org/2004/02/skos/core#> . @prefix xsd: <http://www.w3.org/2001/XMLSchema#> . @prefix ex: <http://example.com/base#> . @prefix time: <http://www.w3.org/2006/time#> . @prefix dc: <http://purl.org/dc/elements/1.1/> . @prefix era: <http://era.europa.eu/ns#> .  ex:Event-test12345 a Event:Event, owl:NamedIndividual;   rdfs:label "GateOut test", "Planned gate out";   Event:hasTimestamp "2019-09-22T06:00:00"^^xsd:dateTime;   Event:hasDateTimeType Event:Planned;   Event:involvesDigitalTwin ex:DigitalTwin-f7ed44a4-0ac1-42fc-820b-765bb2a70def, ex:Equipment-a891b64d-d29f-4ef2-88ad-9ec4c88e0833;   Event:involvesBusinessTransaction ex:businessTransaction-a891b64d-d29f-4ef2-88ad-9ec4c88e0833;   Event:hasMilestone Event:End;   Event:hasSubmissionTimestamp "2019-09-17T23:32:07"^^xsd:dateTime .  ex:DigitalTwin-f7ed44a4-0ac1-42fc-820b-765bb2a70def a DigitalTwin:TransportMeans,     owl:NamedIndividual .  ex:businessTransaction-a891b64d-d29f-4ef2-88ad-9ec4c88e0833 a businessService:Consignment,     owl:NamedIndividual;   businessService:consignmentCreationTime "2021-05-13T21:23:04"^^xsd:dateTime;   businessService:involvedActor ex:LegalPerson-SomeShipper .  ex:LegalPerson-SomeShipper a businessService:LegalPerson, owl:NamedIndividual, businessService:PrivateEnterprise;   businessService:actorName "SomeShipper" .  ex:Equipment-a891b64d-d29f-4ef2-88ad-9ec4c88e0833 a DigitalTwin:Equipment, owl:NamedIndividual;   rdfs:label "ABCDE" .
+```
 
 
 
