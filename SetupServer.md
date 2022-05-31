@@ -40,7 +40,7 @@ Get JRE 8 (or JDK8 if building on the server)
 ## Setup
 ### Graphdb
 `docker run -p 7200:7200 -v /opt/graphdb-data:/opt/graphdb/data --name graphdb-node-1 -t khaller/graphdb-free:9.8.0`
-1. Navigate to http://<server>:7200
+1. Navigate to http://\<server>:7200
 2. Setup -> Repository -> New free repository
 3. Provide a name, put this name in database.properties. The default is federated-shacl. 
 4. Tick the box to "Enable SHACL validation"
