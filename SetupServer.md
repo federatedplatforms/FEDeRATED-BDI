@@ -100,7 +100,7 @@ echo 'devModeOptions.allowCompatibilityZone=true' >> node.conf
 rm -rf network-parameters nodeInfo-* persistence.mv.db certificates additional-node-infos
 java -jar corda.jar --initial-registration --network-root-truststore /tmp/network-truststore.jks --network-root-truststore-password trustpass
 ```
-
+Corda shuts down after registering. Start the client normally, with the truststore mounted.
 
 # Sample calls
 Open http://localhost:10050/swagger-ui.html in your browser. A swagger UI should appear. 
