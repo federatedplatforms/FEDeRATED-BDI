@@ -37,7 +37,7 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
-    private fun newEvent(@RequestBody event: NewEvent, accessToken: String): ResponseEntity<String> {
+    private fun newEvent(@RequestBody event: NewEvent, @RequestHeader("Bearer") accessToken: String): ResponseEntity<String> {
         if (!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
         /*
@@ -62,7 +62,7 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Return all known events")
     @GetMapping(value = [""])
-    private fun events(accessToken: String) : Map<UUID, Event> {
+    private fun events(@RequestHeader("Bearer") accessToken: String) : Map<UUID, Event> {
 
         if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
@@ -73,7 +73,7 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Return an event")
     @GetMapping(value = ["/{id}"])
-    private fun eventById(@PathVariable id: String, accessToken: String): Map<UUID, Event> {
+    private fun eventById(@PathVariable id: String, @RequestHeader("Bearer") accessToken: String): Map<UUID, Event> {
 
         if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
@@ -84,7 +84,7 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Return events by digital twin UUID")
     @GetMapping(value = ["/digitaltwin/{dtuuid}"])
-    private fun eventBydtUUID(@PathVariable dtuuid: UUID, accessToken: String): Map<UUID, Event> {
+    private fun eventBydtUUID(@PathVariable dtuuid: UUID, @RequestHeader("Bearer") accessToken: String): Map<UUID, Event> {
 
         if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
@@ -99,7 +99,7 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Return RDF data by event ID from GraphDB instance")
     @GetMapping(value = ["/rdfevent/{id}"])
-    private fun gdbQueryEventById(@PathVariable id: String, accessToken: String): ResponseEntity<String> {
+    private fun gdbQueryEventById(@PathVariable id: String, @RequestHeader("Bearer") accessToken: String): ResponseEntity<String> {
 
         if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
@@ -116,7 +116,7 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Return result of a custom SPARQL query")
     @GetMapping(value = ["/gdbsparql/"])
-    private fun gdbGeneralSparqlQuery(query: String, accessToken: String): ResponseEntity<String> {
+    private fun gdbGeneralSparqlQuery(query: String, @RequestHeader("Bearer") accessToken: String): ResponseEntity<String> {
 
         if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
