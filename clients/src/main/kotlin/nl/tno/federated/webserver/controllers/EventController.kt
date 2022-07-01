@@ -216,7 +216,9 @@ class EventController(rpc: NodeRPCConnection) {
 
     private fun extractAccessTokenFromHeader(authorizationHeader: String): String {
         val authorizationHeaderWords = authorizationHeader.split(" ")
-        if (authorizationHeaderWords[0] != "Bearer") throw AuthenticationException("Authorization header is malformed")
+        if (authorizationHeaderWords.isEmpty() || authorizationHeaderWords.first() != "Bearer")
+            throw AuthenticationException("Authorization header is malformed")
+
         else return authorizationHeaderWords[1]
     }
 
