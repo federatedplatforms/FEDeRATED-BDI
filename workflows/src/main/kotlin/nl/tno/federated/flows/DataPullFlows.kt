@@ -10,6 +10,7 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.DataPullContract
+import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.states.DataPullState
 
 @InitiatingFlow
@@ -115,7 +116,7 @@ class DataPullQueryResponderFlow(val counterpartySession: FlowSession) : FlowLog
         progressTracker.currentStep = VERIFYING_STRING_INTEGRITY
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
-                // TODO Implement responder flow
+                // TODO Something to be checked in the tx?
             }
         }
         progressTracker.currentStep = SIGNING
@@ -139,8 +140,7 @@ class DataPullQueryResponderFlow(val counterpartySession: FlowSession) : FlowLog
                 .single()
 
 
-        val result = "Very nice result, the best result ever, I've never seen such a good result. Let's make results great again."
-        // TODO Implement above query
+        val result = GraphDBService.generalSPARQLquery( inputStateWithQuery.sparqlQuery )
 
         val outputStateWithResult = inputStateWithQuery.copy(result = listOf(result))
 
@@ -180,7 +180,7 @@ class DataPullResultResponderFlow(val counterpartySession: FlowSession) : FlowLo
         progressTracker.currentStep = VERIFYING_STRING_INTEGRITY
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
-                // TODO Implement responder flow
+                // TODO Something to be checked in the tx?
             }
         }
 

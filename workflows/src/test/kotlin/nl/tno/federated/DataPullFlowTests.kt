@@ -36,12 +36,13 @@ class DataPullFlowTests {
     private val countriesInvolved = setOf("NL", "DE", "FR")
     private val unknownCountries = setOf("NL", "ZZ")
 
+    val fakeResult = "Very nice result, the best result ever, I've never seen such a good result. Let's make results great again."
+
     @Before
     fun setup() {
+
         mockkObject(GraphDBService)
-        every { GraphDBService.isDataValid(any()) } returns true
-        every { GraphDBService.insertEvent(any()) } returns true
-        // TODO Maybe the above is not needed
+        every { GraphDBService.generalSPARQLquery(any()) } returns fakeResult
 
         network = MockNetwork(
                 listOf("nl.tno.federated"),
@@ -87,7 +88,7 @@ class DataPullFlowTests {
         print(resultOfTheQueryInRequesterVault)
 
         assertTrue{
-            resultOfTheQueryInRequesterVault.result.single() == "Very nice result, the best result ever, I've never seen such a good result. Let's make results great again."
+            resultOfTheQueryInRequesterVault.result.single() == fakeResult
         }
     }
 }
