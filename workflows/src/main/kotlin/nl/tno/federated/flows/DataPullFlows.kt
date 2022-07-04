@@ -125,6 +125,9 @@ class DataPullQueryResponderFlow(val counterpartySession: FlowSession) : FlowLog
 
         /////// PHASE 2 - Running the query and sending a tx with result ///////
 
+        // Initiate new session
+        val responseSession = initiateFlow(counterpartySession.counterparty)
+
         val notary = serviceHub.networkMapCache.notaryIdentities.first()
 
         val inputStateWithQuery = tx.outputs.single().data as DataPullState
@@ -149,8 +152,8 @@ class DataPullQueryResponderFlow(val counterpartySession: FlowSession) : FlowLog
 
         val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
 
-        val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, listOf(counterpartySession), NewEventFlow.Companion.GATHERING_SIGS.childProgressTracker()))
+        val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, listOf(responseSession), NewEventFlow.Companion.GATHERING_SIGS.childProgressTracker()))
 
-        return subFlow(FinalityFlow(fullySignedTx, listOf(counterpartySession), NewEventFlow.Companion.FINALISING_TRANSACTION.childProgressTracker()))
+        return subFlow(FinalityFlow(fullySignedTx, listOf(responseSession), NewEventFlow.Companion.FINALISING_TRANSACTION.childProgressTracker()))
     }
 }
