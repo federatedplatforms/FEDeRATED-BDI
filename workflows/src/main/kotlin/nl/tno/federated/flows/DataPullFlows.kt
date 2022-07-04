@@ -92,6 +92,7 @@ class DataPullQueryFlow(
     }
 }
 
+@InitiatingFlow
 @InitiatedBy(DataPullQueryFlow::class)
 class DataPullQueryResponderFlow(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
 
@@ -138,7 +139,7 @@ class DataPullQueryResponderFlow(val counterpartySession: FlowSession) : FlowLog
                 .single()
 
 
-        val result = "Result of the query that this node runs in its GDB instance"
+        val result = "Very nice result, the best result ever, I've never seen such a good result. Let's make results great again."
         // TODO Implement above query
 
         val outputStateWithResult = inputStateWithQuery.copy(result = listOf(result))
@@ -157,3 +158,40 @@ class DataPullQueryResponderFlow(val counterpartySession: FlowSession) : FlowLog
         return subFlow(FinalityFlow(fullySignedTx, listOf(responseSession), NewEventFlow.Companion.FINALISING_TRANSACTION.childProgressTracker()))
     }
 }
+
+@InitiatedBy(DataPullQueryResponderFlow::class)
+class DataPullResultResponderFlow(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
+    companion object {
+        object VERIFYING_STRING_INTEGRITY : Step("Verifying that accompanying full event is acceptable.")
+        object SIGNING : Step("Responding to CollectSignaturesFlow.")
+        object FINALISATION : Step("Finalising a transaction.")
+
+        fun tracker() = ProgressTracker(
+                VERIFYING_STRING_INTEGRITY,
+                SIGNING,
+                FINALISATION
+        )
+    }
+
+    override val progressTracker: ProgressTracker = tracker()
+
+    @Suspendable
+    override fun call(): SignedTransaction {
+        progressTracker.currentStep = VERIFYING_STRING_INTEGRITY
+        val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
+            override fun checkTransaction(stx: SignedTransaction) = requireThat {
+                // TODO Implement responder flow
+            }
+        }
+
+        // TODO Do something with the result of tx?
+
+        progressTracker.currentStep = SIGNING
+        val tx = subFlow(signTransactionFlow).tx
+
+        progressTracker.currentStep = FINALISATION
+        return subFlow(ReceiveFinalityFlow(counterpartySession, expectedTxId = tx.id))
+    }
+}
+
+// TODO Adjust all progressTrackers
