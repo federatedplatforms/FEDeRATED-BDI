@@ -24,6 +24,7 @@ class DataPullQueryFlow(
      * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
      */
     companion object {
+        object RETRIEVING_COUNTERPARTY_INFO : Step("Generating transaction.")
         object GENERATING_TRANSACTION : Step("Generating transaction.")
         object VERIFYING_TRANSACTION : Step("Verifying contract constraints.")
         object SIGNING_TRANSACTION : Step("Signing transaction with our private key.")
@@ -36,11 +37,12 @@ class DataPullQueryFlow(
         }
 
         fun tracker() = ProgressTracker(
-            GENERATING_TRANSACTION,
-            VERIFYING_TRANSACTION,
-            SIGNING_TRANSACTION,
-            GATHERING_SIGS,
-            FINALISING_TRANSACTION
+                RETRIEVING_COUNTERPARTY_INFO,
+                GENERATING_TRANSACTION,
+                VERIFYING_TRANSACTION,
+                SIGNING_TRANSACTION,
+                GATHERING_SIGS,
+                FINALISING_TRANSACTION
         )
     }
 
@@ -52,13 +54,11 @@ class DataPullQueryFlow(
     @Suspendable
     override fun call(): SignedTransaction {
         val notary = serviceHub.networkMapCache.notaryIdentities.first()
-
-        // Stage 1.
-        progressTracker.currentStep = GENERATING_TRANSACTION
-
-        // Retrieving counterparties (sending to all nodes, for now)
         val me = serviceHub.myInfo.legalIdentities.first()
 
+        /////////////
+        progressTracker.currentStep = RETRIEVING_COUNTERPARTY_INFO
+        /////////////
         val counterParty = listOf(serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }.single { it.name.organisation == nodeIdentity })
         // TODO Use a more unique param to find the node
 
@@ -66,27 +66,30 @@ class DataPullQueryFlow(
 
         val queryState = DataPullState(SPARQLquery, emptyList(), participants = counterParty + me)
 
+        /////////////
+        progressTracker.currentStep = GENERATING_TRANSACTION
+        /////////////
         val txBuilder = TransactionBuilder(notary)
                 .addOutputState(queryState, DataPullContract.ID)
                 .addCommand(Command(DataPullContract.Commands.Query(), queryState.participants.map { it.owningKey }))
 
-        // Stage 2.
+        /////////////
         progressTracker.currentStep = VERIFYING_TRANSACTION
-        // Verify that the transaction is valid.
+        /////////////
         txBuilder.verify(serviceHub)
 
-        // Stage 3.
+        /////////////
         progressTracker.currentStep = SIGNING_TRANSACTION
-        // Sign the transaction.
+        /////////////
         val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
 
-        // Stage 4.
+        /////////////
         progressTracker.currentStep = GATHERING_SIGS
         // Send the state to the counterparty, and receive it back with their signature.
         val otherPartySession = counterParty.map { initiateFlow(it!!) }
         val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, otherPartySession, GATHERING_SIGS.childProgressTracker()))
 
-        // Stage 5.
+        /////////////
         progressTracker.currentStep = FINALISING_TRANSACTION
         // Notarise and record the transaction in both parties' vaults.
         return subFlow(FinalityFlow(fullySignedTx, otherPartySession, FINALISING_TRANSACTION.childProgressTracker()))
@@ -98,14 +101,30 @@ class DataPullQueryFlow(
 class DataPullQueryResponderFlow(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
 
     companion object {
-        object VERIFYING_STRING_INTEGRITY : Step("Verifying that accompanying full event is acceptable.")
-        object SIGNING : Step("Responding to CollectSignaturesFlow.")
-        object FINALISATION : Step("Finalising a transaction.")
+        object SIGNING_QUERY_TRANSACTION : Step("Responding to CollectSignaturesFlow in the context of the query transaction.")
+        object FINALISATION_QUERY_TRANSACTION : Step("Finalising the query transaction.")
+        object PHASE_2_START : Step("Initialization of new session and gathering data for new transaction.")
+        object RUN_SPARQL_QUERY : Step("Run SPARQL query retrieved from previous context and get results.")
+        object GENERATING_TRANSACTION : Step("Generating result transaction.")
+        object VERIFYING_TRANSACTION : Step("Verifying contract constraints.")
+        object SIGNING_RESULT_TRANSACTION : Step("Responding to CollectSignaturesFlow in the context of the query transaction.")
+        object GATHERING_SIGS : Step("Gathering the counterparty's signature.") {
+            override fun childProgressTracker() = CollectSignaturesFlow.tracker()
+        }
+        object FINALISATION_RESULT_TRANSACTION : Step("Finalising the query transaction.") {
+            override fun childProgressTracker() = FinalityFlow.tracker()
+        }
 
         fun tracker() = ProgressTracker(
-            VERIFYING_STRING_INTEGRITY,
-            SIGNING,
-            FINALISATION
+                SIGNING_QUERY_TRANSACTION,
+                FINALISATION_QUERY_TRANSACTION,
+                PHASE_2_START,
+                RUN_SPARQL_QUERY,
+                GENERATING_TRANSACTION,
+                VERIFYING_TRANSACTION,
+                SIGNING_RESULT_TRANSACTION,
+                GATHERING_SIGS,
+                FINALISATION_RESULT_TRANSACTION
         )
     }
 
@@ -113,19 +132,25 @@ class DataPullQueryResponderFlow(val counterpartySession: FlowSession) : FlowLog
 
     @Suspendable
     override fun call(): SignedTransaction {
-        progressTracker.currentStep = VERIFYING_STRING_INTEGRITY
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 // TODO Something to be checked in the tx?
             }
         }
-        progressTracker.currentStep = SIGNING
+
+        /////////////
+        progressTracker.currentStep = SIGNING_QUERY_TRANSACTION
+        /////////////
         val tx = subFlow(signTransactionFlow).tx
 
-        progressTracker.currentStep = FINALISATION
+        /////////////
+        progressTracker.currentStep = FINALISATION_QUERY_TRANSACTION
+        /////////////
         subFlow(ReceiveFinalityFlow(counterpartySession, expectedTxId = tx.id))
 
-        /////// PHASE 2 - Running the query and sending a tx with result ///////
+        /////////////
+        progressTracker.currentStep = PHASE_2_START
+        /////////////
 
         // Initiate new session
         val responseSession = initiateFlow(counterpartySession.counterparty)
@@ -139,9 +164,14 @@ class DataPullQueryResponderFlow(val counterpartySession: FlowSession) : FlowLog
                 }
                 .single()
 
-
+        /////////////
+        progressTracker.currentStep = RUN_SPARQL_QUERY
+        /////////////
         val result = GraphDBService.generalSPARQLquery( inputStateWithQuery.sparqlQuery )
 
+        /////////////
+        progressTracker.currentStep = GENERATING_TRANSACTION
+        /////////////
         val outputStateWithResult = inputStateWithQuery.copy(result = listOf(result))
 
         val txBuilder = TransactionBuilder(notary)
@@ -149,25 +179,35 @@ class DataPullQueryResponderFlow(val counterpartySession: FlowSession) : FlowLog
                 .addOutputState(outputStateWithResult, DataPullContract.ID)
                 .addCommand(Command(DataPullContract.Commands.Response(), outputStateWithResult.participants.map { it.owningKey }))
 
+        /////////////
+        progressTracker.currentStep = VERIFYING_TRANSACTION
+        /////////////
         txBuilder.verify(serviceHub)
 
+        /////////////
+        progressTracker.currentStep = SIGNING_RESULT_TRANSACTION
+        /////////////
         val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
 
-        val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, listOf(responseSession), NewEventFlow.Companion.GATHERING_SIGS.childProgressTracker()))
+        /////////////
+        progressTracker.currentStep = GATHERING_SIGS
+        /////////////
+        val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, listOf(responseSession), GATHERING_SIGS.childProgressTracker()))
 
-        return subFlow(FinalityFlow(fullySignedTx, listOf(responseSession), NewEventFlow.Companion.FINALISING_TRANSACTION.childProgressTracker()))
+        /////////////
+        progressTracker.currentStep = FINALISATION_RESULT_TRANSACTION
+        /////////////
+        return subFlow(FinalityFlow(fullySignedTx, listOf(responseSession), FINALISATION_RESULT_TRANSACTION.childProgressTracker()))
     }
 }
 
 @InitiatedBy(DataPullQueryResponderFlow::class)
 class DataPullResultResponderFlow(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
     companion object {
-        object VERIFYING_STRING_INTEGRITY : Step("Verifying that accompanying full event is acceptable.")
         object SIGNING : Step("Responding to CollectSignaturesFlow.")
         object FINALISATION : Step("Finalising a transaction.")
 
         fun tracker() = ProgressTracker(
-                VERIFYING_STRING_INTEGRITY,
                 SIGNING,
                 FINALISATION
         )
@@ -177,7 +217,6 @@ class DataPullResultResponderFlow(val counterpartySession: FlowSession) : FlowLo
 
     @Suspendable
     override fun call(): SignedTransaction {
-        progressTracker.currentStep = VERIFYING_STRING_INTEGRITY
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 // TODO Something to be checked in the tx?
@@ -186,12 +225,14 @@ class DataPullResultResponderFlow(val counterpartySession: FlowSession) : FlowLo
 
         // TODO Do something with the result of tx?
 
+        /////////////
         progressTracker.currentStep = SIGNING
+        /////////////
         val tx = subFlow(signTransactionFlow).tx
 
+        /////////////
         progressTracker.currentStep = FINALISATION
+        /////////////
         return subFlow(ReceiveFinalityFlow(counterpartySession, expectedTxId = tx.id))
     }
 }
-
-// TODO Adjust all progressTrackers
