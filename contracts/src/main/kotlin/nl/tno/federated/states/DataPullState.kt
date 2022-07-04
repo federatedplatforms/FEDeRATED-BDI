@@ -18,6 +18,7 @@ import java.util.*
 @BelongsToContract(DataPullContract::class)
 data class DataPullState(
     val sparqlQuery: String,
+    val result: List<String>,
     override val participants: List<AbstractParty> = listOf(),
     override val linearId: UniqueIdentifier = UniqueIdentifier()
 ) : LinearState

@@ -25,6 +25,7 @@ class DataPullContract : Contract {
     // Used to indicate the transaction's intent.
     interface Commands : CommandData {
         class Query : Commands
+        class Response : Commands
     }
 }
 

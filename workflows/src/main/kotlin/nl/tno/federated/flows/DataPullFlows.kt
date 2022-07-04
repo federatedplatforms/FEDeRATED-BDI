@@ -4,19 +4,17 @@ import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
+import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.DataPullContract
-import nl.tno.federated.contracts.EventContract
-import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.states.DataPullState
-import nl.tno.federated.states.EventState
 
 @InitiatingFlow
 @StartableByRPC
-class DataPullFlow(
+class DataPullQueryFlow(
     val nodeIdentity: String,
     val SPARQLquery: String
     ) : FlowLogic<SignedTransaction>() {
@@ -65,9 +63,7 @@ class DataPullFlow(
 
         require(counterParty.isNotEmpty())
 
-        val allParties = counterParty + me
-
-        val queryState = DataPullState(SPARQLquery, participants = counterParty + me)
+        val queryState = DataPullState(SPARQLquery, emptyList(), participants = counterParty + me)
 
         val txBuilder = TransactionBuilder(notary)
                 .addOutputState(queryState, DataPullContract.ID)
@@ -96,8 +92,8 @@ class DataPullFlow(
     }
 }
 
-@InitiatedBy(DataPullFlow::class)
-class DataPullResponderFlow(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
+@InitiatedBy(DataPullQueryFlow::class)
+class DataPullQueryResponderFlow(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
 
     companion object {
         object VERIFYING_STRING_INTEGRITY : Step("Verifying that accompanying full event is acceptable.")
@@ -122,9 +118,39 @@ class DataPullResponderFlow(val counterpartySession: FlowSession) : FlowLogic<Si
             }
         }
         progressTracker.currentStep = SIGNING
-        val txId = subFlow(signTransactionFlow).id
+        val tx = subFlow(signTransactionFlow).tx
 
         progressTracker.currentStep = FINALISATION
-        return subFlow(ReceiveFinalityFlow(counterpartySession, expectedTxId = txId))
+        subFlow(ReceiveFinalityFlow(counterpartySession, expectedTxId = tx.id))
+
+        /////// PHASE 2 - Running the query and sending a tx with result ///////
+
+        val notary = serviceHub.networkMapCache.notaryIdentities.first()
+
+        val inputStateWithQuery = tx.outputs.single().data as DataPullState
+        val inputStateWithQueryAndRef = serviceHub.vaultService.queryBy<DataPullState>(/* is the same output state of previous approved transaction */).states
+                .filter{
+                    it.state.data.linearId == inputStateWithQuery.linearId
+                }
+                .single()
+
+
+        val result = "Result of the query that this node runs in its GDB instance"
+        // TODO Implement above query
+
+        val outputStateWithResult = inputStateWithQuery.copy(result = listOf(result))
+
+        val txBuilder = TransactionBuilder(notary)
+                .addInputState(inputStateWithQueryAndRef)
+                .addOutputState(outputStateWithResult, DataPullContract.ID)
+                .addCommand(Command(DataPullContract.Commands.Response(), outputStateWithResult.participants.map { it.owningKey }))
+
+        txBuilder.verify(serviceHub)
+
+        val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
+
+        val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, listOf(counterpartySession), NewEventFlow.Companion.GATHERING_SIGS.childProgressTracker()))
+
+        return subFlow(FinalityFlow(fullySignedTx, listOf(counterpartySession), NewEventFlow.Companion.FINALISING_TRANSACTION.childProgressTracker()))
     }
 }
