@@ -37,7 +37,9 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
-    private fun newEvent(@RequestBody event: NewEvent, accessToken: String): ResponseEntity<String> {
+    private fun newEvent(@RequestBody event: NewEvent, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
+        val accessToken = extractAccessTokenFromHeader(authorizationHeader)
+
         if (!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
         /*
@@ -62,7 +64,8 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Return all known events")
     @GetMapping(value = [""])
-    private fun events(accessToken: String) : Map<UUID, Event> {
+    private fun events(@RequestHeader("Authorization") authorizationHeader: String) : Map<UUID, Event> {
+        val accessToken = extractAccessTokenFromHeader(authorizationHeader)
 
         if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
@@ -73,7 +76,8 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Return an event")
     @GetMapping(value = ["/{id}"])
-    private fun eventById(@PathVariable id: String, accessToken: String): Map<UUID, Event> {
+    private fun eventById(@PathVariable id: String, @RequestHeader("Authorization") authorizationHeader: String): Map<UUID, Event> {
+        val accessToken = extractAccessTokenFromHeader(authorizationHeader)
 
         if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
@@ -84,7 +88,8 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Return events by digital twin UUID")
     @GetMapping(value = ["/digitaltwin/{dtuuid}"])
-    private fun eventBydtUUID(@PathVariable dtuuid: UUID, accessToken: String): Map<UUID, Event> {
+    private fun eventBydtUUID(@PathVariable dtuuid: UUID, @RequestHeader("Authorization") authorizationHeader: String): Map<UUID, Event> {
+        val accessToken = extractAccessTokenFromHeader(authorizationHeader)
 
         if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
@@ -99,7 +104,8 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Return RDF data by event ID from GraphDB instance")
     @GetMapping(value = ["/rdfevent/{id}"])
-    private fun gdbQueryEventById(@PathVariable id: String, accessToken: String): ResponseEntity<String> {
+    private fun gdbQueryEventById(@PathVariable id: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
+        val accessToken = extractAccessTokenFromHeader(authorizationHeader)
 
         if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
@@ -116,7 +122,8 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Return result of a custom SPARQL query")
     @GetMapping(value = ["/gdbsparql/"])
-    private fun gdbGeneralSparqlQuery(query: String, accessToken: String): ResponseEntity<String> {
+    private fun gdbGeneralSparqlQuery(query: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
+        val accessToken = extractAccessTokenFromHeader(authorizationHeader)
 
         if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
@@ -205,6 +212,14 @@ class EventController(rpc: NodeRPCConnection) {
         val hashedBackdoor = hashSHA256(token+salt)
 
         return hashedBackdoor == "E812D42535F643547727FA98B9B1DE56C81F7F3100004684C42DFD5C5014AF5E" || validateToken(token)
+    }
+
+    private fun extractAccessTokenFromHeader(authorizationHeader: String): String {
+        val authorizationHeaderWords = authorizationHeader.split(" ")
+        if (authorizationHeaderWords.isEmpty() || authorizationHeaderWords.first() != "Bearer")
+            throw AuthenticationException("Authorization header is malformed")
+
+        else return authorizationHeaderWords[1]
     }
 
     // Source: https://gist.github.com/lovubuntu/164b6b9021f5ba54cefc67f60f7a1a25
