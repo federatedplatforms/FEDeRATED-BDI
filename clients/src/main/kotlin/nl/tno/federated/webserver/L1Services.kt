@@ -1,9 +1,12 @@
 package nl.tno.federated.webserver
 
+import java.io.File
 import java.net.HttpURLConnection
+import java.net.URI
 import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
+import java.util.*
 import javax.naming.AuthenticationException
 
 object L1Services {
@@ -48,10 +51,22 @@ object L1Services {
         else return authorizationHeaderWords[1]
     }
 
+    private fun getRepositoryURI(): URI {
+        val propertyFile = File("database.properties").inputStream()
+        val properties = Properties()
+        properties.load(propertyFile)
+        val protocol = properties.getProperty("ishare.protocol")
+        val host = properties.getProperty("ishare.host")
+        val port = properties.getProperty("ishare.port")
+
+        return URI("$protocol://$host:$port/")
+    }
+
     internal fun validateToken(token: String) : Boolean {
         if(!isJWTFormatValid(token)) return false
 
-        val url = URL("http://federated.sensorlab.tno.nl:1003/validate/token")
+        val uri = getRepositoryURI()
+        val url = URI(uri.scheme, "//" + uri.host + ":" + uri.port + "validate/token", null).toURL()
         val body = """
             {
                 "access_token": "Bearer $token"
