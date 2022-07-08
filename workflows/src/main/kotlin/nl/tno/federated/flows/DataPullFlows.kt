@@ -62,7 +62,7 @@ class DataPullQueryFlow(
         val counterParty = listOf(serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }.single { it.name.organisation == nodeIdentity })
         // TODO Use a more unique param to find the node
 
-        require(counterParty.isNotEmpty())
+        require(counterParty.isNotEmpty()) { "Other party not found"}
 
         val queryState = DataPullState(sPARQLquery, emptyList(), participants = counterParty + me)
 

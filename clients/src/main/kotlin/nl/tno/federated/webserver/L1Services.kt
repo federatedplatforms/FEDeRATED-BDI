@@ -1,5 +1,7 @@
 package nl.tno.federated.webserver
 
+import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URI
@@ -45,8 +47,8 @@ object L1Services {
 
     internal fun extractAccessTokenFromHeader(authorizationHeader: String): String {
         val authorizationHeaderWords = authorizationHeader.split(" ")
-        if (authorizationHeaderWords.isEmpty() || authorizationHeaderWords.first() != "Bearer")
-            throw AuthenticationException("Authorization header is malformed")
+        if (authorizationHeaderWords.size != 2 || authorizationHeaderWords.first() != "Bearer")
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authorization header is malformed")
 
         else return authorizationHeaderWords[1]
     }

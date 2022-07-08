@@ -47,7 +47,7 @@ Get JRE 8 (or JDK8 if building on the server)
 5. Create
 6. (Optional) click the thumb-tack icon to set the new repository as the default and run it
 7. Create a zip of the ttl in [this repository](https://github.com/silenroc1/FEDeRATED-copy)
-8. Import -> RDP -> Upload the ontology ttl zip 
+8. Import -> RDF -> Upload the ontology ttl zip 
 9. Upload file event.shapes.ttl. Target graph, named graph: `http://rdf4j.org/schema/rdf4j#SHACLShapeGraph`
 
 ### Corda
@@ -106,7 +106,7 @@ Corda shuts down after registering. Start the client normally, with the truststo
 Open http://localhost:10050/swagger-ui.html in your browser. A swagger UI should appear. 
 Under Corda details, one can query the Corda node what nodes it knows. It should know at least one notary (GET `/node/notaries`) and a few other nodes (GET `/node/peers`).
 
-Play around with the `/events` calls too. In case you are prompted for an access token, you can use your iShare instance or enter `doitanyway` to skip this. 
+Play around with the `/events` calls too. In case you are prompted for an access token, you can use your iShare instance or enter `Bearer doitanyway` to skip this. 
 
 See the readme file for example data.
 ```ttl
