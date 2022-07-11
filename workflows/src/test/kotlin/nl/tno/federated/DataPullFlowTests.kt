@@ -72,8 +72,17 @@ class DataPullFlowTests {
         val signedTx = future.getOrThrow()
         signedTx.verifyRequiredSignatures()
 
+        // The following assertion verifies that the state eventually saved in the vault actually contains the result of the query
         val resultOfTheQueryInRequesterVault = a.services.vaultService.queryBy<DataPullState>().states.single().state.data
+        assertEquals(fakeResult, resultOfTheQueryInRequesterVault.result.single(), "The result of the query must be in the state at the end of the flows")
 
-        assertEquals(fakeResult, resultOfTheQueryInRequesterVault.result.single())
+        // "Proxy" test for L1
+        // The following assertion verifies that when you use the info you get returned from the flow (a SignedTransaction) you
+        // can still filter the states in the vault and retrieve the result. This mimics the behaviour of the application at L1
+        val uuidOfStateWithResult = (signedTx.coreTransaction.getOutput(0) as DataPullState).linearId.id
+        val resultOfTheQueryInRequesterVaultFromUUID = a.services.vaultService.queryBy<DataPullState>().states
+                .filter{ it.state.data.linearId.id == uuidOfStateWithResult }
+        assertEquals(1, resultOfTheQueryInRequesterVaultFromUUID.size, "Exactly 1 state should be retrieved by the search in the vault via UUID")
+        assertEquals(fakeResult, resultOfTheQueryInRequesterVaultFromUUID.single().state.data.result.single(), "The result of the query must be in the state with UUID retrieved from the SignedTransaction")
     }
 }

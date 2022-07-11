@@ -13,6 +13,7 @@ import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.DataPullContract
 import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.states.DataPullState
+import java.util.UUID
 
 @InitiatingFlow
 @StartableByRPC
@@ -174,7 +175,7 @@ class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTran
         progressTracker.currentStep = PHASE_2_START
 
         val inputStateWithQuery = previousTx.outputs.single().data as DataPullState
-        val inputStateWithQueryAndRef = /* is the same output state of previous approved transaction */
+        val inputStateWithQueryAndRef =
             serviceHub.vaultService.queryBy<DataPullState>(/* is the same output state of previous approved transaction */).states.single {
                 it.state.data.linearId == inputStateWithQuery.linearId
             }
