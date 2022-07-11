@@ -251,8 +251,6 @@ class DataPullResultResponderFlow(val counterpartySession: FlowSession) : FlowLo
             }
         }
 
-        // TODO Do something with the result of tx?
-
         /////////////
         progressTracker.currentStep = SIGNING
         val tx = subFlow(signTransactionFlow).tx
