@@ -106,22 +106,22 @@ You can choose to:
 
 Adapted from [the Cordite Network Map Service FAQ](https://gitlab.com/cordite/network-map-service/blob/master/FAQ.md).
 
-Download the network trust store
+Download the network trust store:
 ```shell
 curl https://nms.basicdatasharinginfrastructure.net/network-map/truststore -o /tmp/network-truststore.jks
 ```
 
-Prepare node and run registration
+Prepare node and run registration – make sure to run the following instructions in the node base directory (the same folder where `corda.jar` is located) 
 ```shell
 echo 'compatibilityZoneURL="https://nms.basicdatasharinginfrastructure.net"' >> node.conf
 echo 'devModeOptions.allowCompatibilityZone=true' >> node.conf
 rm -rf network-parameters nodeInfo-* persistence.mv.db certificates additional-node-infos
 java -jar corda.jar --initial-registration --network-root-truststore /tmp/network-truststore.jks --network-root-truststore-password trustpass
 ```
-Corda shuts down after registering. Start the client normally, with the truststore mounted.
+Corda will shut down after registration. Re-start the node normally as indicated in the following subsection, with the addition of the truststore flags.
 
 #### Run a single node
-```
+```shell
 nohup java -jar NODE_FOLDER/corda.jar --base-directory=NODE_FOLDER > log_node.txt &
 ```
 The initial `nohup` and the final `&` are optional, they ensure the process keeps running after terminating the shell.
