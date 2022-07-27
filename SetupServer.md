@@ -43,10 +43,20 @@ sudo apt-get install zulu8-jre
 
 Clone the repository or download the jar files from a trusted source.
 
-## Build the corda node and the API
+## Setup
+### Graphdb
+`docker run -p 7200:7200 -v /opt/graphdb-data:/opt/graphdb/data --name graphdb-node-1 -t khaller/graphdb-free:9.8.0`
+The following is also available as the `graphdb-data` folder in the project root. If you wish to set it up yourself, or make sure that you have the latest version, you can do so by running the following commands:
 
-#### Edit configuration file to include your information.
-In the root folder, the file `build.gradle` contain the necessary information to build a corda node, like in the following example:
+1. Navigate to http://\<server>:7200
+2. Setup -> Repository -> New free repository
+3. Provide a name, put this name in database.properties. The default is bdi. 
+4. Tick the box to "Enable SHACL validation"
+5. Create
+6. (Optional) click the thumb-tack icon to set the new repository as the default and run it
+7. Create a zip of the ttl in [this repository](https://github.com/silenroc1/FEDeRATED-copy)
+8. Import -> RDF -> Upload the ontology ttl zip 
+9. Upload file userEvent.shapes.ttl. Target graph, named graph: `http://rdf4j.org/schema/rdf4j#SHACLShapeGraph`
 
 ```
 node {
