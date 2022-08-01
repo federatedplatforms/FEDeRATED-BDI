@@ -113,6 +113,7 @@ Modules to run:
 - Corda node
 - API
 - GraphDB
+- (Optional) Semantic adapter
 
 ### Corda Node
 
@@ -251,6 +252,8 @@ Make sure the client is on the same network as the Corda layer. If Corda is runn
 docker run -p 7200:7200 -v /opt/graphdb-data:/opt/graphdb/data --name graphdb-node-1 -t khaller/graphdb-free:9.8.0
 ```
 
+### Semantic Adapter
+TBD
 
 
 
