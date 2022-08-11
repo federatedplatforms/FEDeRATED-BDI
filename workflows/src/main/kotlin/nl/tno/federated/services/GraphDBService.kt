@@ -21,64 +21,55 @@ import java.util.*
 object GraphDBService {
 
     fun isRepositoryAvailable(): Boolean {
-        val uri = getRepositoryURI()
+        val uri = getRepositoryURI(false)
         val body = retrieveUrlBody(uri.toURL(), RequestMethod.GET)
         return body == "Missing parameter: query"
     }
 
-    private fun getRepositoryURI(): URI {
+    private fun getRepositoryURI(privateRepo: Boolean): URI {
         val propertyFile = File("database.properties").inputStream()
         val properties = Properties()
         properties.load(propertyFile)
         val protocol = properties.getProperty("triplestore.protocol")
         val host = properties.getProperty("triplestore.host")
         val port = properties.getProperty("triplestore.port")
-        val repository = properties.getProperty("triplestore.repository")
+        val repository = if (privateRepo)
+            properties.getProperty("triplestore.private-repository")
+        else properties.getProperty("triplestore.repository")
 
         return URI("$protocol://$host:$port/repositories/$repository")
-    }
-
-    fun isDataValid(eventState: EventState): Boolean {
-        // TODO ideally match eventstate contents to its eventString too but:
-        // caveat: with new implementation of timestamp the corda state differs from RDF data as for timestamp
-        // to take this into account, the comparison should account for just the *last* added timestamp
-        val sparql = ""
-        val result = performSparql(sparql, RequestMethod.GET)
-        return "fail" !in result
     }
 
     fun queryEventIds(): String {
         val sparql = """
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
-            SELECT ?x ?z WHERE {
-              ?x rdfs:label ?z.
+            PREFIX Event: <https://ontology.tno.nl/logistics/federated/event#>
+            SELECT ?x WHERE {
               ?x a Event:Event
             }         
         """.trimIndent()
-        return performSparql(sparql, RequestMethod.GET)
+        return performSparql(sparql, RequestMethod.GET, false)
     }
 
     fun generalSPARQLquery(query: String): String {
-        return performSparql(query.trimIndent(), RequestMethod.GET)
+        return performSparql(query.trimIndent(), RequestMethod.GET, false)
     }
 
     fun queryEventById(id: String): String {
         val sparql = """
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
-            PREFIX ex: <http://example.com/base#>
-            SELECT ?subject ?object 
-            WHERE {
-                ?subject rdfs:label ?object .
-                FILTER (?subject = ex:Event-$id)
+            PREFIX ex: <https://ontology.tno.nl/example#>
+            SELECT *
+                WHERE {
+            ex:event-$id ?predicate ?object .
             }
             """.trimIndent()
-        return performSparql(sparql, RequestMethod.GET)
+        return performSparql(sparql, RequestMethod.GET, false)
     }
 
-    fun insertEvent(ttl: String): Boolean {
-        val uri = getRepositoryURI()
+    fun insertEvent(ttl: String, privateRepo: Boolean): Boolean {
+        val uri = getRepositoryURI(privateRepo)
         val url = URL("$uri/statements")
         val result = retrieveUrlBody(url,
             RequestMethod.POST,
@@ -87,8 +78,8 @@ object GraphDBService {
         return result.isEmpty()
     }
 
-    private fun performSparql(sparql: String, requestMethod: RequestMethod): String {
-        val uri = getRepositoryURI()
+    private fun performSparql(sparql: String, requestMethod: RequestMethod, privateRepo: Boolean): String {
+        val uri = getRepositoryURI(privateRepo)
         val url = URI(uri.scheme, "//" + uri.host + ":" + uri.port + uri.path + "?query=$sparql", null).toURL()
         return retrieveUrlBody(url, requestMethod)
     }
