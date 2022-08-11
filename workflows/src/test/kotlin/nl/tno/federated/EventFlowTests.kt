@@ -3,7 +3,6 @@ package nl.tno.federated
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
-import net.corda.core.contracts.TransactionVerificationException
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.queryBy
@@ -76,8 +75,7 @@ class EventFlowTests {
     @Before
     fun setup() {
         mockkObject(GraphDBService)
-        every { GraphDBService.isDataValid(any()) } returns true
-        every { GraphDBService.insertEvent(any()) } returns true
+        every { GraphDBService.insertEvent(any(), false) } returns true
 
         network = MockNetwork(
                 listOf("nl.tno.federated"),
@@ -139,7 +137,6 @@ class EventFlowTests {
     fun `fail Start event with invalid rdf`() {
         val event = Event(setOf(), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
-        every { GraphDBService.isDataValid(any()) } returns false
         val flow = NewEventFlow("invalid data", countriesInvolved)
         val future = a.startFlow(flow)
         network.runNetwork()

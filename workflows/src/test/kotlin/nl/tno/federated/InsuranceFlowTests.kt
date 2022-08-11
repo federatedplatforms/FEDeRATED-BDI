@@ -40,8 +40,7 @@ class InsuranceFlowTests {
     @Before
     fun setup() {
         mockkObject(GraphDBService)
-        every { GraphDBService.isDataValid(any()) } returns true
-        every { GraphDBService.insertEvent(any()) } returns true
+        every { GraphDBService.insertEvent(any(), any()) } returns true
 
         network = MockNetwork(
                 listOf("nl.tno.federated"),

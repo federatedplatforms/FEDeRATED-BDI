@@ -15,7 +15,6 @@ import nl.tno.federated.contracts.EventContract
 import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.services.GraphDBService.generalSPARQLquery
 import nl.tno.federated.services.GraphDBService.insertEvent
-import nl.tno.federated.services.GraphDBService.isDataValid
 import nl.tno.federated.services.GraphDBService.queryEventById
 import nl.tno.federated.states.EventState
 import nl.tno.federated.states.EventType
@@ -108,7 +107,6 @@ class NewEventFlow(
                         fullEvent = fullEvent,
                         participants = allParties - notary
                 )
-                require(isDataValid(newEventState)) { "RDF data is not valid"}
 
                 val txBuilder = TransactionBuilder(notary)
                         .addOutputState(newEventState, EventContract.ID)
@@ -137,7 +135,7 @@ class NewEventFlow(
                 progressTracker.currentStep = FINALISING_TRANSACTION
                 // Notarise and record the transaction in both parties' vaults.
 
-                require(insertEvent(newEventState.fullEvent)) { "Unable to insert event data into the triple store."}
+                require(insertEvent(newEventState.fullEvent, false)) { "Unable to insert event data into the triple store."}
                 return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
             }
 
@@ -151,7 +149,6 @@ class NewEventFlow(
                 val newTimestamp = previousEventData.timestamps + newEvent.timestamps.single()
 
                 val newEventState = previousEventData.copy( timestamps = newTimestamp)
-                require(isDataValid(newEventState)) { "RDF data is not valid or does not match event"}
 
                 val txBuilder = TransactionBuilder(notary)
                         .addOutputState(newEventState, EventContract.ID)
@@ -179,7 +176,7 @@ class NewEventFlow(
                 // Stage 5.
                 progressTracker.currentStep = FINALISING_TRANSACTION
                 // Notarise and record the transaction in both parties' vaults.
-                require(insertEvent(newEventState.fullEvent)) { "Unable to insert event data into the triple store."}
+                require(insertEvent(newEventState.fullEvent, false)) { "Unable to insert event data into the triple store."}
                 return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
             }
 
@@ -192,7 +189,6 @@ class NewEventFlow(
                 }
 
                 val correspondingEvent = previousEqualEvents.single().state.data
-                require(isDataValid(correspondingEvent)) { "RDF data is not valid or does not match event"}
 
                 val txBuilder = TransactionBuilder(notary)
                         .addCommand(Command(EventContract.Commands.ExecuteEvent(), correspondingEvent.participants.map { it.owningKey }))
@@ -240,7 +236,7 @@ class NewEventFlow(
                 // Stage 5.
                 progressTracker.currentStep = FINALISING_TRANSACTION
                 // Notarise and record the transaction in both parties' vaults.
-                require(insertEvent(newEventState.fullEvent)) { "Unable to insert event data into the triple store."}
+                require(insertEvent(newEventState.fullEvent, false)) { "Unable to insert event data into the triple store."}
                 return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
             }
 
@@ -272,7 +268,7 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 val outputState = stx.tx.outputStates.single() as EventState
-                require(insertEvent(outputState.fullEvent)) { "Unable to insert event data into the triple store."}
+                require(insertEvent(outputState.fullEvent, false)) { "Unable to insert event data into the triple store."}
                 // TODO what to check in the counterparty flow?
                 // especially: if I'm not passing all previous states in the tx (see "requires" in the flow)
                 // then I want the counterparties to check by themselves that everything's legit

@@ -1,15 +1,11 @@
 package nl.tno.federated
 
 import com.google.common.collect.testing.Helpers.assertContainsAllOf
-import net.corda.core.contracts.UniqueIdentifier
 import nl.tno.federated.services.GraphDBService
-import nl.tno.federated.states.EventState
 import nl.tno.federated.states.EventType
 import nl.tno.federated.states.Milestone
-import nl.tno.federated.states.Timestamp
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import java.io.File
 import java.util.*
@@ -19,7 +15,7 @@ import kotlin.test.assertEquals
 class GraphDBServiceTests {
 
     private val invalidSampleTTL = File("src/test/resources/SHACL_FAIL - TradelensEvents_ArrivalDeparture.ttl").readText()
-    private val validSampleTtl = File("src/test/resources/TradelensEvents_SingleConsignment.ttl").readText()
+    private val validSampleTtl = File("src/test/resources/correct-event.ttl").readText()
 
     @Before
     fun setup() {
@@ -32,19 +28,25 @@ class GraphDBServiceTests {
     @Test
     fun `Query everything`() {
         val result = GraphDBService.queryEventIds()
-        assert(result.contains("12345"))
+        assert(result.contains("b0efeca7-7b33-4d4e-8a5e-1d33b75a3e19"))
     }
 
     @Test
     fun `Query event by ID`() {
-        val result = GraphDBService.queryEventById("3bc54ecf-c111-43b0-9437-09d6df211e37")
-        assert(result.contains("3bc54ecf-c111-43b0-9437-09d6df211e37"))
+        val result = GraphDBService.queryEventById("b0efeca7-7b33-4d4e-8a5e-1d33b75a3e19")
+        assert(result.contains("DigitalTwin-af59f747-6aee-4d41-b425-49ec5bf0a81c"))
     }
 
     @Test
     fun `Query with a custom sparql query`() {
-        val result = GraphDBService.generalSPARQLquery("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>\nPREFIX ex: <http://example.com/base#>\nSELECT ?subject ?object \nWHERE {\n?subject rdfs:label ?object .\nFILTER (?subject = ex:Event-3bc54ecf-c111-43b0-9437-09d6df211e37)\n}")
-        assert(result.contains("3bc54ecf-c111-43b0-9437-09d6df211e37"))
+        val result = GraphDBService.generalSPARQLquery("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+                "PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>\n" +
+                "PREFIX ex: <https://ontology.tno.nl/example#>\n" +
+                "SELECT *\n" +
+                "WHERE {\n" +
+                "ex:event-b0efeca7-7b33-4d4e-8a5e-1d33b75a3e19 ?predicate ?object .\n" +
+                "}")
+        assert(result.contains("DigitalTwin-af59f747-6aee-4d41-b425-49ec5bf0a81c"))
     }
 
 
@@ -340,14 +342,14 @@ class GraphDBServiceTests {
 
     @Test
     fun `Insert new event`() {
-        val successfulInsertion = GraphDBService.insertEvent(validSampleTtl)
+        val successfulInsertion = GraphDBService.insertEvent(validSampleTtl, false)
         assert(successfulInsertion)
     }
 
-    @Ignore("Enable this when shacl validation is back working")
+    //@Ignore("Enable this when shacl validation is back working")
     @Test
     fun `Insert invalid event`() {
-        val successfulInsertion = GraphDBService.insertEvent(invalidSampleTTL)
+        val successfulInsertion = GraphDBService.insertEvent(invalidSampleTTL, false)
         assert(!successfulInsertion)
     }
 
@@ -355,54 +357,6 @@ class GraphDBServiceTests {
     fun `Verify repository is available`() {
         val resultTrue = GraphDBService.isRepositoryAvailable()
         assert(resultTrue)
-    }
-
-    @Ignore("Enable this when we find a shacl endpoint")
-    @Test
-    fun `Validate invalid event - nonsense RDF`() {
-        val eventState = EventState(emptySet(),
-            transportMean = emptySet(),
-            location = setOf("random string"),
-            otherDigitalTwins = setOf(UUID.randomUUID()),
-            timestamps = setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ESTIMATED)),
-            ecmruri = "",
-            milestone = Milestone.START,
-            fullEvent = invalidSampleTTL,
-            participants = emptyList()
-        )
-        assert(!GraphDBService.isDataValid(eventState))
-    }
-
-    @Ignore("Enable this when we find a shacl endpoint")
-    @Test
-    fun `Validate invalid event - valid RDF`() {
-        val eventState = EventState(emptySet(),
-            transportMean = emptySet(),
-            location = setOf("random string"),
-            otherDigitalTwins = setOf(UUID.randomUUID()),
-            timestamps = setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ESTIMATED)),
-            ecmruri = "",
-            milestone = Milestone.START,
-            fullEvent = validSampleTtl,
-            participants = emptyList()
-        )
-        assert(!GraphDBService.isDataValid(eventState))
-    }
-
-    @Ignore("Enable this when we can parse the whole event string")
-    @Test
-    fun `Validate valid event`() {
-        val eventState = EventState(emptySet(),
-            transportMean = emptySet(),
-            location = setOf("random string"),
-            otherDigitalTwins = setOf(UUID.randomUUID()),
-            timestamps = setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ESTIMATED)),
-            ecmruri = "",
-            milestone = Milestone.START,
-            fullEvent = "valid RDF matching this state", // TODO
-            participants = emptyList()
-        )
-        assert(GraphDBService.isDataValid(eventState))
     }
 
     @Test
@@ -434,5 +388,36 @@ class GraphDBServiceTests {
 
         assertEquals(2, parsedEvent.labels.size)
         assertContainsAllOf(parsedEvent.labels, "GateOut test", "insuranceEvent")
+    }
+
+    @Test
+    fun `parse other dt mean`() {
+        val testRdfEvent = """
+            @prefix : <https://ontology.tno.nl/logistics/federated/Event#> .
+            @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+            @prefix owl: <http://www.w3.org/2002/07/owl#>.
+            @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+            @prefix sd: <http://www.w3.org/ns/sparql-service-description#>.
+            @prefix event: <https://ontology.tno.nl/logistics/federated/Event#>.
+            @prefix dt: <https://ontology.tno.nl/logistics/federated/digitalTwin#>.
+            @prefix bs: <https://ontology.tno.nl/logistics/federated/businessService#>.
+            @prefix pi: <https://ontology.tno.nl/logistics/federated/physicalInfrastructure#>.
+            @prefix cl: <https://ontology.tno.nl/logistics/federated/Classifications#>.
+            
+            :event-41068e69-4be0-11ec-a52a-5c879c8043a5 a event:Event;
+                rdfs:label "GateOut test"^^xsd:string, "insuranceEvent"^^xsd:string;
+                event:hasMilestone event:Start;
+                event:hasDateTimeType event:Planned;
+                event:hasTimestamp "2021-11-10T08:44:07Z"^^xsd:dateTime;
+                event:involvesDigitalTwin :DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f;
+                event:involvesPhysicalInfrastructure :PhysicalInfrastructure-be989099-2e25-3259-975b-9f17c63b0281.
+            
+            :DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f a dt:TransportMeans, owl:NamedIndividual.
+            """.trimIndent()
+
+        val parsedEvent = GraphDBService.parseRDFToEvents(testRdfEvent).single()
+
+        assertEquals(1, parsedEvent.otherDigitalTwins.size)
+        assertEquals(UUID.fromString("dce1774a-b2a1-338e-bd56-1902c57f836f"), parsedEvent.otherDigitalTwins.single())
     }
 }
