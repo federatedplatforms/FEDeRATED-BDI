@@ -4,10 +4,15 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
-import nl.tno.federated.flows.*
+import nl.tno.federated.flows.GeneralSPARQLqueryFlow
+import nl.tno.federated.flows.NewEventFlow
+import nl.tno.federated.flows.QueryGraphDBbyIdFlow
+import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
+import nl.tno.federated.webserver.L1Services
 import nl.tno.federated.webserver.L1Services.extractAccessTokenFromHeader
+import nl.tno.federated.webserver.L1Services.retrieveUrlBody
 import nl.tno.federated.webserver.L1Services.userIsAuthorized
 import nl.tno.federated.webserver.NodeRPCConnection
 import nl.tno.federated.webserver.dtos.NewEvent
@@ -15,6 +20,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.net.URL
 import java.util.*
 import javax.naming.AuthenticationException
 
@@ -39,15 +45,7 @@ class EventController(rpc: NodeRPCConnection) {
         val accessToken = extractAccessTokenFromHeader(authorizationHeader)
 
         if (!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
-
-        /*
-        if (event.uniqueId && event.id.isNotBlank()) {
-            if (eventById(event.id, accessToken).isNotEmpty()) {
-                return ResponseEntity("Event with this id already exists. If you want to insert anyway, unset the uniqueId parameter.", HttpStatus.BAD_REQUEST)
-            }
-        }*/
-
-                return try {
+                  return try {
                     val newEventTx = proxy.startFlowDynamic(
                         NewEventFlow::class.java,
                         event.fullEvent,
@@ -58,6 +56,37 @@ class EventController(rpc: NodeRPCConnection) {
             } catch (e: Exception) {
                 return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
             }
+    }
+
+    @ApiOperation(value = "Create new event after passing it through the semantic adapter")
+    @PostMapping(value = ["/newUnprocessed"])
+    private fun newUnprocessedEvent(@RequestBody event: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
+        // TODO can we authenticate this in the case of a webhook?
+
+        val convertedEvent = retrieveUrlBody(URL("http://localhost/tradelens-events"), L1Services.RequestMethod.POST, event)
+        retrieveAndStoreExtraData(convertedEvent)
+        return newEvent(NewEvent(convertedEvent, emptySet()), authorizationHeader)
+    }
+
+    private fun retrieveAndStoreExtraData(event: String): Boolean {
+        val digitalTwinIds = parseDTId(event)
+
+        digitalTwinIds.forEach {
+            val url = URL("https://platform-sandbox.tradelens.com/api/v1/transportEquipment/transportSummaries/transportEquipmentId/$it")
+            val dataFromApi = retrieveUrlBody(url, L1Services.RequestMethod.GET)
+            val convertedData = retrieveUrlBody(URL("http://localhost/tradelens-containers"), L1Services.RequestMethod.POST, dataFromApi)
+            insertDataIntoGraphDB(convertedData)
+        }
+        return true
+    }
+
+    private fun insertDataIntoGraphDB(dataFromApi: String): Boolean {
+        return GraphDBService.insertEvent(dataFromApi, true)
+    }
+
+    private fun parseDTId(event: String): List<UUID> {
+        val parsedEvent = GraphDBService.parseRDFToEvents(event)
+        return parsedEvent.flatMap { it.otherDigitalTwins }
     }
 
     @ApiOperation(value = "Return all known events")
