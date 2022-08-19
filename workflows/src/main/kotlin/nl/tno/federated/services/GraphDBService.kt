@@ -51,8 +51,8 @@ object GraphDBService {
         return performSparql(sparql, RequestMethod.GET, false)
     }
 
-    fun generalSPARQLquery(query: String): String {
-        return performSparql(query.trimIndent(), RequestMethod.GET, false)
+    fun generalSPARQLquery(query: String, privateRepo: Boolean = false): String {
+        return performSparql(query.trimIndent(), RequestMethod.GET, privateRepo)
     }
 
     fun queryEventById(id: String): String {

@@ -188,7 +188,7 @@ class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTran
         val otherParty = otherPartyList.single()
         /////////////
         progressTracker.currentStep = RUN_SPARQL_QUERY
-        val result = GraphDBService.generalSPARQLquery(inputStateWithQuery.sparqlQuery)
+        val result = GraphDBService.generalSPARQLquery(inputStateWithQuery.sparqlQuery, privateRepo = true)
 
         /////////////
        // progressTracker.currentStep = GENERATING_TRANSACTION
