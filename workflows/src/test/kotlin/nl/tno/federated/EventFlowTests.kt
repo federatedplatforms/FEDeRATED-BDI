@@ -20,6 +20,7 @@ import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.states.*
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import java.util.*
 import kotlin.test.assertFailsWith
@@ -133,6 +134,7 @@ class EventFlowTests {
         signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
     }
 
+    @Ignore
     @Test
     fun `fail Start event with invalid rdf`() {
         val event = Event(setOf(), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, sampleEvent)
