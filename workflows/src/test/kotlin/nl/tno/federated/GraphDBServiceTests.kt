@@ -6,6 +6,7 @@ import nl.tno.federated.states.EventType
 import nl.tno.federated.states.Milestone
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import java.io.File
 import java.util.*
@@ -346,7 +347,7 @@ class GraphDBServiceTests {
         assert(successfulInsertion)
     }
 
-    //@Ignore("Enable this when shacl validation is back working")
+    @Ignore("Enable this when shacl validation is back working")
     @Test
     fun `Insert invalid event`() {
         val successfulInsertion = GraphDBService.insertEvent(invalidSampleTTL, false)
