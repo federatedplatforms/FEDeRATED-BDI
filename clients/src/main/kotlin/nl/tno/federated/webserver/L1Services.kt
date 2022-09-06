@@ -2,6 +2,7 @@ package nl.tno.federated.webserver
 
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
+import java.io.DataOutputStream
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URI
@@ -9,17 +10,83 @@ import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.util.*
-import javax.naming.AuthenticationException
+import kotlin.collections.HashMap
 
 object L1Services {
 
-    internal fun retrieveUrlBody(url: URL, requestMethod: RequestMethod, body: String = ""): String {
+    internal fun getIBMIdentityToken(): String {
+//        val propertyFile = File("database.properties").inputStream()
+//        val properties = Properties()
+//        properties.load(propertyFile)
+        val apikey = "" // properties.getProperty("tradelens.apikey")
+        //TODO The above piece of code is commented out because database.properties isn't found.
+
+        val urlParameters = "grant_type=urn:ibm:params:oauth:grant-type:apikey&apikey=$apikey"
+
+        val postData = urlParameters.toByteArray(StandardCharsets.UTF_8)
+        val postDataLength = postData.size
+
+        val url = URL("https://iam.cloud.ibm.com/identity/token")
+        val conn = url.openConnection() as HttpURLConnection
+
+        conn.doOutput = true
+        conn.instanceFollowRedirects = false
+        conn.requestMethod = "POST"
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+        conn.setRequestProperty("charset", "utf-8")
+        conn.setRequestProperty("Content-Length", Integer.toString(postDataLength))
+        conn.useCaches = false
+        DataOutputStream(conn.outputStream).use( { wr -> wr.write(postData) } )
+
+        if (conn.responseCode in 200..299) {
+            conn.inputStream.bufferedReader().use {
+                return it.readText()
+            }
+        }
+        else {
+            conn.errorStream.bufferedReader().use {
+                return it.readText()
+            }
+        }
+    }
+
+    internal fun getSolutionToken() : String {
+//        val propertyFile = File("database.properties").inputStream()
+//        val properties = Properties()
+//        properties.load(propertyFile)
+        val orgId = "" // properties.getProperty("tradelens.apikey")
+        //TODO The above piece of code is commented out because database.properties isn't found.
+
+        val url = URL("https://platform-sandbox.tradelens.com/sa/api/v1/auth/exchange_token/organizations/$orgId")
+
+        val body = getIBMIdentityToken()
+
+        val result = retrieveUrlBody(url,
+                L1Services.RequestMethod.POST,
+                body
+        )
+
+        val solutionToken = extractSolutionToken(result)
+
+        return solutionToken
+    }
+
+    private fun extractSolutionToken(unprocessedJsonString: String): String {
+        return if(unprocessedJsonString.contains("solution_token")) {
+            unprocessedJsonString.split(":","{","}")[2]
+        } else {
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Solution token is malformed")
+        }
+    }
+
+    internal fun retrieveUrlBody(url: URL, requestMethod: RequestMethod, body: String = "", headers: HashMap<String,String> = HashMap()): String {
         val con = url.openConnection() as HttpURLConnection
         con.requestMethod = requestMethod.toString()
         con.connectTimeout = 5000
         con.readTimeout = 5000
         con.setRequestProperty("Content-Type", "application/json")
         con.setRequestProperty("Accept", "application/json")
+        headers.forEach{ con.setRequestProperty(it.key, it.value) }
 
         if (body.isNotBlank()) {
             con.doOutput = true
