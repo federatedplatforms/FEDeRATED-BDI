@@ -58,6 +58,12 @@ class EventController(rpc: NodeRPCConnection) {
             }
     }
 
+    @ApiOperation(value = "Test Point of contact with TL")
+    @PostMapping(value = ["/testpointofcontact"])
+    private fun testPointOfContactTL(@RequestBody event: String): ResponseEntity<String> {
+        return ResponseEntity("Function returned", HttpStatus.CREATED)
+    }
+
     @ApiOperation(value = "Create new event after passing it through the semantic adapter")
     @PostMapping(value = ["/newUnprocessed"])
     private fun newUnprocessedEvent(@RequestBody event: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
@@ -71,9 +77,11 @@ class EventController(rpc: NodeRPCConnection) {
     private fun retrieveAndStoreExtraData(event: String): Boolean {
         val digitalTwinIds = parseDTId(event)
 
+        val solutionToken = L1Services.getSolutionToken()
+
         digitalTwinIds.forEach {
             val url = URL("https://platform-sandbox.tradelens.com/api/v1/transportEquipment/transportSummaries/transportEquipmentId/$it")
-            val dataFromApi = retrieveUrlBody(url, L1Services.RequestMethod.GET)
+            val dataFromApi = retrieveUrlBody(url, L1Services.RequestMethod.GET, headers = hashMapOf(Pair("Authorization", "Bearer $solutionToken")))
             val convertedData = retrieveUrlBody(URL("http://localhost/tradelens-containers"), L1Services.RequestMethod.POST, dataFromApi)
             insertDataIntoGraphDB(convertedData)
         }
