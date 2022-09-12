@@ -342,6 +342,89 @@ class GraphDBServiceTests {
     }
 
     @Test
+    fun `Parse event - 7 - milliseconds`() {
+        val testRdfEvent = """
+            @prefix data: <https://ontology.tno.nl/logistics/federated/tradelens#> .
+            @prefix dt: <https://ontology.tno.nl/logistics/federated/DigitalTwin#> .
+            @prefix event: <https://ontology.tno.nl/logistics/federated/Event#> .
+            @prefix owl: <http://www.w3.org/2002/07/owl#> .
+            @prefix pi: <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#> .
+            @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+            @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+            
+            data:DigitalTwin-bf93dc6a-1f04-4dec-ba0d-3ba987b2723f a owl:NamedIndividual, dt:TransportMeans .
+            
+            data:PhysicalInfrastructure-INNSA a "http://www.w3.org/2002/07/owl#NamedIndivudal~iri",
+                pi:Location .
+            
+            data:event-10d7fd0d-7a26-4b83-be1a-9c2606cebdc9 a "http://www.w3.org/2002/07/owl#NamedIndividual",
+                event:Event, event:LoadEvent;
+              event:hasDateTimeType event:Actual;
+              event:hasMilestone event:Start;
+              event:hasSubmissionTimestamp "2022-09-09T12:20:15.332Z"^^xsd:dateTime;
+              event:hasTimestamp "2022-09-09T18:20:15.329Z"^^xsd:dateTime;
+              event:involvesBusinessTransaction "https://ontology.tno.nl/logistics/federated/tradelens#BusinessTransaction-bc71cb37-f2a9-4844-8d8b-891c8bf75521";
+              event:involvesDigitalTwin data:DigitalTwin-bf93dc6a-1f04-4dec-ba0d-3ba987b2723f;
+              event:involvesPhysicalInfrastructure data:PhysicalInfrastructure-INNSA .
+
+            """.trimIndent()
+
+        val parsedEvent = GraphDBService.parseRDFToEvents(testRdfEvent).single()
+
+        assertEquals("bf93dc6a-1f04-4dec-ba0d-3ba987b2723f", parsedEvent.transportMean.single().toString())
+        assertEquals("INNSA", parsedEvent.location.single().toString())
+
+        assertEquals(EventType.ACTUAL, parsedEvent.timestamps.single().type)
+
+        assertEquals(1662747615329, parsedEvent.timestamps.single().time.time)
+        assertEquals(Milestone.START, parsedEvent.milestone)
+        assertEquals("10d7fd0d-7a26-4b83-be1a-9c2606cebdc9", parsedEvent.timestamps.single().id)
+
+        assertEquals("bc71cb37-f2a9-4844-8d8b-891c8bf75521", parsedEvent.businessTransaction)
+    }
+
+    @Test
+    fun `Parse event - TL`() {
+        val testRdfEvent = """
+                @prefix data: <https://ontology.tno.nl/logistics/federated/tradelens#> .
+                @prefix dt: <https://ontology.tno.nl/logistics/federated/DigitalTwin#> .
+                @prefix event: <https://ontology.tno.nl/logistics/federated/Event#> .
+                @prefix owl: <http://www.w3.org/2002/07/owl#> .
+                @prefix pi: <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#> .
+                @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+                @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+                
+                data:DigitalTwin-bf93dc6a-1f04-4dec-ba0d-3ba987b2723f a owl:NamedIndividual, dt:TransportMeans .
+                
+                data:PhysicalInfrastructure-INNSA a "http://www.w3.org/2002/07/owl#NamedIndivudal~iri",
+                    pi:Location .
+                
+                data:event-10d7fd0d-7a26-4b83-be1a-9c2606cebdc9 a "http://www.w3.org/2002/07/owl#NamedIndividual",
+                    event:Event, event:LoadEvent;
+                  event:hasDateTimeType event:Actual;
+                  event:hasMilestone event:Start;
+                  event:hasSubmissionTimestamp "2022-09-09T12:20:15Z"^^xsd:dateTime;
+                  event:hasTimestamp "2022-09-09T18:20:15Z"^^xsd:dateTime;
+                  event:involvesBusinessTransaction "https://ontology.tno.nl/logistics/federated/tradelens#BusinessTransaction-bc71cb37-f2a9-4844-8d8b-891c8bf75521";
+                  event:involvesDigitalTwin data:DigitalTwin-bf93dc6a-1f04-4dec-ba0d-3ba987b2723f;
+                  event:involvesPhysicalInfrastructure data:PhysicalInfrastructure-INNSA .
+            """.trimIndent()
+
+        val parsedEvent = GraphDBService.parseRDFToEvents(testRdfEvent).single()
+
+        assertEquals("bf93dc6a-1f04-4dec-ba0d-3ba987b2723f", parsedEvent.transportMean.single().toString())
+        assertEquals("INNSA", parsedEvent.location.single().toString())
+
+        assertEquals(EventType.ACTUAL, parsedEvent.timestamps.single().type)
+
+        assertEquals(1662747615000, parsedEvent.timestamps.single().time.time)
+        assertEquals(Milestone.START, parsedEvent.milestone)
+        assertEquals("10d7fd0d-7a26-4b83-be1a-9c2606cebdc9", parsedEvent.timestamps.single().id)
+
+        assertEquals("bc71cb37-f2a9-4844-8d8b-891c8bf75521", parsedEvent.businessTransaction)
+    }
+
+    @Test
     fun `Insert new event`() {
         val successfulInsertion = GraphDBService.insertEvent(validSampleTtl, false)
         assert(successfulInsertion)

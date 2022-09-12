@@ -77,7 +77,7 @@ class InsuranceFlowTests {
         insertEvent(goodUUID2, transportMeanUUID)
 
         // insert insurance event
-        val insuranceEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), "", Milestone.START, "", setOf("InsuranceEvent"))
+        val insuranceEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), "", Milestone.START, "some business tx", "", setOf("InsuranceEvent"))
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(insuranceEvent)
 
         val flowExecuted = InsuranceFlow("", countriesInvolved)
@@ -102,7 +102,7 @@ class InsuranceFlowTests {
         insertEvent(goodUUID2, transportMeanUUID2)
 
         // insert insurance event
-        val insuranceEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), "", Milestone.START, "", setOf("InsuranceEvent"))
+        val insuranceEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), "", Milestone.START, "some business tx", "", setOf("InsuranceEvent"))
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(insuranceEvent)
 
         val flowExecuted = InsuranceFlow("", countriesInvolved)
@@ -129,7 +129,7 @@ class InsuranceFlowTests {
         insertEvent(goodUUID, transportMeanUUID, milestone = Milestone.STOP)
 
         // insert insurance event
-        val insuranceEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), "", Milestone.START, "", setOf("InsuranceEvent"))
+        val insuranceEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), "", Milestone.START, "some business tx", "", setOf("InsuranceEvent"))
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(insuranceEvent)
 
         val flowExecuted = InsuranceFlow("", countriesInvolved)
@@ -148,7 +148,7 @@ class InsuranceFlowTests {
         val goodUUID = UniqueIdentifier().id
         val transportMeanUUID = UniqueIdentifier().id
         // insert insurance event
-        val insuranceEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), "", Milestone.START, "", setOf("InsuranceEvent"))
+        val insuranceEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), "", Milestone.START, "some business tx", "", setOf("InsuranceEvent"))
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(insuranceEvent)
 
         val flowExecuted = NewEventFlow("", countriesInvolved)
@@ -167,6 +167,7 @@ class InsuranceFlowTests {
             setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)),
             "",
             milestone,
+            "some business tx",
             "",
             emptySet()
         )

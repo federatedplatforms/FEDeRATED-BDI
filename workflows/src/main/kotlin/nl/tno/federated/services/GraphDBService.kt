@@ -141,6 +141,7 @@ object GraphDBService {
             timestamps = setOf(timestampFromModel(model, eventId)),
             ecmruri = "ecmruri", // TODO?
             milestone = milestoneFromModel(model, eventId),
+            businessTransaction = businessTransactionIdFromModel(model, eventId),
             fullEvent = fullEventFromModel(model, eventId),
             labels = labelFromModel(model, eventId)
         )
@@ -154,6 +155,16 @@ object GraphDBService {
             null
         )
         return labels.objects().mapTo(HashSet<String>()) { trimDoubleQuotes(it.toString()) }
+    }
+    private fun businessTransactionIdFromModel(model: Model, eventId: String): String {
+        val factory = SimpleValueFactory.getInstance()
+        val businessTransactions = model.filter(
+            factory.createIRI(eventId),
+            factory.createIRI("https://ontology.tno.nl/logistics/federated/Event#involvesBusinessTransaction"),
+            null
+        )
+        require(businessTransactions.size == 1) { "Found multiple businesstransactions for event $eventId" }
+        return businessTransactions.first().`object`.toString().substringAfter("-").replace("\"", "")
     }
 
     private fun locationsFromModel(model: Model, eventId: String): Set<String> {
@@ -204,7 +215,7 @@ object GraphDBService {
             "actual" -> EventType.ACTUAL
             "estimated" -> EventType.ESTIMATED
             "planned" -> EventType.PLANNED
-            else -> throw IllegalArgumentException("Unknown eventtype found for event $eventId. Found ${timestampType.first().toString()}.")
+            else -> throw IllegalArgumentException("Unknown eventtype found for event $eventId. Found ${timestampType.first()}.")
         }
 
         val timestamps = model.filter(
@@ -213,8 +224,8 @@ object GraphDBService {
             null
         ).objects()
         require(timestamps.size == 1) { "Found multiple timestamps for event $eventId" }
-        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
         val timestamp = timestamps.first() as SimpleLiteral
+        val formatter = if (timestamp.toString().length == 71) SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX") else SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
         val eventDate = formatter.parse(timestamp.label)
         return Timestamp(uuidFromModel(eventId).toString(), eventDate, eventType)
     }

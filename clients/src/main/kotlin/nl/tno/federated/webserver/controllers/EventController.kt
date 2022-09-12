@@ -75,15 +75,27 @@ class EventController(rpc: NodeRPCConnection) {
     }
 
     private fun retrieveAndStoreExtraData(event: String): Boolean {
-        val digitalTwinIds = parseDTId(event)
+        val digitalTwinIdsAndConsignmentIds = parseDTIdsAndBusinessTransactionIds(event)
 
         val solutionToken = L1Services.getSolutionToken()
+//        val consignmentId = "bc71cb37-f2a9-4844-8d8b-891c8bf75521" // TODO
 
-        digitalTwinIds.forEach {
-            val url = URL("https://platform-sandbox.tradelens.com/api/v1/transportEquipment/transportSummaries/transportEquipmentId/$it")
-            val dataFromApi = retrieveUrlBody(url, L1Services.RequestMethod.GET, headers = hashMapOf(Pair("Authorization", "Bearer $solutionToken")))
-            val convertedData = retrieveUrlBody(URL("http://localhost/tradelens-containers"), L1Services.RequestMethod.POST, dataFromApi)
-            insertDataIntoGraphDB(convertedData)
+        digitalTwinIdsAndConsignmentIds.forEach {
+            val consignmentId = it.value
+            it.key.forEach {twinId ->
+                val url = URL("https://platform-sandbox.tradelens.com/api/v1/transportEquipment/currentProgress/consignmentId/$consignmentId/transportEquipmentId/$twinId")
+                val dataFromApi = retrieveUrlBody(
+                    url,
+                    L1Services.RequestMethod.GET,
+                    headers = hashMapOf(Pair("Authorization", "Bearer $solutionToken"))
+                )
+                val convertedData = retrieveUrlBody(
+                    URL("http://localhost/tradelens-containers"),
+                    L1Services.RequestMethod.POST,
+                    dataFromApi
+                ) //TODO handle api errors
+                insertDataIntoGraphDB(convertedData)
+            }
         }
         return true
     }
@@ -92,9 +104,9 @@ class EventController(rpc: NodeRPCConnection) {
         return GraphDBService.insertEvent(dataFromApi, true)
     }
 
-    private fun parseDTId(event: String): List<UUID> {
+    private fun parseDTIdsAndBusinessTransactionIds(event: String): Map<List<UUID>, String> {
         val parsedEvent = GraphDBService.parseRDFToEvents(event)
-        return parsedEvent.flatMap { it.otherDigitalTwins }
+        return parsedEvent.associate { it.allEvents().flatten() to it.businessTransaction }
     }
 
     @ApiOperation(value = "Return all known events")
@@ -183,6 +195,7 @@ class EventController(rpc: NodeRPCConnection) {
                 it.timestamps,
                 it.ecmruri,
                 it.milestone,
+                "",
                 it.fullEvent
             )
         }

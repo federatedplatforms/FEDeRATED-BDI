@@ -15,11 +15,10 @@ import kotlin.collections.HashMap
 object L1Services {
 
     internal fun getIBMIdentityToken(): String {
-//        val propertyFile = File("database.properties").inputStream()
-//        val properties = Properties()
-//        properties.load(propertyFile)
-        val apikey = "" // properties.getProperty("tradelens.apikey")
-        //TODO The above piece of code is commented out because database.properties isn't found.
+        val propertyFile = File("database.properties").inputStream()
+        val properties = Properties()
+        properties.load(propertyFile)
+        val apikey = properties.getProperty("tradelens.apikey")
 
         val urlParameters = "grant_type=urn:ibm:params:oauth:grant-type:apikey&apikey=$apikey"
 
@@ -34,9 +33,9 @@ object L1Services {
         conn.requestMethod = "POST"
         conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
         conn.setRequestProperty("charset", "utf-8")
-        conn.setRequestProperty("Content-Length", Integer.toString(postDataLength))
+        conn.setRequestProperty("Content-Length", postDataLength.toString())
         conn.useCaches = false
-        DataOutputStream(conn.outputStream).use( { wr -> wr.write(postData) } )
+        DataOutputStream(conn.outputStream).use { wr -> wr.write(postData) }
 
         if (conn.responseCode in 200..299) {
             conn.inputStream.bufferedReader().use {
@@ -50,25 +49,23 @@ object L1Services {
         }
     }
 
-    internal fun getSolutionToken() : String {
-//        val propertyFile = File("database.properties").inputStream()
-//        val properties = Properties()
-//        properties.load(propertyFile)
-        val orgId = "" // properties.getProperty("tradelens.apikey")
-        //TODO The above piece of code is commented out because database.properties isn't found.
+    internal fun getSolutionToken(): String {
+        val propertyFile = File("database.properties").inputStream()
+        val properties = Properties()
+        properties.load(propertyFile)
+        val orgId = properties.getProperty("tradelens.orgId")
 
         val url = URL("https://platform-sandbox.tradelens.com/sa/api/v1/auth/exchange_token/organizations/$orgId")
 
         val body = getIBMIdentityToken()
 
-        val result = retrieveUrlBody(url,
-                L1Services.RequestMethod.POST,
-                body
+        val result = retrieveUrlBody(
+            url,
+            L1Services.RequestMethod.POST,
+            body
         )
 
-        val solutionToken = extractSolutionToken(result)
-
-        return solutionToken
+        return extractSolutionToken(result)
     }
 
     private fun extractSolutionToken(unprocessedJsonString: String): String {
@@ -100,6 +97,12 @@ object L1Services {
             con.inputStream.bufferedReader().use {
                 return it.readText()
             }
+        }
+        else if (con.responseCode < 0) {
+                return "Received an invalid response from external API"
+        }
+        else if (con.responseCode == 401) {
+                return "Something went wrong authenticating to a third party API"
         }
         else {
             con.errorStream.bufferedReader().use {
