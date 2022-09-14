@@ -151,11 +151,11 @@ class InsuranceFlowTests {
         val insuranceEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), "", Milestone.START, "some business tx", "", setOf("InsuranceEvent"))
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(insuranceEvent)
 
-        val flowExecuted = NewEventFlow("", countriesInvolved)
+        val flowExecuted = InsuranceFlow("", countriesInvolved)
         val futureExecuted = a.startFlow(flowExecuted)
         network.runNetwork()
 
-        assertFailsWith<IllegalArgumentException>("Illegal rdf") { futureExecuted.getOrThrow() }
+        assertFailsWith<IllegalArgumentException> { futureExecuted.getOrThrow() }
     }
 
     private fun insertEvent(goodUUID: UUID, transportMeanUUID: UUID, milestone: Milestone = Milestone.START): SecureHash {

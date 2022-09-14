@@ -200,25 +200,6 @@ class EventFlowTests {
     }
 
     @Test
-    fun `Duplicate start events fail`() {
-        val event = Event(setOf(), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, "some business tx", sampleEvent)
-        every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
-
-        val flowStart = NewEventFlow("", countriesInvolved)
-        val futureStart = a.startFlow(flowStart)
-        network.runNetwork()
-
-        val signedTxStart = futureStart.getOrThrow()
-        signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
-
-        val secondStart = NewEventFlow("", countriesInvolved)
-        val futureStart2 = a.startFlow(secondStart)
-        network.runNetwork()
-
-        assertFailsWith<IllegalArgumentException>("There cannot be a previous equal start event") { futureStart2.getOrThrow() }
-    }
-
-    @Test
     fun `Simple flow transaction 2`() { // TODO what does this test? seems redundant
         val event = Event(setOf(), setOf(UniqueIdentifier().id), setOf("some location"), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, "some business tx", sampleEvent)
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(event)
