@@ -163,8 +163,8 @@ object GraphDBService {
             factory.createIRI("https://ontology.tno.nl/logistics/federated/Event#involvesBusinessTransaction"),
             null
         )
-        require(businessTransactions.size == 1) { "Found multiple businesstransactions for event $eventId" }
-        return businessTransactions.first().`object`.toString().substringAfter("-").replace("\"", "")
+        require(businessTransactions.size in 0..1) { "Found multiple businesstransactions for event $eventId" }
+        return if (businessTransactions.size == 0) "" else businessTransactions.first().`object`.toString().substringAfter("-").replace("\"", "")
     }
 
     private fun locationsFromModel(model: Model, eventId: String): Set<String> {
