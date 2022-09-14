@@ -1,11 +1,9 @@
 package nl.tno.federated.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import net.corda.core.contracts.Command
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.identity.Party
-import net.corda.core.node.services.queryBy
 import net.corda.core.serialization.CordaSerializable
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
@@ -17,8 +15,6 @@ import nl.tno.federated.services.GraphDBService.generalSPARQLquery
 import nl.tno.federated.services.GraphDBService.insertEvent
 import nl.tno.federated.services.GraphDBService.queryEventById
 import nl.tno.federated.states.EventState
-import nl.tno.federated.states.EventType
-import nl.tno.federated.states.Milestone
 import nl.tno.federated.states.PhysicalObject
 
 @InitiatingFlow
@@ -78,24 +74,6 @@ class NewEventFlow(
 
         val newEvent = GraphDBService.parseRDFToEvents(fullEvent).first()
 
-        val previousEvents = serviceHub.vaultService.queryBy<EventState>(/* has the same digital twins*/).states
-                .filter{ it.state.data.goods == newEvent.goods &&
-                        it.state.data.transportMean == newEvent.transportMean &&
-                        it.state.data.location == newEvent.location
-                }
-
-        when(newEvent.timestamps.first().type) {
-
-            EventType.PLANNED -> {
-
-                val previousStartEvents = previousEvents.filter { it.state.data.milestone == Milestone.START }
-
-                if (newEvent.milestone == Milestone.START) {
-                    require(previousStartEvents.isEmpty()) { "There cannot be a previous equal start event" }
-                }
-                else if (newEvent.milestone == Milestone.STOP) {
-                    require (previousStartEvents.size <= 1) { "There must be one previous event only" }
-                }
                 val newEventState = EventState(
                         goods = newEvent.goods,
                         transportMean = newEvent.transportMean,
@@ -112,9 +90,6 @@ class NewEventFlow(
                         .addOutputState(newEventState, EventContract.ID)
                         .addCommand(EventContract.Commands.Create(), newEventState.participants.map { it.owningKey })
 
-                if(previousStartEvents.isNotEmpty()) // it means we are in the STOP branch, otherwise it throws earlier
-                    txBuilder.addReferenceState(previousStartEvents.single().referenced())
-
                 // Stage 2.
                 progressTracker.currentStep = VERIFYING_TRANSACTION
                 // Verify that the transaction is valid.
@@ -137,111 +112,6 @@ class NewEventFlow(
 
                 require(insertEvent(newEventState.fullEvent, false)) { "Unable to insert event data into the triple store."}
                 return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
-            }
-
-            EventType.ESTIMATED -> {
-
-                val previousEqualEvents = previousEvents.filter { it.state.data.milestone == newEvent.milestone }
-
-                require(previousEqualEvents.isNotEmpty()){ "There must be a corresponding event to update" }
-                val previousEventData = previousEqualEvents.single().state.data
-
-                val newTimestamp = previousEventData.timestamps + newEvent.timestamps.single()
-
-                val newEventState = previousEventData.copy( timestamps = newTimestamp)
-
-                val txBuilder = TransactionBuilder(notary)
-                        .addOutputState(newEventState, EventContract.ID)
-                        .addCommand(Command(EventContract.Commands.UpdateEstimatedTime(), newEventState.participants.map { it.owningKey }))
-
-                if(previousEqualEvents.isNotEmpty())
-                    txBuilder.addInputState(previousEqualEvents.single())
-
-                // Stage 2.
-                progressTracker.currentStep = VERIFYING_TRANSACTION
-                // Verify that the transaction is valid.
-                txBuilder.verify(serviceHub)
-
-                // Stage 3.
-                progressTracker.currentStep = SIGNING_TRANSACTION
-                // Sign the transaction.
-                val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
-
-                // Stage 4.
-                progressTracker.currentStep = GATHERING_SIGS
-                // Send the state to the counterparty, and receive it back with their signature.
-                val otherPartySessions = counterParties.map { initiateFlow(it!!) }
-                val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, otherPartySessions, GATHERING_SIGS.childProgressTracker()))
-
-                // Stage 5.
-                progressTracker.currentStep = FINALISING_TRANSACTION
-                // Notarise and record the transaction in both parties' vaults.
-                require(insertEvent(newEventState.fullEvent, false)) { "Unable to insert event data into the triple store."}
-                return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
-            }
-
-            EventType.ACTUAL -> {
-
-                val previousEqualEvents = previousEvents.filter { it.state.data.milestone == newEvent.milestone }
-
-                requireThat{
-                    "There must be one corresponding event" using (previousEqualEvents.size == 1)
-                }
-
-                val correspondingEvent = previousEqualEvents.single().state.data
-
-                val txBuilder = TransactionBuilder(notary)
-                        .addCommand(Command(EventContract.Commands.ExecuteEvent(), correspondingEvent.participants.map { it.owningKey }))
-
-                if(previousEqualEvents.isNotEmpty())
-                    txBuilder.addInputState(previousEqualEvents.single())
-
-                val newTimestamps = correspondingEvent.timestamps + newEvent.timestamps
-
-                val newEventState = correspondingEvent.copy(
-                        timestamps = newTimestamps
-                )
-
-                // If it's the execution of a STOP event, I want to make sure that the start event was also executed,
-                // hence I look for one and put it as input in the transaction
-                if (correspondingEvent.milestone == Milestone.STOP) {
-
-                    // I'm filtering over the previous events that have the same digital twins
-                    val previousStartEvents =
-                            previousEvents.filter { it.state.data.milestone == Milestone.START }
-
-                    if (previousStartEvents.isNotEmpty()) {
-                        txBuilder.addInputState(previousStartEvents.single())
-                    }
-                }
-
-                txBuilder.addOutputState(newEventState, EventContract.ID)
-
-                // Stage 2.
-                progressTracker.currentStep = VERIFYING_TRANSACTION
-                // Verify that the transaction is valid.
-                txBuilder.verify(serviceHub)
-
-                // Stage 3.
-                progressTracker.currentStep = SIGNING_TRANSACTION
-                // Sign the transaction.
-                val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
-
-                // Stage 4.
-                progressTracker.currentStep = GATHERING_SIGS
-                // Send the state to the counterparty, and receive it back with their signature.
-                val otherPartySessions = counterParties.map { initiateFlow(it!!) }
-                val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, otherPartySessions, GATHERING_SIGS.childProgressTracker()))
-
-                // Stage 5.
-                progressTracker.currentStep = FINALISING_TRANSACTION
-                // Notarise and record the transaction in both parties' vaults.
-                require(insertEvent(newEventState.fullEvent, false)) { "Unable to insert event data into the triple store."}
-                return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
-            }
-
-            else -> throw Exception("The type of event (timestamp) is unknown")
-        }
     }
 }
 
