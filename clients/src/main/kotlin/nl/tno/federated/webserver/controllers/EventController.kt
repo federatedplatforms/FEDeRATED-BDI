@@ -66,19 +66,18 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Create new event after passing it through the semantic adapter")
     @PostMapping(value = ["/newUnprocessed"])
-    private fun newUnprocessedEvent(@RequestBody event: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
+    private fun newUnprocessedEvent(@RequestBody event: String): ResponseEntity<String> {
         // TODO can we authenticate this in the case of a webhook?
 
         val convertedEvent = retrieveUrlBody(URL("http://localhost/tradelens-events"), L1Services.RequestMethod.POST, event)
         retrieveAndStoreExtraData(convertedEvent)
-        return newEvent(NewEvent(convertedEvent, emptySet()), authorizationHeader)
+        return newEvent(NewEvent(convertedEvent, emptySet()), "Bearer doitanyway")
     }
 
     private fun retrieveAndStoreExtraData(event: String): Boolean {
         val digitalTwinIdsAndConsignmentIds = parseDTIdsAndBusinessTransactionIds(event)
 
         val solutionToken = L1Services.getSolutionToken()
-//        val consignmentId = "bc71cb37-f2a9-4844-8d8b-891c8bf75521" // TODO
 
         digitalTwinIdsAndConsignmentIds.forEach {
             val consignmentId = it.value
