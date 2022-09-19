@@ -13,6 +13,7 @@ import nl.tno.federated.states.EventState
 import nl.tno.federated.webserver.L1Services
 import nl.tno.federated.webserver.L1Services.extractAccessTokenFromHeader
 import nl.tno.federated.webserver.L1Services.retrieveUrlBody
+import nl.tno.federated.webserver.L1Services.semanticAdapterURL
 import nl.tno.federated.webserver.L1Services.userIsAuthorized
 import nl.tno.federated.webserver.NodeRPCConnection
 import nl.tno.federated.webserver.dtos.NewEvent
@@ -69,7 +70,7 @@ class EventController(rpc: NodeRPCConnection) {
     private fun newUnprocessedEvent(@RequestBody event: String): ResponseEntity<String> {
         // TODO can we authenticate this in the case of a webhook?
 
-        val convertedEvent = retrieveUrlBody(URL("http://localhost/tradelens-events"), L1Services.RequestMethod.POST, event)
+        val convertedEvent = convertData(event)
         retrieveAndStoreExtraData(convertedEvent)
         return newEvent(NewEvent(convertedEvent, emptySet()), "Bearer doitanyway")
     }
@@ -88,16 +89,18 @@ class EventController(rpc: NodeRPCConnection) {
                     L1Services.RequestMethod.GET,
                     headers = hashMapOf(Pair("Authorization", "Bearer $solutionToken"))
                 )
-                val convertedData = retrieveUrlBody(
-                    URL("http://localhost/tradelens-containers"),
-                    L1Services.RequestMethod.POST,
-                    dataFromApi
-                ) //TODO handle api errors
+                val convertedData = this.convertData(dataFromApi) //TODO handle api errors
                 insertDataIntoGraphDB(convertedData)
             }
         }
         return true
     }
+
+    private fun convertData(dataFromApi: String) = retrieveUrlBody(
+        semanticAdapterURL(),
+        L1Services.RequestMethod.POST,
+        dataFromApi
+    )
 
     private fun insertDataIntoGraphDB(dataFromApi: String): Boolean {
         return GraphDBService.insertEvent(dataFromApi, true)

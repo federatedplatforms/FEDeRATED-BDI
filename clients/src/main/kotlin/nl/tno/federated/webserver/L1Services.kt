@@ -49,6 +49,19 @@ object L1Services {
         }
     }
 
+    fun semanticAdapterURL() : URL {
+        val propertyFile = File("database.properties").inputStream()
+        val properties = Properties()
+        properties.load(propertyFile)
+
+        val protocol = properties.getProperty("semanticadapter.protocol")
+        val host = properties.getProperty("semanticadapter.host")
+        val port = properties.getProperty("semanticadapter.port")
+        val path = properties.getProperty("semanticadapter.path")
+
+        return URI("$protocol://$host:$port/$path").toURL()
+    }
+
     internal fun getSolutionToken(): String {
         val propertyFile = File("database.properties").inputStream()
         val properties = Properties()
