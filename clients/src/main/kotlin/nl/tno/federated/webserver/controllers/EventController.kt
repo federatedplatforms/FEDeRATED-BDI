@@ -59,12 +59,6 @@ class EventController(rpc: NodeRPCConnection) {
             }
     }
 
-    @ApiOperation(value = "Test Point of contact with TL")
-    @PostMapping(value = ["/testpointofcontact"])
-    private fun testPointOfContactTL(@RequestBody event: String): ResponseEntity<String> {
-        return ResponseEntity("Function returned", HttpStatus.CREATED)
-    }
-
     @ApiOperation(value = "Create new event after passing it through the semantic adapter")
     @PostMapping(value = ["/newUnprocessed"])
     private fun newUnprocessedEvent(@RequestBody event: String): ResponseEntity<String> {
@@ -72,7 +66,7 @@ class EventController(rpc: NodeRPCConnection) {
 
         val convertedEvent = convertData(event)
         retrieveAndStoreExtraData(convertedEvent)
-        return newEvent(NewEvent(convertedEvent, emptySet()), "Bearer doitanyway")
+        return newEvent(NewEvent(convertedEvent, emptySet()), "Bearer doitanyway") //TODO who to share with?
     }
 
     private fun retrieveAndStoreExtraData(event: String): Boolean {
@@ -88,19 +82,20 @@ class EventController(rpc: NodeRPCConnection) {
                     url,
                     L1Services.RequestMethod.GET,
                     headers = hashMapOf(Pair("Authorization", "Bearer $solutionToken"))
-                )
-                val convertedData = this.convertData(dataFromApi) //TODO handle api errors
+                )//TODO handle api errors
+                val convertedData = this.convertData(dataFromApi)
                 insertDataIntoGraphDB(convertedData)
             }
         }
         return true
     }
 
-    private fun convertData(dataFromApi: String) = retrieveUrlBody(
-        semanticAdapterURL(),
-        L1Services.RequestMethod.POST,
-        dataFromApi
-    )
+    private fun convertData(dataFromApi: String) =
+        retrieveUrlBody(
+            semanticAdapterURL(),
+            L1Services.RequestMethod.POST,
+            dataFromApi
+        )
 
     private fun insertDataIntoGraphDB(dataFromApi: String): Boolean {
         return GraphDBService.insertEvent(dataFromApi, true)

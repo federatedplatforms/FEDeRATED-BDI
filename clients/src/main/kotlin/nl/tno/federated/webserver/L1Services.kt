@@ -1,9 +1,11 @@
 package nl.tno.federated.webserver
 
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import java.io.DataOutputStream
 import java.io.File
+import java.net.ConnectException
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URL
@@ -13,7 +15,6 @@ import java.util.*
 import kotlin.collections.HashMap
 
 object L1Services {
-
     internal fun getIBMIdentityToken(): String {
         val propertyFile = File("database.properties").inputStream()
         val properties = Properties()
@@ -90,37 +91,43 @@ object L1Services {
     }
 
     internal fun retrieveUrlBody(url: URL, requestMethod: RequestMethod, body: String = "", headers: HashMap<String,String> = HashMap()): String {
-        val con = url.openConnection() as HttpURLConnection
-        con.requestMethod = requestMethod.toString()
-        con.connectTimeout = 5000
-        con.readTimeout = 5000
-        con.setRequestProperty("Content-Type", "application/json")
-        con.setRequestProperty("Accept", "application/json")
-        headers.forEach{ con.setRequestProperty(it.key, it.value) }
+        try {
+            val con = url.openConnection() as HttpURLConnection
+            con.requestMethod = requestMethod.toString()
+            con.connectTimeout = 5000
+            con.readTimeout = 5000
+            con.setRequestProperty("Content-Type", "application/json")
+            con.setRequestProperty("Accept", "application/json")
+            headers.forEach { con.setRequestProperty(it.key, it.value) }
 
-        if (body.isNotBlank()) {
-            con.doOutput = true
-            con.outputStream.use { os ->
-                val input: ByteArray = body.toByteArray(StandardCharsets.UTF_8)
-                os.write(input, 0, input.size)
+            if (body.isNotBlank()) {
+                con.doOutput = true
+                con.outputStream.use { os ->
+                    val input: ByteArray = body.toByteArray(StandardCharsets.UTF_8)
+                    os.write(input, 0, input.size)
+                }
             }
-        }
 
-        if (con.responseCode in 200..299) {
-            con.inputStream.bufferedReader().use {
-                return it.readText()
+            if (con.responseCode in 200..299) {
+                con.inputStream.bufferedReader().use {
+                    return it.readText()
+                }
+            }
+            else if (con.responseCode < 0) {
+                    return "Received an invalid response from external API"
+            }
+            else if (con.responseCode == 401) {
+                    return "Something went wrong authenticating to a third party API"
+            }
+            else {
+                con.errorStream.bufferedReader().use {
+                    return it.readText()
+                }
             }
         }
-        else if (con.responseCode < 0) {
-                return "Received an invalid response from external API"
-        }
-        else if (con.responseCode == 401) {
-                return "Something went wrong authenticating to a third party API"
-        }
-        else {
-            con.errorStream.bufferedReader().use {
-                return it.readText()
-            }
+        catch (e: ConnectException) {
+            LoggerFactory.getLogger(javaClass).error("Error connecting to $url " + e.message)
+            throw ConnectException("Error connecting to $url " + e.message)
         }
     }
 
