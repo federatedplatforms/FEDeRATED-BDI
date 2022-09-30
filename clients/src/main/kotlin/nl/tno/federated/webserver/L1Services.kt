@@ -50,7 +50,7 @@ object L1Services {
         }
     }
 
-    fun semanticAdapterURL() : URL {
+    fun semanticAdapterURL(type: String = "events") : URL {
         val propertyFile = File("database.properties").inputStream()
         val properties = Properties()
         properties.load(propertyFile)
@@ -58,7 +58,7 @@ object L1Services {
         val protocol = properties.getProperty("semanticadapter.protocol")
         val host = properties.getProperty("semanticadapter.host")
         val port = properties.getProperty("semanticadapter.port")
-        val path = properties.getProperty("semanticadapter.path")
+        val path = properties.getProperty("semanticadapter.path") + "-$type"
 
         return URI("$protocol://$host:$port/$path").toURL()
     }
@@ -84,11 +84,13 @@ object L1Services {
 
     private fun extractSolutionToken(unprocessedJsonString: String): String {
         return if(unprocessedJsonString.contains("solution_token")) {
-            unprocessedJsonString.split(":","{","}")[2]
+            unprocessedJsonString.split(":","{","}")[2].replace("\"", "")
         } else {
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Solution token is malformed")
         }
     }
+
+
 
     internal fun retrieveUrlBody(url: URL, requestMethod: RequestMethod, body: String = "", headers: HashMap<String,String> = HashMap()): String {
         try {

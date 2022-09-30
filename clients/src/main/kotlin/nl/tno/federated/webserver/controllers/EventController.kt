@@ -16,7 +16,6 @@ import nl.tno.federated.webserver.L1Services.retrieveUrlBody
 import nl.tno.federated.webserver.L1Services.semanticAdapterURL
 import nl.tno.federated.webserver.L1Services.userIsAuthorized
 import nl.tno.federated.webserver.NodeRPCConnection
-import nl.tno.federated.webserver.dtos.NewEvent
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -42,15 +41,23 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
-    private fun newEvent(@RequestBody event: NewEvent, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
+    private fun newEvent(@RequestBody event: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
+        return newEvent(event, null, authorizationHeader)
+    }
+
+    @ApiOperation(value = "Create a new event")
+    @PostMapping(value = ["/{destination}"])
+    private fun newEvent(@RequestBody event: String, @PathVariable destination: String?, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
         val accessToken = extractAccessTokenFromHeader(authorizationHeader)
+
+        val recipients = if (destination == null) emptySet() else setOf(destination)
 
         if (!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
                   return try {
                     val newEventTx = proxy.startFlowDynamic(
                         NewEventFlow::class.java,
-                        event.fullEvent,
-                        event.countriesInvolved
+                        event,
+                        recipients
                 ).returnValue.get()
                 val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
                 ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
@@ -60,13 +67,19 @@ class EventController(rpc: NodeRPCConnection) {
     }
 
     @ApiOperation(value = "Create new event after passing it through the semantic adapter")
+    @PostMapping(value = ["/newUnprocessed/{destination}"])
+    private fun newUnprocessedEvent(@RequestBody event: String, @PathVariable destination: String?): ResponseEntity<String> {
+        // TODO add oauth2 support
+
+        val convertedEvent = convertEventData(event)
+        retrieveAndStoreExtraData(convertedEvent)
+        return newEvent(convertedEvent, destination, "Bearer doitanyway")
+    }
+    @ApiOperation(value = "Create new event after passing it through the semantic adapter")
     @PostMapping(value = ["/newUnprocessed"])
     private fun newUnprocessedEvent(@RequestBody event: String): ResponseEntity<String> {
-        // TODO can we authenticate this in the case of a webhook?
-
-        val convertedEvent = convertData(event)
-        retrieveAndStoreExtraData(convertedEvent)
-        return newEvent(NewEvent(convertedEvent, emptySet()), "Bearer doitanyway") //TODO who to share with?
+        // TODO add oauth2 support
+        return newUnprocessedEvent(event, null)
     }
 
     private fun retrieveAndStoreExtraData(event: String): Boolean {
@@ -83,16 +96,23 @@ class EventController(rpc: NodeRPCConnection) {
                     L1Services.RequestMethod.GET,
                     headers = hashMapOf(Pair("Authorization", "Bearer $solutionToken"))
                 )//TODO handle api errors
-                val convertedData = this.convertData(dataFromApi)
+                val convertedData = this.convertDigitalTwinData(dataFromApi)
                 insertDataIntoGraphDB(convertedData)
             }
         }
         return true
     }
 
-    private fun convertData(dataFromApi: String) =
+    private fun convertEventData(dataFromApi: String) =
         retrieveUrlBody(
             semanticAdapterURL(),
+            L1Services.RequestMethod.POST,
+            dataFromApi
+        )
+
+    private fun convertDigitalTwinData(dataFromApi: String) =
+        retrieveUrlBody(
+            semanticAdapterURL(type = "containers"),
             L1Services.RequestMethod.POST,
             dataFromApi
         )
