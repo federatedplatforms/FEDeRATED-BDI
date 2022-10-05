@@ -22,7 +22,7 @@ import nl.tno.federated.states.PhysicalObject
 class NewEventFlow(
     val fullEvent: String,
     val countriesInvolved: Set<String>
-    ) : FlowLogic<SignedTransaction>() {
+) : FlowLogic<SignedTransaction>() {
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
      * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
@@ -62,56 +62,57 @@ class NewEventFlow(
 
         // Retrieving counterparties (sending to all nodes, for now)
         val me = serviceHub.myInfo.legalIdentities.first()
-        val counterPartiesAndMe : MutableList<Party?> = mutableListOf()
+        val counterPartiesAndMe: MutableList<Party?> = mutableListOf()
         countriesInvolved.forEach { involvedCountry ->
             counterPartiesAndMe.add(serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
                 .firstOrNull { it.name.country == involvedCountry })
         }
-        require(!counterPartiesAndMe.contains(null)) { "One of the requested counterparties was not found"}
+        require(!counterPartiesAndMe.contains(null)) { "One of the requested counterparties was not found" }
         val counterParties = counterPartiesAndMe.filter { it!!.owningKey != me.owningKey }
 
         val allParties = counterParties.map { it!! } + mutableListOf(notary, me)
 
         val newEvent = GraphDBService.parseRDFToEvents(fullEvent).first()
 
-                val newEventState = EventState(
-                        goods = newEvent.goods,
-                        transportMean = newEvent.transportMean,
-                        location = newEvent.location,
-                        otherDigitalTwins = newEvent.otherDigitalTwins,
-                        timestamps = newEvent.timestamps,
-                        ecmruri = newEvent.ecmruri,
-                        milestone = newEvent.milestone,
-                        fullEvent = fullEvent,
-                        participants = allParties - notary
-                )
+        val newEventState = EventState(
+            goods = newEvent.goods,
+            transportMean = newEvent.transportMean,
+            location = newEvent.location,
+            otherDigitalTwins = newEvent.otherDigitalTwins,
+            timestamps = newEvent.timestamps,
+            ecmruri = newEvent.ecmruri,
+            milestone = newEvent.milestone,
+            fullEvent = fullEvent,
+            participants = allParties - notary
+        )
 
-                val txBuilder = TransactionBuilder(notary)
-                        .addOutputState(newEventState, EventContract.ID)
-                        .addCommand(EventContract.Commands.Create(), newEventState.participants.map { it.owningKey })
+        val txBuilder = TransactionBuilder(notary)
+            .addOutputState(newEventState, EventContract.ID)
+            .addCommand(EventContract.Commands.Create(), newEventState.participants.map { it.owningKey })
 
-                // Stage 2.
-                progressTracker.currentStep = VERIFYING_TRANSACTION
-                // Verify that the transaction is valid.
-                txBuilder.verify(serviceHub)
+        // Stage 2.
+        progressTracker.currentStep = VERIFYING_TRANSACTION
+        // Verify that the transaction is valid.
+        txBuilder.verify(serviceHub)
 
-                // Stage 3.
-                progressTracker.currentStep = SIGNING_TRANSACTION
-                // Sign the transaction.
-                val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
+        // Stage 3.
+        progressTracker.currentStep = SIGNING_TRANSACTION
+        // Sign the transaction.
+        val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
 
-                // Stage 4.
-                progressTracker.currentStep = GATHERING_SIGS
-                // Send the state to the counterparty, and receive it back with their signature.
-                val otherPartySessions = counterParties.map { initiateFlow(it!!) }
-                val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, otherPartySessions, GATHERING_SIGS.childProgressTracker()))
+        // Stage 4.
+        progressTracker.currentStep = GATHERING_SIGS
+        // Send the state to the counterparty, and receive it back with their signature.
+        val otherPartySessions = counterParties.map { initiateFlow(it!!) }
+        val fullySignedTx =
+            subFlow(CollectSignaturesFlow(partSignedTx, otherPartySessions, GATHERING_SIGS.childProgressTracker()))
 
-                // Stage 5.
-                progressTracker.currentStep = FINALISING_TRANSACTION
-                // Notarise and record the transaction in both parties' vaults.
+        // Stage 5.
+        progressTracker.currentStep = FINALISING_TRANSACTION
+        // Notarise and record the transaction in both parties' vaults.
 
-                require(insertEvent(newEventState.fullEvent, false)) { "Unable to insert event data into the triple store."}
-                return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
+        require(insertEvent(newEventState.fullEvent, false)) { "Unable to insert event data into the triple store at $me." }
+        return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
     }
 }
 
@@ -138,7 +139,12 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 val outputState = stx.tx.outputStates.single() as EventState
-                require(insertEvent(outputState.fullEvent, false)) { "Unable to insert event data into the triple store."}
+                require(
+                    insertEvent(
+                        outputState.fullEvent,
+                        false
+                    )
+                ) { "Unable to insert event data into the triple store at " + serviceHub.myInfo.legalIdentities.first() }
                 // TODO what to check in the counterparty flow?
                 // especially: if I'm not passing all previous states in the tx (see "requires" in the flow)
                 // then I want the counterparties to check by themselves that everything's legit
@@ -155,7 +161,7 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
 @InitiatingFlow
 @StartableByRPC
 class QueryGraphDBbyIdFlow(
-        val id: String
+    val id: String
 ) : FlowLogic<String>() {
 
     @Suspendable
@@ -167,7 +173,7 @@ class QueryGraphDBbyIdFlow(
 @InitiatingFlow
 @StartableByRPC
 class GeneralSPARQLqueryFlow(
-        val query: String
+    val query: String
 ) : FlowLogic<String>() {
 
     @Suspendable
@@ -178,6 +184,6 @@ class GeneralSPARQLqueryFlow(
 
 @CordaSerializable
 data class DigitalTwinPair(
-        val content : String,
-        val type: PhysicalObject
+    val content: String,
+    val type: PhysicalObject
 )
