@@ -3,6 +3,7 @@ package nl.tno.federated.webserver.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import net.corda.core.messaging.vaultQueryBy
+import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.flows.DataPullQueryFlow
 import nl.tno.federated.states.DataPullState
 import nl.tno.federated.webserver.L1Services.extractAccessTokenFromHeader
@@ -53,14 +54,13 @@ class DataPullController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Retrieve data from a previous request")
     @GetMapping(value = ["/retrieve/{uuid}"])
-    private fun retrieve(@PathVariable uuidOfStateWithResult: UUID, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<List<String>> {
+    fun retrieve(@PathVariable uuid: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<List<String>> {
         val accessToken = extractAccessTokenFromHeader(authorizationHeader)
-
         if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
 
-        val datapullResults = proxy.vaultQueryBy<DataPullState>().states.filter {
-            it.state.data.linearId.id == uuidOfStateWithResult
-        }.flatMap{ it.state.data.result }
+        val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(UUID.fromString(uuid)))
+        val datapullResults = proxy.vaultQueryBy<DataPullState>(criteria).states
+                .flatMap{ it.state.data.result }
 
         return ResponseEntity(datapullResults, HttpStatus.OK)
     }
