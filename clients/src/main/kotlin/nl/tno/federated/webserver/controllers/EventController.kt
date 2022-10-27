@@ -4,17 +4,23 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
-import nl.tno.federated.flows.*
+import nl.tno.federated.flows.GeneralSPARQLqueryFlow
+import nl.tno.federated.flows.NewEventFlow
+import nl.tno.federated.flows.QueryGraphDBbyIdFlow
+import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
+import nl.tno.federated.webserver.L1Services
 import nl.tno.federated.webserver.L1Services.extractAccessTokenFromHeader
+import nl.tno.federated.webserver.L1Services.retrieveUrlBody
+import nl.tno.federated.webserver.L1Services.semanticAdapterURL
 import nl.tno.federated.webserver.L1Services.userIsAuthorized
 import nl.tno.federated.webserver.NodeRPCConnection
-import nl.tno.federated.webserver.dtos.NewEvent
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.net.URL
 import java.util.*
 import javax.naming.AuthenticationException
 
@@ -35,29 +41,89 @@ class EventController(rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
-    private fun newEvent(@RequestBody event: NewEvent, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
+    private fun newEvent(@RequestBody event: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
+        return newEvent(event, null, authorizationHeader)
+    }
+
+    @ApiOperation(value = "Create a new event")
+    @PostMapping(value = ["/{destination}"])
+    private fun newEvent(@RequestBody event: String, @PathVariable destination: String?, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
         val accessToken = extractAccessTokenFromHeader(authorizationHeader)
 
+        val recipients = if (destination == null) emptySet() else setOf(destination)
+
         if (!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
-
-        /*
-        if (event.uniqueId && event.id.isNotBlank()) {
-            if (eventById(event.id, accessToken).isNotEmpty()) {
-                return ResponseEntity("Event with this id already exists. If you want to insert anyway, unset the uniqueId parameter.", HttpStatus.BAD_REQUEST)
-            }
-        }*/
-
-                return try {
+                  return try {
                     val newEventTx = proxy.startFlowDynamic(
                         NewEventFlow::class.java,
-                        event.fullEvent,
-                        event.countriesInvolved
+                        event,
+                        recipients
                 ).returnValue.get()
                 val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
                 ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
             } catch (e: Exception) {
                 return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
             }
+    }
+
+    @ApiOperation(value = "Create new event after passing it through the semantic adapter")
+    @PostMapping(value = ["/newUnprocessed/{destination}"])
+    private fun newUnprocessedEvent(@RequestBody event: String, @PathVariable destination: String?): ResponseEntity<String> {
+        // TODO add oauth2 support
+
+        val convertedEvent = convertEventData(event)
+        retrieveAndStoreExtraData(convertedEvent)
+        return newEvent(convertedEvent, destination, "Bearer doitanyway")
+    }
+    @ApiOperation(value = "Create new event after passing it through the semantic adapter")
+    @PostMapping(value = ["/newUnprocessed"])
+    private fun newUnprocessedEvent(@RequestBody event: String): ResponseEntity<String> {
+        // TODO add oauth2 support
+        return newUnprocessedEvent(event, null)
+    }
+
+    private fun retrieveAndStoreExtraData(event: String): Boolean {
+        val digitalTwinIdsAndConsignmentIds = parseDTIdsAndBusinessTransactionIds(event)
+
+        val solutionToken = L1Services.getSolutionToken()
+
+        digitalTwinIdsAndConsignmentIds.forEach {
+            val consignmentId = it.value
+            it.key.forEach {twinId ->
+                val url = URL("https://platform-sandbox.tradelens.com/api/v1/transportEquipment/currentProgress/consignmentId/$consignmentId/transportEquipmentId/$twinId")
+                val dataFromApi = retrieveUrlBody(
+                    url,
+                    L1Services.RequestMethod.GET,
+                    headers = hashMapOf(Pair("Authorization", "Bearer $solutionToken"))
+                )//TODO handle api errors
+                val convertedData = this.convertDigitalTwinData(dataFromApi)
+                insertDataIntoGraphDB(convertedData)
+            }
+        }
+        return true
+    }
+
+    private fun convertEventData(dataFromApi: String) =
+        retrieveUrlBody(
+            semanticAdapterURL(),
+            L1Services.RequestMethod.POST,
+            dataFromApi
+        )
+
+    private fun convertDigitalTwinData(dataFromApi: String) =
+        retrieveUrlBody(
+            semanticAdapterURL(type = "containers"),
+            L1Services.RequestMethod.POST,
+            dataFromApi
+        )
+
+    private fun insertDataIntoGraphDB(dataFromApi: String): Boolean {
+        return GraphDBService.insertEvent(dataFromApi, true)
+    }
+
+    private fun parseDTIdsAndBusinessTransactionIds(event: String): Map<List<UUID>, String> {
+        val parsedEvent = GraphDBService.parseRDFToEvents(event)
+        return parsedEvent.associate { it.allEvents().flatten() to it.businessTransaction }
     }
 
     @ApiOperation(value = "Return all known events")
@@ -146,6 +212,7 @@ class EventController(rpc: NodeRPCConnection) {
                 it.timestamps,
                 it.ecmruri,
                 it.milestone,
+                "",
                 it.fullEvent
             )
         }

@@ -25,6 +25,8 @@ dependencies {
     compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.7.0'
     implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.9.7'
     testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testImplementation "junit:junit:$junit_version"
 }
 
 

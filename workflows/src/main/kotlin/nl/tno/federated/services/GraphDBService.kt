@@ -21,64 +21,55 @@ import java.util.*
 object GraphDBService {
 
     fun isRepositoryAvailable(): Boolean {
-        val uri = getRepositoryURI()
+        val uri = getRepositoryURI(false)
         val body = retrieveUrlBody(uri.toURL(), RequestMethod.GET)
         return body == "Missing parameter: query"
     }
 
-    private fun getRepositoryURI(): URI {
+    private fun getRepositoryURI(privateRepo: Boolean): URI {
         val propertyFile = File("database.properties").inputStream()
         val properties = Properties()
         properties.load(propertyFile)
         val protocol = properties.getProperty("triplestore.protocol")
         val host = properties.getProperty("triplestore.host")
         val port = properties.getProperty("triplestore.port")
-        val repository = properties.getProperty("triplestore.repository")
+        val repository = if (privateRepo)
+            properties.getProperty("triplestore.private-repository")
+        else properties.getProperty("triplestore.repository")
 
         return URI("$protocol://$host:$port/repositories/$repository")
-    }
-
-    fun isDataValid(eventState: EventState): Boolean {
-        // TODO ideally match eventstate contents to its eventString too but:
-        // caveat: with new implementation of timestamp the corda state differs from RDF data as for timestamp
-        // to take this into account, the comparison should account for just the *last* added timestamp
-        val sparql = ""
-        val result = performSparql(sparql, RequestMethod.GET)
-        return "fail" !in result
     }
 
     fun queryEventIds(): String {
         val sparql = """
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
-            SELECT ?x ?z WHERE {
-              ?x rdfs:label ?z.
+            PREFIX Event: <https://ontology.tno.nl/logistics/federated/event#>
+            SELECT ?x WHERE {
               ?x a Event:Event
             }         
         """.trimIndent()
-        return performSparql(sparql, RequestMethod.GET)
+        return performSparql(sparql, RequestMethod.GET, false)
     }
 
-    fun generalSPARQLquery(query: String): String {
-        return performSparql(query.trimIndent(), RequestMethod.GET)
+    fun generalSPARQLquery(query: String, privateRepo: Boolean = false): String {
+        return performSparql(query.trimIndent(), RequestMethod.GET, privateRepo)
     }
 
     fun queryEventById(id: String): String {
         val sparql = """
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
-            PREFIX ex: <http://example.com/base#>
-            SELECT ?subject ?object 
-            WHERE {
-                ?subject rdfs:label ?object .
-                FILTER (?subject = ex:Event-$id)
+            PREFIX ex: <https://ontology.tno.nl/example#>
+            SELECT *
+                WHERE {
+            ex:event-$id ?predicate ?object .
             }
             """.trimIndent()
-        return performSparql(sparql, RequestMethod.GET)
+        return performSparql(sparql, RequestMethod.GET, false)
     }
 
-    fun insertEvent(ttl: String): Boolean {
-        val uri = getRepositoryURI()
+    fun insertEvent(ttl: String, privateRepo: Boolean): Boolean {
+        val uri = getRepositoryURI(privateRepo)
         val url = URL("$uri/statements")
         val result = retrieveUrlBody(url,
             RequestMethod.POST,
@@ -87,8 +78,8 @@ object GraphDBService {
         return result.isEmpty()
     }
 
-    private fun performSparql(sparql: String, requestMethod: RequestMethod): String {
-        val uri = getRepositoryURI()
+    private fun performSparql(sparql: String, requestMethod: RequestMethod, privateRepo: Boolean): String {
+        val uri = getRepositoryURI(privateRepo)
         val url = URI(uri.scheme, "//" + uri.host + ":" + uri.port + uri.path + "?query=$sparql", null).toURL()
         return retrieveUrlBody(url, requestMethod)
     }
@@ -150,6 +141,7 @@ object GraphDBService {
             timestamps = setOf(timestampFromModel(model, eventId)),
             ecmruri = "ecmruri", // TODO?
             milestone = milestoneFromModel(model, eventId),
+            businessTransaction = businessTransactionIdFromModel(model, eventId),
             fullEvent = fullEventFromModel(model, eventId),
             labels = labelFromModel(model, eventId)
         )
@@ -163,6 +155,16 @@ object GraphDBService {
             null
         )
         return labels.objects().mapTo(HashSet<String>()) { trimDoubleQuotes(it.toString()) }
+    }
+    private fun businessTransactionIdFromModel(model: Model, eventId: String): String {
+        val factory = SimpleValueFactory.getInstance()
+        val businessTransactions = model.filter(
+            factory.createIRI(eventId),
+            factory.createIRI("https://ontology.tno.nl/logistics/federated/Event#involvesBusinessTransaction"),
+            null
+        )
+        require(businessTransactions.size in 0..1) { "Found multiple businesstransactions for event $eventId" }
+        return if (businessTransactions.size == 0) "" else businessTransactions.first().`object`.toString().substringAfter("-").replace("\"", "")
     }
 
     private fun locationsFromModel(model: Model, eventId: String): Set<String> {
@@ -213,7 +215,7 @@ object GraphDBService {
             "actual" -> EventType.ACTUAL
             "estimated" -> EventType.ESTIMATED
             "planned" -> EventType.PLANNED
-            else -> throw IllegalArgumentException("Unknown eventtype found for event $eventId. Found ${timestampType.first().toString()}.")
+            else -> throw IllegalArgumentException("Unknown eventtype found for event $eventId. Found ${timestampType.first()}.")
         }
 
         val timestamps = model.filter(
@@ -222,8 +224,8 @@ object GraphDBService {
             null
         ).objects()
         require(timestamps.size == 1) { "Found multiple timestamps for event $eventId" }
-        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
         val timestamp = timestamps.first() as SimpleLiteral
+        val formatter = if (timestamp.toString().length == 71) SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX") else SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
         val eventDate = formatter.parse(timestamp.label)
         return Timestamp(uuidFromModel(eventId).toString(), eventDate, eventType)
     }

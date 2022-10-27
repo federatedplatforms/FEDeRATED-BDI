@@ -27,7 +27,7 @@ data class EventState(
     override val participants: List<AbstractParty> = listOf(),
     override val linearId: UniqueIdentifier = UniqueIdentifier(),
     override val labels: Set<String> = emptySet()
-) : LinearState, Event(goods, transportMean, location, otherDigitalTwins, timestamps, ecmruri, milestone, fullEvent, labels), QueryableState {
+) : LinearState, Event(goods, transportMean, location, otherDigitalTwins, timestamps, ecmruri, milestone, "some business transaction", fullEvent, labels), QueryableState {
 
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         if (schema is EventSchemaV1) {
@@ -111,9 +111,13 @@ open class Event(
     open val timestamps: Set<Timestamp>,
     open val ecmruri: String,
     open val milestone: Milestone,
+    open val businessTransaction: String,
     open val fullEvent: String,
     open val labels: Set<String> = emptySet()
-)
+) {
+    fun allEvents() = setOf(this.goods, this.transportMean, this.otherDigitalTwins)
+    fun allEventsAndLocations() = allEvents() + location
+}
 
 @CordaSerializable
 enum class PhysicalObject {

@@ -40,8 +40,7 @@ class InsuranceFlowTests {
     @Before
     fun setup() {
         mockkObject(GraphDBService)
-        every { GraphDBService.isDataValid(any()) } returns true
-        every { GraphDBService.insertEvent(any()) } returns true
+        every { GraphDBService.insertEvent(any(), any()) } returns true
 
         network = MockNetwork(
                 listOf("nl.tno.federated"),
@@ -78,7 +77,7 @@ class InsuranceFlowTests {
         insertEvent(goodUUID2, transportMeanUUID)
 
         // insert insurance event
-        val insuranceEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), "", Milestone.START, "", setOf("InsuranceEvent"))
+        val insuranceEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), "", Milestone.START, "some business tx", "", setOf("InsuranceEvent"))
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(insuranceEvent)
 
         val flowExecuted = InsuranceFlow("", countriesInvolved)
@@ -103,7 +102,7 @@ class InsuranceFlowTests {
         insertEvent(goodUUID2, transportMeanUUID2)
 
         // insert insurance event
-        val insuranceEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), "", Milestone.START, "", setOf("InsuranceEvent"))
+        val insuranceEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), "", Milestone.START, "some business tx", "", setOf("InsuranceEvent"))
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(insuranceEvent)
 
         val flowExecuted = InsuranceFlow("", countriesInvolved)
@@ -130,7 +129,7 @@ class InsuranceFlowTests {
         insertEvent(goodUUID, transportMeanUUID, milestone = Milestone.STOP)
 
         // insert insurance event
-        val insuranceEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), "", Milestone.START, "", setOf("InsuranceEvent"))
+        val insuranceEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), "", Milestone.START, "some business tx", "", setOf("InsuranceEvent"))
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(insuranceEvent)
 
         val flowExecuted = InsuranceFlow("", countriesInvolved)
@@ -149,14 +148,14 @@ class InsuranceFlowTests {
         val goodUUID = UniqueIdentifier().id
         val transportMeanUUID = UniqueIdentifier().id
         // insert insurance event
-        val insuranceEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), "", Milestone.START, "", setOf("InsuranceEvent"))
+        val insuranceEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), "", Milestone.START, "some business tx", "", setOf("InsuranceEvent"))
         every { GraphDBService.parseRDFToEvents(any()) } returns listOf(insuranceEvent)
 
-        val flowExecuted = NewEventFlow("", countriesInvolved)
+        val flowExecuted = InsuranceFlow("", countriesInvolved)
         val futureExecuted = a.startFlow(flowExecuted)
         network.runNetwork()
 
-        assertFailsWith<IllegalArgumentException>("Illegal rdf") { futureExecuted.getOrThrow() }
+        assertFailsWith<IllegalArgumentException> { futureExecuted.getOrThrow() }
     }
 
     private fun insertEvent(goodUUID: UUID, transportMeanUUID: UUID, milestone: Milestone = Milestone.START): SecureHash {
@@ -168,6 +167,7 @@ class InsuranceFlowTests {
             setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)),
             "",
             milestone,
+            "some business tx",
             "",
             emptySet()
         )

@@ -14,7 +14,6 @@ import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
 import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.services.GraphDBService.insertEvent
-import nl.tno.federated.services.GraphDBService.isDataValid
 import nl.tno.federated.states.EventState
 import nl.tno.federated.states.Milestone
 
@@ -100,8 +99,6 @@ class InsuranceFlow(
             labels = insuranceEvent.labels,
             participants = allParties - notary)
 
-        require(isDataValid(insuranceEventState)) { "RDF data is not valid or does not match event" }
-
         val txBuilder = TransactionBuilder(notary)
             .addOutputState(insuranceEventState, EventContract.ID)
             .addCommand(
@@ -132,11 +129,9 @@ class InsuranceFlow(
         // Stage 5.
         progressTracker.currentStep = FINALISING_TRANSACTION
         // Notarise and record the transaction in both parties' vaults.
-        require(insertEvent(insuranceEventState.fullEvent)) { "Unable to insert event data into the triple store." }
+        require(insertEvent(insuranceEventState.fullEvent, false)) { "Unable to insert event data into the triple store." }
         return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
     }
-
-
 }
 
 @InitiatedBy(InsuranceFlow::class)

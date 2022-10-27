@@ -35,7 +35,7 @@ class DataPullFlowTests {
     @Before
     fun setup() {
         mockkObject(GraphDBService)
-        every { GraphDBService.generalSPARQLquery(any()) } returns fakeResult
+        every { GraphDBService.generalSPARQLquery(any(), any()) } returns fakeResult
 
         network = MockNetwork(
                 listOf("nl.tno.federated"),
