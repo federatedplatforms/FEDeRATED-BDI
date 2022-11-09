@@ -35,6 +35,9 @@ class GraphDBClientException(message: String) : GraphDBException(message)
  */
 class GraphDBServerException(message: String) : GraphDBException(message)
 
+/**
+ * TODO change object to class and split into a @CordaService and Spring @Service component.
+ */
 object GraphDBService {
 
     private val log = LoggerFactory.getLogger(GraphDBService::class.java)
