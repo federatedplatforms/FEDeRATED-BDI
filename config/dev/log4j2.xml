@@ -46,11 +46,19 @@
     </Appenders>
 
     <Loggers>
-        <Root level="info">
+        <Root level="warn">
             <AppenderRef ref="Console-Appender"/>
             <AppenderRef ref="RollingFile-Appender"/>
         </Root>
         <Logger name="net.corda" level="info" additivity="false">
+            <AppenderRef ref="Console-Appender"/>
+            <AppenderRef ref="RollingFile-Appender"/>
+        </Logger>
+        <Logger name="nl.tno" level="info" additivity="false">
+            <AppenderRef ref="Console-Appender"/>
+            <AppenderRef ref="RollingFile-Appender"/>
+        </Logger>
+        <Logger name="org.testcontainers" level="info" additivity="false">
             <AppenderRef ref="Console-Appender"/>
             <AppenderRef ref="RollingFile-Appender"/>
         </Logger>

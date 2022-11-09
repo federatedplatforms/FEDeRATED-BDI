@@ -26,7 +26,6 @@ import java.util.*
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-
 class EventFlowTests {
 
     lateinit var network: MockNetwork
@@ -79,14 +78,14 @@ class EventFlowTests {
         every { GraphDBService.insertEvent(any(), false) } returns true
 
         network = MockNetwork(
-                listOf("nl.tno.federated"),
-                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","Brussels","BE"))),
-                networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
+            listOf("nl.tno.federated"),
+            notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary", "Brussels", "BE"))),
+            networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
         )
-        a = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyA","Reykjavik","IS")))
-        b = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyB","Rotterdam","NL")))
-        c = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyC","Berlin","DE")))
-        d = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyD","Paris","FR")))
+        a = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyA", "Reykjavik", "IS")))
+        b = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyB", "Rotterdam", "NL")))
+        c = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyC", "Berlin", "DE")))
+        d = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyD", "Paris", "FR")))
         val startedNodes = arrayListOf(a, b, c, d)
 
         // For real nodes this happens automatically, but we have to manually register the flow for tests
@@ -342,10 +341,10 @@ class EventFlowTests {
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
         val eventStateInNetherlands = b.services.vaultService.queryBy<EventState>().states
-                .filter { it.state.data.linearId.externalId == "KLM7915-20210801" }
+            .filter { it.state.data.linearId.externalId == "KLM7915-20210801" }
 
         val eventStateInGermany = c.services.vaultService.queryBy<EventState>().states
-                .filter { it.state.data.linearId.externalId == "KLM7915-20210801" }
+            .filter { it.state.data.linearId.externalId == "KLM7915-20210801" }
 
         assertTrue { eventStateInGermany.isNotEmpty() || eventStateInNetherlands.isEmpty() }
     }
@@ -362,18 +361,18 @@ class EventFlowTests {
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
         val eventStateInNetherlands = b.services.vaultService.queryBy<EventState>().states
-                .filter { it.state.data.linearId.externalId == "KLM7915-20210801" }
+            .filter { it.state.data.linearId.externalId == "KLM7915-20210801" }
 
         val eventStateInGermany = c.services.vaultService.queryBy<EventState>().states
-                .filter { it.state.data.linearId.externalId == "KLM7915-20210801" }
+            .filter { it.state.data.linearId.externalId == "KLM7915-20210801" }
 
         val eventStateInFrance = d.services.vaultService.queryBy<EventState>().states
-                .filter { it.state.data.linearId.externalId == "KLM7915-20210801" }
+            .filter { it.state.data.linearId.externalId == "KLM7915-20210801" }
 
         assertTrue {
-                    eventStateInGermany.isNotEmpty() ||
-                    eventStateInFrance.isNotEmpty() ||
-                    eventStateInNetherlands.isEmpty()
+            eventStateInGermany.isNotEmpty() ||
+                eventStateInFrance.isNotEmpty() ||
+                eventStateInNetherlands.isEmpty()
         }
     }
 }

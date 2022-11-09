@@ -10,10 +10,16 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="info">
+        <Root level="warn">
             <AppenderRef ref="Console-Appender"/>
         </Root>
         <Logger name="net.corda" level="info" additivity="false">
+            <AppenderRef ref="Console-Appender"/>
+        </Logger>
+        <Logger name="nl.tno" level="info" additivity="false">
+            <AppenderRef ref="Console-Appender"/>
+        </Logger>
+        <Logger name="org.testcontainers" level="info" additivity="false">
             <AppenderRef ref="Console-Appender"/>
         </Logger>
     </Loggers>

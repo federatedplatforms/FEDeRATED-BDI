@@ -1,0 +1,5 @@
+GET {{api_url}}/datapull/retrieve/13351127-79a3-4ab1-b395-9d7eb0a3278f
+Authorization: Bearer doitanyway
+Accept: application/json
+
+###

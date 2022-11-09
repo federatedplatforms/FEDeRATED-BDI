@@ -28,7 +28,6 @@ import org.junit.Test
 import java.util.*
 import kotlin.test.assertFailsWith
 
-
 class InsuranceFlowTests {
 
     lateinit var network: MockNetwork
@@ -43,12 +42,12 @@ class InsuranceFlowTests {
         every { GraphDBService.insertEvent(any(), any()) } returns true
 
         network = MockNetwork(
-                listOf("nl.tno.federated"),
-                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","Brussels","BE"))),
-                networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
+            listOf("nl.tno.federated"),
+            notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary", "Brussels", "BE"))),
+            networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
         )
-        a = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyA","Reykjavik","IS")))
-        b = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyB","Rotterdam","NL")))
+        a = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyA", "Reykjavik", "IS")))
+        b = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyB", "Rotterdam", "NL")))
         val startedNodes = arrayListOf(a, b)
 
         // For real nodes this happens automatically, but we have to manually register the flow for tests

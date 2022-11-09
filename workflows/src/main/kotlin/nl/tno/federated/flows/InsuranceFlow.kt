@@ -1,9 +1,7 @@
 package nl.tno.federated.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import net.corda.core.contracts.Command
-import net.corda.core.contracts.ReferencedStateAndRef
-import net.corda.core.contracts.requireThat
+import net.corda.core.contracts.*
 import net.corda.core.flows.*
 import net.corda.core.identity.Party
 import net.corda.core.node.services.queryBy
@@ -16,6 +14,7 @@ import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.services.GraphDBService.insertEvent
 import nl.tno.federated.states.EventState
 import nl.tno.federated.states.Milestone
+import org.slf4j.LoggerFactory
 
 @InitiatingFlow
 @StartableByRPC
@@ -23,6 +22,9 @@ class InsuranceFlow(
     val fullEvent: String,
     val countriesInvolved: Set<String>
 ) : FlowLogic<SignedTransaction>() {
+
+    private val log = LoggerFactory.getLogger(InsuranceFlow::class.java)
+
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
      * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
@@ -61,32 +63,36 @@ class InsuranceFlow(
         progressTracker.currentStep = GENERATING_TRANSACTION
 
         val me = serviceHub.myInfo.legalIdentities.first()
-        val counterPartiesAndMe : MutableList<Party?> = mutableListOf()
+        val counterPartiesAndMe: MutableList<Party?> = mutableListOf()
         countriesInvolved.forEach { involvedCountry ->
             counterPartiesAndMe.add(serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
                 .firstOrNull { it.name.country == involvedCountry })
         }
-        require(!counterPartiesAndMe.contains(null)) { "One of the requested counterparties was not found"}
+        require(!counterPartiesAndMe.contains(null)) { "One of the requested counterparties was not found" }.also { log.info("One of the requested counterparties was not found") }
         val counterParties = counterPartiesAndMe.filter { it!!.owningKey != me.owningKey }
 
         val allParties = counterParties.map { it!! } + mutableListOf(notary, me)
         val insuranceEvent = GraphDBService.parseRDFToEvents(fullEvent).first()
-        require(insuranceEvent.labels.contains("InsuranceEvent")) { "This flow must be called with an insurance event (label == InsuranceEvent)"}
+        require(insuranceEvent.labels.contains("InsuranceEvent")) { "This flow must be called with an insurance event (label == InsuranceEvent)" }.also {
+            log.info("This flow" +
+                "must be called with an insurance event (label == InsuranceEvent)")
+        }
 
         val previousEvents = serviceHub.vaultService.queryBy<EventState>(/* has the same digital twins*/).states
-            .filter {   it.state.data.transportMean == insuranceEvent.transportMean && it.state.data.goods.isNotEmpty()
+            .filter {
+                it.state.data.transportMean == insuranceEvent.transportMean && it.state.data.goods.isNotEmpty()
             }
         // this implementation assumes stopped good-transportmean connections are never re-started
         val goodsAndTheirMilestone = previousEvents.flatMap { it.state.data.goods zip listOf(it.state.data.milestone) }
         val stoppedGoods = goodsAndTheirMilestone.filter { it.second == Milestone.STOP }.map { it.first }
         val goodsStillInTransportMean = goodsAndTheirMilestone.filter { it.first !in stoppedGoods }.map { it.first }
-        val previousEventsWithoutStop = previousEvents.filter {
-                state -> state.state.data.goods.any {
-                    it in goodsStillInTransportMean
-                }
+        val previousEventsWithoutStop = previousEvents.filter { state ->
+            state.state.data.goods.any {
+                it in goodsStillInTransportMean
+            }
         }
 
-        require(previousEventsWithoutStop.isNotEmpty()) { "There must be events to share" }
+        require(previousEventsWithoutStop.isNotEmpty()) { "There must be events to share" }.also { log.info("There must events to share") }
 
         val insuranceEventState = EventState(goods = insuranceEvent.goods,
             transportMean = insuranceEvent.transportMean,
@@ -112,7 +118,12 @@ class InsuranceFlow(
         // Stage 2.
         progressTracker.currentStep = VERIFYING_TRANSACTION
         // Verify that the transaction is valid.
-        txBuilder.verify(serviceHub)
+        try {
+            txBuilder.verify(serviceHub)
+        } catch (e: Exception) {
+            log.debug("Verification of transaction failed because: {}", e.message, e)
+            throw e
+        }
 
         // Stage 3.
         progressTracker.currentStep = SIGNING_TRANSACTION
@@ -129,7 +140,10 @@ class InsuranceFlow(
         // Stage 5.
         progressTracker.currentStep = FINALISING_TRANSACTION
         // Notarise and record the transaction in both parties' vaults.
-        require(insertEvent(insuranceEventState.fullEvent, false)) { "Unable to insert event data into the triple store." }
+        require(insertEvent(insuranceEventState.fullEvent, false)) { "Unable to insert event data into the triple store." }.also {
+            log.info("Unable to insert" +
+                "event data into the triple store")
+        }
         return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
     }
 }

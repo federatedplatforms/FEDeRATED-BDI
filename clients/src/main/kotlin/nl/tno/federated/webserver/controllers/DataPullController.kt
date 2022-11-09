@@ -6,15 +6,13 @@ import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.flows.DataPullQueryFlow
 import nl.tno.federated.states.DataPullState
-import nl.tno.federated.webserver.L1Services.extractAccessTokenFromHeader
-import nl.tno.federated.webserver.L1Services.userIsAuthorized
+import nl.tno.federated.webserver.L1Services
 import nl.tno.federated.webserver.NodeRPCConnection
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.*
-import javax.naming.AuthenticationException
 
 
 /**
@@ -23,47 +21,31 @@ import javax.naming.AuthenticationException
 @RestController
 @RequestMapping("/datapull")
 @Api(value = "DataPullController", tags = ["Data pull endpoints"])
-class DataPullController(rpc: NodeRPCConnection) {
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(RestController::class.java)
-    }
-
-    private val proxy = rpc.proxy
+class DataPullController(private val rpc: NodeRPCConnection, private val l1service: L1Services) {
 
     @ApiOperation(value = "Request data and run a SPARQL query on another node")
     @PostMapping(value = ["/request/{destination}"])
-    private fun request(@RequestBody query : String, @PathVariable destination: String?, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
-        val accessToken = extractAccessTokenFromHeader(authorizationHeader)
+    private fun request(@RequestBody query: String, @PathVariable destination: String?, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
+        l1service.verifyAccessToken(authorizationHeader)
 
-        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
-
-        return try {
-            val dataPull = proxy.startFlowDynamic(
-                    DataPullQueryFlow::class.java,
-                    destination,
-                    query
-            ).returnValue.get()
-            val uuidOfStateWithResult = (dataPull.coreTransaction.getOutput(0) as DataPullState).linearId.id
-            ResponseEntity("State with result: $uuidOfStateWithResult", HttpStatus.ACCEPTED)
-        } catch (e: Exception) {
-            return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
-        }
+        val dataPull = rpc.client().startFlowDynamic(
+            DataPullQueryFlow::class.java,
+            destination,
+            query
+        ).returnValue.get()
+        val uuidOfStateWithResult = (dataPull.coreTransaction.getOutput(0) as DataPullState).linearId.id
+        return ResponseEntity("State with result: $uuidOfStateWithResult", HttpStatus.ACCEPTED)
     }
 
-
     @ApiOperation(value = "Retrieve data from a previous request")
-    @GetMapping(value = ["/retrieve/{uuid}"])
+    @GetMapping(value = ["/retrieve/{uuid}"], produces =  [MediaType.APPLICATION_JSON_VALUE])
     fun retrieve(@PathVariable uuid: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<List<String>> {
-        val accessToken = extractAccessTokenFromHeader(authorizationHeader)
-        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
+        l1service.verifyAccessToken(authorizationHeader)
 
         val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(UUID.fromString(uuid)))
-        val datapullResults = proxy.vaultQueryBy<DataPullState>(criteria).states
+        val datapullResults = rpc.client().vaultQueryBy<DataPullState>(criteria).states
                 .flatMap{ it.state.data.result }
 
         return ResponseEntity(datapullResults, HttpStatus.OK)
     }
-
-
 }

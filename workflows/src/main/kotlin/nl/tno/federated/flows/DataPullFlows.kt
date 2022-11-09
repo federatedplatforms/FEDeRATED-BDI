@@ -1,8 +1,7 @@
 package nl.tno.federated.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import net.corda.core.contracts.Command
-import net.corda.core.contracts.requireThat
+import net.corda.core.contracts.*
 import net.corda.core.flows.*
 import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
@@ -13,6 +12,7 @@ import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.DataPullContract
 import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.states.DataPullState
+import org.slf4j.LoggerFactory
 import java.util.UUID
 
 @InitiatingFlow
@@ -20,7 +20,10 @@ import java.util.UUID
 class DataPullQueryFlow(
     val nodeIdentity: String,
     val sPARQLquery: String
-    ) : FlowLogic<SignedTransaction>() {
+) : FlowLogic<SignedTransaction>() {
+
+    private val log = LoggerFactory.getLogger(DataPullQueryFlow::class.java)
+
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
      * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
@@ -39,12 +42,12 @@ class DataPullQueryFlow(
         }
 
         fun tracker() = ProgressTracker(
-                RETRIEVING_COUNTERPARTY_INFO,
-                GENERATING_TRANSACTION,
-                VERIFYING_TRANSACTION,
-                SIGNING_TRANSACTION,
-                GATHERING_SIGS,
-                FINALISING_TRANSACTION
+            RETRIEVING_COUNTERPARTY_INFO,
+            GENERATING_TRANSACTION,
+            VERIFYING_TRANSACTION,
+            SIGNING_TRANSACTION,
+            GATHERING_SIGS,
+            FINALISING_TRANSACTION
         )
     }
 
@@ -55,27 +58,38 @@ class DataPullQueryFlow(
      */
     @Suspendable
     override fun call(): SignedTransaction {
-        val notary = serviceHub.networkMapCache.notaryIdentities.first()
-        val me = serviceHub.myInfo.legalIdentities.first()
+        log.debug("DataPullFlow initiated.")
+        val notary = serviceHub.networkMapCache.notaryIdentities.firstOrNull()
+        require(notary != null) { "Notary is null!" }.also { log.info("Notary is null!") }
+
+        val me = serviceHub.myInfo.legalIdentities.firstOrNull()
+        require(me != null) { "Me is null!" }.also { log.info("Me is null!") }
+
+        log.debug("DataPullFlow me: $me, notary: $notary")
 
         /////////////
         progressTracker.currentStep = RETRIEVING_COUNTERPARTY_INFO
         val counterParty = listOf(serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }.single { it.name.organisation == nodeIdentity })
         // TODO Use a more unique param to find the node
 
-        require(counterParty.isNotEmpty()) { "Other party not found"}
+        require(counterParty.isNotEmpty()) { "Other party not found" }.also { log.info("Other party not found") }
 
-        val queryState = DataPullState(sPARQLquery, emptyList(), participants = counterParty + me)
+        val queryState = DataPullState(sPARQLquery, emptyList(), participants = counterParty + me!!)
 
         /////////////
         progressTracker.currentStep = GENERATING_TRANSACTION
         val txBuilder = TransactionBuilder(notary)
-                .addOutputState(queryState, DataPullContract.ID)
-                .addCommand(Command(DataPullContract.Commands.Query(), queryState.participants.map { it.owningKey }))
+            .addOutputState(queryState, DataPullContract.ID)
+            .addCommand(Command(DataPullContract.Commands.Query(), queryState.participants.map { it.owningKey }))
 
         /////////////
         progressTracker.currentStep = VERIFYING_TRANSACTION
-        txBuilder.verify(serviceHub)
+        try {
+            txBuilder.verify(serviceHub)
+        } catch (e: Exception) {
+            log.debug("Verification of transaction failed because: {}", e.message, e)
+            throw e
+        }
 
         /////////////
         progressTracker.currentStep = SIGNING_TRANSACTION
@@ -135,6 +149,9 @@ class DataPullQueryResponderFlow(val counterpartySession: FlowSession) : FlowLog
 
 @InitiatingFlow
 class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTransaction>() {
+
+    private val log = LoggerFactory.getLogger(RespondToQueryFlow::class.java)
+
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
      * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
@@ -183,7 +200,7 @@ class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTran
             it.owningKey in serviceHub.myInfo.legalIdentities
                 .map { participants -> participants.owningKey }
         }
-        assert(meList.size == 1 && otherPartyList.size == 1) { "Too many or too few parties found to send a response to a data pull query."}
+        assert(meList.size == 1 && otherPartyList.size == 1) { "Too many or too few parties found to send a response to a data pull query." }
         val me = meList.single()
         val otherParty = otherPartyList.single()
         /////////////
@@ -191,7 +208,7 @@ class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTran
         val result = GraphDBService.generalSPARQLquery(inputStateWithQuery.sparqlQuery, privateRepo = true)
 
         /////////////
-       // progressTracker.currentStep = GENERATING_TRANSACTION
+        // progressTracker.currentStep = GENERATING_TRANSACTION
         val outputStateWithResult = inputStateWithQuery.copy(result = listOf(result))
 
         val txBuilder = TransactionBuilder(notary)
@@ -205,7 +222,12 @@ class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTran
 
         /////////////
         progressTracker.currentStep = VERIFYING_TRANSACTION
-        txBuilder.verify(serviceHub)
+        try {
+            txBuilder.verify(serviceHub)
+        } catch (e: Exception) {
+            log.debug("Verification of transaction failed because: {}", e.message, e)
+            throw e
+        }
 
         /////////////
         progressTracker.currentStep = SIGNING_RESULT_TRANSACTION
@@ -236,8 +258,8 @@ class DataPullResultResponderFlow(val counterpartySession: FlowSession) : FlowLo
         object FINALISATION : Step("Finalising a transaction.")
 
         fun tracker() = ProgressTracker(
-                SIGNING,
-                FINALISATION
+            SIGNING,
+            FINALISATION
         )
     }
 

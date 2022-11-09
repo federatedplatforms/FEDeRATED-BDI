@@ -11,16 +11,13 @@ import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
 import nl.tno.federated.webserver.L1Services
-import nl.tno.federated.webserver.L1Services.extractAccessTokenFromHeader
-import nl.tno.federated.webserver.L1Services.retrieveUrlBody
-import nl.tno.federated.webserver.L1Services.semanticAdapterURL
-import nl.tno.federated.webserver.L1Services.userIsAuthorized
 import nl.tno.federated.webserver.NodeRPCConnection
-import org.slf4j.LoggerFactory
+import nl.tno.federated.webserver.SemanticAdapterService
+import nl.tno.federated.webserver.TradelensService
+import org.springframework.core.env.Environment
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.net.URL
 import java.util.*
 import javax.naming.AuthenticationException
 
@@ -31,175 +28,106 @@ import javax.naming.AuthenticationException
 @RestController
 @RequestMapping("/events")
 @Api(value = "EventController", tags = ["Event details"])
-class EventController(rpc: NodeRPCConnection) {
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(RestController::class.java)
-    }
-
-    private val proxy = rpc.proxy
+class EventController(
+    private val rpc: NodeRPCConnection,
+    private val l1service: L1Services,
+    private val semanticAdapterService: SemanticAdapterService
+) {
 
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
-    private fun newEvent(@RequestBody event: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
+    fun newEvent(@RequestBody event: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
         return newEvent(event, null, authorizationHeader)
     }
 
-    @ApiOperation(value = "Create a new event")
+    @ApiOperation(value = "Create a new event and returns the UUID of ???")
     @PostMapping(value = ["/{destination}"])
-    private fun newEvent(@RequestBody event: String, @PathVariable destination: String?, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
-        val accessToken = extractAccessTokenFromHeader(authorizationHeader)
+    fun newEvent(@RequestBody event: String, @PathVariable destination: String?, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
+        l1service.verifyAccessToken(authorizationHeader)
 
         val recipients = if (destination == null) emptySet() else setOf(destination)
 
-        if (!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
-                  return try {
-                    val newEventTx = proxy.startFlowDynamic(
-                        NewEventFlow::class.java,
-                        event,
-                        recipients
-                ).returnValue.get()
-                val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
-                ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
-            } catch (e: Exception) {
-                return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
-            }
+        val newEventTx = rpc.client().startFlowDynamic(
+            NewEventFlow::class.java,
+            event,
+            recipients
+        ).returnValue.get()
+
+        val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id // What UUID is this?
+        return ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
     }
 
     @ApiOperation(value = "Create new event after passing it through the semantic adapter")
     @PostMapping(value = ["/newUnprocessed/{destination}"])
-    private fun newUnprocessedEvent(@RequestBody event: String, @PathVariable destination: String?): ResponseEntity<String> {
+    fun newUnprocessedEvent(@RequestBody event: String, @PathVariable destination: String?): ResponseEntity<String> {
         // TODO add oauth2 support
-
-        val convertedEvent = convertEventData(event)
-        retrieveAndStoreExtraData(convertedEvent)
+        val convertedEvent = semanticAdapterService.processTradelensEvent(event)
         return newEvent(convertedEvent, destination, "Bearer doitanyway")
     }
+
     @ApiOperation(value = "Create new event after passing it through the semantic adapter")
     @PostMapping(value = ["/newUnprocessed"])
-    private fun newUnprocessedEvent(@RequestBody event: String): ResponseEntity<String> {
+    fun newUnprocessedEvent(@RequestBody event: String): ResponseEntity<String> {
         // TODO add oauth2 support
         return newUnprocessedEvent(event, null)
     }
 
-    private fun retrieveAndStoreExtraData(event: String): Boolean {
-        val digitalTwinIdsAndConsignmentIds = parseDTIdsAndBusinessTransactionIds(event)
-
-        val solutionToken = L1Services.getSolutionToken()
-
-        digitalTwinIdsAndConsignmentIds.forEach {
-            val consignmentId = it.value
-            it.key.forEach {twinId ->
-                val url = URL("https://platform-sandbox.tradelens.com/api/v1/transportEquipment/currentProgress/consignmentId/$consignmentId/transportEquipmentId/$twinId")
-                val dataFromApi = retrieveUrlBody(
-                    url,
-                    L1Services.RequestMethod.GET,
-                    headers = hashMapOf(Pair("Authorization", "Bearer $solutionToken"))
-                )//TODO handle api errors
-                val convertedData = this.convertDigitalTwinData(dataFromApi)
-                insertDataIntoGraphDB(convertedData)
-            }
-        }
-        return true
-    }
-
-    private fun convertEventData(dataFromApi: String) =
-        retrieveUrlBody(
-            semanticAdapterURL(),
-            L1Services.RequestMethod.POST,
-            dataFromApi
-        )
-
-    private fun convertDigitalTwinData(dataFromApi: String) =
-        retrieveUrlBody(
-            semanticAdapterURL(type = "containers"),
-            L1Services.RequestMethod.POST,
-            dataFromApi
-        )
-
-    private fun insertDataIntoGraphDB(dataFromApi: String): Boolean {
-        return GraphDBService.insertEvent(dataFromApi, true)
-    }
-
-    private fun parseDTIdsAndBusinessTransactionIds(event: String): Map<List<UUID>, String> {
-        val parsedEvent = GraphDBService.parseRDFToEvents(event)
-        return parsedEvent.associate { it.allEvents().flatten() to it.businessTransaction }
-    }
 
     @ApiOperation(value = "Return all known events")
     @GetMapping(value = [""])
-    private fun events(@RequestHeader("Authorization") authorizationHeader: String) : Map<UUID, Event> {
-        val accessToken = extractAccessTokenFromHeader(authorizationHeader)
+    fun events(@RequestHeader("Authorization") authorizationHeader: String): Map<UUID, Event> {
+        l1service.verifyAccessToken(authorizationHeader)
 
-        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
-
-        val eventStates = proxy.vaultQuery(EventState::class.java).states.map { it.state.data }
-
+        val eventStates = rpc.client().vaultQuery(EventState::class.java).states.map { it.state.data }
         return eventStatesToEventMap(eventStates)
     }
 
     @ApiOperation(value = "Return an event")
     @GetMapping(value = ["/{id}"])
-    private fun eventById(@PathVariable id: String, @RequestHeader("Authorization") authorizationHeader: String): Map<UUID, Event> {
-        val accessToken = extractAccessTokenFromHeader(authorizationHeader)
-
-        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
+    fun eventById(@PathVariable id: String, @RequestHeader("Authorization") authorizationHeader: String): Map<UUID, Event> {
+        l1service.verifyAccessToken(authorizationHeader)
 
         val criteria = QueryCriteria.LinearStateQueryCriteria(externalId = listOf(id))
-        val state = proxy.vaultQueryBy<EventState>(criteria).states.map { it.state.data }
+        val state = rpc.client().vaultQueryBy<EventState>(criteria).states.map { it.state.data }
         return eventStatesToEventMap(state)
     }
 
     @ApiOperation(value = "Return events by digital twin UUID")
     @GetMapping(value = ["/digitaltwin/{dtuuid}"])
-    private fun eventBydtUUID(@PathVariable dtuuid: UUID, @RequestHeader("Authorization") authorizationHeader: String): Map<UUID, Event> {
-        val accessToken = extractAccessTokenFromHeader(authorizationHeader)
+    fun eventBydtUUID(@PathVariable dtuuid: UUID, @RequestHeader("Authorization") authorizationHeader: String): Map<UUID, Event> {
+        l1service.verifyAccessToken(authorizationHeader)
 
-        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
-
-        val eventStates = proxy.vaultQueryBy<EventState>().states.filter {
+        val eventStates = rpc.client().vaultQueryBy<EventState>().states.filter {
             it.state.data.goods.contains(dtuuid) ||
-                    it.state.data.transportMean.contains(dtuuid) ||
-                    it.state.data.otherDigitalTwins.contains(dtuuid)
-        }.map{ it.state.data }
+                it.state.data.transportMean.contains(dtuuid) ||
+                it.state.data.otherDigitalTwins.contains(dtuuid)
+        }.map { it.state.data }
 
         return eventStatesToEventMap(eventStates)
     }
 
     @ApiOperation(value = "Return RDF data by event ID from GraphDB instance")
     @GetMapping(value = ["/rdfevent/{id}"])
-    private fun gdbQueryEventById(@PathVariable id: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
-        val accessToken = extractAccessTokenFromHeader(authorizationHeader)
+    fun gdbQueryEventById(@PathVariable id: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
+        l1service.verifyAccessToken(authorizationHeader)
 
-        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
-
-        return try {
-            val gdbQuery = proxy.startFlowDynamic(
-                    QueryGraphDBbyIdFlow::class.java,
-                    id
-            ).returnValue.get()
-            ResponseEntity("Query result: $gdbQuery", HttpStatus.ACCEPTED)
-        } catch (e: Exception) {
-            return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
-        }
+        val gdbQuery = rpc.client().startFlowDynamic(
+            QueryGraphDBbyIdFlow::class.java,
+            id
+        ).returnValue.get()
+        return ResponseEntity("Query result: $gdbQuery", HttpStatus.ACCEPTED)
     }
 
     @ApiOperation(value = "Return result of a custom SPARQL query")
     @GetMapping(value = ["/gdbsparql/"])
-    private fun gdbGeneralSparqlQuery(query: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
-        val accessToken = extractAccessTokenFromHeader(authorizationHeader)
+    fun gdbGeneralSparqlQuery(query: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
+        l1service.verifyAccessToken(authorizationHeader)
 
-        if(!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
-
-        return try {
-            val gdbQuery = proxy.startFlowDynamic(
-                    GeneralSPARQLqueryFlow::class.java,
-                    query
-            ).returnValue.get()
-            ResponseEntity("Query result: $gdbQuery", HttpStatus.ACCEPTED)
-        } catch (e: Exception) {
-            return ResponseEntity("Something went wrong: $e", HttpStatus.INTERNAL_SERVER_ERROR)
-        }
+        val gdbQuery = rpc.client().startFlowDynamic(
+            GeneralSPARQLqueryFlow::class.java,
+            query
+        ).returnValue.get()
+        return ResponseEntity("Query result: $gdbQuery", HttpStatus.ACCEPTED)
     }
 
     private fun eventStatesToEventMap(eventStates: List<EventState>) =
