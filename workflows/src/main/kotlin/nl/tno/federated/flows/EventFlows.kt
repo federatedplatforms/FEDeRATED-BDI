@@ -1,6 +1,9 @@
 package nl.tno.federated.flows
 
 import co.paralleluniverse.fibers.Suspendable
+import net.corda.core.contracts.AttachmentResolutionException
+import net.corda.core.contracts.TransactionResolutionException
+import net.corda.core.contracts.TransactionVerificationException
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.identity.Party
@@ -16,6 +19,7 @@ import nl.tno.federated.services.GraphDBService.insertEvent
 import nl.tno.federated.services.GraphDBService.queryEventById
 import nl.tno.federated.states.EventState
 import nl.tno.federated.states.PhysicalObject
+import org.slf4j.LoggerFactory
 
 @InitiatingFlow
 @StartableByRPC
@@ -23,6 +27,9 @@ class NewEventFlow(
     val fullEvent: String,
     val countriesInvolved: Set<String>
 ) : FlowLogic<SignedTransaction>() {
+
+    private val log = LoggerFactory.getLogger(NewEventFlow::class.java)
+
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
      * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
@@ -67,7 +74,7 @@ class NewEventFlow(
             counterPartiesAndMe.add(serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
                 .firstOrNull { it.name.country == involvedCountry })
         }
-        require(!counterPartiesAndMe.contains(null)) { "One of the requested counterparties was not found" }
+        require(!counterPartiesAndMe.contains(null)) { "One of the requested counterparties was not found" }.also { log.info("One of the requested counterparties was not found") }
         val counterParties = counterPartiesAndMe.filter { it!!.owningKey != me.owningKey }
 
         val allParties = counterParties.map { it!! } + mutableListOf(notary, me)
@@ -93,7 +100,12 @@ class NewEventFlow(
         // Stage 2.
         progressTracker.currentStep = VERIFYING_TRANSACTION
         // Verify that the transaction is valid.
-        txBuilder.verify(serviceHub)
+        try {
+            txBuilder.verify(serviceHub)
+        } catch (e: Exception) {
+            log.debug("Verification of transaction failed because: {}", e.message, e)
+            throw e
+        }
 
         // Stage 3.
         progressTracker.currentStep = SIGNING_TRANSACTION
@@ -111,13 +123,18 @@ class NewEventFlow(
         progressTracker.currentStep = FINALISING_TRANSACTION
         // Notarise and record the transaction in both parties' vaults.
 
-        require(insertEvent(newEventState.fullEvent, false)) { "Unable to insert event data into the triple store at $me." }
+        require(insertEvent(newEventState.fullEvent, false)) { "Unable to insert event data into the triple store at $me." }.also {
+            log.info("Unable" +
+                "to insert event data into the triple store at $me.")
+        }
         return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
     }
 }
 
 @InitiatedBy(NewEventFlow::class)
 class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
+
+    private val log = LoggerFactory.getLogger(NewEventResponder::class.java)
 
     companion object {
         object VERIFYING_STRING_INTEGRITY : Step("Verifying that accompanying full event is acceptable.")
@@ -144,7 +161,10 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
                         outputState.fullEvent,
                         false
                     )
-                ) { "Unable to insert event data into the triple store at " + serviceHub.myInfo.legalIdentities.first() }
+                ) { "Unable to insert event data into the triple store at " + serviceHub.myInfo.legalIdentities.first() }.also {
+                    log.info("Unable to insert event data" +
+                        "into the triple store at " + serviceHub.myInfo.legalIdentities.first())
+                }
                 // TODO what to check in the counterparty flow?
                 // especially: if I'm not passing all previous states in the tx (see "requires" in the flow)
                 // then I want the counterparties to check by themselves that everything's legit

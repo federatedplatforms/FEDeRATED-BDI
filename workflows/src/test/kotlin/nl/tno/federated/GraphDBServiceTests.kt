@@ -4,8 +4,7 @@ import com.google.common.collect.testing.Helpers.assertContainsAllOf
 import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.states.EventType
 import nl.tno.federated.states.Milestone
-import org.junit.After
-import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Ignore
 import org.junit.Test
 import java.io.File
@@ -13,17 +12,30 @@ import java.util.*
 import kotlin.test.assertEquals
 
 
-class GraphDBServiceTests {
+/**
+ * This test only works with a running GraphDB instance (see: database.properties)
+ */
+class GraphDBServiceTests : GraphDBTestContainersSupport() {
 
     private val invalidSampleTTL = File("src/test/resources/SHACL_FAIL - TradelensEvents_ArrivalDeparture.ttl").readText()
-    private val validSampleTtl = File("src/test/resources/correct-event.ttl").readText()
 
-    @Before
-    fun setup() {
-    }
+    companion object {
 
-    @After
-    fun tearDown() {
+        private val validSampleTtl = File("src/test/resources/correct-event.ttl").readText()
+
+        @JvmStatic
+        @BeforeClass
+        fun setup() {
+            // Override database.properties with docker properties
+            System.setProperty("triplestore.host",  graphDB.host)
+            System.setProperty("triplestore.port",  graphDB.firstMappedPort?.toString() ?: "7200")
+
+            // 1. Create repositories
+            GraphDBService.createRemoteRepositoryFromConfig("bdi-repository-config.ttl")
+            GraphDBService.createRemoteRepositoryFromConfig("private-repository-config.ttl")
+            // 2. Insert data
+            GraphDBService.insertEvent(validSampleTtl, false)
+        }
     }
 
     @Test
@@ -40,13 +52,15 @@ class GraphDBServiceTests {
 
     @Test
     fun `Query with a custom sparql query`() {
-        val result = GraphDBService.generalSPARQLquery("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
-                "PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>\n" +
-                "PREFIX ex: <https://ontology.tno.nl/example#>\n" +
-                "SELECT *\n" +
-                "WHERE {\n" +
-                "ex:event-b0efeca7-7b33-4d4e-8a5e-1d33b75a3e19 ?predicate ?object .\n" +
-                "}")
+        val result = GraphDBService.generalSPARQLquery(
+            """PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+               PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
+               PREFIX ex: <https://ontology.tno.nl/example#>
+               SELECT *
+               WHERE {
+                 ex:event-b0efeca7-7b33-4d4e-8a5e-1d33b75a3e19 ?predicate ?object .
+               }""".trimIndent())
+
         assert(result.contains("DigitalTwin-af59f747-6aee-4d41-b425-49ec5bf0a81c"))
     }
 
@@ -435,12 +449,6 @@ class GraphDBServiceTests {
     fun `Insert invalid event`() {
         val successfulInsertion = GraphDBService.insertEvent(invalidSampleTTL, false)
         assert(!successfulInsertion)
-    }
-
-    @Test
-    fun `Verify repository is available`() {
-        val resultTrue = GraphDBService.isRepositoryAvailable()
-        assert(resultTrue)
     }
 
     @Test

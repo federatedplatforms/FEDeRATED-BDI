@@ -4,15 +4,10 @@ import net.corda.client.rpc.CordaRPCClient
 import net.corda.client.rpc.CordaRPCConnection
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.utilities.NetworkHostAndPort
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
-
-private const val CORDA_USER_NAME = "config.rpc.username"
-private const val CORDA_USER_PASSWORD = "config.rpc.password"
-private const val CORDA_NODE_HOST = "config.rpc.host"
-private const val CORDA_RPC_PORT = "config.rpc.port"
 
 /**
  * Wraps an RPC connection to a Corda node.
@@ -26,27 +21,29 @@ private const val CORDA_RPC_PORT = "config.rpc.port"
  * @property proxy The RPC proxy.
  */
 @Component
-open class NodeRPCConnection(
-        @Value("\${$CORDA_NODE_HOST}") private val host: String,
-        @Value("\${$CORDA_USER_NAME}") private val username: String,
-        @Value("\${$CORDA_USER_PASSWORD}") private val password: String,
-        @Value("\${$CORDA_RPC_PORT}") private val rpcPort: Int): AutoCloseable {
+class NodeRPCConnection(
+    @Value("\${config.rpc.host}") private val host: String,
+    @Value("\${config.rpc.username}") private val username: String,
+    @Value("\${config.rpc.password}") private val password: String,
+    @Value("\${config.rpc.port}") private val rpcPort: Int
+) {
+    private val log = LoggerFactory.getLogger(NodeRPCConnection::class.java)
+    private var rpcConnection: CordaRPCConnection? = null
 
-    lateinit var rpcConnection: CordaRPCConnection
-        private set
-    lateinit var proxy: CordaRPCOps
-        private set
+    private val cordaRPCOps: CordaRPCOps by lazy {
+        log.debug("Initializing CordaRPCConnection host: $host, port: $rpcPort, user: $username")
+        val rpcAddress = NetworkHostAndPort(host, rpcPort)
+        val rpcClient = CordaRPCClient(rpcAddress)
+        val rpcConnection = rpcClient.start(username, password)
+        log.debug("Initializing CordaRPCConnection successful!!")
 
-    @PostConstruct
-    fun initialiseNodeRPCConnection() {
-            val rpcAddress = NetworkHostAndPort(host, rpcPort)
-            val rpcClient = CordaRPCClient(rpcAddress)
-            val rpcConnection = rpcClient.start(username, password)
-            proxy = rpcConnection.proxy
+        rpcConnection.proxy
     }
 
+    fun client() = cordaRPCOps
+
     @PreDestroy
-    override fun close() {
-        rpcConnection.notifyServerAndClose()
+    fun close() {
+        rpcConnection?.notifyServerAndClose()
     }
 }

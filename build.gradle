@@ -26,14 +26,20 @@ buildscript { //properties that you need to build the project
         jcenter()
         maven { url 'https://software.r3.com/artifactory/corda-releases' }
     }
+}
 
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "net.corda.plugins:cordapp:$corda_gradle_plugins_version"
-        classpath "net.corda.plugins:cordformation:$corda_gradle_plugins_version"
-        classpath "net.corda.plugins:quasar-utils:$corda_gradle_plugins_version"
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:$spring_boot_gradle_plugin_version"
-    }
+plugins {
+    id 'org.springframework.boot' version "$spring_boot_gradle_plugin_version"
+    id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
+    id 'org.jetbrains.kotlin.plugin.spring' version "$kotlin_version"
+    id 'net.corda.plugins.cordapp' version "$corda_gradle_plugins_version"
+    id 'net.corda.plugins.cordformation' version "$corda_gradle_plugins_version"
+    id 'net.corda.plugins.quasar-utils' version "$corda_gradle_plugins_version"
+}
+
+bootJar {
+    // this module is not a spring boot app.
+    enabled = false
 }
 
 allprojects { //Properties that you need to compile your project (The application)

