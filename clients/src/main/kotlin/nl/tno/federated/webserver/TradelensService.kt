@@ -26,13 +26,13 @@ class TradelensService(
     private val log = LoggerFactory.getLogger(TradelensService::class.java)
 
     private fun getIBMIdentityToken(): String {
-        log.debug("Retrieving IBM identity token...")
+        log.info("Retrieving IBM identity token...")
         val urlParameters = "grant_type=urn:ibm:params:oauth:grant-type:apikey&apikey=$apikey"
         return ibmIdentityTokenRestTemplate.exchange("/identity/token", HttpMethod.POST, HttpEntity(urlParameters), String::class.java).body ?: throw TradelensException("Unable to retrieve IBM identity token, response is empty.")
     }
 
     private fun getSolutionToken(): String {
-        log.debug("Retrieving Tradelens solution token...")
+        log.info("Retrieving Tradelens solution token...")
         val request = getIBMIdentityToken()
         val response = tradelensRestTemplate.exchange("/sa/api/v1/auth/exchange_token/organizations/$orgId", HttpMethod.POST, HttpEntity(request), String::class.java).body ?: ""
         return extractSolutionToken(response)
@@ -49,7 +49,7 @@ class TradelensService(
     fun getTransportEquipmentData(consignmentId: String, twinId: UUID): String? {
         val solutionToken = getSolutionToken()
         val headers = HttpHeaders().apply { set(HttpHeaders.AUTHORIZATION, "Bearer $solutionToken") }
-        log.debug("Retrieving Tradelens transport equipment data for consignmentId: {} and twinId: {}", consignmentId, twinId)
+        log.info("Retrieving Tradelens transport equipment data for consignmentId: {} and twinId: {}", consignmentId, twinId)
 
         return try {
             tradelensRestTemplate.exchange("/api/v1/transportEquipment/currentProgress/consignmentId/$consignmentId/transportEquipmentId/$twinId", HttpMethod.GET, HttpEntity(null, headers), String::class.java).body

@@ -8,10 +8,17 @@ import nl.tno.federated.flows.DataPullQueryFlow
 import nl.tno.federated.states.DataPullState
 import nl.tno.federated.webserver.L1Services
 import nl.tno.federated.webserver.NodeRPCConnection
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import java.util.*
 
 
@@ -23,17 +30,21 @@ import java.util.*
 @Api(value = "DataPullController", tags = ["Data pull endpoints"])
 class DataPullController(private val rpc: NodeRPCConnection, private val l1service: L1Services) {
 
+    private val log = LoggerFactory.getLogger(DataPullController::class.java)
+
     @ApiOperation(value = "Request data and run a SPARQL query on another node")
     @PostMapping(value = ["/request/{destination}"])
     private fun request(@RequestBody query: String, @PathVariable destination: String?, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
         l1service.verifyAccessToken(authorizationHeader)
 
+        log.info("Data pull SPARQL query requested for destination: {}", destination)
         val dataPull = rpc.client().startFlowDynamic(
             DataPullQueryFlow::class.java,
             destination,
             query
         ).returnValue.get()
         val uuidOfStateWithResult = (dataPull.coreTransaction.getOutput(0) as DataPullState).linearId.id
+        log.info("Data pull completed for destination: {}, result can be found in DataPullState with UUID: {}", destination, uuidOfStateWithResult)
         return ResponseEntity("State with result: $uuidOfStateWithResult", HttpStatus.ACCEPTED)
     }
 
