@@ -5,6 +5,7 @@ import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.states.EventType
 import nl.tno.federated.states.Milestone
 import org.junit.BeforeClass
+import org.junit.Assert.assertFalse
 import org.junit.Ignore
 import org.junit.Test
 import java.io.File
@@ -40,30 +41,15 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
 
     @Test
     fun `Query everything`() {
-        val result = GraphDBService.queryEventIds()
-        assert(result.contains("b0efeca7-7b33-4d4e-8a5e-1d33b75a3e19"))
+        val weKnowEvent = GraphDBService.queryEventById("b0efeca7-7b33-4d4e-8a5e-1d33b75a3e19")
+        assertFalse(GraphDBService.isQueryResultEmpty(weKnowEvent))
     }
 
     @Test
     fun `Query event by ID`() {
         val result = GraphDBService.queryEventById("b0efeca7-7b33-4d4e-8a5e-1d33b75a3e19")
-        assert(result.contains("DigitalTwin-af59f747-6aee-4d41-b425-49ec5bf0a81c"))
+        assertFalse(GraphDBService.isQueryResultEmpty(result))
     }
-
-    @Test
-    fun `Query with a custom sparql query`() {
-        val result = GraphDBService.generalSPARQLquery(
-            """PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-               PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
-               PREFIX ex: <https://ontology.tno.nl/example#>
-               SELECT *
-               WHERE {
-                 ex:event-b0efeca7-7b33-4d4e-8a5e-1d33b75a3e19 ?predicate ?object .
-               }""".trimIndent())
-
-        assert(result.contains("DigitalTwin-af59f747-6aee-4d41-b425-49ec5bf0a81c"))
-    }
-
 
     @Test
     fun `Parse event - 1`() {
@@ -131,7 +117,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
         assertEquals(EventType.PLANNED, parsedEvent.timestamps.single().type)
 
         assertEquals(1579975200000, parsedEvent.timestamps.single().time.time)
-        assertEquals(Milestone.STOP, parsedEvent.milestone)
+        assertEquals(Milestone.END, parsedEvent.milestone)
         assertEquals("5edc2423-d258-4002-8d6c-9fb3b1f6ff9a", parsedEvent.timestamps.single().id)
     }
 
@@ -271,7 +257,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
         assertEquals(EventType.PLANNED, parsedEvent.timestamps.single().type)
 
         assertEquals(1636570280000, parsedEvent.timestamps.single().time.time)
-        assertEquals(Milestone.STOP, parsedEvent.milestone)
+        assertEquals(Milestone.END, parsedEvent.milestone)
         assertEquals("5b8699f1-4788-11ec-b5e4-5c879c8043a4", parsedEvent.timestamps.single().id)
     }
 

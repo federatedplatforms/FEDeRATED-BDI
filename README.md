@@ -9,6 +9,7 @@ This is the CorDapp for FEDeRATED. It includes a web-api (Spring Boot) and a set
 - IntelliJ (my preference) or Visual Studio Code with [Corda plugin](https://github.com/corda/vscode-corda). 
   IntelliJ run configurations are included with the project.
 - Unix users need xterm
+- Windows users add the JDK to the environment variable `PATH`
 
 See https://docs.corda.net/getting-set-up.html for more details.
 
@@ -22,11 +23,11 @@ set for you.
 
 To switch to using the Gradle runner:
 
-* Navigate to ``Build, Execution, Deployment -> Build Tools -> Gradle -> Runner`` (or search for `runner`)
+* Navigate to ``Build, Execution, Deployment -> Build Tools -> Gradle`` (or search for `Build Tools` and select the one with settings on the right)
   * Windows: this is in "Settings"
   * MacOS: this is in "Preferences"
-* Set "Delegate IDE build/run actions to gradle" to true
-* Set "Run test using:" to "Gradle Test Runner"
+* Set "Build and run using" to "Gradle (Default)"
+* Set "Run tests using:" to "Gradle (Default)"
 
 If you would prefer to use the built in IntelliJ JUnit test runner, you can run ``gradlew installQuasar`` which will
 copy your quasar JAR file to the lib directory. You will then need to specify ``-javaagent:lib/quasar.jar``

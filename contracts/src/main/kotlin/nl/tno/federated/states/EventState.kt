@@ -88,7 +88,7 @@ data class EventState(
 
 @CordaSerializable
 enum class Milestone {
-    START, STOP
+    START, END
 }
 
 @CordaSerializable
