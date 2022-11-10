@@ -97,7 +97,7 @@ object GraphDBEventConverter {
 
         require(milestones.size == 1) { "Found multiple milestones for event $eventId" }.also { log.info("Found multiple milestones for event $eventId") }
         val milestone = milestones.objects().first().toString()
-        return if (milestone == "https://ontology.tno.nl/logistics/federated/Event#End") Milestone.STOP else Milestone.START
+        return if (milestone == "https://ontology.tno.nl/logistics/federated/Event#End") Milestone.END else Milestone.START
     }
 
     private fun fullEventFromModel(model: Model, eventId: String): String {

@@ -84,7 +84,7 @@ class InsuranceFlow(
             }
         // this implementation assumes stopped good-transportmean connections are never re-started
         val goodsAndTheirMilestone = previousEvents.flatMap { it.state.data.goods zip listOf(it.state.data.milestone) }
-        val stoppedGoods = goodsAndTheirMilestone.filter { it.second == Milestone.STOP }.map { it.first }
+        val stoppedGoods = goodsAndTheirMilestone.filter { it.second == Milestone.END }.map { it.first }
         val goodsStillInTransportMean = goodsAndTheirMilestone.filter { it.first !in stoppedGoods }.map { it.first }
         val previousEventsWithoutStop = previousEvents.filter { state ->
             state.state.data.goods.any {

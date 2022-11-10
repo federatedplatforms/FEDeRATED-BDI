@@ -125,7 +125,7 @@ class InsuranceFlowTests {
         val txHash = insertEvent(goodUUID2, transportMeanUUID)
 
         // stop the first
-        insertEvent(goodUUID, transportMeanUUID, milestone = Milestone.STOP)
+        insertEvent(goodUUID, transportMeanUUID, milestone = Milestone.END)
 
         // insert insurance event
         val insuranceEvent = Event(setOf(goodUUID), setOf(transportMeanUUID), emptySet(), emptySet(), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.ACTUAL)), "", Milestone.START, "some business tx", "", setOf("InsuranceEvent"))
