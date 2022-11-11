@@ -36,7 +36,7 @@ class SemanticAdapterService(
      * Return the event triple from the semantic adapter
      */
     fun processTradelensEvent(event: String): String {
-        log.debug("Processing incoming Tradelens event")
+        log.info("Processing incoming Tradelens event")
         val convertedEvent = convertEventData(event)
         log.debug("Event converted: {}", convertedEvent)
 
@@ -53,13 +53,13 @@ class SemanticAdapterService(
      * Enrich the event with more tradelens data and store in graphdb
      */
     private fun retrieveAndStoreExtraData(event: String): Boolean {
-        log.debug("Retrieving extra data for event.")
+        log.info("Retrieving extra data for event.")
         val digitalTwinIdsAndConsignmentIds = parseDTIdsAndBusinessTransactionIds(event)
 
         digitalTwinIdsAndConsignmentIds.forEach {
             val consignmentId = it.value
             it.key.forEach { twinId ->
-                log.debug("Getting data for consignmentId: {} and twinId: {}", consignmentId, twinId)
+                log.info("Getting data for consignmentId: {} and twinId: {}", consignmentId, twinId)
                 val dataFromApi = tradelensService.getTransportEquipmentData(consignmentId, twinId)
 
                 if(dataFromApi.isNullOrEmpty()) {
@@ -74,7 +74,7 @@ class SemanticAdapterService(
                     throw SemanticAdapterException("Unable to convert Tradelens transportEquipment to triple, empty response from semantic adapter for Tradelens data.")
                 }
 
-                log.debug("Inserting extra data  {into graphdb: {}", convertedData)
+                log.debug("Inserting extra data into graphdb: {}", convertedData)
                 insertDataIntoPrivateGraphDB(convertedData!!)
             }
         }

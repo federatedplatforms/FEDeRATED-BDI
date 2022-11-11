@@ -35,8 +35,8 @@ class Server {
     @Bean("ishareRestTemplate")
     fun ishareRestTemplate() : RestTemplate {
         return restTemplateBuilder
-            .setConnectTimeout(5000)
-            .setReadTimeout(5000)
+            .setConnectTimeout(environment.getProperty("ishare.connectTimeoutMillis")?.toIntOrNull() ?: 5000)
+            .setReadTimeout(environment.getProperty("ishare.readTimeoutMillis")?.toIntOrNull() ?: 5000)
             .interceptors(ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution ->
                 request.headers.set("Content-Type", "application/json")
                 request.headers.set("Accept", "application/json")
@@ -54,8 +54,8 @@ class Server {
     @Bean("semanticAdapterRestTemplate")
     fun semanticAdapterRestTemplate() : RestTemplate {
         return restTemplateBuilder
-            .setConnectTimeout(5000)
-            .setReadTimeout(5000)
+            .setConnectTimeout(environment.getProperty("semanticadapter.connectTimeoutMillis")?.toIntOrNull() ?: 5000)
+            .setReadTimeout(environment.getProperty("semanticadapter.readTimeoutMillis")?.toIntOrNull() ?: 5000)
             .interceptors(ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution ->
                 request.headers.add("Content-Type", "application/json")
                 request.headers.add("Accept", "application/json")
@@ -73,8 +73,8 @@ class Server {
     @Bean("tradelensRestTemplate")
     fun tradelensRestTemplate() : RestTemplate {
         return restTemplateBuilder
-            .setConnectTimeout(5000)
-            .setReadTimeout(5000)
+            .setConnectTimeout(environment.getProperty("tradelens.connectTimeoutMillis")?.toIntOrNull() ?: 5000)
+            .setReadTimeout(environment.getProperty("tradelens.readTimeoutMillis")?.toIntOrNull() ?: 5000)
             .interceptors(ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution ->
                 request.headers.set("Content-Type", "application/json")
                 request.headers.set("Accept", "application/json")
@@ -92,8 +92,8 @@ class Server {
     @Bean("ibmIdentityTokenRestTemplate")
     fun ibmIdentityTokenRestTemplate() : RestTemplate {
         return restTemplateBuilder
-            .setConnectTimeout(5000)
-            .setReadTimeout(5000)
+            .setConnectTimeout(environment.getProperty("ibm.connectTimeoutMillis")?.toIntOrNull() ?: 5000)
+            .setReadTimeout(environment.getProperty("ibm.readTimeoutMillis")?.toIntOrNull() ?: 5000)
             .interceptors(ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution ->
                 request.headers.set("Content-Type", "application/x-www-form-urlencoded")
                 request.headers.set("charset", "utf-8")

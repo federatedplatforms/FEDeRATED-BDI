@@ -21,7 +21,7 @@ object GraphDBEventConverter {
         val model = parseRDFToModel(rdfFullData)
 
         val eventIds = eventIdsFromModel(model)
-        require(eventIds.isNotEmpty()) { "No events found in RDF data. " }.also { log.info("No events found in RDF data. ") }
+        require(eventIds.isNotEmpty()) { "No events found in RDF data. " }.also { log.debug("No events found in RDF data. ") }
 
         return eventIds.map {
             eventFromModel(model, it)
@@ -70,7 +70,7 @@ object GraphDBEventConverter {
             null
         )
         require(businessTransactions.size in 0..1) { "Found multiple businesstransactions for event $eventId" }.also {
-            log.info("Found multiple" +
+            log.debug("Found multiple" +
                 "businessTransactions for event $eventId")
         }
         return if (businessTransactions.size == 0) "" else businessTransactions.first().`object`.toString().substringAfter("-").replace("\"", "")
@@ -95,7 +95,7 @@ object GraphDBEventConverter {
             null
         )
 
-        require(milestones.size == 1) { "Found multiple milestones for event $eventId" }.also { log.info("Found multiple milestones for event $eventId") }
+        require(milestones.size == 1) { "Found multiple milestones for event $eventId" }.also { log.debug("Found multiple milestones for event $eventId") }
         val milestone = milestones.objects().first().toString()
         return if (milestone == "https://ontology.tno.nl/logistics/federated/Event#End") Milestone.END else Milestone.START
     }
@@ -119,7 +119,7 @@ object GraphDBEventConverter {
             factory.createIRI("https://ontology.tno.nl/logistics/federated/Event#hasDateTimeType"),
             null
         ).objects()
-        require(timestampType.size == 1) { "Found multiple timestamptypes for event $eventId" }.also { log.info("Found multiple timestamptypes for event $eventId") }
+        require(timestampType.size == 1) { "Found multiple timestamptypes for event $eventId" }.also { log.debug("Found multiple timestamptypes for event $eventId") }
         val eventType = when (timestampType.first().toString().substringAfter("#").toLowerCase()) {
             "actual" -> EventType.ACTUAL
             "estimated" -> EventType.ESTIMATED
@@ -132,7 +132,7 @@ object GraphDBEventConverter {
             factory.createIRI("https://ontology.tno.nl/logistics/federated/Event#hasTimestamp"),
             null
         ).objects()
-        require(timestamps.size == 1) { "Found multiple timestamps for event $eventId" }.also { log.info("Found multiple timestamps for event $eventId") }
+        require(timestamps.size == 1) { "Found multiple timestamps for event $eventId" }.also { log.debug("Found multiple timestamps for event $eventId") }
         val timestamp = timestamps.first() as SimpleLiteral
         val formatter = if (timestamp.toString().length == 71) SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX") else SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
         val eventDate = formatter.parse(timestamp.label)
