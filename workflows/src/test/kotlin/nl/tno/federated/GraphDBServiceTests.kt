@@ -113,12 +113,6 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
         assertEquals("5edc2423-d258-4002-8d6c-9fb3b1f6ff9a", parsedEvent.transportMean.single().toString())
 
         assertEquals("BEDEU01", parsedEvent.location.single().toString())
-
-        assertEquals(EventType.PLANNED, parsedEvent.timestamps.single().type)
-
-        assertEquals(1579975200000, parsedEvent.timestamps.single().time.time)
-        assertEquals(Milestone.END, parsedEvent.milestone)
-        assertEquals("5edc2423-d258-4002-8d6c-9fb3b1f6ff9a", parsedEvent.timestamps.single().id)
     }
 
     @Test
@@ -165,12 +159,6 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
         assertEquals("0c1e0ed5-636c-48b2-8f52-542e6f4d156a", parsedEvent.transportMean.single().toString())
 
         assertEquals("BEANTMP", parsedEvent.location.single().toString())
-
-        assertEquals(EventType.PLANNED, parsedEvent.timestamps.single().type)
-
-        assertEquals(1579989600000, parsedEvent.timestamps.single().time.time)
-        assertEquals(Milestone.START, parsedEvent.milestone)
-        assertEquals("0c1e0ed5-636c-48b2-8f52-542e6f4d156a", parsedEvent.timestamps.single().id)
     }
 
     @Test
@@ -209,12 +197,6 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
         assertEquals("c5836199-8809-3930-9cf8-1d14a54d242a", parsedEvent.transportMean.single().toString())
 
         assertEquals("b4d51938-5ae5-330d-af2e-a198dd2c16ab", parsedEvent.location.single().toString())
-
-        assertEquals(EventType.ACTUAL, parsedEvent.timestamps.single().type)
-
-        assertEquals(1636533847000, parsedEvent.timestamps.single().time.time)
-        assertEquals(Milestone.START, parsedEvent.milestone)
-        assertEquals("5b856159-4788-11ec-a78e-5c879c8043a4", parsedEvent.timestamps.single().id)
     }
 
     @Test
@@ -253,12 +235,6 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
 
         assertEquals("c5836199-8809-3930-9cf8-1d14a54d242a", parsedEvent.transportMean.single().toString())
         assertEquals("ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1", parsedEvent.goods.single().toString())
-
-        assertEquals(EventType.PLANNED, parsedEvent.timestamps.single().type)
-
-        assertEquals(1636570280000, parsedEvent.timestamps.single().time.time)
-        assertEquals(Milestone.END, parsedEvent.milestone)
-        assertEquals("5b8699f1-4788-11ec-b5e4-5c879c8043a4", parsedEvent.timestamps.single().id)
     }
 
     @Test
@@ -297,12 +273,6 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
 
         assertEquals("43691f54-091c-4378-a176-b730a4966996", parsedEvent.transportMean.single().toString())
         assertEquals("b4d51938-5ae5-330d-af2e-a198dd2c16ab", parsedEvent.location.single().toString())
-
-        assertEquals(EventType.ACTUAL, parsedEvent.timestamps.single().type)
-
-        assertEquals(1636533847000, parsedEvent.timestamps.single().time.time)
-        assertEquals(Milestone.START, parsedEvent.milestone)
-        assertEquals("f223c17c-c3ab-4871-9b78-3536d121925c", parsedEvent.timestamps.single().id)
     }
 
     @Test
@@ -333,12 +303,6 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
 
         assertEquals("dce1774a-b2a1-338e-bd56-1902c57f836f", parsedEvent.otherDigitalTwins.single().toString())
         assertEquals("be989099-2e25-3259-975b-9f17c63b0281", parsedEvent.location.single().toString())
-
-        assertEquals(EventType.PLANNED, parsedEvent.timestamps.single().type)
-
-        assertEquals(1636533847000, parsedEvent.timestamps.single().time.time)
-        assertEquals(Milestone.START, parsedEvent.milestone)
-        assertEquals("41068e69-4be0-11ec-a52a-5c879c8043a5", parsedEvent.timestamps.single().id)
     }
 
     @Test
@@ -373,14 +337,6 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
 
         assertEquals("bf93dc6a-1f04-4dec-ba0d-3ba987b2723f", parsedEvent.transportMean.single().toString())
         assertEquals("INNSA", parsedEvent.location.single().toString())
-
-        assertEquals(EventType.ACTUAL, parsedEvent.timestamps.single().type)
-
-        assertEquals(1662747615329, parsedEvent.timestamps.single().time.time)
-        assertEquals(Milestone.START, parsedEvent.milestone)
-        assertEquals("10d7fd0d-7a26-4b83-be1a-9c2606cebdc9", parsedEvent.timestamps.single().id)
-
-        assertEquals("bc71cb37-f2a9-4844-8d8b-891c8bf75521", parsedEvent.businessTransaction)
     }
 
     @Test
@@ -414,14 +370,6 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
 
         assertEquals("bf93dc6a-1f04-4dec-ba0d-3ba987b2723f", parsedEvent.transportMean.single().toString())
         assertEquals("INNSA", parsedEvent.location.single().toString())
-
-        assertEquals(EventType.ACTUAL, parsedEvent.timestamps.single().type)
-
-        assertEquals(1662747615000, parsedEvent.timestamps.single().time.time)
-        assertEquals(Milestone.START, parsedEvent.milestone)
-        assertEquals("10d7fd0d-7a26-4b83-be1a-9c2606cebdc9", parsedEvent.timestamps.single().id)
-
-        assertEquals("bc71cb37-f2a9-4844-8d8b-891c8bf75521", parsedEvent.businessTransaction)
     }
 
     @Test

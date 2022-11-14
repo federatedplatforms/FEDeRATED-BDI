@@ -1,9 +1,6 @@
 package nl.tno.federated.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import net.corda.core.contracts.AttachmentResolutionException
-import net.corda.core.contracts.TransactionResolutionException
-import net.corda.core.contracts.TransactionVerificationException
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.identity.Party
@@ -79,16 +76,7 @@ class NewEventFlow(
 
         val allParties = counterParties.map { it!! } + mutableListOf(notary, me)
 
-        val newEvent = GraphDBService.parseRDFToEvents(fullEvent).first()
-
         val newEventState = EventState(
-            goods = newEvent.goods,
-            transportMean = newEvent.transportMean,
-            location = newEvent.location,
-            otherDigitalTwins = newEvent.otherDigitalTwins,
-            timestamps = newEvent.timestamps,
-            ecmruri = newEvent.ecmruri,
-            milestone = newEvent.milestone,
             fullEvent = fullEvent,
             participants = allParties - notary
         )

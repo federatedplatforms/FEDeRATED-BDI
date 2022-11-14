@@ -7,6 +7,7 @@ import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.flows.GeneralSPARQLqueryFlow
 import nl.tno.federated.flows.NewEventFlow
 import nl.tno.federated.flows.QueryGraphDBbyIdFlow
+import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
 import nl.tno.federated.webserver.L1Services
@@ -15,13 +16,7 @@ import nl.tno.federated.webserver.SemanticAdapterService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestHeader
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.util.*
 
 
@@ -82,7 +77,7 @@ class EventController(
 
     @ApiOperation(value = "Return all known events")
     @GetMapping(value = [""])
-    fun events(@RequestHeader("Authorization") authorizationHeader: String): Map<UUID, Event> {
+    fun events(@RequestHeader("Authorization") authorizationHeader: String): Map<UUID, List<Event>> {
         l1service.verifyAccessToken(authorizationHeader)
 
         val eventStates = rpc.client().vaultQuery(EventState::class.java).states.map { it.state.data }
@@ -91,26 +86,12 @@ class EventController(
 
     @ApiOperation(value = "Return an event")
     @GetMapping(value = ["/{id}"])
-    fun eventById(@PathVariable id: String, @RequestHeader("Authorization") authorizationHeader: String): Map<UUID, Event> {
+    fun eventById(@PathVariable id: String, @RequestHeader("Authorization") authorizationHeader: String): Map<UUID, List<Event>> {
         l1service.verifyAccessToken(authorizationHeader)
 
         val criteria = QueryCriteria.LinearStateQueryCriteria(externalId = listOf(id))
         val state = rpc.client().vaultQueryBy<EventState>(criteria).states.map { it.state.data }
         return eventStatesToEventMap(state)
-    }
-
-    @ApiOperation(value = "Return events by digital twin UUID")
-    @GetMapping(value = ["/digitaltwin/{dtuuid}"])
-    fun eventBydtUUID(@PathVariable dtuuid: UUID, @RequestHeader("Authorization") authorizationHeader: String): Map<UUID, Event> {
-        l1service.verifyAccessToken(authorizationHeader)
-
-        val eventStates = rpc.client().vaultQueryBy<EventState>().states.filter {
-            it.state.data.goods.contains(dtuuid) ||
-                it.state.data.transportMean.contains(dtuuid) ||
-                it.state.data.otherDigitalTwins.contains(dtuuid)
-        }.map { it.state.data }
-
-        return eventStatesToEventMap(eventStates)
     }
 
     @ApiOperation(value = "Return RDF data by event ID from GraphDB instance")
@@ -138,17 +119,5 @@ class EventController(
     }
 
     private fun eventStatesToEventMap(eventStates: List<EventState>) =
-        eventStates.associate {
-            it.linearId.id to Event(
-                it.goods,
-                it.transportMean,
-                it.location,
-                it.otherDigitalTwins,
-                it.timestamps,
-                it.ecmruri,
-                it.milestone,
-                "",
-                it.fullEvent
-            )
-        }
+        eventStates.associate { it.linearId.id to GraphDBService.parseRDFToEvents(it.fullEvent) }
 }
