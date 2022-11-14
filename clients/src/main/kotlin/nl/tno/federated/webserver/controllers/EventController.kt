@@ -13,13 +13,11 @@ import nl.tno.federated.states.EventState
 import nl.tno.federated.webserver.L1Services
 import nl.tno.federated.webserver.NodeRPCConnection
 import nl.tno.federated.webserver.SemanticAdapterService
-import nl.tno.federated.webserver.TradelensService
-import org.springframework.core.env.Environment
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.*
-import javax.naming.AuthenticationException
 
 
 /**
@@ -34,26 +32,30 @@ class EventController(
     private val semanticAdapterService: SemanticAdapterService
 ) {
 
+    private val log = LoggerFactory.getLogger(EventController::class.java)
+
     @ApiOperation(value = "Create a new event")
     @PostMapping(value = ["/"])
     fun newEvent(@RequestBody event: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
         return newEvent(event, null, authorizationHeader)
     }
 
-    @ApiOperation(value = "Create a new event and returns the UUID of ???")
+    @ApiOperation(value = "Create a new event and returns the UUID of the newly created event.")
     @PostMapping(value = ["/{destination}"])
     fun newEvent(@RequestBody event: String, @PathVariable destination: String?, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
         l1service.verifyAccessToken(authorizationHeader)
 
         val recipients = if (destination == null) emptySet() else setOf(destination)
 
+        log.info("Start NewEventFlow, sending event to destination: {}", destination)
         val newEventTx = rpc.client().startFlowDynamic(
             NewEventFlow::class.java,
             event,
             recipients
         ).returnValue.get()
 
-        val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id // What UUID is this?
+        val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
+        log.info("NewEventFlow ready, new event created with UUID: {}", createdEventId)
         return ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
     }
 
@@ -75,7 +77,7 @@ class EventController(
 
     @ApiOperation(value = "Return all known events")
     @GetMapping(value = [""])
-    fun events(@RequestHeader("Authorization") authorizationHeader: String): Map<UUID, Event> {
+    fun events(@RequestHeader("Authorization") authorizationHeader: String): Map<UUID, List<Event>> {
         l1service.verifyAccessToken(authorizationHeader)
 
         val eventStates = rpc.client().vaultQuery(EventState::class.java).states.map { it.state.data }
@@ -84,26 +86,12 @@ class EventController(
 
     @ApiOperation(value = "Return an event")
     @GetMapping(value = ["/{id}"])
-    fun eventById(@PathVariable id: String, @RequestHeader("Authorization") authorizationHeader: String): Map<UUID, Event> {
+    fun eventById(@PathVariable id: String, @RequestHeader("Authorization") authorizationHeader: String): Map<UUID, List<Event>> {
         l1service.verifyAccessToken(authorizationHeader)
 
         val criteria = QueryCriteria.LinearStateQueryCriteria(externalId = listOf(id))
         val state = rpc.client().vaultQueryBy<EventState>(criteria).states.map { it.state.data }
         return eventStatesToEventMap(state)
-    }
-
-    @ApiOperation(value = "Return events by digital twin UUID")
-    @GetMapping(value = ["/digitaltwin/{dtuuid}"])
-    fun eventBydtUUID(@PathVariable dtuuid: UUID, @RequestHeader("Authorization") authorizationHeader: String): Map<UUID, Event> {
-        l1service.verifyAccessToken(authorizationHeader)
-
-        val eventStates = rpc.client().vaultQueryBy<EventState>().states.filter {
-            it.state.data.goods.contains(dtuuid) ||
-                it.state.data.transportMean.contains(dtuuid) ||
-                it.state.data.otherDigitalTwins.contains(dtuuid)
-        }.map { it.state.data }
-
-        return eventStatesToEventMap(eventStates)
     }
 
     @ApiOperation(value = "Return RDF data by event ID from GraphDB instance")
@@ -131,17 +119,5 @@ class EventController(
     }
 
     private fun eventStatesToEventMap(eventStates: List<EventState>) =
-        eventStates.associate {
-            it.linearId.id to Event(
-                it.goods,
-                it.transportMean,
-                it.location,
-                it.otherDigitalTwins,
-                it.timestamps,
-                it.ecmruri,
-                it.milestone,
-                "",
-                it.fullEvent
-            )
-        }
+        eventStates.associate { it.linearId.id to GraphDBService.parseRDFToEvents(it.fullEvent) }
 }

@@ -1,4 +1,4 @@
-# incoming tradelens event that would be submitted via a webhook
+# POST a Tradelens 'Actual loaded on vessel' event (simulates the TL webhook)
 POST {{api_url}}/events/newUnprocessed/{{destination}}
 Authorization: Bearer doitanyway
 Content-Type: application/json

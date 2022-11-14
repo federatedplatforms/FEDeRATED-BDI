@@ -55,8 +55,8 @@ Start the GraphDB database and Workbench interfaces in the embedded Tomcat serve
 You are now ready to load the ontologies. The following is also available as the `graphdb-data` folder in the project root. If you wish to set it up yourself, or make sure that you have the latest version, you can do so by running the following commands:
 
 1. Navigate to http://\<server>:7200
-2. Setup -> Repository -> New free repository
-3. Provide a name, put this name in database.properties. The default is bdi.
+2. Setup -> Repositories -> Create new repository
+3. Provide a name, put this name in database.properties. The default is bdi. 
 4. Tick the box to "Enable SHACL validation"
 5. Create
 6. (Optional) click the thumb-tack icon to set the new repository as the default and run it
