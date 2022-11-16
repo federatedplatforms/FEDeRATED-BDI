@@ -10,7 +10,6 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
-import nl.tno.federated.services.CordaGraphDBService
 import nl.tno.federated.states.EventState
 import nl.tno.federated.states.PhysicalObject
 import org.slf4j.LoggerFactory
@@ -163,34 +162,9 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
     }
 }
 
-@InitiatingFlow
-@StartableByRPC
-class QueryGraphDBbyIdFlow(
-    val id: String
-) : FlowLogic<String>() {
-
-    @Suspendable
-    override fun call(): String {
-        return graphdb().queryEventById(id)
-    }
-}
-
-@InitiatingFlow
-@StartableByRPC
-class GeneralSPARQLqueryFlow(
-    val query: String
-) : FlowLogic<String>() {
-
-    @Suspendable
-    override fun call(): String {
-        return graphdb().generalSPARQLquery(query)
-    }
-}
-
 @CordaSerializable
 data class DigitalTwinPair(
     val content: String,
     val type: PhysicalObject
 )
 
-private fun FlowLogic<*>.graphdb() = serviceHub.cordaService(CordaGraphDBService::class.java)

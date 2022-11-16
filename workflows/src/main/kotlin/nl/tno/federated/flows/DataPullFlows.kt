@@ -11,7 +11,6 @@ import net.corda.core.transactions.WireTransaction
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.DataPullContract
-import nl.tno.federated.services.CordaGraphDBService
 import nl.tno.federated.states.DataPullState
 import org.slf4j.LoggerFactory
 
@@ -282,5 +281,3 @@ class DataPullResultResponderFlow(val counterpartySession: FlowSession) : FlowLo
         return subFlow(ReceiveFinalityFlow(counterpartySession, expectedTxId = tx.id))
     }
 }
-
-private fun FlowLogic<*>.graphdb() = serviceHub.cordaService(CordaGraphDBService::class.java)
