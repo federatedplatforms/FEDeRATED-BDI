@@ -11,8 +11,8 @@ import java.io.File
 class GraphDBAccuracyTests : GraphDBTestContainersSupport() {
 
     companion object {
-
         private val validSampleTtl = File("src/test/resources/correct-event.ttl").readText()
+        private val graphdb = GraphDBService()
 
         @JvmStatic
         @BeforeClass
@@ -22,10 +22,10 @@ class GraphDBAccuracyTests : GraphDBTestContainersSupport() {
             System.setProperty("triplestore.port",  graphDB.exposedPorts?.firstOrNull()?.toString() ?: "7200")
 
             // 1. Create repositories
-            GraphDBService.createRemoteRepositoryFromConfig("bdi-repository-config.ttl")
-            GraphDBService.createRemoteRepositoryFromConfig("private-repository-config.ttl")
+            graphdb.createRemoteRepositoryFromConfig("bdi-repository-config.ttl")
+            graphdb.createRemoteRepositoryFromConfig("private-repository-config.ttl")
             // 2. Insert data
-            GraphDBService.insertEvent(validSampleTtl, false)
+            graphdb.insertEvent(validSampleTtl, false)
         }
     }
 
@@ -41,47 +41,47 @@ class GraphDBAccuracyTests : GraphDBTestContainersSupport() {
 
         // 1. query for all 4 events in part, everything should be false
         for (eventIdentifier in eventsIdentifiers) {
-            val sparqlQuery = GraphDBService.queryEventById(eventIdentifier)
+            val sparqlQuery = graphdb.queryEventById(eventIdentifier)
 
             // expect the answer to the question "is the query result empty?" to be TRUE
-            assertTrue("Query made illegal results", GraphDBService.isQueryResultEmpty(sparqlQuery))
+            assertTrue("Query made illegal results", graphdb.isQueryResultEmpty(sparqlQuery))
         }
 
-        assertTrue("Constructed TTL is incorrect", GraphDBService.insertEvent(constructedTTL,false))
+        assertTrue("Constructed TTL is incorrect", graphdb.insertEvent(constructedTTL,false))
 
         // 3. check if all items required for events are correctly saved (legalPerson, businessTransaction and equipmentUsed)
 
-        val businessTransactionSparqlQuery = GraphDBService.queryEventComponent(businessTransaction)
+        val businessTransactionSparqlQuery = graphdb.queryEventComponent(businessTransaction)
 
         // expect the answer to the question "is the query for business transaction result empty?" to be FALSE
-        assertFalse("Business transaction incorrectly saved", GraphDBService.isQueryResultEmpty(businessTransactionSparqlQuery))
+        assertFalse("Business transaction incorrectly saved", graphdb.isQueryResultEmpty(businessTransactionSparqlQuery))
 
-        val legalPersonSparqlQuery = GraphDBService.queryEventComponent(legalPerson)
-
-        // expect the answer to the question "is the query for business transaction result empty?" to be FALSE
-        assertFalse("Legal person incorrectly saved", GraphDBService.isQueryResultEmpty(legalPersonSparqlQuery))
-
-        val equipmentSparqlQuery = GraphDBService.queryEventComponent(equipmentUsed)
+        val legalPersonSparqlQuery = graphdb.queryEventComponent(legalPerson)
 
         // expect the answer to the question "is the query for business transaction result empty?" to be FALSE
-        assertFalse("Equipment used incorrectly saved", GraphDBService.isQueryResultEmpty(equipmentSparqlQuery))
+        assertFalse("Legal person incorrectly saved", graphdb.isQueryResultEmpty(legalPersonSparqlQuery))
+
+        val equipmentSparqlQuery = graphdb.queryEventComponent(equipmentUsed)
+
+        // expect the answer to the question "is the query for business transaction result empty?" to be FALSE
+        assertFalse("Equipment used incorrectly saved", graphdb.isQueryResultEmpty(equipmentSparqlQuery))
 
         // 4. query for all 4 events in part, they should all be there
         for (i in eventsIdentifiers.indices) {
-            val transportMeansIdentifierSparqlQuery = GraphDBService.queryEventComponent(digitalTwinTransportMeans[i])
+            val transportMeansIdentifierSparqlQuery = graphdb.queryEventComponent(digitalTwinTransportMeans[i])
 
             assertFalse("Transport mean with identifier ${digitalTwinTransportMeans[i]} incorrectly inserted",
-                    GraphDBService.isQueryResultEmpty(transportMeansIdentifierSparqlQuery))
+                graphdb.isQueryResultEmpty(transportMeansIdentifierSparqlQuery))
 
-            val eventIdentifierSparqlQuery = GraphDBService.queryEventById(eventsIdentifiers[i])
+            val eventIdentifierSparqlQuery = graphdb.queryEventById(eventsIdentifiers[i])
 
             // expect the answer to the question "is the query for event identifier result empty?" to be FALSE
-            assertFalse("Event with id ${eventsIdentifiers[i]} incorrectly inserted", GraphDBService.isQueryResultEmpty(eventIdentifierSparqlQuery))
+            assertFalse("Event with id ${eventsIdentifiers[i]} incorrectly inserted", graphdb.isQueryResultEmpty(eventIdentifierSparqlQuery))
 
-            val allEventPropertiesSparqlQuery = GraphDBService.queryAllEventPropertiesById(eventsIdentifiers[i])
+            val allEventPropertiesSparqlQuery = graphdb.queryAllEventPropertiesById(eventsIdentifiers[i])
 
             assertTrue("Event with id ${eventsIdentifiers[i]} inaccurately saved",
-                    GraphDBService.areEventComponentsAccurate(allEventPropertiesSparqlQuery, businessTransaction,
+                graphdb.areEventComponentsAccurate(allEventPropertiesSparqlQuery, businessTransaction,
                             digitalTwinTransportMeans[i], equipmentUsed))
         }
 
