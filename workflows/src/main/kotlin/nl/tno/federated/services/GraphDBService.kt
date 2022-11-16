@@ -36,7 +36,7 @@ class GraphDBClientException(message: String) : GraphDBException(message)
  */
 class GraphDBServerException(message: String) : GraphDBException(message)
 
-object GraphDBService {
+class GraphDBService : IGraphDBService {
 
     private val log = LoggerFactory.getLogger(GraphDBService::class.java)
 
@@ -87,9 +87,9 @@ object GraphDBService {
     /**
      * Does not really belong here.
      */
-    fun parseRDFToEvents(rdfFullData: String): List<Event> = GraphDBEventConverter.parseRDFToEvents(rdfFullData)
+    override fun parseRDFToEvents(rdfFullData: String): List<Event> = GraphDBEventConverter.parseRDFToEvents(rdfFullData)
 
-    fun queryEventIds(): String {
+    override fun queryEventIds(): String {
         val sparql = """
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX Event: <https://ontology.tno.nl/logistics/federated/event#>
@@ -100,11 +100,11 @@ object GraphDBService {
         return performSparql(sparql) ?: ""
     }
 
-    fun generalSPARQLquery(query: String, privateRepo: Boolean = false): String {
+    override fun generalSPARQLquery(query: String, privateRepo: Boolean): String {
         return performSparql(query.trimIndent(), privateRepo) ?: ""
     }
 
-    fun queryEventById(id: String): String {
+    override fun queryEventById(id: String): String {
         assertSPARQLInput(id)
 
         assertSPARQLInput(id)
@@ -119,7 +119,7 @@ object GraphDBService {
         return performSparql(sparql) ?: ""
     }
 
-    fun queryAllEventPropertiesById(id: String): String {
+    override fun queryAllEventPropertiesById(id: String): String {
         val sparql = """
             PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
             PREFIX DigitalTwin: <https://ontology.tno.nl/logistics/federated/DigitalTwin#>
@@ -136,7 +136,7 @@ object GraphDBService {
         return performSparql(sparql) ?: ""
     }
 
-    fun queryEventComponent(id: String): String {
+    override fun queryEventComponent(id: String): String {
         val sparql = """
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
@@ -152,7 +152,7 @@ object GraphDBService {
         return performSparql(sparql) ?: ""
     }
 
-    fun isQueryResultEmpty(queryResult: String): Boolean {
+    override fun isQueryResultEmpty(queryResult: String): Boolean {
         val mapper = jacksonObjectMapper().readTree(queryResult)
 
         val queryBindings = mapper["results"]["bindings"].elements()
@@ -161,7 +161,7 @@ object GraphDBService {
     }
 
     // order of the arguments in queryResult: object = business transaction, object1 = equipment, object2 = transport means
-    fun areEventComponentsAccurate(queryResult: String, businessTransaction: String, transportMeans: String, equipmentUsed: String): Boolean {
+    override fun areEventComponentsAccurate(queryResult: String, businessTransaction: String, transportMeans: String, equipmentUsed: String): Boolean {
         val mapper = jacksonObjectMapper().readTree(queryResult)
 
         val bindings = mapper["results"]["bindings"]
@@ -181,7 +181,7 @@ object GraphDBService {
         return true
     }
 
-    fun insertEvent(ttl: String, privateRepo: Boolean): Boolean {
+    override fun insertEvent(ttl: String, privateRepo: Boolean): Boolean {
         val uri = getRepositoryURI(privateRepo)
         val result = client.post(URI("$uri/statements"), ttl)
         return result.bodyAsString.isNullOrEmpty()

@@ -1,5 +1,7 @@
 package nl.tno.federated.webserver
 
+import nl.tno.federated.services.GraphDBService
+import nl.tno.federated.services.IGraphDBService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -114,6 +116,9 @@ class Server {
         .apis(RequestHandlerSelectors.any())
         .paths(PathSelectors.any())
         .build()
+
+    @Bean
+    fun graphDBService(): IGraphDBService = GraphDBService()
 }
 
 /**

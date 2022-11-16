@@ -1,7 +1,7 @@
 package nl.tno.federated
 
 import io.mockk.every
-import io.mockk.mockkObject
+import io.mockk.mockk
 import io.mockk.unmockkAll
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.queryBy
@@ -14,7 +14,8 @@ import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
 import nl.tno.federated.flows.NewEventFlow
 import nl.tno.federated.flows.NewEventResponder
-import nl.tno.federated.services.GraphDBService
+import nl.tno.federated.services.CordaGraphDBService
+import nl.tno.federated.services.IGraphDBService
 import nl.tno.federated.states.EventState
 import org.junit.After
 import org.junit.Before
@@ -24,20 +25,20 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class EventFlowTests {
-
-    lateinit var network: MockNetwork
-    lateinit var a: StartedMockNode
-    lateinit var b: StartedMockNode
-    lateinit var c: StartedMockNode
-    lateinit var d: StartedMockNode
+    private lateinit var network: MockNetwork
+    private lateinit var a: StartedMockNode
+    private lateinit var b: StartedMockNode
+    private lateinit var c: StartedMockNode
+    private lateinit var d: StartedMockNode
+    private lateinit var graphDBService: IGraphDBService
 
     private val countriesInvolved = setOf("NL", "DE", "FR")
     private val unknownCountries = setOf("NL", "ZZ")
 
     @Before
     fun setup() {
-        mockkObject(GraphDBService)
-        every { GraphDBService.insertEvent(any(), false) } returns true
+        graphDBService = mockk()
+        every { graphDBService.insertEvent(any(), false) } returns true
 
         network = MockNetwork(
             listOf("nl.tno.federated"), notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary", "Brussels", "BE"))), networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
@@ -46,12 +47,16 @@ class EventFlowTests {
         b = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyB", "Rotterdam", "NL")))
         c = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyC", "Berlin", "DE")))
         d = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyD", "Paris", "FR")))
+
         val startedNodes = arrayListOf(a, b, c, d)
 
         // For real nodes this happens automatically, but we have to manually register the flow for tests
-        startedNodes.forEach { it.registerInitiatedFlow(NewEventResponder::class.java) }
-        network.runNetwork()
+        startedNodes.forEach {
+            it.services.cordaService(CordaGraphDBService::class.java).setGraphDBService(graphDBService)
+            it.registerInitiatedFlow(NewEventResponder::class.java)
+        }
 
+        network.runNetwork()
     }
 
     @After

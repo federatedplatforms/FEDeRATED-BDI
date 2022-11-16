@@ -1,7 +1,8 @@
 package nl.tno.federated.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import net.corda.core.contracts.*
+import net.corda.core.contracts.Command
+import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
@@ -10,10 +11,9 @@ import net.corda.core.transactions.WireTransaction
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.DataPullContract
-import nl.tno.federated.services.GraphDBService
+import nl.tno.federated.services.CordaGraphDBService
 import nl.tno.federated.states.DataPullState
 import org.slf4j.LoggerFactory
-import java.util.UUID
 
 @InitiatingFlow
 @StartableByRPC
@@ -205,7 +205,7 @@ class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTran
         val otherParty = otherPartyList.single()
         /////////////
         progressTracker.currentStep = RUN_SPARQL_QUERY
-        val result = GraphDBService.generalSPARQLquery(inputStateWithQuery.sparqlQuery, privateRepo = true)
+        val result = graphdb().generalSPARQLquery(inputStateWithQuery.sparqlQuery, privateRepo = true)
 
         /////////////
         // progressTracker.currentStep = GENERATING_TRANSACTION
@@ -282,3 +282,5 @@ class DataPullResultResponderFlow(val counterpartySession: FlowSession) : FlowLo
         return subFlow(ReceiveFinalityFlow(counterpartySession, expectedTxId = tx.id))
     }
 }
+
+private fun FlowLogic<*>.graphdb() = serviceHub.cordaService(CordaGraphDBService::class.java)

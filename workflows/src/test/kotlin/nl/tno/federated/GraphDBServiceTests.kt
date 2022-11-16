@@ -2,10 +2,8 @@ package nl.tno.federated
 
 import com.google.common.collect.testing.Helpers.assertContainsAllOf
 import nl.tno.federated.services.GraphDBService
-import nl.tno.federated.states.EventType
-import nl.tno.federated.states.Milestone
-import org.junit.BeforeClass
 import org.junit.Assert.assertFalse
+import org.junit.BeforeClass
 import org.junit.Ignore
 import org.junit.Test
 import java.io.File
@@ -18,11 +16,11 @@ import kotlin.test.assertEquals
  */
 class GraphDBServiceTests : GraphDBTestContainersSupport() {
 
-    private val invalidSampleTTL = File("src/test/resources/SHACL_FAIL - TradelensEvents_ArrivalDeparture.ttl").readText()
-
     companion object {
 
+        private val invalidSampleTTL = File("src/test/resources/SHACL_FAIL - TradelensEvents_ArrivalDeparture.ttl").readText()
         private val validSampleTtl = File("src/test/resources/correct-event.ttl").readText()
+        private val graphdb = GraphDBService()
 
         @JvmStatic
         @BeforeClass
@@ -32,23 +30,23 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
             System.setProperty("triplestore.port",  graphDB.firstMappedPort?.toString() ?: "7200")
 
             // 1. Create repositories
-            GraphDBService.createRemoteRepositoryFromConfig("bdi-repository-config.ttl")
-            GraphDBService.createRemoteRepositoryFromConfig("private-repository-config.ttl")
+            graphdb.createRemoteRepositoryFromConfig("bdi-repository-config.ttl")
+            graphdb.createRemoteRepositoryFromConfig("private-repository-config.ttl")
             // 2. Insert data
-            GraphDBService.insertEvent(validSampleTtl, false)
+            graphdb.insertEvent(validSampleTtl, false)
         }
     }
 
     @Test
     fun `Query everything`() {
-        val weKnowEvent = GraphDBService.queryEventById("b0efeca7-7b33-4d4e-8a5e-1d33b75a3e19")
-        assertFalse(GraphDBService.isQueryResultEmpty(weKnowEvent))
+        val weKnowEvent = graphdb.queryEventById("b0efeca7-7b33-4d4e-8a5e-1d33b75a3e19")
+        assertFalse(graphdb.isQueryResultEmpty(weKnowEvent))
     }
 
     @Test
     fun `Query event by ID`() {
-        val result = GraphDBService.queryEventById("b0efeca7-7b33-4d4e-8a5e-1d33b75a3e19")
-        assertFalse(GraphDBService.isQueryResultEmpty(result))
+        val result = graphdb.queryEventById("b0efeca7-7b33-4d4e-8a5e-1d33b75a3e19")
+        assertFalse(graphdb.isQueryResultEmpty(result))
     }
 
     @Test
@@ -105,7 +103,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
               DigitalTwin:containerID "XINU4010266" .
 
             """.trimIndent()
-        val parsedEvents = GraphDBService.parseRDFToEvents(testRdfEvent)
+        val parsedEvents = graphdb.parseRDFToEvents(testRdfEvent)
         assertEquals(1, parsedEvents.size)
         val parsedEvent = parsedEvents.single()
 
@@ -154,7 +152,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
               pi:locatedAt :Location-BEANR .
             """.trimIndent()
 
-        val parsedEvent = GraphDBService.parseRDFToEvents(testRdfEvent).first()
+        val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).first()
 
         assertEquals("0c1e0ed5-636c-48b2-8f52-542e6f4d156a", parsedEvent.transportMean.single().toString())
 
@@ -192,7 +190,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
             :DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a a DigitalTwin:TransportMeans.
             """.trimIndent()
 
-        val parsedEvent = GraphDBService.parseRDFToEvents(testRdfEvent).first()
+        val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).first()
 
         assertEquals("c5836199-8809-3930-9cf8-1d14a54d242a", parsedEvent.transportMean.single().toString())
 
@@ -231,7 +229,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
             :DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1 a DigitalTwin:Goods.
             """.trimIndent()
 
-        val parsedEvent = GraphDBService.parseRDFToEvents(testRdfEvent).single()
+        val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
 
         assertEquals("c5836199-8809-3930-9cf8-1d14a54d242a", parsedEvent.transportMean.single().toString())
         assertEquals("ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1", parsedEvent.goods.single().toString())
@@ -269,7 +267,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
             :DigitalTwin-43691f54-091c-4378-a176-b730a4966996 a DigitalTwin:TransportMeans.
             """.trimIndent()
 
-        val parsedEvent = GraphDBService.parseRDFToEvents(testRdfEvent).single()
+        val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
 
         assertEquals("43691f54-091c-4378-a176-b730a4966996", parsedEvent.transportMean.single().toString())
         assertEquals("b4d51938-5ae5-330d-af2e-a198dd2c16ab", parsedEvent.location.single().toString())
@@ -299,7 +297,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
             :DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f a dt:TransportMeans, owl:NamedIndividual.
             """.trimIndent()
 
-        val parsedEvent = GraphDBService.parseRDFToEvents(testRdfEvent).single()
+        val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
 
         assertEquals("dce1774a-b2a1-338e-bd56-1902c57f836f", parsedEvent.otherDigitalTwins.single().toString())
         assertEquals("be989099-2e25-3259-975b-9f17c63b0281", parsedEvent.location.single().toString())
@@ -333,7 +331,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
 
             """.trimIndent()
 
-        val parsedEvent = GraphDBService.parseRDFToEvents(testRdfEvent).single()
+        val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
 
         assertEquals("bf93dc6a-1f04-4dec-ba0d-3ba987b2723f", parsedEvent.transportMean.single().toString())
         assertEquals("INNSA", parsedEvent.location.single().toString())
@@ -366,7 +364,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
                   event:involvesPhysicalInfrastructure data:PhysicalInfrastructure-INNSA .
             """.trimIndent()
 
-        val parsedEvent = GraphDBService.parseRDFToEvents(testRdfEvent).single()
+        val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
 
         assertEquals("bf93dc6a-1f04-4dec-ba0d-3ba987b2723f", parsedEvent.transportMean.single().toString())
         assertEquals("INNSA", parsedEvent.location.single().toString())
@@ -374,14 +372,14 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
 
     @Test
     fun `Insert new event`() {
-        val successfulInsertion = GraphDBService.insertEvent(validSampleTtl, false)
+        val successfulInsertion = graphdb.insertEvent(validSampleTtl, false)
         assert(successfulInsertion)
     }
 
     @Ignore("Enable this when shacl validation is back working")
     @Test
     fun `Insert invalid event`() {
-        val successfulInsertion = GraphDBService.insertEvent(invalidSampleTTL, false)
+        val successfulInsertion = graphdb.insertEvent(invalidSampleTTL, false)
         assert(!successfulInsertion)
     }
 
@@ -410,7 +408,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
             :DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f a dt:TransportMeans, owl:NamedIndividual.
             """.trimIndent()
 
-        val parsedEvent = GraphDBService.parseRDFToEvents(testRdfEvent).single()
+        val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
 
         assertEquals(2, parsedEvent.labels.size)
         assertContainsAllOf(parsedEvent.labels, "GateOut test", "insuranceEvent")
@@ -441,7 +439,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
             :DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f a dt:TransportMeans, owl:NamedIndividual.
             """.trimIndent()
 
-        val parsedEvent = GraphDBService.parseRDFToEvents(testRdfEvent).single()
+        val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
 
         assertEquals(1, parsedEvent.otherDigitalTwins.size)
         assertEquals(UUID.fromString("dce1774a-b2a1-338e-bd56-1902c57f836f"), parsedEvent.otherDigitalTwins.single())

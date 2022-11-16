@@ -10,10 +10,7 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
-import nl.tno.federated.services.GraphDBService
-import nl.tno.federated.services.GraphDBService.generalSPARQLquery
-import nl.tno.federated.services.GraphDBService.insertEvent
-import nl.tno.federated.services.GraphDBService.queryEventById
+import nl.tno.federated.services.CordaGraphDBService
 import nl.tno.federated.states.EventState
 import nl.tno.federated.states.PhysicalObject
 import org.slf4j.LoggerFactory
@@ -111,7 +108,7 @@ class NewEventFlow(
         progressTracker.currentStep = FINALISING_TRANSACTION
         // Notarise and record the transaction in both parties' vaults.
 
-        require(insertEvent(newEventState.fullEvent, false)) { "Unable to insert event data into the triple store at $me." }.also {
+        require(graphdb().insertEvent(newEventState.fullEvent, false)) { "Unable to insert event data into the triple store at $me." }.also {
             log.info("Unable" +
                 "to insert event data into the triple store at $me.")
         }
@@ -145,7 +142,7 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 val outputState = stx.tx.outputStates.single() as EventState
                 require(
-                    insertEvent(
+                    graphdb().insertEvent(
                         outputState.fullEvent,
                         false
                     )
@@ -174,7 +171,7 @@ class QueryGraphDBbyIdFlow(
 
     @Suspendable
     override fun call(): String {
-        return queryEventById(id)
+        return graphdb().queryEventById(id)
     }
 }
 
@@ -186,7 +183,7 @@ class GeneralSPARQLqueryFlow(
 
     @Suspendable
     override fun call(): String {
-        return generalSPARQLquery(query)
+        return graphdb().generalSPARQLquery(query)
     }
 }
 
@@ -195,3 +192,5 @@ data class DigitalTwinPair(
     val content: String,
     val type: PhysicalObject
 )
+
+private fun FlowLogic<*>.graphdb() = serviceHub.cordaService(CordaGraphDBService::class.java)
