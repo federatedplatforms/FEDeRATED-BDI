@@ -200,7 +200,6 @@ class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTran
                 .map { participants -> participants.owningKey }
         }
         assert(meList.size == 1 && otherPartyList.size == 1) { "Too many or too few parties found to send a response to a data pull query." }
-        val me = meList.single()
         val otherParty = otherPartyList.single()
         /////////////
         progressTracker.currentStep = RUN_SPARQL_QUERY
