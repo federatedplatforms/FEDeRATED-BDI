@@ -7,7 +7,7 @@ import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.flows.GeneralSPARQLqueryFlow
 import nl.tno.federated.flows.NewEventFlow
 import nl.tno.federated.flows.QueryGraphDBbyIdFlow
-import nl.tno.federated.services.GraphDBService
+import nl.tno.federated.services.IGraphDBService
 import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
 import nl.tno.federated.webserver.L1Services
@@ -29,7 +29,8 @@ import java.util.*
 class EventController(
     private val rpc: NodeRPCConnection,
     private val l1service: L1Services,
-    private val semanticAdapterService: SemanticAdapterService
+    private val semanticAdapterService: SemanticAdapterService,
+    private val graphDBService: IGraphDBService
 ) {
 
     private val log = LoggerFactory.getLogger(EventController::class.java)
@@ -119,5 +120,5 @@ class EventController(
     }
 
     private fun eventStatesToEventMap(eventStates: List<EventState>) =
-        eventStates.associate { it.linearId.id to GraphDBService.parseRDFToEvents(it.fullEvent) }
+        eventStates.associate { it.linearId.id to graphDBService.parseRDFToEvents(it.fullEvent) }
 }

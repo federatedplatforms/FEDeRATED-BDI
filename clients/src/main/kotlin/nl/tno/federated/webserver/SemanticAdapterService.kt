@@ -1,6 +1,6 @@
 package nl.tno.federated.webserver
 
-import nl.tno.federated.services.GraphDBService
+import nl.tno.federated.services.IGraphDBService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -15,7 +15,8 @@ class SemanticAdapterException(message: String) : Exception(message)
 @Service
 class SemanticAdapterService(
     @Autowired @Qualifier("semanticAdapterRestTemplate") private val semanticAdapterRestTemplate: RestTemplate,
-    private val tradelensService: TradelensService
+    private val tradelensService: TradelensService,
+    private val graphDBService: IGraphDBService
 ) {
 
     private val log = LoggerFactory.getLogger(SemanticAdapterService::class.java)
@@ -85,11 +86,11 @@ class SemanticAdapterService(
      * This is a temporary solution, we are storing tradelens data for the data pull that happens at a later moment in time.
      */
     private fun insertDataIntoPrivateGraphDB(dataFromApi: String): Boolean {
-        return GraphDBService.insertEvent(dataFromApi, true)
+        return graphDBService.insertEvent(dataFromApi, true)
     }
 
     private fun parseDTIdsAndBusinessTransactionIds(event: String): Map<List<UUID>, String> {
-        val parsedEvent = GraphDBService.parseRDFToEvents(event)
+        val parsedEvent = graphDBService.parseRDFToEvents(event)
         return parsedEvent.associate { it.allEvents().flatten() to it.businessTransaction }
     }
 
