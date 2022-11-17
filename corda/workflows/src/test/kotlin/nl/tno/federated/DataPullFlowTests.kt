@@ -67,7 +67,7 @@ class DataPullFlowTests {
 
     @Test
     fun `Simple data pull flow test`() {
-        val flow = DataPullQueryFlow("PartyB", "Very special Query")
+        val flow = DataPullQueryFlow("PartyB", "Rotterdam", "NL","Very special Query")
         val future = a.startFlow(flow)
         network.runNetwork()
 

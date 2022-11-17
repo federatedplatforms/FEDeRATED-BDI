@@ -3,6 +3,7 @@ package nl.tno.federated.flows
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.serialization.CordaSerializable
 import net.corda.core.transactions.SignedTransaction
@@ -17,8 +18,8 @@ import org.slf4j.LoggerFactory
 @InitiatingFlow
 @StartableByRPC
 class NewEventFlow(
-    val fullEvent: String,
-    val countriesInvolved: Set<String>
+    val destinations: Collection<CordaX500Name>,
+    val event: String
 ) : FlowLogic<SignedTransaction>() {
 
     private val log = LoggerFactory.getLogger(NewEventFlow::class.java)
@@ -62,19 +63,11 @@ class NewEventFlow(
 
         // Retrieving counterparties (sending to all nodes, for now)
         val me = serviceHub.myInfo.legalIdentities.first()
-        val counterPartiesAndMe: MutableList<Party?> = mutableListOf()
-        countriesInvolved.forEach { involvedCountry ->
-            counterPartiesAndMe.add(serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
-                .firstOrNull { it.name.country == involvedCountry })
-        }
-        require(!counterPartiesAndMe.contains(null)) { "One of the requested counterparties was not found" }.also { log.info("One of the requested counterparties was not found") }
-        val counterParties = counterPartiesAndMe.filter { it!!.owningKey != me.owningKey }
-
-        val allParties = counterParties.map { it!! } + mutableListOf(notary, me)
+        val counterParties = findParties()
 
         val newEventState = EventState(
-            fullEvent = fullEvent,
-            participants = allParties - notary
+            fullEvent = event,
+            participants = counterParties + me
         )
 
         val txBuilder = TransactionBuilder(notary)
@@ -99,7 +92,7 @@ class NewEventFlow(
         // Stage 4.
         progressTracker.currentStep = GATHERING_SIGS
         // Send the state to the counterparty, and receive it back with their signature.
-        val otherPartySessions = counterParties.map { initiateFlow(it!!) }
+        val otherPartySessions = counterParties.map { initiateFlow(it) }
         val fullySignedTx =
             subFlow(CollectSignaturesFlow(partSignedTx, otherPartySessions, GATHERING_SIGS.childProgressTracker()))
 
@@ -113,6 +106,23 @@ class NewEventFlow(
         }
         return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
     }
+
+    private fun findParties(): List<Party> = destinations.map { destination ->
+        try {
+            serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
+                .single { it.name.organisation == destination.organisation && it.name.locality == destination.locality && it.name.country == destination.country }
+        } catch (e: IllegalArgumentException) {
+            log.debug("Too many parties found matching organisation: $destination.name and locality: $destination.locality and country $destination.country")
+            throw IllegalArgumentException("Too many parties found matching organisation: $destination.name and locality: $destination.locality and country $destination.country")
+        } catch (e: NoSuchElementException) {
+            log.debug("No parties found matching organisation: $destination.name and locality: $destination.locality and country $destination.country")
+            throw IllegalArgumentException("No parties found matching organisation: $destination.name and locality: $destination.locality and country $destination.country")
+        } catch (e: Exception) {
+            log.info("Finding the correct party failed because $e.message")
+            throw e
+        }
+    }
+
 }
 
 @InitiatedBy(NewEventFlow::class)

@@ -2,6 +2,7 @@ package nl.tno.federated.webserver.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.flows.GeneralSPARQLqueryFlow
@@ -37,6 +38,12 @@ class EventController(
 
     private val eventGenerator = TTLRandomGenerator()
 
+    @ApiOperation(value = "Create a new event")
+    @PostMapping(value = ["/"])
+    fun newEvent(@RequestBody event: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
+        return newEvent(event, null, null, null, authorizationHeader)
+    }
+
     @ApiOperation(value = "Generate a new random event")
     @PostMapping(value = ["/random/{destination}"])
     fun generateRandomEvent(@RequestHeader("Authorization") authorizationHeader: String, @RequestParam("start-flow") startFlow: String, @RequestParam("number-events") numberEvents: String): ResponseEntity<String> {
@@ -52,28 +59,30 @@ class EventController(
 
             // 4. check if needed to start a new event flow
             if (startFlow.ToBooleanOrNull() == true) {
-                newEvent(generatedTTL.constructedTTL, null, authorizationHeader)
+                newEvent(generatedTTL.constructedTTL, null, null, null, authorizationHeader)
             } else {
                 ResponseEntity("Event created: ${generatedTTL.constructedTTL}", HttpStatus.CREATED)
             }
         }
         // escape call if everything goes wrong
         return ResponseEntity("Error caused by unknown reasons please report back the reqeust parameters: start flow = $startFlow, number of events = $numberEvents", HttpStatus.BAD_REQUEST)
-
     }
 
     @ApiOperation(value = "Create a new event and returns the UUID of the newly created event.")
-    @PostMapping(value = ["/{destination}"])
-    fun newEvent(@RequestBody event: String, @PathVariable destination: String?, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
+    @PostMapping(value = ["/{destinationName}/{destinationLocality}/{destinationCountry}"])
+    fun newEvent(@RequestBody event: String,
+                 @PathVariable destinationName: String?,
+                 @PathVariable destinationLocality: String?,
+                 @PathVariable destinationCountry: String?,
+                 @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
         l1service.verifyAccessToken(authorizationHeader)
+        if (destinationName != null && (destinationLocality == null || destinationCountry == null)) { return ResponseEntity("Missing destination fields", HttpStatus.BAD_REQUEST)}
 
-        val recipients = if (destination == null) emptySet() else setOf(destination)
-
-        log.info("Start NewEventFlow, sending event to destination: {}", destination)
+        log.info("Start NewEventFlow, sending event to destination: {}, {}, {}", destinationName, destinationLocality, destinationCountry)
         val newEventTx = rpc.client().startFlowDynamic(
             NewEventFlow::class.java,
-            event,
-            recipients
+            if (destinationName == null) null else CordaX500Name(destinationName, destinationLocality!!, destinationCountry!!),
+            event
         ).returnValue.get()
 
         val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
@@ -82,18 +91,23 @@ class EventController(
     }
 
     @ApiOperation(value = "Create new event after passing it through the semantic adapter")
-    @PostMapping(value = ["/newUnprocessed/{destination}"])
-    fun newUnprocessedEvent(@RequestBody event: String, @PathVariable destination: String?): ResponseEntity<String> {
+    @PostMapping(value = ["/unprocessed/{destinationName}/{destinationLocality}/{destinationCountry}"])
+    fun newUnprocessedEvent(
+        @RequestBody event: String,
+        @PathVariable destinationName: String?,
+        @PathVariable destinationLocality: String?,
+        @PathVariable destinationCountry: String?
+    ): ResponseEntity<String> {
         // TODO add oauth2 support
         val convertedEvent = semanticAdapterService.processTradelensEvent(event)
-        return newEvent(convertedEvent, destination, "Bearer doitanyway")
+        return newEvent(convertedEvent, destinationName, destinationLocality, destinationCountry, "Bearer doitanyway")
     }
 
     @ApiOperation(value = "Create new event after passing it through the semantic adapter")
-    @PostMapping(value = ["/newUnprocessed"])
+    @PostMapping(value = ["/unprocessed"])
     fun newUnprocessedEvent(@RequestBody event: String): ResponseEntity<String> {
         // TODO add oauth2 support
-        return newUnprocessedEvent(event, null)
+        return newUnprocessedEvent(event, null, null, null)
     }
 
 
