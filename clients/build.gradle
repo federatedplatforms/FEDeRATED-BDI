@@ -1,40 +1,11 @@
 plugins {
-    id 'org.jetbrains.kotlin.plugin.spring' version "$kotlin_version"
     id 'org.springframework.boot' version "$spring_boot_version" apply true
+    id 'org.jetbrains.kotlin.plugin.spring' version "$kotlin_version"
 }
 
-configurations.all {
-    resolutionStrategy {
-        // fail eagerly on version conflict (includes transitive dependencies)
-        // e.g. multiple different versions of the same dependency (group and name are equal)
-        failOnVersionConflict()
-
-        // prefer modules that are part of this build (multi-project or composite build) over external modules
-        preferProjectModules()
-
-        // force certain versions of dependencies (including transitive)
-        //  *append new forced modules:
-        force "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-        force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-        force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-        force "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-        force "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
-        force "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-
-        force "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
-        force "net.corda:corda-rpc:$corda_release_version"
-
-        force "org.apache.activemq:artemis-core-client:$activemq_version"
-        force "org.apache.activemq:artemis-amqp-protocol:$activemq_version"
-
-        force "org.apache.logging.log4j:log4j-core:$log4j_version"
-    }
-}
-
-apply plugin: 'org.springframework.boot'
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-allopen'
-apply plugin: 'org.jetbrains.kotlin.plugin.spring'
+apply plugin: 'io.spring.dependency-management'
 
 sourceSets {
     main {
@@ -49,21 +20,18 @@ dependencies {
     implementation project(":contracts")
     implementation project(":workflows")
 
-    // Corda dependencies.
+    // Corda dependency we need for the rpc connection.
     implementation "net.corda:corda-rpc"
 
-    implementation "org.springframework.boot:spring-boot-starter-web:$spring_boot_version"
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "io.springfox:springfox-swagger2"
+    implementation "io.springfox:springfox-swagger-ui"
 
-    implementation "io.springfox:springfox-swagger2:$springfox_version"
-    implementation "io.springfox:springfox-swagger-ui:$springfox_version"
-
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$spring_boot_version"
-    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-
-    testImplementation "org.mockito.kotlin:mockito-kotlin:4.0.0"
-    testImplementation "io.mockk:mockk:1.9.3"
-    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testImplementation "junit:junit:$junit_version"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.jetbrains.kotlin:kotlin-test"
+    testImplementation "org.mockito.kotlin:mockito-kotlin"
+    testImplementation "io.mockk:mockk"
+    testImplementation "junit:junit"
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
@@ -79,7 +47,8 @@ springBoot {
     mainClassName = "nl.tno.federated.webserver.ServerKt"
 }
 
-/* The Client is the communication channel between the external and the node. This task will help you immediately
+/**
+ * The Client is the communication channel between the external and the node. This task will help you immediately
  * execute your rpc methods in the main method of the client.kt. You can somewhat see this as a quick test of making
  * RPC calls to your nodes.
  */
@@ -89,7 +58,8 @@ task runTemplateClient(type: JavaExec, dependsOn: assemble) {
     args 'federated.sensorlab.tno.nl:10006', 'user1', 'vzzuABeCut3jGoJfEp94'
 }
 
-/* This task will start the springboot server that connects to your node (via RPC connection). All of the http requests
+/**
+ * This task will start the springboot server that connects to your node (via RPC connection). All of the http requests
  * are in the Controller file. You can leave the Server.kt and NodeRPCConnection.kt file untouched for your use.
  */
 task runTemplateServer(type: JavaExec, dependsOn: assemble) {

@@ -51,6 +51,10 @@ subprojects {
             preferProjectModules()
 
             // force certain versions of dependencies (including transitive)
+            force "net.corda:corda-core:$corda_release_version"
+            force "net.corda:corda-node-driver:$corda_release_version"
+            force "net.corda:corda:$corda_release_version"
+
             force "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
             force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
             force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
@@ -58,10 +62,10 @@ subprojects {
             force "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
             force "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
 
+            force "org.apache.logging.log4j:log4j-core:$log4j_version"
             force "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
-            force "net.corda:corda-core:$corda_release_version"
-            force "net.corda:corda-node-driver:$corda_release_version"
-            force "net.corda:corda:$corda_release_version"
+            force "org.apache.activemq:artemis-core-client:$activemq_version"
+            force "org.apache.activemq:artemis-amqp-protocol:$activemq_version"
 
             force "be.ugent.rml:rmlmapper:6.0.0"
             force "org.apache.jena:apache-jena-libs:3.8.0"
@@ -72,6 +76,7 @@ subprojects {
             force "junit:junit:$junit_version"
             force "io.mockk:mockk:1.9.3"
             force "org.testcontainers:testcontainers:1.17.5"
+            force "org.mockito.kotlin:mockito-kotlin:4.0.0"
         }
     }
 }
