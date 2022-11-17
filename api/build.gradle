@@ -1,0 +1,69 @@
+plugins {
+    id 'org.springframework.boot' version "$spring_boot_version" apply true
+    id 'org.jetbrains.kotlin.plugin.spring' version "$kotlin_version"
+}
+
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-allopen'
+apply plugin: 'io.spring.dependency-management'
+
+sourceSets {
+    main {
+        resources {
+            srcDir rootProject.file("config/dev")
+        }
+    }
+}
+
+dependencies {
+    // CorDapp dependencies.
+    implementation project(":corda:contracts")
+    implementation project(":corda:workflows")
+
+    // Corda dependency we need for the rpc connection.
+    implementation "net.corda:corda-rpc"
+
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "io.springfox:springfox-swagger2"
+    implementation "io.springfox:springfox-swagger-ui"
+
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.jetbrains.kotlin:kotlin-test"
+    testImplementation "org.mockito.kotlin:mockito-kotlin"
+    testImplementation "io.mockk:mockk"
+    testImplementation "junit:junit"
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+    kotlinOptions {
+        languageVersion = "1.3"
+        apiVersion = "1.3"
+        jvmTarget = "1.8"
+        javaParameters = true   // Useful for reflection.
+    }
+}
+
+springBoot {
+    mainClassName = "nl.tno.federated.webserver.ServerKt"
+}
+
+/**
+ * The Client is the communication channel between the external and the node. This task will help you immediately
+ * execute your rpc methods in the main method of the client.kt. You can somewhat see this as a quick test of making
+ * RPC calls to your nodes.
+ */
+task runTemplateClient(type: JavaExec, dependsOn: assemble) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'nl.tno.federated.ClientKt'
+    args 'federated.sensorlab.tno.nl:10006', 'user1', 'vzzuABeCut3jGoJfEp94'
+}
+
+/**
+ * This task will start the springboot server that connects to your node (via RPC connection). All of the http requests
+ * are in the Controller file. You can leave the Server.kt and NodeRPCConnection.kt file untouched for your use.
+ */
+task runTemplateServer(type: JavaExec, dependsOn: assemble) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'nl.tno.federated.webserver.ServerKt'
+    args '--server.port=10050', '--config.rpc.host=localhost', '--config.rpc.port=10012', '--config.rpc.username=user1', '--config.rpc.password=vzzuABeCut3jGoJfEp94'
+}

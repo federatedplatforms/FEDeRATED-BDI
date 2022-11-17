@@ -1,0 +1,2064 @@
+{
+  "consignment": {
+    "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+    "consignmentRefs": [
+      "0010014467",
+      "10014467"
+    ],
+    "carrierBookingNumber": "356SL1796734",
+    "billOfLadingNumber": "MEDUTT912077",
+    "cutOffs": [
+      {
+        "cutOffType": "Documentation",
+        "cutOffDateTime8601": "2022-07-12T12:00:00.000",
+        "eventSubmissionTime": 1657554300000,
+        "eventTransactionId": "a3611458-3c6a-4fe5-bfd0-fb70f0c0f947",
+        "location": {
+          "unlocode": "NLRTM",
+          "description": "Rotterdam, ZH, NL"
+        }
+      },
+      {
+        "cutOffType": "VGM",
+        "cutOffDateTime8601": "2022-07-12T12:00:00.000",
+        "eventSubmissionTime": 1657554300000,
+        "eventTransactionId": "630f6e49-5a38-45bb-b661-b8977f487fc5",
+        "location": {
+          "unlocode": "NLRTM",
+          "description": "Rotterdam, ZH, NL"
+        }
+      },
+      {
+        "cutOffType": "Cargo",
+        "cutOffDateTime8601": "2022-07-13T23:59:00.000",
+        "eventSubmissionTime": 1657554300000,
+        "eventTransactionId": "e7ab94bc-0ecc-4ca6-9bf7-feef43d3c7cd",
+        "location": {
+          "unlocode": "NLRTM",
+          "description": "Rotterdam, ZH, NL"
+        }
+      }
+    ],
+    "plannedVesselDeparture": 1658696400000,
+    "plannedVesselArrival": 1660777500000,
+    "bookingData": {
+      "originLocation": {
+        "unlocode": "NLRTM",
+        "description": "Rotterdam, ZH, NL"
+      },
+      "destinationLocation": {
+        "unlocode": "AEJEA",
+        "description": "Jebel Ali, AE"
+      },
+      "contractCarriageCondition": "CY_CY",
+      "departureTime8601": "2022-07-24T00:00:00.000+00:00",
+      "vehicleId": "9461374",
+      "vehicleName": "MSC ALEXANDRA",
+      "voyageId": "FH227E",
+      "transportEquipmentDetails": [
+        {
+          "equipmentType": "22G0",
+          "equipmentQuantity": 1,
+          "description": "20 FT x 8.5 FT x 8 FT General - Openings at one or both ends"
+        }
+      ],
+      "commodities": [
+        {
+          "itemNumber": 1,
+          "commodityDescription": "2X12/33 CL CANS  LAGER BEER  ",
+          "commodityHarmonizedCode": "22030001",
+          "commodityQuantity": 2256,
+          "commodityWeight": "19853"
+        }
+      ]
+    },
+    "currentData": {
+      "originLocation": {
+        "unlocode": "NLRTM",
+        "description": "Rotterdam, ZH, NL"
+      },
+      "destinationLocation": {
+        "unlocode": "AEJEA",
+        "description": "Jebel Ali, AE"
+      },
+      "departureTime8601": "2022-07-24T23:00:00+02:00",
+      "vehicleId": "9461374",
+      "vehicleName": "MSC ALEXANDRA",
+      "voyageId": "FH227E",
+      "transportEquipmentDetails": [
+        {
+          "equipmentType": "22G0",
+          "equipmentQuantity": 1,
+          "description": "20 FT x 8.5 FT x 8 FT General - Openings at one or both ends"
+        }
+      ]
+    }
+  },
+  "transportEquipmentList": [
+    {
+      "transportEquipmentSummary": {
+        "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+        "billsOfLading": [
+          "MEDUTT912077"
+        ],
+        "transportEquipmentTypes": [
+          {
+            "code": "22G0",
+            "description": "20 FT x 8.5 FT x 8 FT General - Openings at one or both ends"
+          }
+        ],
+        "equipmentNumber": "MSMU1301725",
+        "dangerousCargo": false,
+        "portOfExit": "NLRTM",
+        "portOfExitDescription": "Rotterdam, ZH, NL",
+        "portOfLoading": "NLRTM",
+        "portOfLoadingDescription": "Rotterdam, ZH, NL",
+        "portOfEntry": "AEJEA",
+        "portOfEntryDescription": "Jebel Ali, AE",
+        "portOfDischarge": "AEJEA",
+        "portOfDischargeDescription": "Jebel Ali, AE",
+        "plannedVesselDeparture": 1658701800000,
+        "plannedVesselArrival": 1660095000000,
+        "callerRoles": []
+      },
+      "transportPlanIssuanceTime8601": "2022-07-29T04:03:28.5075484Z",
+      "senderOrgName": "Mediterranean Shipping Company",
+      "sequenceOfLastActual": 19,
+      "currentProgressEvents": [
+        {
+          "sequence": 1,
+          "locationKey": "NLAPN",
+          "actuals": [
+            {
+              "eventPublishTime": 1657956151265,
+              "eventSubmissionTime": 1657956148473,
+              "eventSubmissionTime8601": "2022-07-16T07:22:28.4735529Z",
+              "correlationId": "34d1a556-3b5f-45a9-9eee-bc533baf9cad",
+              "eventName": "Actual gate out",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1657953780000,
+              "eventOccurrenceTime8601": "2022-07-16T06:43:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "transportationPhase": "Export",
+              "eventTransactionId": "0fdc1a8d-b39e-4038-8a07-907c90984a48",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Empty",
+              "eventType": "actualGateOut",
+              "location": {
+                "unlocode": "NLAPN",
+                "description": "Alphen aan den Rijn, ZH, NL",
+                "locationKey": "NLAPN"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 5
+            }
+          ]
+        },
+        {
+          "sequence": 2,
+          "locationKey": "NLAPN",
+          "actuals": [
+            {
+              "eventPublishTime": 1657962933120,
+              "eventSubmissionTime": 1657970132000,
+              "eventSubmissionTime8601": "2022-07-16T11:15:32.000Z",
+              "eventName": "Actual gate in",
+              "senderOrgName": "CCT Alpherium",
+              "senderOrgTypes": [
+                "depot operator",
+                "terminal operator"
+              ],
+              "originatorId": "ALPHEN",
+              "eventOccurrenceTime": 1657969620000,
+              "eventOccurrenceTime8601": "2022-07-16T11:07:00.000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Alpherium B.V.",
+              "vehicleId": "22BLT2",
+              "transportationPhase": "Export",
+              "eventTransactionId": "f508d064-6f00-4089-a641-610e2724d8fb",
+              "carrierBookingNumber": "356SL1796734",
+              "terminal": "NLAPN-ALPHEN",
+              "terminalDescription": "",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "actualGateIn",
+              "location": {
+                "type": "UN/Locode",
+                "value": "NLAPN",
+                "description": "Alphen aan den Rijn, ZH, NL",
+                "locationKey": "NLAPN"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 1
+            },
+            {
+              "eventPublishTime": 1657966811621,
+              "eventSubmissionTime": 1657966811390,
+              "eventSubmissionTime8601": "2022-07-16T10:20:11.3908222Z",
+              "correlationId": "c288cff2-6ba2-4fbc-952e-5cc6b407f022",
+              "eventName": "Actual gate in",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1657962420000,
+              "eventOccurrenceTime8601": "2022-07-16T09:07:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "transportationPhase": "Export",
+              "eventTransactionId": "edce82e3-6e97-45f1-90e9-4bca34259773",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "actualGateIn",
+              "location": {
+                "unlocode": "NLAPN",
+                "description": "Alphen aan den Rijn, ZH, NL",
+                "locationKey": "NLAPN"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 5
+            }
+          ]
+        },
+        {
+          "sequence": 3,
+          "locationKey": "NLAPN",
+          "actuals": [
+            {
+              "eventPublishTime": 1657963871251,
+              "eventSubmissionTime": 1657971070000,
+              "eventSubmissionTime8601": "2022-07-16T11:31:10.000Z",
+              "eventName": "Actual discharge from truck",
+              "senderOrgName": "CCT Alpherium",
+              "senderOrgTypes": [
+                "depot operator",
+                "terminal operator"
+              ],
+              "originatorId": "ALPHEN",
+              "eventOccurrenceTime": 1657970220000,
+              "eventOccurrenceTime8601": "2022-07-16T11:17:00.000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Alpherium B.V.",
+              "transportationPhase": "Export",
+              "eventTransactionId": "31dddb8f-6fb5-4aef-9fc6-6f86f7da42c6",
+              "carrierBookingNumber": "356SL1796734",
+              "terminal": "NLAPN-ALPHEN",
+              "terminalDescription": "",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "actualDischargeFromTruck",
+              "location": {
+                "type": "UN/Locode",
+                "value": "NLAPN",
+                "description": "Alphen aan den Rijn, ZH, NL",
+                "locationKey": "NLAPN"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 2
+            }
+          ]
+        },
+        {
+          "sequence": 4,
+          "locationKey": "NLAPN",
+          "actuals": [
+            {
+              "eventPublishTime": 1658139558004,
+              "eventSubmissionTime": 1658139557418,
+              "eventSubmissionTime8601": "2022-07-18T10:19:17.4182937Z",
+              "correlationId": "955974be-f5ce-4ded-a010-586bd65883ef",
+              "eventName": "Actual gate out",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1658120400000,
+              "eventOccurrenceTime8601": "2022-07-18T05:00:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "transportationPhase": "Export",
+              "eventTransactionId": "68df2981-9878-47f2-9cfa-f947f97c1e71",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "actualGateOut",
+              "location": {
+                "unlocode": "NLAPN",
+                "description": "Alphen aan den Rijn, ZH, NL",
+                "locationKey": "NLAPN"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 5
+            }
+          ]
+        },
+        {
+          "sequence": 5,
+          "locationKey": "NLAPN",
+          "actuals": [
+            {
+              "eventPublishTime": 1658115907293,
+              "eventSubmissionTime": 1658123106000,
+              "eventSubmissionTime8601": "2022-07-18T05:45:06.000Z",
+              "eventName": "Actual loaded on barge",
+              "senderOrgName": "CCT Alpherium",
+              "senderOrgTypes": [
+                "depot operator",
+                "terminal operator"
+              ],
+              "originatorId": "ALPHEN",
+              "eventOccurrenceTime": 1658122320000,
+              "eventOccurrenceTime8601": "2022-07-18T05:32:00.000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Alpherium B.V.",
+              "voyageId": "FOR180722NLRTMU",
+              "transportationPhase": "Export",
+              "eventTransactionId": "b1a5a4c0-2563-493d-ab98-ff41a690d729",
+              "carrierBookingNumber": "356SL1796734",
+              "terminal": "NLAPN-ALPHEN",
+              "terminalDescription": "",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "actualLoadedOnBarge",
+              "location": {
+                "type": "UN/Locode",
+                "value": "NLAPN",
+                "description": "Alphen aan den Rijn, ZH, NL",
+                "locationKey": "NLAPN"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 1
+            }
+          ]
+        },
+        {
+          "sequence": 6,
+          "locationKey": "NLAPN",
+          "actuals": [
+            {
+              "eventPublishTime": 1658137516620,
+              "eventSubmissionTime": 1658144716000,
+              "eventSubmissionTime8601": "2022-07-18T11:45:16.000Z",
+              "eventName": "Actual barge departure",
+              "senderOrgName": "CCT Alpherium",
+              "senderOrgTypes": [
+                "depot operator",
+                "terminal operator"
+              ],
+              "originatorId": "ALPHEN",
+              "eventOccurrenceTime": 1658127600000,
+              "eventOccurrenceTime8601": "2022-07-18T07:00:00.000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Alpherium B.V.",
+              "voyageId": "FOR180722NLRTMU",
+              "transportationPhase": "Export",
+              "eventTransactionId": "be3860cc-a3dd-4968-9a42-9277c55b9f06",
+              "carrierBookingNumber": "356SL1796734",
+              "terminal": "NLAPN-ALPHEN",
+              "terminalDescription": "",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "actualBargeDeparture",
+              "location": {
+                "type": "UN/Locode",
+                "value": "NLAPN",
+                "description": "Alphen aan den Rijn, ZH, NL",
+                "locationKey": "NLAPN"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 4
+            }
+          ]
+        },
+        {
+          "sequence": 7,
+          "locationKey": "NLZOU",
+          "actuals": [
+            {
+              "eventPublishTime": 1657958857217,
+              "eventSubmissionTime": 1657958855407,
+              "eventSubmissionTime8601": "2022-07-16T08:07:35.407Z",
+              "eventName": "Actual loaded on truck",
+              "senderOrgName": "",
+              "senderOrgTypes": [
+                "cargo interest"
+              ],
+              "originatorId": "HNS",
+              "eventOccurrenceTime": 1657965480000,
+              "eventOccurrenceTime8601": "2022-07-16T09:58:00.000Z",
+              "fromOceanAggregator": false,
+              "originatorName": " Netherlands Supply",
+              "transportationPhase": "Export",
+              "eventTransactionId": "54054318-1082-47e1-b8c2-61c08d933c6b",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "eventType": "actualLoadedOnTruck",
+              "location": {
+                "type": "UN/Locode",
+                "value": "NLZOU",
+                "description": "Zoeterwoude, ZH, NL",
+                "locationKey": "NLZOU"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 5
+            }
+          ]
+        },
+        {
+          "sequence": 8,
+          "locationKey": "NLRTM",
+          "planned": {
+            "eventPublishTime": 1659067530329,
+            "eventSubmissionTime": 1659067527234,
+            "correlationId": "bc6cf1ee-ad9a-4c4a-a13c-d7fb20b09818",
+            "eventName": "Planned gate out",
+            "senderOrgName": "Mediterranean Shipping Company",
+            "senderOrgTypes": [
+              "ocean carrier"
+            ],
+            "originatorId": "MSCU",
+            "eventOccurrenceTime": 1658010600000,
+            "eventOccurrenceTime8601": "2022-07-16T22:30:00.0000000Z",
+            "fromOceanAggregator": false,
+            "originatorName": "Mediterranean Shipping Company",
+            "transportationPhase": "Export",
+            "eventTransactionId": "04c14d41-c3f2-491f-85fb-79b6f59dda2a",
+            "carrierBookingNumber": "356SL1796734",
+            "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+            "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+            "equipmentNumber": "MSMU1301725",
+            "transportPlanIssuanceTime8601": "2022-07-29T04:03:28.5075484Z",
+            "transportPlanIssuanceTime": 1659067408507,
+            "transportPlanSequenceNumber": 1,
+            "transportPlanTotalNumber": 12,
+            "fullStatus": "Empty",
+            "eventType": "plannedGateOut",
+            "location": {
+              "unlocode": "NLRTM",
+              "description": "Rotterdam, ZH, NL",
+              "locationKey": "NLRTM"
+            },
+            "emptyIndicator": "Empty"
+          }
+        },
+        {
+          "sequence": 9,
+          "locationKey": "NLRTM",
+          "actuals": [
+            {
+              "eventPublishTime": 1658169680476,
+              "eventSubmissionTime": 1658169677276,
+              "eventSubmissionTime8601": "2022-07-18T18:41:17.2769735Z",
+              "correlationId": "ebbe8dca-3b9d-43ba-9dd5-addc87b11ab4",
+              "eventName": "Actual gate in",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1658168280000,
+              "eventOccurrenceTime8601": "2022-07-18T18:18:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "transportationPhase": "Export",
+              "eventTransactionId": "fb36a49e-6478-468f-b34f-37f1592fb0d4",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "actualGateIn",
+              "location": {
+                "unlocode": "NLRTM",
+                "description": "Rotterdam, ZH, NL",
+                "locationKey": "NLRTM"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 5
+            }
+          ],
+          "planned": {
+            "eventPublishTime": 1659067530329,
+            "eventSubmissionTime": 1659067527234,
+            "correlationId": "bc6cf1ee-ad9a-4c4a-a13c-d7fb20b09818",
+            "eventName": "Planned gate in",
+            "senderOrgName": "Mediterranean Shipping Company",
+            "senderOrgTypes": [
+              "ocean carrier"
+            ],
+            "originatorId": "MSCU",
+            "eventOccurrenceTime": 1658183400000,
+            "eventOccurrenceTime8601": "2022-07-18T22:30:00.0000000Z",
+            "fromOceanAggregator": false,
+            "originatorName": "Mediterranean Shipping Company",
+            "transportationPhase": "Export",
+            "eventTransactionId": "04c14d41-c3f2-491f-85fb-79b6f59dda2a",
+            "carrierBookingNumber": "356SL1796734",
+            "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+            "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+            "equipmentNumber": "MSMU1301725",
+            "transportPlanIssuanceTime8601": "2022-07-29T04:03:28.5075484Z",
+            "transportPlanIssuanceTime": 1659067408507,
+            "transportPlanSequenceNumber": 2,
+            "transportPlanTotalNumber": 12,
+            "fullStatus": "Full",
+            "eventType": "plannedGateIn",
+            "location": {
+              "unlocode": "NLRTM",
+              "description": "Rotterdam, ZH, NL",
+              "locationKey": "NLRTM"
+            },
+            "emptyIndicator": "Laden"
+          }
+        },
+        {
+          "sequence": 10,
+          "locationKey": "NLRTM",
+          "actuals": [
+            {
+              "eventPublishTime": 1658636030775,
+              "eventSubmissionTime": 1658636027875,
+              "eventSubmissionTime8601": "2022-07-24T04:13:47.8754814Z",
+              "correlationId": "c456cbc6-5a6a-4221-8947-82b550439913",
+              "eventName": "Actual loaded on vessel",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1658634180000,
+              "eventOccurrenceTime8601": "2022-07-24T03:43:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "vehicleId": "9461374",
+              "vehicleName": "MSC ALEXANDRA",
+              "voyageId": "FH227E",
+              "transportationPhase": "Export",
+              "eventTransactionId": "b1200e56-a89f-4346-9efd-dbec1475578c",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "actualLoadedOnVessel",
+              "location": {
+                "unlocode": "NLRTM",
+                "description": "Rotterdam, ZH, NL",
+                "locationKey": "NLRTM"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 2
+            }
+          ],
+          "planned": {
+            "eventPublishTime": 1659067530329,
+            "eventSubmissionTime": 1659067527234,
+            "correlationId": "bc6cf1ee-ad9a-4c4a-a13c-d7fb20b09818",
+            "eventName": "Planned loaded on vessel",
+            "senderOrgName": "Mediterranean Shipping Company",
+            "senderOrgTypes": [
+              "ocean carrier"
+            ],
+            "originatorId": "MSCU",
+            "eventOccurrenceTime": 1658701800000,
+            "eventOccurrenceTime8601": "2022-07-24T22:30:00.0000000Z",
+            "fromOceanAggregator": false,
+            "originatorName": "Mediterranean Shipping Company",
+            "vehicleName": "MSC ALEXANDRA",
+            "voyageId": "FH227E",
+            "transportationPhase": "Export",
+            "eventTransactionId": "04c14d41-c3f2-491f-85fb-79b6f59dda2a",
+            "carrierBookingNumber": "356SL1796734",
+            "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+            "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+            "equipmentNumber": "MSMU1301725",
+            "transportPlanIssuanceTime8601": "2022-07-29T04:03:28.5075484Z",
+            "transportPlanIssuanceTime": 1659067408507,
+            "transportPlanSequenceNumber": 3,
+            "transportPlanTotalNumber": 12,
+            "fullStatus": "Full",
+            "eventType": "plannedLoadedOnVessel",
+            "location": {
+              "unlocode": "NLRTM",
+              "smdgTerminal": "NLRTM-APM",
+              "description": "Rotterdam, ZH, NL",
+              "locationKey": "NLRTM"
+            },
+            "emptyIndicator": "Laden"
+          }
+        },
+        {
+          "sequence": 11,
+          "locationKey": "NLRTM",
+          "actuals": [
+            {
+              "eventPublishTime": 1658711142550,
+              "eventSubmissionTime": 1658711040000,
+              "eventSubmissionTime8601": "2022-07-25T01:04:00.000+00:00",
+              "correlationId": "file-name=MSCU_IFTSTA_VD_220725030345.TXT:scac=MSCU:cbn=356SL1796734:container=MSMU1301725:icn=319394:tscn=14:document-identifier=356SL1796734:if-submission-time-utc=2022-07-25T01:05:42.460+00:00",
+              "eventName": "Actual vessel departure",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1658696400000,
+              "eventOccurrenceTime8601": "2022-07-24T23:00:00+02:00",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "vehicleName": "MSC ALEXANDRA",
+              "voyageId": "FH227E",
+              "transportationPhase": "Export",
+              "eventTransactionId": "ccf4d1f6-3143-435e-877e-3151999074ee",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "actualVesselDeparture",
+              "location": {
+                "unlocode": "NLRTM",
+                "smdgTerminal": "NLRTM-APM",
+                "description": "Rotterdam, ZH, NL",
+                "locationKey": "NLRTM"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 1
+            }
+          ],
+          "planned": {
+            "eventPublishTime": 1659067530329,
+            "eventSubmissionTime": 1659067527234,
+            "correlationId": "bc6cf1ee-ad9a-4c4a-a13c-d7fb20b09818",
+            "eventName": "Planned vessel departure",
+            "senderOrgName": "Mediterranean Shipping Company",
+            "senderOrgTypes": [
+              "ocean carrier"
+            ],
+            "originatorId": "MSCU",
+            "eventOccurrenceTime": 1658701800000,
+            "eventOccurrenceTime8601": "2022-07-24T22:30:00.0000000Z",
+            "fromOceanAggregator": false,
+            "originatorName": "Mediterranean Shipping Company",
+            "vehicleName": "MSC ALEXANDRA",
+            "voyageId": "FH227E",
+            "eventTransactionId": "04c14d41-c3f2-491f-85fb-79b6f59dda2a",
+            "carrierBookingNumber": "356SL1796734",
+            "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+            "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+            "equipmentNumber": "MSMU1301725",
+            "transportPlanIssuanceTime8601": "2022-07-29T04:03:28.5075484Z",
+            "transportPlanIssuanceTime": 1659067408507,
+            "transportPlanSequenceNumber": 4,
+            "transportPlanTotalNumber": 12,
+            "fullStatus": "Full",
+            "eventType": "plannedVesselDeparture",
+            "location": {
+              "unlocode": "NLRTM",
+              "smdgTerminal": "NLRTM-APM",
+              "description": "Rotterdam, ZH, NL",
+              "locationKey": "NLRTM"
+            },
+            "emptyIndicator": "Laden",
+            "eventPriority": 1
+          }
+        },
+        {
+          "sequence": 12,
+          "locationKey": "OMSLL",
+          "estimates": [
+            {
+              "eventPublishTime": 1660485512295,
+              "eventSubmissionTime": 1660485509902,
+              "eventSubmissionTime8601": "2022-08-14T13:58:29.9026121Z",
+              "correlationId": "63c2edf0-a412-49a4-b247-f35781aa9ab2",
+              "eventName": "Estimated vessel arrival",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660078080000,
+              "eventOccurrenceTime8601": "2022-08-09T20:48:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "eventTransactionId": "9bece2d7-5f80-4ebb-9d68-8fb073f04266",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Empty",
+              "eventType": "estimatedVesselArrival",
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 1
+            },
+            {
+              "eventPublishTime": 1659427422117,
+              "eventSubmissionTime": 1659427419732,
+              "eventSubmissionTime8601": "2022-08-02T08:03:39.7327352Z",
+              "correlationId": "97491243-01b0-492b-b5e8-e09521b04673",
+              "eventName": "Estimated vessel arrival",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660075200000,
+              "eventOccurrenceTime8601": "2022-08-09T20:00:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "eventTransactionId": "150bca7c-5b66-4322-9cda-c7adc621264b",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Empty",
+              "eventType": "estimatedVesselArrival",
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 1
+            }
+          ],
+          "planned": {
+            "eventPublishTime": 1659067530329,
+            "eventSubmissionTime": 1659067527234,
+            "correlationId": "bc6cf1ee-ad9a-4c4a-a13c-d7fb20b09818",
+            "eventName": "Planned vessel arrival",
+            "senderOrgName": "Mediterranean Shipping Company",
+            "senderOrgTypes": [
+              "ocean carrier"
+            ],
+            "originatorId": "MSCU",
+            "eventOccurrenceTime": 1660095000000,
+            "eventOccurrenceTime8601": "2022-08-10T01:30:00.0000000Z",
+            "fromOceanAggregator": false,
+            "originatorName": "Mediterranean Shipping Company",
+            "eventTransactionId": "04c14d41-c3f2-491f-85fb-79b6f59dda2a",
+            "carrierBookingNumber": "356SL1796734",
+            "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+            "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+            "equipmentNumber": "MSMU1301725",
+            "transportPlanIssuanceTime8601": "2022-07-29T04:03:28.5075484Z",
+            "transportPlanIssuanceTime": 1659067408507,
+            "transportPlanSequenceNumber": 5,
+            "transportPlanTotalNumber": 12,
+            "fullStatus": "Empty",
+            "eventType": "plannedVesselArrival",
+            "location": {
+              "unlocode": "OMSLL",
+              "smdgTerminal": "OMSLL-APMT",
+              "description": "Salalah, OM",
+              "locationKey": "OMSLL"
+            },
+            "emptyIndicator": "Empty",
+            "eventPriority": 1
+          }
+        },
+        {
+          "sequence": 13,
+          "locationKey": "OMSLL",
+          "estimates": [
+            {
+              "eventPublishTime": 1660485512298,
+              "eventSubmissionTime": 1660485510032,
+              "eventSubmissionTime8601": "2022-08-14T13:58:30.0326655Z",
+              "correlationId": "60451ee4-ec87-4743-b9cb-243e37228ded",
+              "eventName": "Estimated discharge from vessel",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660078080000,
+              "eventOccurrenceTime8601": "2022-08-09T20:48:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "transportationPhase": "Transshipment",
+              "eventTransactionId": "ae6aa2bd-ca17-4385-96b1-dbdac52e4258",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Empty",
+              "eventType": "estimatedDischargeFromVessel",
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 2
+            },
+            {
+              "eventPublishTime": 1659427422176,
+              "eventSubmissionTime": 1659427419765,
+              "eventSubmissionTime8601": "2022-08-02T08:03:39.7654652Z",
+              "correlationId": "df13bf3d-8481-4d89-a9f8-73d1399a118d",
+              "eventName": "Estimated discharge from vessel",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660075200000,
+              "eventOccurrenceTime8601": "2022-08-09T20:00:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "transportationPhase": "Transshipment",
+              "eventTransactionId": "ea2dfe0b-6086-48ad-b34d-3ae56eb62ced",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Empty",
+              "eventType": "estimatedDischargeFromVessel",
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 2
+            }
+          ],
+          "planned": {
+            "eventPublishTime": 1659067530329,
+            "eventSubmissionTime": 1659067527234,
+            "correlationId": "bc6cf1ee-ad9a-4c4a-a13c-d7fb20b09818",
+            "eventName": "Planned discharge from vessel",
+            "senderOrgName": "Mediterranean Shipping Company",
+            "senderOrgTypes": [
+              "ocean carrier"
+            ],
+            "originatorId": "MSCU",
+            "eventOccurrenceTime": 1660095000000,
+            "eventOccurrenceTime8601": "2022-08-10T01:30:00.0000000Z",
+            "fromOceanAggregator": false,
+            "originatorName": "Mediterranean Shipping Company",
+            "transportationPhase": "Transshipment",
+            "eventTransactionId": "04c14d41-c3f2-491f-85fb-79b6f59dda2a",
+            "carrierBookingNumber": "356SL1796734",
+            "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+            "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+            "equipmentNumber": "MSMU1301725",
+            "transportPlanIssuanceTime8601": "2022-07-29T04:03:28.5075484Z",
+            "transportPlanIssuanceTime": 1659067408507,
+            "transportPlanSequenceNumber": 6,
+            "transportPlanTotalNumber": 12,
+            "fullStatus": "Empty",
+            "eventType": "plannedDischargeFromVessel",
+            "location": {
+              "unlocode": "OMSLL",
+              "smdgTerminal": "OMSLL-APMT",
+              "description": "Salalah, OM",
+              "locationKey": "OMSLL"
+            },
+            "emptyIndicator": "Empty"
+          }
+        },
+        {
+          "sequence": 14,
+          "locationKey": "OMSLL",
+          "actuals": [
+            {
+              "eventPublishTime": 1660218004243,
+              "eventSubmissionTime": 1660217940000,
+              "eventSubmissionTime8601": "2022-08-11T11:39:00.000+00:00",
+              "correlationId": "file-name=MSCU_IFTSTA_220811133851.TXT:scac=MSCU:cbn=356SL1796734:container=MSMU1301725:icn=328299:tscn=61:document-identifier=356SL1796734:if-submission-time-utc=2022-08-11T11:40:04.116+00:00",
+              "eventName": "Actual vessel arrival",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660082400000,
+              "eventOccurrenceTime8601": "2022-08-09T22:00:00.000",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "vehicleName": "MSC ALEXANDRA",
+              "voyageId": "FH227E",
+              "transportationPhase": "Transshipment",
+              "eventTransactionId": "a5eb30b9-235a-4591-baf3-c5732d805c79",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "actualVesselArrival",
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 1
+            }
+          ]
+        },
+        {
+          "sequence": 15,
+          "locationKey": "OMSLL",
+          "actuals": [
+            {
+              "eventPublishTime": 1660100466692,
+              "eventSubmissionTime": 1660100466467,
+              "correlationId": "apmt;xml;DISCH_CONTAINER;integrationId=1895022913",
+              "eventName": "Actual discharge from vessel",
+              "senderOrgName": "APM Terminals",
+              "senderOrgTypes": [
+                "terminal operator"
+              ],
+              "originatorId": "APMT-OMSLL",
+              "eventOccurrenceTime": 1660099599070,
+              "eventOccurrenceTime8601": "2022-08-10T06:46:39.07+04:00",
+              "fromOceanAggregator": false,
+              "originatorName": "APMT-OMSLL",
+              "vehicleId": "9262546",
+              "voyageId": "JM230R",
+              "transportationPhase": "Transshipment",
+              "eventTransactionId": "a28d49fc-4e5d-46d5-911d-92b154854843",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "actualDischargeFromVessel",
+              "doNotAlert": true,
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 1
+            },
+            {
+              "eventPublishTime": 1660219390586,
+              "eventSubmissionTime": 1660219388058,
+              "eventSubmissionTime8601": "2022-08-11T12:03:08.0587274Z",
+              "correlationId": "4202809f-fcf0-4c32-81e0-02796987d4db",
+              "eventName": "Actual discharge from vessel",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660197000000,
+              "eventOccurrenceTime8601": "2022-08-11T05:50:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "vehicleName": "MSC ALEXANDRA",
+              "voyageId": "FH227E",
+              "transportationPhase": "Transshipment",
+              "eventTransactionId": "f8ba9cfb-6bd5-4527-ac8c-ac4d53cae36b",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "actualDischargeFromVessel",
+              "doNotAlert": true,
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 2
+            }
+          ]
+        },
+        {
+          "sequence": 16,
+          "locationKey": "OMSLL",
+          "actuals": [
+            {
+              "eventPublishTime": 1660439167849,
+              "eventSubmissionTime": 1660439167649,
+              "correlationId": "apmt;xml;LOAD_CONTAINER;integrationId=1899836374",
+              "eventName": "Actual loaded on vessel",
+              "senderOrgName": "APM Terminals",
+              "senderOrgTypes": [
+                "terminal operator"
+              ],
+              "originatorId": "APMT-OMSLL",
+              "eventOccurrenceTime": 1660437919217,
+              "eventOccurrenceTime8601": "2022-08-14T04:45:19.217+04:00",
+              "fromOceanAggregator": false,
+              "originatorName": "APMT-OMSLL",
+              "vehicleId": "9262546",
+              "voyageId": "JM230R",
+              "transportationPhase": "Transshipment",
+              "eventTransactionId": "ac3052b4-6c20-4663-83ef-e70008caf5ad",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "actualLoadedOnVessel",
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 1
+            },
+            {
+              "eventPublishTime": 1660555260005,
+              "eventSubmissionTime": 1660555257497,
+              "eventSubmissionTime8601": "2022-08-15T09:20:57.4977223Z",
+              "correlationId": "8e473951-f86b-475e-9455-854b925209a2",
+              "eventName": "Actual loaded on vessel",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660514400000,
+              "eventOccurrenceTime8601": "2022-08-14T22:00:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "vehicleName": "MSC CALEDONIA II",
+              "voyageId": "JM230R",
+              "transportationPhase": "Transshipment",
+              "eventTransactionId": "8232c4d8-bd1b-4c2d-bf6c-54f0a5278d42",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "actualLoadedOnVessel",
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 2
+            }
+          ]
+        },
+        {
+          "sequence": 17,
+          "locationKey": "OMSLL",
+          "estimates": [
+            {
+              "eventPublishTime": 1660485512259,
+              "eventSubmissionTime": 1660485510036,
+              "eventSubmissionTime8601": "2022-08-14T13:58:30.0369129Z",
+              "correlationId": "c77bfd0d-9346-417e-a974-ce22618c0dae",
+              "eventName": "Estimated loaded on vessel",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660465800000,
+              "eventOccurrenceTime8601": "2022-08-14T08:30:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "vehicleName": "EDITH MAERSK",
+              "voyageId": "225E",
+              "transportationPhase": "Transshipment",
+              "eventTransactionId": "644b703c-ea11-4ee2-8e7b-b872330cb549",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Empty",
+              "eventType": "estimatedLoadedOnVessel",
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 2
+            },
+            {
+              "eventPublishTime": 1660287621441,
+              "eventSubmissionTime": 1660287616263,
+              "eventSubmissionTime8601": "2022-08-12T07:00:16.2632538Z",
+              "correlationId": "662b3524-47cf-4cdc-bcfd-0d1aa4bf866a",
+              "eventName": "Estimated loaded on vessel",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660467600000,
+              "eventOccurrenceTime8601": "2022-08-14T09:00:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "vehicleName": "EDITH MAERSK",
+              "voyageId": "225E",
+              "transportationPhase": "Transshipment",
+              "eventTransactionId": "f868e9b4-546a-4c1f-9726-8c5cb82389e2",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Empty",
+              "eventType": "estimatedLoadedOnVessel",
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 2
+            },
+            {
+              "eventPublishTime": 1659791692998,
+              "eventSubmissionTime": 1659791687740,
+              "eventSubmissionTime8601": "2022-08-06T13:14:47.7402010Z",
+              "correlationId": "4dad7e78-8c77-49d1-9320-96b47e50a00f",
+              "eventName": "Estimated loaded on vessel",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660442400000,
+              "eventOccurrenceTime8601": "2022-08-14T02:00:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "vehicleName": "EDITH MAERSK",
+              "voyageId": "225E",
+              "transportationPhase": "Transshipment",
+              "eventTransactionId": "728dbf6d-49e0-4c73-a031-6613f3fbb7e4",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Empty",
+              "eventType": "estimatedLoadedOnVessel",
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 2
+            }
+          ],
+          "planned": {
+            "eventPublishTime": 1659067530329,
+            "eventSubmissionTime": 1659067527234,
+            "correlationId": "bc6cf1ee-ad9a-4c4a-a13c-d7fb20b09818",
+            "eventName": "Planned loaded on vessel",
+            "senderOrgName": "Mediterranean Shipping Company",
+            "senderOrgTypes": [
+              "ocean carrier"
+            ],
+            "originatorId": "MSCU",
+            "eventOccurrenceTime": 1660464000000,
+            "eventOccurrenceTime8601": "2022-08-14T08:00:00.0000000Z",
+            "fromOceanAggregator": false,
+            "originatorName": "Mediterranean Shipping Company",
+            "vehicleName": "EDITH MAERSK",
+            "voyageId": "225E",
+            "transportationPhase": "Transshipment",
+            "eventTransactionId": "04c14d41-c3f2-491f-85fb-79b6f59dda2a",
+            "carrierBookingNumber": "356SL1796734",
+            "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+            "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+            "equipmentNumber": "MSMU1301725",
+            "transportPlanIssuanceTime8601": "2022-07-29T04:03:28.5075484Z",
+            "transportPlanIssuanceTime": 1659067408507,
+            "transportPlanSequenceNumber": 7,
+            "transportPlanTotalNumber": 12,
+            "fullStatus": "Empty",
+            "eventType": "plannedLoadedOnVessel",
+            "location": {
+              "unlocode": "OMSLL",
+              "smdgTerminal": "OMSLL-APMT",
+              "description": "Salalah, OM",
+              "locationKey": "OMSLL"
+            },
+            "emptyIndicator": "Empty"
+          }
+        },
+        {
+          "sequence": 18,
+          "locationKey": "OMSLL",
+          "estimates": [
+            {
+              "eventPublishTime": 1660652899154,
+              "eventSubmissionTime": 1660652896489,
+              "eventSubmissionTime8601": "2022-08-16T12:28:16.4893903Z",
+              "correlationId": "9ee63f22-03b8-4086-887c-cc206ca29b6d",
+              "eventName": "Estimated vessel departure",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660465800000,
+              "eventOccurrenceTime8601": "2022-08-14T08:30:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "vehicleName": "EDITH MAERSK",
+              "voyageId": "225E",
+              "eventTransactionId": "cd8d3175-c442-4e25-8669-8a6c692bc675",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Empty",
+              "eventType": "estimatedVesselDeparture",
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 1
+            },
+            {
+              "eventPublishTime": 1660485512285,
+              "eventSubmissionTime": 1660485510089,
+              "eventSubmissionTime8601": "2022-08-14T13:58:30.0897418Z",
+              "correlationId": "ccc3ec51-73ed-4dde-b839-7c5ef069fb25",
+              "eventName": "Estimated vessel departure",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660465800000,
+              "eventOccurrenceTime8601": "2022-08-14T08:30:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "vehicleName": "EDITH MAERSK",
+              "voyageId": "225E",
+              "eventTransactionId": "b76441c8-7bb6-4b3f-a1c1-b4510e74f99d",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Empty",
+              "eventType": "estimatedVesselDeparture",
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 1
+            },
+            {
+              "eventPublishTime": 1660287618760,
+              "eventSubmissionTime": 1660287616287,
+              "eventSubmissionTime8601": "2022-08-12T07:00:16.2870810Z",
+              "correlationId": "58116c4a-9251-4b06-a6ba-9ca709cb48b5",
+              "eventName": "Estimated vessel departure",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660467600000,
+              "eventOccurrenceTime8601": "2022-08-14T09:00:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "vehicleName": "EDITH MAERSK",
+              "voyageId": "225E",
+              "eventTransactionId": "17f49959-3998-4649-be7a-8d120e337407",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Empty",
+              "eventType": "estimatedVesselDeparture",
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 1
+            },
+            {
+              "eventPublishTime": 1659791689960,
+              "eventSubmissionTime": 1659791687723,
+              "eventSubmissionTime8601": "2022-08-06T13:14:47.7238571Z",
+              "correlationId": "f87a9e6d-d357-4379-807e-25b892c26dcb",
+              "eventName": "Estimated vessel departure",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660442400000,
+              "eventOccurrenceTime8601": "2022-08-14T02:00:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "vehicleName": "EDITH MAERSK",
+              "voyageId": "225E",
+              "eventTransactionId": "a641f71e-fff9-4e42-9c14-ba76dfcd6bdc",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Empty",
+              "eventType": "estimatedVesselDeparture",
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 1
+            }
+          ],
+          "planned": {
+            "eventPublishTime": 1659067530329,
+            "eventSubmissionTime": 1659067527234,
+            "correlationId": "bc6cf1ee-ad9a-4c4a-a13c-d7fb20b09818",
+            "eventName": "Planned vessel departure",
+            "senderOrgName": "Mediterranean Shipping Company",
+            "senderOrgTypes": [
+              "ocean carrier"
+            ],
+            "originatorId": "MSCU",
+            "eventOccurrenceTime": 1660464000000,
+            "eventOccurrenceTime8601": "2022-08-14T08:00:00.0000000Z",
+            "fromOceanAggregator": false,
+            "originatorName": "Mediterranean Shipping Company",
+            "vehicleName": "EDITH MAERSK",
+            "voyageId": "225E",
+            "eventTransactionId": "04c14d41-c3f2-491f-85fb-79b6f59dda2a",
+            "carrierBookingNumber": "356SL1796734",
+            "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+            "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+            "equipmentNumber": "MSMU1301725",
+            "transportPlanIssuanceTime8601": "2022-07-29T04:03:28.5075484Z",
+            "transportPlanIssuanceTime": 1659067408507,
+            "transportPlanSequenceNumber": 8,
+            "transportPlanTotalNumber": 12,
+            "fullStatus": "Empty",
+            "eventType": "plannedVesselDeparture",
+            "location": {
+              "unlocode": "OMSLL",
+              "smdgTerminal": "OMSLL-APMT",
+              "description": "Salalah, OM",
+              "locationKey": "OMSLL"
+            },
+            "emptyIndicator": "Empty",
+            "eventPriority": 1
+          }
+        },
+        {
+          "sequence": 19,
+          "locationKey": "OMSLL",
+          "actuals": [
+            {
+              "eventPublishTime": 1660555222373,
+              "eventSubmissionTime": 1660555140000,
+              "eventSubmissionTime8601": "2022-08-15T09:19:00.000+00:00",
+              "correlationId": "file-name=MSCU_IFTSTA_220815111851.TXT:scac=MSCU:cbn=356SL1796734:container=MSMU1301725:icn=319190:tscn=154:document-identifier=356SL1796734:if-submission-time-utc=2022-08-15T09:20:22.288+00:00",
+              "eventName": "Actual vessel departure",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660532400000,
+              "eventOccurrenceTime8601": "2022-08-15T03:00:00.000",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "vehicleName": "MSC CALEDONIA II",
+              "voyageId": "JM230R",
+              "transportationPhase": "Transshipment",
+              "eventTransactionId": "14660893-2478-4de2-bd38-7b32082797bb",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "actualVesselDeparture",
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 1
+            },
+            {
+              "eventPublishTime": 1660516624410,
+              "eventSubmissionTime": 1660516624241,
+              "correlationId": "apmt;xml;OUT_VESSEL_CONTAINER;integrationId=1900505781",
+              "eventName": "Actual vessel departure",
+              "senderOrgName": "APM Terminals",
+              "senderOrgTypes": [
+                "terminal operator"
+              ],
+              "originatorId": "APMT-OMSLL",
+              "eventOccurrenceTime": 1660514400000,
+              "eventOccurrenceTime8601": "2022-08-15T02:00:00+04:00",
+              "fromOceanAggregator": false,
+              "originatorName": "APMT-OMSLL",
+              "vehicleId": "9262546",
+              "voyageId": "JM230R",
+              "transportationPhase": "Transshipment",
+              "eventTransactionId": "5c551b90-55c3-47d8-a4bb-6fae6771df4f",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "actualVesselDeparture",
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 4
+            }
+          ],
+          "estimates": [
+            {
+              "eventPublishTime": 1660555222247,
+              "eventSubmissionTime": 1660555140000,
+              "eventSubmissionTime8601": "2022-08-15T09:19:00.000+00:00",
+              "correlationId": "file-name=MSCU_IFTSTA_220815111851.TXT:scac=MSCU:cbn=356SL1796734:container=MSMU1301725:icn=319190:tscn=153:document-identifier=356SL1796734:if-submission-time-utc=2022-08-15T09:20:22.169+00:00",
+              "eventName": "Estimated vessel departure",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660458240000,
+              "eventOccurrenceTime8601": "2022-08-14T06:24:00.000",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "vehicleName": "MSC CALEDONIA II",
+              "voyageId": "JM230R",
+              "eventTransactionId": "e72aaa79-6e9f-4d54-8e26-f6f0ddb94115",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "estimatedVesselDeparture",
+              "location": {
+                "unlocode": "OMSLL",
+                "smdgTerminal": "OMSLL-APMT",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 1
+            },
+            {
+              "eventPublishTime": 1660077482513,
+              "eventSubmissionTime": 1660077300000,
+              "eventSubmissionTime8601": "2022-08-09T20:35:00.000+00:00",
+              "correlationId": "file-name=MSCU_IFTSTA_ET_220809223516.TXT:scac=MSCU:cbn=356SL1796734:container=MSMU1301725:icn=489832:tscn=642:document-identifier=356SL1796734:if-submission-time-utc=2022-08-09T20:38:02.414+00:00",
+              "eventName": "Estimated vessel departure",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660458240000,
+              "eventOccurrenceTime8601": "2022-08-14T06:24:00.000",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "vehicleName": "MSC CALEDONIA II",
+              "voyageId": "JM230R",
+              "eventTransactionId": "33b4377c-e5a8-437f-a928-5868f3bb303f",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "estimatedVesselDeparture",
+              "location": {
+                "unlocode": "OMSLL",
+                "description": "Salalah, OM",
+                "locationKey": "OMSLL"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 1
+            }
+          ]
+        },
+        {
+          "sequence": 20,
+          "locationKey": "AEJEA",
+          "estimates": [
+            {
+              "eventPublishTime": 1660555222245,
+              "eventSubmissionTime": 1660555140000,
+              "eventSubmissionTime8601": "2022-08-15T09:19:00.000+00:00",
+              "correlationId": "file-name=MSCU_IFTSTA_220815111851.TXT:scac=MSCU:cbn=356SL1796734:container=MSMU1301725:icn=319190:tscn=152:document-identifier=356SL1796734:if-submission-time-utc=2022-08-15T09:20:22.156+00:00",
+              "eventName": "Estimated vessel arrival",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660777500000,
+              "eventOccurrenceTime8601": "2022-08-17T23:05:00.000",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "vehicleName": "MSC CALEDONIA II",
+              "voyageId": "JM230R",
+              "transportationPhase": "Import",
+              "eventTransactionId": "76b952b2-a299-41c0-b5c1-22d1d851569f",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "estimatedVesselArrival",
+              "location": {
+                "unlocode": "AEJEA",
+                "description": "Jebel Ali, AE",
+                "locationKey": "AEJEA"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 1
+            },
+            {
+              "eventPublishTime": 1660287619101,
+              "eventSubmissionTime": 1660287616453,
+              "eventSubmissionTime8601": "2022-08-12T07:00:16.4534462Z",
+              "correlationId": "6274549b-98e3-400a-aab0-49c90ff22fea",
+              "eventName": "Estimated vessel arrival",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660874400000,
+              "eventOccurrenceTime8601": "2022-08-19T02:00:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "eventTransactionId": "3f1ab2af-8274-47cd-89f5-6f3b51aba5d6",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "estimatedVesselArrival",
+              "location": {
+                "unlocode": "AEJEA",
+                "smdgTerminal": "AEJEA-DPWJA",
+                "description": "Jebel Ali, AE",
+                "locationKey": "AEJEA"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 1
+            },
+            {
+              "eventPublishTime": 1660108492456,
+              "eventSubmissionTime": 1660108489645,
+              "eventSubmissionTime8601": "2022-08-10T05:14:49.6456148Z",
+              "correlationId": "dbee02bf-c53e-41aa-a0d0-9179d2f771bf",
+              "eventName": "Estimated vessel arrival",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660917600000,
+              "eventOccurrenceTime8601": "2022-08-19T14:00:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "eventTransactionId": "785b1bc4-a5bd-44f5-a26e-e62278673da0",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "estimatedVesselArrival",
+              "location": {
+                "unlocode": "AEJEA",
+                "smdgTerminal": "AEJEA-DPWJA",
+                "description": "Jebel Ali, AE",
+                "locationKey": "AEJEA"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 1
+            }
+          ],
+          "planned": {
+            "eventPublishTime": 1659067530329,
+            "eventSubmissionTime": 1659067527234,
+            "correlationId": "bc6cf1ee-ad9a-4c4a-a13c-d7fb20b09818",
+            "eventName": "Planned vessel arrival",
+            "senderOrgName": "Mediterranean Shipping Company",
+            "senderOrgTypes": [
+              "ocean carrier"
+            ],
+            "originatorId": "MSCU",
+            "eventOccurrenceTime": 1660894200000,
+            "eventOccurrenceTime8601": "2022-08-19T07:30:00.0000000Z",
+            "fromOceanAggregator": false,
+            "originatorName": "Mediterranean Shipping Company",
+            "eventTransactionId": "04c14d41-c3f2-491f-85fb-79b6f59dda2a",
+            "carrierBookingNumber": "356SL1796734",
+            "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+            "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+            "equipmentNumber": "MSMU1301725",
+            "transportPlanIssuanceTime8601": "2022-07-29T04:03:28.5075484Z",
+            "transportPlanIssuanceTime": 1659067408507,
+            "transportPlanSequenceNumber": 9,
+            "transportPlanTotalNumber": 12,
+            "fullStatus": "Full",
+            "eventType": "plannedVesselArrival",
+            "location": {
+              "unlocode": "AEJEA",
+              "smdgTerminal": "AEJEA-DPWJA",
+              "description": "Jebel Ali, AE",
+              "locationKey": "AEJEA"
+            },
+            "emptyIndicator": "Laden",
+            "eventPriority": 1
+          }
+        },
+        {
+          "sequence": 21,
+          "locationKey": "AEJEA",
+          "estimates": [
+            {
+              "eventPublishTime": 1660287619117,
+              "eventSubmissionTime": 1660287616496,
+              "eventSubmissionTime8601": "2022-08-12T07:00:16.4960831Z",
+              "correlationId": "28d3bbaa-d648-4dbc-a7e1-1d153d43aae1",
+              "eventName": "Estimated discharge from vessel",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660874400000,
+              "eventOccurrenceTime8601": "2022-08-19T02:00:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "transportationPhase": "Import",
+              "eventTransactionId": "eab7adb3-6bf7-484c-949a-1d106c1bc65a",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "estimatedDischargeFromVessel",
+              "location": {
+                "unlocode": "AEJEA",
+                "smdgTerminal": "AEJEA-DPWJA",
+                "description": "Jebel Ali, AE",
+                "locationKey": "AEJEA"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 2
+            },
+            {
+              "eventPublishTime": 1660108492719,
+              "eventSubmissionTime": 1660108489753,
+              "eventSubmissionTime8601": "2022-08-10T05:14:49.7535952Z",
+              "correlationId": "b5f1641f-cb42-47bc-8ca7-c42311500d42",
+              "eventName": "Estimated discharge from vessel",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1660917600000,
+              "eventOccurrenceTime8601": "2022-08-19T14:00:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "transportationPhase": "Import",
+              "eventTransactionId": "aa55d1f3-208a-4aa3-8b47-d77352f47da3",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "estimatedDischargeFromVessel",
+              "location": {
+                "unlocode": "AEJEA",
+                "smdgTerminal": "AEJEA-DPWJA",
+                "description": "Jebel Ali, AE",
+                "locationKey": "AEJEA"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 2
+            }
+          ],
+          "planned": {
+            "eventPublishTime": 1659067530329,
+            "eventSubmissionTime": 1659067527234,
+            "correlationId": "bc6cf1ee-ad9a-4c4a-a13c-d7fb20b09818",
+            "eventName": "Planned discharge from vessel",
+            "senderOrgName": "Mediterranean Shipping Company",
+            "senderOrgTypes": [
+              "ocean carrier"
+            ],
+            "originatorId": "MSCU",
+            "eventOccurrenceTime": 1660894200000,
+            "eventOccurrenceTime8601": "2022-08-19T07:30:00.0000000Z",
+            "fromOceanAggregator": false,
+            "originatorName": "Mediterranean Shipping Company",
+            "transportationPhase": "Import",
+            "eventTransactionId": "04c14d41-c3f2-491f-85fb-79b6f59dda2a",
+            "carrierBookingNumber": "356SL1796734",
+            "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+            "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+            "equipmentNumber": "MSMU1301725",
+            "transportPlanIssuanceTime8601": "2022-07-29T04:03:28.5075484Z",
+            "transportPlanIssuanceTime": 1659067408507,
+            "transportPlanSequenceNumber": 10,
+            "transportPlanTotalNumber": 12,
+            "fullStatus": "Full",
+            "eventType": "plannedDischargeFromVessel",
+            "location": {
+              "unlocode": "AEJEA",
+              "smdgTerminal": "AEJEA-DPWJA",
+              "description": "Jebel Ali, AE",
+              "locationKey": "AEJEA"
+            },
+            "emptyIndicator": "Laden"
+          }
+        },
+        {
+          "sequence": 22,
+          "locationKey": "AEJEA",
+          "estimates": [
+            {
+              "eventPublishTime": 1660287619050,
+              "eventSubmissionTime": 1660287616486,
+              "eventSubmissionTime8601": "2022-08-12T07:00:16.4863810Z",
+              "correlationId": "505b7eac-b60d-41d6-9cce-0f49cd4f88fb",
+              "eventName": "Estimated gate out",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1661392800000,
+              "eventOccurrenceTime8601": "2022-08-25T02:00:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "transportationPhase": "Import",
+              "eventTransactionId": "61557ecd-481f-4945-815f-4609166efff7",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "estimatedGateOut",
+              "location": {
+                "unlocode": "AEJEA",
+                "description": "Jebel Ali, AE",
+                "locationKey": "AEJEA"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 5
+            },
+            {
+              "eventPublishTime": 1660108492578,
+              "eventSubmissionTime": 1660108489998,
+              "eventSubmissionTime8601": "2022-08-10T05:14:49.9986968Z",
+              "correlationId": "76d96f56-357f-418f-b4ff-9cfd6ac0bd59",
+              "eventName": "Estimated gate out",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1661436000000,
+              "eventOccurrenceTime8601": "2022-08-25T14:00:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "transportationPhase": "Import",
+              "eventTransactionId": "c4b9139c-539c-464c-afde-a89799bed8d0",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Full",
+              "eventType": "estimatedGateOut",
+              "location": {
+                "unlocode": "AEJEA",
+                "description": "Jebel Ali, AE",
+                "locationKey": "AEJEA"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 5
+            }
+          ],
+          "planned": {
+            "eventPublishTime": 1659067530329,
+            "eventSubmissionTime": 1659067527234,
+            "correlationId": "bc6cf1ee-ad9a-4c4a-a13c-d7fb20b09818",
+            "eventName": "Planned gate out",
+            "senderOrgName": "Mediterranean Shipping Company",
+            "senderOrgTypes": [
+              "ocean carrier"
+            ],
+            "originatorId": "MSCU",
+            "eventOccurrenceTime": 1661412600000,
+            "eventOccurrenceTime8601": "2022-08-25T07:30:00.0000000Z",
+            "fromOceanAggregator": false,
+            "originatorName": "Mediterranean Shipping Company",
+            "transportationPhase": "Import",
+            "eventTransactionId": "04c14d41-c3f2-491f-85fb-79b6f59dda2a",
+            "carrierBookingNumber": "356SL1796734",
+            "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+            "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+            "equipmentNumber": "MSMU1301725",
+            "transportPlanIssuanceTime8601": "2022-07-29T04:03:28.5075484Z",
+            "transportPlanIssuanceTime": 1659067408507,
+            "transportPlanSequenceNumber": 11,
+            "transportPlanTotalNumber": 12,
+            "fullStatus": "Full",
+            "eventType": "plannedGateOut",
+            "location": {
+              "unlocode": "AEJEA",
+              "description": "Jebel Ali, AE",
+              "locationKey": "AEJEA"
+            },
+            "emptyIndicator": "Laden"
+          }
+        },
+        {
+          "sequence": 23,
+          "locationKey": "AEJEA",
+          "estimates": [
+            {
+              "eventPublishTime": 1660287621154,
+              "eventSubmissionTime": 1660287616522,
+              "eventSubmissionTime8601": "2022-08-12T07:00:16.5224040Z",
+              "correlationId": "1ad6e642-59f7-497a-a349-4655ab64f78c",
+              "eventName": "Estimated gate in",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1661652000000,
+              "eventOccurrenceTime8601": "2022-08-28T02:00:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "transportationPhase": "Import",
+              "eventTransactionId": "b38a409d-5b3f-4070-9e5c-2319979d60f7",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Empty",
+              "eventType": "estimatedGateIn",
+              "location": {
+                "unlocode": "AEJEA",
+                "description": "Jebel Ali, AE",
+                "locationKey": "AEJEA"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 5
+            },
+            {
+              "eventPublishTime": 1660108493334,
+              "eventSubmissionTime": 1660108490308,
+              "eventSubmissionTime8601": "2022-08-10T05:14:50.3088354Z",
+              "correlationId": "49887450-95f3-4f57-852e-aa80b3ffae37",
+              "eventName": "Estimated gate in",
+              "senderOrgName": "Mediterranean Shipping Company",
+              "senderOrgTypes": [
+                "ocean carrier"
+              ],
+              "originatorId": "MSCU",
+              "eventOccurrenceTime": 1661695200000,
+              "eventOccurrenceTime8601": "2022-08-28T14:00:00.0000000Z",
+              "fromOceanAggregator": false,
+              "originatorName": "Mediterranean Shipping Company",
+              "transportationPhase": "Import",
+              "eventTransactionId": "346363a5-6527-482f-8ac7-d80c05482397",
+              "carrierBookingNumber": "356SL1796734",
+              "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+              "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+              "equipmentNumber": "MSMU1301725",
+              "fullStatus": "Empty",
+              "eventType": "estimatedGateIn",
+              "location": {
+                "unlocode": "AEJEA",
+                "description": "Jebel Ali, AE",
+                "locationKey": "AEJEA"
+              },
+              "messages": [
+                "common.event.status.success"
+              ],
+              "eventPriority": 5
+            }
+          ],
+          "planned": {
+            "eventPublishTime": 1659067530329,
+            "eventSubmissionTime": 1659067527234,
+            "correlationId": "bc6cf1ee-ad9a-4c4a-a13c-d7fb20b09818",
+            "eventName": "Planned gate in",
+            "senderOrgName": "Mediterranean Shipping Company",
+            "senderOrgTypes": [
+              "ocean carrier"
+            ],
+            "originatorId": "MSCU",
+            "eventOccurrenceTime": 1661671800000,
+            "eventOccurrenceTime8601": "2022-08-28T07:30:00.0000000Z",
+            "fromOceanAggregator": false,
+            "originatorName": "Mediterranean Shipping Company",
+            "transportationPhase": "Import",
+            "eventTransactionId": "04c14d41-c3f2-491f-85fb-79b6f59dda2a",
+            "carrierBookingNumber": "356SL1796734",
+            "consignmentId": "d4d4abac-3108-4432-a090-65e0badedc0b",
+            "transportEquipmentId": "c27ab472-da1a-40ce-9186-d201900b7ac3",
+            "equipmentNumber": "MSMU1301725",
+            "transportPlanIssuanceTime8601": "2022-07-29T04:03:28.5075484Z",
+            "transportPlanIssuanceTime": 1659067408507,
+            "transportPlanSequenceNumber": 12,
+            "transportPlanTotalNumber": 12,
+            "fullStatus": "Empty",
+            "eventType": "plannedGateIn",
+            "location": {
+              "unlocode": "AEJEA",
+              "description": "Jebel Ali, AE",
+              "locationKey": "AEJEA"
+            },
+            "emptyIndicator": "Empty"
+          }
+        }
+      ]
+    }
+  ]
+}

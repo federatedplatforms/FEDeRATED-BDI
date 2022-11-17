@@ -1,0 +1,40 @@
+prefixes:
+  data: https://ontology.tno.nl/logistics/federated/tradelens#
+  event: https://ontology.tno.nl/logistics/federated/Event#
+  dt: https://ontology.tno.nl/logistics/federated/DigitalTwin#
+  bs: https://ontology.tno.nl/logistics/federated/BusinessService#
+  pi: https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#
+  cl: https://ontology.tno.nl/logistics/federated/Classifications#
+mappings:
+  event:
+    sources:
+      - ['data.json~jsonpath', '$[*]']
+    s: data:event-$(id) #TODO generate instead of take from input
+    po:
+      - [rdf:type, [event:Event~iri, event:$(eventType)Event~iri, owl:NamedIndividual~iri]]
+      - [event:hasMilestone, event:$(milestone)~iri] 
+      - [event:hasDateTimeType, event:$(dateTimeType)~iri]
+      - [event:hasTimestamp, $(timestamp), xsd:dateTime]
+      - [event:hasSubmissionTimestamp, $(submissionTimestamp), xsd:dateTime]
+      - [event:involvesDigitalTwin, data:DigitalTwin-$(digitalTwin)~iri]
+      - [event:involvesDigitalTwin, data:DigitalTwin-$(digitalTwin2)~iri]
+      - [event:involvesPhysicalInfrastructure, data:PhysicalInfrastructure-$(infrastructure)~iri]
+      - [event:involvesBusinessTransaction, data:BusinessTransaction-$(businessService)~iri]
+  tp:
+    sources:
+      - ['data.json~jsonpath', '$[*]']
+    s: data:DigitalTwin-$(digitalTwin)
+    po:
+      - [ rdf:type, [dt:Container~iri, owl:NamedIndividual~iri ]]
+  equip:
+    sources:
+      - ['data.json~jsonpath', '$[*]']
+    s: data:DigitalTwin-$(digitalTwin2)
+    po:
+      - [ rdf:type, [dt:TransportMeans~iri, owl:NamedIndividual~iri ] ]
+  pi:
+    sources:
+      - ['data.json~jsonpath', '$[*]']
+    s: data:PhysicalInfrastructure-$(infrastructure)
+    po:
+      - [ rdf:type, [pi:Location~iri, owl:NamedIndividual~iri ]]

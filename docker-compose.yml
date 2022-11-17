@@ -16,3 +16,5 @@ services:
 
 volumes:
     graphdb-data:
+
+# https://github.com/khaller93/graphdb-free

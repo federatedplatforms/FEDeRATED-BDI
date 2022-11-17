@@ -1,0 +1,78 @@
+
+plugins {
+    id 'net.corda.plugins.cordapp' version "$corda_gradle_plugin_version"
+    id 'net.corda.plugins.quasar-utils' version "$corda_gradle_plugin_version"
+}
+
+apply plugin: 'kotlin'
+
+cordapp {
+    targetPlatformVersion corda_platform_version
+    minimumPlatformVersion corda_platform_version
+    workflow {
+        name "Template Flows"
+        vendor "Corda Open Source"
+        licence "Apache License, Version 2.0"
+        versionId 4
+    }
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDir rootProject.file("config/dev")
+        }
+    }
+    test {
+        resources {
+            srcDir rootProject.file("config/test")
+        }
+    }
+    integrationTest {
+        kotlin {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/integrationTest/kotlin')
+        }
+    }
+}
+
+configurations {
+    integrationTestCompile.extendsFrom testCompile
+    integrationTestRuntime.extendsFrom testRuntime
+}
+
+dependencies {
+    cordapp project(":corda:contracts")
+
+    // Corda dependencies.
+    cordaCompile "net.corda:corda-core"
+    cordaRuntime "net.corda:corda"
+
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin"
+    implementation "org.eclipse.rdf4j:rdf4j-rio-turtle"
+
+    testImplementation "junit:junit"
+    testImplementation "io.mockk:mockk"
+    testImplementation "org.testcontainers:testcontainers"
+    testImplementation "org.jetbrains.kotlin:kotlin-test"
+    testImplementation "net.corda:corda-node-driver"
+}
+
+task integrationTest(type: Test, dependsOn: []) {
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+}
+
+test {
+    maxHeapSize = "4096m"
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+    kotlinOptions {
+        languageVersion = "1.2" // corda 4.9 supports kotlin 1.2.71
+        apiVersion = "1.2" // corda 4.9 supports kotlin 1.2.71
+        jvmTarget = "1.8"
+        javaParameters = true   // Useful for reflection.
+    }
+}

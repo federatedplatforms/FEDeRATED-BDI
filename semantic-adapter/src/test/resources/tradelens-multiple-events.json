@@ -1,0 +1,96 @@
+{
+  "events": [
+    {
+      "eventPublishTime": 1657803050985,
+      "eventSubmissionTime": 1657803050797,
+      "eventSubmissionTime8601": "2022-07-14T12:50:50.797Z",
+      "eventName": "Transport equipment created/updated",
+      "senderOrgName": "test-ocean-carrier",
+      "senderOrgTypes": [
+        "ocean carrier"
+      ],
+      "originatorId": "OC",
+      "fromOceanAggregator": false,
+      "originatorName": "Ocean Carrier",
+      "eventTransactionId": "b701a8f3-52f2-4d57-9931-f121c3fdeffa",
+      "carrierBookingNumber": "156318",
+      "consignmentId": "9c8ed5e3-d158-4a8f-964c-1a3253c5d081",
+      "transportEquipmentId": "af59f747-6aee-4d41-b425-49ec5bf0a81c",
+      "equipmentNumber": "75764853185",
+      "equipmentType": "20G1",
+      "harmonizedCodes": [
+        "090121"
+      ],
+      "eventType": "transportEquipmentCreated",
+      "messages": [
+        "common.event.status.success"
+      ]
+    },
+    {
+      "eventPublishTime": 1657803126071,
+      "eventSubmissionTime": 1657803125836,
+      "eventSubmissionTime8601": "2022-07-14T12:52:05.836Z",
+      "eventName": "Actual vessel departure",
+      "senderOrgName": "test-ocean-carrier",
+      "senderOrgTypes": [
+        "ocean carrier"
+      ],
+      "originatorId": "OC",
+      "eventOccurrenceTime": 1657846325834,
+      "eventOccurrenceTime8601": "2022-07-15T00:52:05.834Z",
+      "fromOceanAggregator": false,
+      "originatorName": "Ocean Carrier",
+      "transportationPhase": "Export",
+      "eventTransactionId": "b0efeca7-7b33-4d4e-8a5e-1d33b75a3e19",
+      "carrierBookingNumber": "156318",
+      "consignmentId": "9c8ed5e3-d158-4a8f-964c-1a3253c5d081",
+      "transportEquipmentId": "af59f747-6aee-4d41-b425-49ec5bf0a81c",
+      "equipmentNumber": "75764853185",
+      "billOfLadingNumber": "BL156318",
+      "fullStatus": "Full",
+      "eventType": "actualVesselDeparture",
+      "location": {
+        "unlocode": "INNSA",
+        "description": "Nhava Sheva (Jawaharlal Nehru), MH, IN"
+      },
+      "messages": [
+        "common.event.status.success"
+      ],
+      "facilityType": "PortTerminal",
+      "eventPriority": 1
+    },
+    {
+      "eventPublishTime": 1657803128026,
+      "eventSubmissionTime": 1657803127802,
+      "eventSubmissionTime8601": "2022-07-14T12:52:07.802Z",
+      "eventName": "Actual vessel arrival",
+      "senderOrgName": "test-ocean-carrier",
+      "senderOrgTypes": [
+        "ocean carrier"
+      ],
+      "originatorId": "OC",
+      "eventOccurrenceTime": 1658350327799,
+      "eventOccurrenceTime8601": "2022-07-20T20:52:07.799Z",
+      "fromOceanAggregator": false,
+      "originatorName": "Ocean Carrier",
+      "transportationPhase": "Transshipment",
+      "eventTransactionId": "a3bcecb1-d477-4185-a184-12b37ed7c2e7",
+      "carrierBookingNumber": "156318",
+      "consignmentId": "9c8ed5e3-d158-4a8f-964c-1a3253c5d081",
+      "transportEquipmentId": "af59f747-6aee-4d41-b425-49ec5bf0a81c",
+      "equipmentNumber": "75764853185",
+      "billOfLadingNumber": "BL156318",
+      "fullStatus": "Full",
+      "eventType": "actualVesselArrival",
+      "location": {
+        "unlocode": "AEJEA",
+        "description": "Jebel Ali, AE"
+      },
+      "messages": [
+        "common.event.status.success"
+      ],
+      "facilityType": "PortTerminal",
+      "eventPriority": 1
+    }
+  ]
+}

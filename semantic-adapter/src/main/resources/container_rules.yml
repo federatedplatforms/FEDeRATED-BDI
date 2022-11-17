@@ -1,0 +1,43 @@
+#
+# This file is used to generate the RML rules in container_rules.ttl
+# These rules translate json into triples if the input data is formatted in the following way:
+# 
+# {
+# "id":"781as5-1790-4059-bhh1-2cc0fcd03532",
+# "containerType":"20H0",
+# "billOfLading":"BOL419328",
+# "equipmentNumber":"10193652010736",
+# "verifiedGrossMass":"413"
+# }
+
+prefixes:
+ data: "https://ontology.tno.nl/logistics/federated/tradelens#"
+ dt: "https://ontology.tno.nl/logistics/federated/DigitalTwin#"
+ classifications: "https://ontology.tno.nl/logistics/federated/Classifications#"
+ eqtc: "https://ontology.tno.nl/logistics/federated/Classifications/equipmentTypeCode#"
+
+mappings:
+  containers:
+    sources:
+      - ['data.json~jsonpath', '$[*]']
+    s: data:DigitalTwin-$(id)
+    po:
+      - [a, dt:Container]
+      - p: dt:equipmentTypeCode
+        o:
+         value: eqtc:$(containerType)
+         type: iri
+      - [dt:containerNumber,  $(equipmentNumber)]
+      - [dt:documentbillOfLadingNumber,  $(billOfLading)]
+      - [dt:harmonizedSystemCode,  $(harmonizedSystemCode)]
+      - p: dt:hasGrossMass
+        o:
+         value: $(verifiedGrossMass)
+         datatype: xsd:integer
+  types:
+    sources:
+      - ['data.json~jsonpath', '$[*]']
+    s: eqtc:$(containerType)
+    po:
+      - [a, classifications:EquipmentTypeCode]
+      - [rdfs:label, $(containerType)]
