@@ -17,6 +17,7 @@ buildscript {
 }
 
 plugins {
+    // the kotlin gradle plugin must be included in the root project
     id 'org.jetbrains.kotlin.jvm' version "$kotlin_version" apply false
 }
 
