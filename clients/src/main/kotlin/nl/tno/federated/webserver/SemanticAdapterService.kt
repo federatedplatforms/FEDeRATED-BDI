@@ -18,7 +18,7 @@ class SemanticAdapterService(
     @Autowired @Qualifier("semanticAdapterRestTemplate") private val semanticAdapterRestTemplate: RestTemplate,
     private val tradelensService: TradelensService,
     private val rpc: NodeRPCConnection
-    ) {
+) {
 
     private val log = LoggerFactory.getLogger(SemanticAdapterService::class.java)
 
@@ -42,7 +42,7 @@ class SemanticAdapterService(
         val convertedEvent = convertEventData(event)
         log.debug("Event converted: {}", convertedEvent)
 
-        if(convertedEvent.isNullOrEmpty()) {
+        if (convertedEvent.isNullOrEmpty()) {
             log.warn("Unable to convert event to triple, empty response from semantic adapter for event: {}", event)
             throw SemanticAdapterException("Unable to convert event to triple, empty response from semantic adapter for incoming event.")
         }
@@ -64,14 +64,14 @@ class SemanticAdapterService(
                 log.info("Getting data for consignmentId: {} and twinId: {}", consignmentId, twinId)
                 val dataFromApi = tradelensService.getTransportEquipmentData(consignmentId, twinId)
 
-                if(dataFromApi.isNullOrEmpty()) {
+                if (dataFromApi.isNullOrEmpty()) {
                     log.warn("Unable to get transportEquipment data from Tradelens, empty response for consignmentId: {} and twinId: {}", consignmentId, twinId)
                     throw SemanticAdapterException("Unable to get transportEquipment data from Tradelens, empty response for consignmentId: $consignmentId and twinId: $twinId")
                 }
 
                 val convertedData = convertDigitalTwinData(dataFromApi!!)
 
-                if(convertedData.isNullOrEmpty()) {
+                if (convertedData.isNullOrEmpty()) {
                     log.warn("Unable to convert Tradelens transportEquipment to triple, empty response from semantic adapter for Tradelens data: {}", dataFromApi)
                     throw SemanticAdapterException("Unable to convert Tradelens transportEquipment to triple, empty response from semantic adapter for Tradelens data.")
                 }
