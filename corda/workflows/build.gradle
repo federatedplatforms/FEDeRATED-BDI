@@ -43,7 +43,7 @@ configurations {
 }
 
 dependencies {
-    cordapp project(":contracts")
+    cordapp project(":corda:contracts")
 
     // Corda dependencies.
     cordaCompile "net.corda:corda-core"

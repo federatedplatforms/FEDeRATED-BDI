@@ -17,8 +17,8 @@ sourceSets {
 
 dependencies {
     // CorDapp dependencies.
-    implementation project(":contracts")
-    implementation project(":workflows")
+    implementation project(":corda:contracts")
+    implementation project(":corda:workflows")
 
     // Corda dependency we need for the rpc connection.
     implementation "net.corda:corda-rpc"

@@ -1,5 +1,5 @@
 FROM azul/zulu-openjdk:8
-ADD build/libs/clients-0.1.jar clients.jar
+ADD build/libs/clients.jar clients.jar
 EXPOSE 10050
 CMD sleep 40 && java -Dserver.port=10050 -Dconfig.rpc.host=localhost -Dconfig.rpc.port=10006 -Dconfig.rpc.username=user1 -Dconfig.rpc.password=vzzuABeCut3jGoJfEp94 -jar clients.jar
 
