@@ -22,7 +22,8 @@ dependencies {
         exclude group: "org.apache.jena"
     }
     implementation("org.apache.jena:apache-jena-libs:3.8.0")
-    implementation("io.springfox:springfox-boot-starter:3.0.0")
+    implementation "io.springfox:springfox-swagger2:$springfox_version"
+    implementation "io.springfox:springfox-swagger-ui:$springfox_version"
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
