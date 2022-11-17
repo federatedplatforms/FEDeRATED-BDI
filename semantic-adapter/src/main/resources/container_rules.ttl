@@ -1,0 +1,133 @@
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix map: <http://mapping.example.com/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
+@prefix data: <https://ontology.tno.nl/logistics/federated/tradelens#> .
+@prefix dt: <https://ontology.tno.nl/logistics/federated/DigitalTwin#> .
+@prefix classifications: <https://ontology.tno.nl/logistics/federated/Classifications#> .
+@prefix eqtc: <https://ontology.tno.nl/logistics/federated/Classifications/equipmentTypeCode#> .
+
+map:map_containers_000 rml:logicalSource map:source_000 ;
+	rdf:type rr:TriplesMap ;
+	rdfs:label "containers" ;
+	rr:predicateObjectMap map:pom_000, map:pom_001, map:pom_002, map:pom_003, map:pom_004, map:pom_005 ;
+	rr:subjectMap map:s_000 .
+
+map:map_types_000 rml:logicalSource map:source_001 ;
+	rdf:type rr:TriplesMap ;
+	rdfs:label "types" ;
+	rr:predicateObjectMap map:pom_006, map:pom_007 ;
+	rr:subjectMap map:s_001 .
+
+map:om_000 rdf:type rr:ObjectMap ;
+	rr:constant "https://ontology.tno.nl/logistics/federated/DigitalTwin#Container" ;
+	rr:termType rr:IRI .
+
+map:om_001 rdf:type rr:ObjectMap ;
+	rr:template "https://ontology.tno.nl/logistics/federated/Classifications/equipmentTypeCode#{containerType}" ;
+	rr:termType rr:IRI .
+
+map:om_002 rml:reference "equipmentNumber" ;
+	rdf:type rr:ObjectMap ;
+	rr:termType rr:Literal .
+
+map:om_003 rml:reference "billOfLading" ;
+	rdf:type rr:ObjectMap ;
+	rr:termType rr:Literal .
+
+map:om_004 rml:reference "harmonizedSystemCode" ;
+	rdf:type rr:ObjectMap ;
+	rr:termType rr:Literal .
+
+map:om_005 rml:reference "verifiedGrossMass" ;
+	rdf:type rr:ObjectMap ;
+	rr:datatype xsd:integer ;
+	rr:termType rr:Literal .
+
+map:om_006 rdf:type rr:ObjectMap ;
+	rr:constant "https://ontology.tno.nl/logistics/federated/Classifications#EquipmentTypeCode" ;
+	rr:termType rr:IRI .
+
+map:om_007 rml:reference "containerType" ;
+	rdf:type rr:ObjectMap ;
+	rr:termType rr:Literal .
+
+map:pm_000 rdf:type rr:PredicateMap ;
+	rr:constant rdf:type .
+
+map:pm_001 rdf:type rr:PredicateMap ;
+	rr:constant dt:equipmentTypeCode .
+
+map:pm_002 rdf:type rr:PredicateMap ;
+	rr:constant dt:containerNumber .
+
+map:pm_003 rdf:type rr:PredicateMap ;
+	rr:constant dt:documentbillOfLadingNumber .
+
+map:pm_004 rdf:type rr:PredicateMap ;
+	rr:constant dt:harmonizedSystemCode .
+
+map:pm_005 rdf:type rr:PredicateMap ;
+	rr:constant dt:hasGrossMass .
+
+map:pm_006 rdf:type rr:PredicateMap ;
+	rr:constant rdf:type .
+
+map:pm_007 rdf:type rr:PredicateMap ;
+	rr:constant rdfs:label .
+
+map:pom_000 rdf:type rr:PredicateObjectMap ;
+	rr:objectMap map:om_000 ;
+	rr:predicateMap map:pm_000 .
+
+map:pom_001 rdf:type rr:PredicateObjectMap ;
+	rr:objectMap map:om_001 ;
+	rr:predicateMap map:pm_001 .
+
+map:pom_002 rdf:type rr:PredicateObjectMap ;
+	rr:objectMap map:om_002 ;
+	rr:predicateMap map:pm_002 .
+
+map:pom_003 rdf:type rr:PredicateObjectMap ;
+	rr:objectMap map:om_003 ;
+	rr:predicateMap map:pm_003 .
+
+map:pom_004 rdf:type rr:PredicateObjectMap ;
+	rr:objectMap map:om_004 ;
+	rr:predicateMap map:pm_004 .
+
+map:pom_005 rdf:type rr:PredicateObjectMap ;
+	rr:objectMap map:om_005 ;
+	rr:predicateMap map:pm_005 .
+
+map:pom_006 rdf:type rr:PredicateObjectMap ;
+	rr:objectMap map:om_006 ;
+	rr:predicateMap map:pm_006 .
+
+map:pom_007 rdf:type rr:PredicateObjectMap ;
+	rr:objectMap map:om_007 ;
+	rr:predicateMap map:pm_007 .
+
+map:rules_000 <http://rdfs.org/ns/void#exampleResource> map:map_containers_000, map:map_types_000 ;
+	rdf:type <http://rdfs.org/ns/void#Dataset> .
+
+map:s_000 rdf:type rr:SubjectMap ;
+	rr:template "https://ontology.tno.nl/logistics/federated/tradelens#DigitalTwin-{id}" .
+
+map:s_001 rdf:type rr:SubjectMap ;
+	rr:template "https://ontology.tno.nl/logistics/federated/Classifications/equipmentTypeCode#{containerType}" .
+
+map:source_000 rml:iterator "$[*]" ;
+	rml:referenceFormulation ql:JSONPath ;
+	rml:source "data.json" ;
+	rdf:type rml:LogicalSource .
+
+map:source_001 rml:iterator "$[*]" ;
+	rml:referenceFormulation ql:JSONPath ;
+	rml:source "data.json" ;
+	rdf:type rml:LogicalSource .
+

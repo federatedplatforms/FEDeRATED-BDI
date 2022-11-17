@@ -1,0 +1,156 @@
+{
+  "transportEquipmentList": [
+    {
+      "transportEquipmentId": "781as5-1790-4059-bhh1-2cc0fcd03532",
+      "transportEquipmentRefs": [
+        "string"
+      ],
+      "billsOfLading": "BOL419328",
+      "transportEquipmentTypes": [
+        {
+          "code": "20H0",
+          "description": "INSULATED CONTAINER"
+        }
+      ],
+      "equipmentNumber": "10193652010736",
+      "dangerousCargo": true,
+      "cargoTypes": [
+        {
+          "code": "090121",
+          "description": "Coffee roasted"
+        }
+      ],
+      "verifiedGrossMass": "413kg",
+      "portOfEntry": "NLRTM",
+      "portOfEntryDescription": "Rotterdam, ZH, NL",
+      "portOfDischarge": "USNWK",
+      "portOfDischargeDescription": "Newark, DE, US",
+      "plannedVesselDeparture": 1514782800000,
+      "plannedVesselArrival": 1514782800000,
+      "terminals": [
+        "string"
+      ],
+      "terminalDescriptions": [
+        "string"
+      ],
+      "cutOffs": [
+        {
+          "cutOffDateTime8601": "string",
+          "cutOffType": "Cargo",
+          "eventSubmissionTime": 0,
+          "eventTransactionId": "string",
+          "location": {
+            "description": "Rotterdam, ZH, NL",
+            "locationKey": "string",
+            "type": "UN/Locode",
+            "value": "string",
+            "unlocode": "USNWK",
+            "address": {
+              "address1": "1234 Tradelens Ave",
+              "address2": "Suite 1A",
+              "city": "Raleigh",
+              "country": "US",
+              "stateProvince": "NC",
+              "zipPostal": "27709-2195"
+            },
+            "smdgTerminal": "USEWR-PNCT",
+            "geoCoord": {
+              "latitude": 40.693351,
+              "longitude": -74.147572
+            },
+            "splc": "191821",
+            "gln": "1234567890123"
+          }
+        }
+      ],
+      "callerRoles": [
+        "string"
+      ],
+      "transportPlans": [
+        {
+          "version": 0,
+          "transportPlanIssuanceTime8601": "2017-09-15T15:30:00.000-05:00",
+          "senderOrgName": "ACME",
+          "transportSummaryEvents": [
+            {
+              "sequence": 1,
+              "event": {
+                "senderOrgName": "string",
+                "senderOrgTypes": [
+                  "string"
+                ],
+                "originatorId": "string",
+                "originatorName": "string",
+                "eventSubmissionTime": 0,
+                "eventSubmissionTime8601": "string",
+                "eventPublishTime": 0,
+                "eventType": "string",
+                "eventName": "string",
+                "eventTransactionId": "string",
+                "eventSubmissionGpsLocation": "string",
+                "correlationId": "string",
+                "fromOceanAggregator": false,
+                "associatedConsignmentIds": [
+                  "string"
+                ],
+                "associatedCarrierBookingNumbers": [
+                  "string"
+                ],
+                "associatedBillOfLadingNumbers": [
+                  "string"
+                ],
+                "messages": [
+                  "string"
+                ],
+                "carrierBookingNumber": "string",
+                "billOfLadingNumber": "string",
+                "consignmentId": "string",
+                "consignmentRef": "string",
+                "equipmentNumber": "string",
+                "transportEquipmentId": "string",
+                "transportEquipmentRef": "string",
+                "transportPlanSequenceNumber": 0,
+                "transportPlanTotalNumber": 0,
+                "eventOccurrenceTime": 0,
+                "eventOccurrenceTime8601": "string",
+                "vehicleId": "string",
+                "vehicleName": "string",
+                "voyageId": "string",
+                "transportationPhase": "Import",
+                "fullStatus": "Full",
+                "location": {
+                  "description": "Rotterdam, ZH, NL",
+                  "locationKey": "string",
+                  "type": "UN/Locode",
+                  "value": "string",
+                  "unlocode": "USNWK",
+                  "address": {
+                    "address1": "1234 Tradelens Ave",
+                    "address2": "Suite 1A",
+                    "city": "Raleigh",
+                    "country": "US",
+                    "stateProvince": "NC",
+                    "zipPostal": "27709-2195"
+                  },
+                  "smdgTerminal": "USEWR-PNCT",
+                  "geoCoord": {
+                    "latitude": 40.693351,
+                    "longitude": -74.147572
+                  },
+                  "splc": "191821",
+                  "gln": "1234567890123"
+                },
+                "transportPlanIssuanceTime8601": "string",
+                "terminal": {
+                  "unLocode": "NLRTM+11+RULED:139:6+PLP:72:306"
+                },
+                "terminalDescription": "Rotterdam, ZH, NL",
+                "eventPriority": 0
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

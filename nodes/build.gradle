@@ -1,0 +1,317 @@
+
+plugins {
+    id 'net.corda.plugins.cordapp' version "$corda_gradle_plugin_version"
+    id 'net.corda.plugins.cordformation' version "$corda_gradle_plugin_version"
+    id 'net.corda.plugins.quasar-utils' version "$corda_gradle_plugin_version"
+}
+
+jar {
+    // This makes the JAR's SHA-256 hash repeatable.
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDir rootProject.file("config/dev")
+        }
+    }
+}
+
+//Module dependencies
+dependencies {
+
+    // Corda dependencies.
+    cordaCompile "net.corda:corda-core:$corda_release_version"
+    cordaRuntime "net.corda:corda-node-api:$corda_release_version"
+    cordaRuntime "net.corda:corda:$corda_release_version"
+
+    // CorDapp dependencies.
+    cordapp project(":workflows")
+    cordapp project(":contracts")
+
+    cordaCompile "org.apache.logging.log4j:log4j-slf4j-impl:$log4j_version"
+    cordaCompile "org.apache.logging.log4j:log4j-web:$log4j_version"
+    cordaCompile "org.slf4j:jul-to-slf4j:$slf4j_version"
+}
+
+apply plugin: 'net.corda.plugins.cordapp'
+apply plugin: 'net.corda.plugins.cordformation'
+apply plugin: 'net.corda.plugins.quasar-utils'
+
+//Task to build the jar for ganache.
+task ganache {
+    subprojects {
+        if (it.project.name != "clients") {
+            dependsOn jar
+            doLast {
+                copy {
+                    from "${buildDir}/libs"
+                    into "${rootDir}/build/libs"
+                }
+            }
+        }
+    }
+}
+
+//Task to deploy a single node. Note that to use this node a notary node and any other nodes should be set up separately
+// and the additional-node-infos should be populated. Alternatively a network map service can be configured.
+task deploySingleNode(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
+    nodeDefaults {
+        projectCordapp {
+            deploy = false
+        }
+        cordapp project(':contracts')
+        cordapp project(':workflows')
+        runSchemaMigration = false
+    }
+    node {
+        name "O=SingleNode,L=TestCity,C=NL,OU=SN"
+        p2pAddress "localhost:10005"
+        rpcSettings {
+            address("localhost:10006")
+            adminAddress("localhost:10046")
+        }
+        rpcUsers = [[user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
+    }
+
+    doLast {
+        copy {
+            from 'workflows/src/main/resources/database.properties'
+            into "build/nodes/SingleNode_SN"
+        }
+    }
+}
+
+//Task to deploy the nodes in order to bootstrap a network
+task deployNodesForServers(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
+
+    /* This property will load the CorDapps to each of the node by default, including the Notary. You can find them
+     * in the cordapps folder of the node at build/nodes/Notary/cordapps. However, the notary doesn't really understand
+     * the notion of cordapps. In production, Notary does not need cordapps as well. This is just a short cut to load
+     * the Corda network bootstrapper.
+     */
+    nodeDefaults {
+        projectCordapp {
+            deploy = false
+        }
+        cordapp project(':contracts')
+        cordapp project(':workflows')
+        runSchemaMigration = false //This configuration is for any CorDapps with custom schema, We will leave this as true to avoid
+        //problems for developers who are not familiar with Corda. If you are not using custom schemas, you can change
+        //it to false for quicker project compiling time.
+    }
+    node {
+        name "O=Notary,L=Luxemburg,C=LU,OU=Notary"
+        notary = [validating: false]
+        p2pAddress "notary.basicdatasharinginfrastructure.net:10002"
+        rpcSettings {
+            address("localhost:10003")
+            adminAddress("localhost:10043")
+        }
+    }
+    node {
+        name "O=Netherlands,L=Soesterberg,C=NL,OU=MS"
+        p2pAddress "netherlands.basicdatasharinginfrastructure.net:10005"
+        rpcSettings {
+            address("localhost:10006")
+            adminAddress("localhost:10046")
+        }
+        rpcUsers = [[user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
+    }
+    node {
+        name "O=Planet Express,L=Den Haag,C=DE,OU=LSP"
+        p2pAddress "planetexpress.basicdatasharinginfrastructure.net:10008"
+        rpcSettings {
+            address("localhost:10009")
+            adminAddress("localhost:10049")
+        }
+        rpcUsers = [[user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
+    }
+    node {
+        name "O=Belgium,L=Brussels,C=BE,OU=MS"
+        p2pAddress "belgium.basicdatasharinginfrastructure.net:10011"
+        rpcSettings {
+            address("localhost:10012")
+            adminAddress("localhost:10052")
+        }
+        rpcUsers = [[user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
+    }
+
+    doLast {
+        copy {
+            from 'workflows/src/main/resources/database.properties'
+            into "build/nodes/Netherlands_MS"
+        }
+        copy {
+            from 'workflows/src/main/resources/database.properties'
+            into "build/nodes/Belgium_MS"
+        }
+        copy {
+            from 'workflows/src/main/resources/database.properties'
+            into "build/nodes/Notary_Notary"
+        }
+        copy {
+            from 'workflows/src/main/resources/database.properties'
+            into "build/nodes/PlanetExpress_LSP"
+        }
+    }
+}
+//Task to deploy the nodes in order to bootstrap a network
+task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
+
+    /* This property will load the CorDapps to each of the node by default, including the Notary. You can find them
+     * in the cordapps folder of the node at build/nodes/Notary/cordapps. However, the notary doesn't really understand
+     * the notion of cordapps. In production, Notary does not need cordapps as well. This is just a short cut to load
+     * the Corda network bootstrapper.
+     */
+    nodeDefaults {
+        projectCordapp {
+            deploy = false
+        }
+        cordapp project(':contracts')
+        cordapp project(':workflows')
+        runSchemaMigration = false //This configuration is for any CorDapps with custom schema, We will leave this as true to avoid
+        //problems for developers who are not familiar with Corda. If you are not using custom schemas, you can change
+        //it to false for quicker project compiling time.
+    }
+    node {
+        name "O=Notary,L=Luxemburg,C=LU,OU=Notary"
+        notary = [validating: false]
+        p2pAddress "localhost:10002"
+        rpcSettings {
+            address("localhost:10003")
+            adminAddress("localhost:10043")
+        }
+    }
+    node {
+        name "O=Netherlands,L=Soesterberg,C=NL,OU=MS"
+        p2pAddress "localhost:10005"
+        rpcSettings {
+            address("localhost:10006")
+            adminAddress("localhost:10046")
+        }
+        rpcUsers = [[user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
+    }
+    node {
+        name "O=Planet Express,L=Den Haag,C=DE,OU=LSP"
+        p2pAddress "localhost:10008"
+        rpcSettings {
+            address("localhost:10009")
+            adminAddress("localhost:10049")
+        }
+        rpcUsers = [[user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
+    }
+    node {
+        name "O=Belgium,L=Brussels,C=BE,OU=MS"
+        p2pAddress "localhost:10011"
+        rpcSettings {
+            address("localhost:10012")
+            adminAddress("localhost:10052")
+        }
+        rpcUsers = [[user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
+    }
+
+    doLast {
+        copy {
+            from 'workflows/src/main/resources/database.properties'
+            into "build/nodes/Netherlands_MS"
+        }
+        copy {
+            from 'workflows/src/main/resources/database.properties'
+            into "build/nodes/Belgium_MS"
+        }
+        copy {
+            from 'workflows/src/main/resources/database.properties'
+            into "build/nodes/Notary_Notary"
+        }
+        copy {
+            from 'workflows/src/main/resources/database.properties'
+            into "build/nodes/PlanetExpress_LSP"
+        }
+    }
+}
+//Task to deploy the nodes in order to bootstrap a network
+task deployNodesTL(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
+
+    /* This property will load the CorDapps to each of the node by default, including the Notary. You can find them
+     * in the cordapps folder of the node at build/nodes/Notary/cordapps. However, the notary doesn't really understand
+     * the notion of cordapps. In production, Notary does not need cordapps as well. This is just a short cut to load
+     * the Corda network bootstrapper.
+     */
+    nodeDefaults {
+        projectCordapp {
+            deploy = false
+        }
+        cordapp project(':contracts')
+        cordapp project(':workflows')
+        runSchemaMigration = false //This configuration is for any CorDapps with custom schema, We will leave this as true to avoid
+        //problems for developers who are not familiar with Corda. If you are not using custom schemas, you can change
+        //it to false for quicker project compiling time.
+    }
+    node {
+        name "O=Notary,L=Luxemburg,C=LU,OU=Notary"
+        notary = [validating: false]
+        p2pAddress "localhost:10002"
+        rpcSettings {
+            address("localhost:10003")
+            adminAddress("localhost:10043")
+        }
+    }
+    node {
+        name "O=Netherlands,L=Soesterberg,C=NL,OU=MS"
+        p2pAddress "localhost:10005"
+        rpcSettings {
+            address("localhost:10006")
+            adminAddress("localhost:10046")
+        }
+        rpcUsers = [[user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
+    }
+    node {
+        name "O=Planet Express,L=Den Haag,C=DE,OU=LSP"
+        p2pAddress "localhost:10008"
+        rpcSettings {
+            address("localhost:10009")
+            adminAddress("localhost:10049")
+        }
+        rpcUsers = [[user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
+    }
+    node {
+        name "O=Belgium,L=Brussels,C=BE,OU=MS"
+        p2pAddress "localhost:10011"
+        rpcSettings {
+            address("localhost:10012")
+            adminAddress("localhost:10052")
+        }
+        rpcUsers = [[user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
+    }
+
+    doLast {
+        copy {
+            from 'workflows/src/main/resources/database.properties'
+            into "build/nodes/Netherlands_MS"
+        }
+        copy {
+            from 'workflows/src/main/resources/database.properties'
+            into "build/nodes/Belgium_MS"
+        }
+        copy {
+            from 'workflows/src/main/resources/database.properties'
+            into "build/nodes/Notary_Notary"
+        }
+        copy {
+            from 'workflows/src/main/resources/database.properties'
+            into "build/nodes/PlanetExpress_LSP"
+        }
+    }
+}
+
+
+task installQuasar(type: Copy) {
+    destinationDir rootProject.file("lib")
+    from(configurations.quasar) {
+        rename 'quasar-core(.*).jar', 'quasar.jar'
+    }
+}
