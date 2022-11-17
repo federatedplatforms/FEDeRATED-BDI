@@ -4,10 +4,8 @@ plugins {
     id 'org.springframework.boot' version "$spring_boot_version"
 }
 
-apply plugin: 'org.springframework.boot'
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-allopen'
-apply plugin: 'org.jetbrains.kotlin.plugin.spring'
 apply plugin: 'io.spring.dependency-management'
 
 group = "nl.tno.semantic.adapter"
@@ -18,12 +16,12 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("be.ugent.rml:rmlmapper:6.0.0") {
+    implementation("be.ugent.rml:rmlmapper") {
         exclude group: "org.apache.jena"
     }
-    implementation("org.apache.jena:apache-jena-libs:3.8.0")
-    implementation "io.springfox:springfox-swagger2:$springfox_version"
-    implementation "io.springfox:springfox-swagger-ui:$springfox_version"
+    implementation("org.apache.jena:apache-jena-libs")
+    implementation "io.springfox:springfox-swagger2"
+    implementation "io.springfox:springfox-swagger-ui"
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 

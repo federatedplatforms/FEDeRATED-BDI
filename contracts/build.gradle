@@ -4,7 +4,6 @@ plugins {
 }
 
 apply plugin: 'kotlin'
-apply plugin: 'net.corda.plugins.cordapp'
 
 cordapp {
     targetPlatformVersion corda_platform_version
@@ -17,30 +16,6 @@ cordapp {
     }
 }
 
-configurations.all {
-    resolutionStrategy {
-        // fail eagerly on version conflict (includes transitive dependencies)
-        // e.g. multiple different versions of the same dependency (group and name are equal)
-        failOnVersionConflict()
-
-        // prefer modules that are part of this build (multi-project or composite build) over external modules
-        preferProjectModules()
-
-        // force certain versions of dependencies (including transitive)
-        //  *append new forced modules:
-        force "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-        force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-        force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-        force "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-        force "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
-        force "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-
-        force "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
-        force "net.corda:corda-core:$corda_release_version"
-        force "net.corda:corda-node-driver:$corda_release_version"
-    }
-}
-
 dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin"
     cordaCompile "net.corda:corda-core"
@@ -49,14 +24,10 @@ dependencies {
     testImplementation "net.corda:corda-node-driver"
 }
 
-jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
     kotlinOptions {
-        languageVersion = "1.2"
-        apiVersion = "1.2"
+        languageVersion = "1.2" // corda 4.9 supports kotlin 1.2.71
+        apiVersion = "1.2" // corda 4.9 supports kotlin 1.2.71
         jvmTarget = "1.8"
         javaParameters = true   // Useful for reflection.
     }
