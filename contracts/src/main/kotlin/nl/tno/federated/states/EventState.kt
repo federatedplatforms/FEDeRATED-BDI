@@ -34,6 +34,7 @@ data class Timestamp (
         val type: EventType
         )
 
+@CordaSerializable
 data class Event(
     val goods: Set<UUID>,
     val transportMean: Set<UUID>,
