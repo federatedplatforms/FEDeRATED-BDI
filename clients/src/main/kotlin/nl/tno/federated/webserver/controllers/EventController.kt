@@ -6,8 +6,8 @@ import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.flows.GeneralSPARQLqueryFlow
 import nl.tno.federated.flows.NewEventFlow
+import nl.tno.federated.flows.ParseRDFFlow
 import nl.tno.federated.flows.QueryGraphDBbyIdFlow
-import nl.tno.federated.services.IGraphDBService
 import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
 import nl.tno.federated.webserver.L1Services
@@ -29,8 +29,7 @@ import java.util.*
 class EventController(
     private val rpc: NodeRPCConnection,
     private val l1service: L1Services,
-    private val semanticAdapterService: SemanticAdapterService,
-    private val graphDBService: IGraphDBService
+    private val semanticAdapterService: SemanticAdapterService
 ) {
 
     private val log = LoggerFactory.getLogger(EventController::class.java)
@@ -119,6 +118,9 @@ class EventController(
         return ResponseEntity("Query result: $gdbQuery", HttpStatus.ACCEPTED)
     }
 
-    private fun eventStatesToEventMap(eventStates: List<EventState>) =
-        eventStates.associate { it.linearId.id to graphDBService.parseRDFToEvents(it.fullEvent) }
+    private fun eventStatesToEventMap(eventStates: List<EventState>): Map<UUID, List<Event>> {
+        return eventStates.associate { val parseRDFToEvents = rpc.client().startFlowDynamic(ParseRDFFlow::class.java, it.fullEvent).returnValue.get()
+            it.linearId.id to parseRDFToEvents
+        }
+    }
 }
