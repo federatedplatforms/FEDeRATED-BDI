@@ -236,7 +236,7 @@ docker run -ti \
  -v /path-to-node-folder/network-parameters:/opt/corda/network-parameters \
  -p 10012:10200 \
  -p 10201:10201 \
- corda/corda-zulu-java1.8-4.5.8:latest
+ corda/community:4.9.3-zulu-openjdk8
 ```
 Make sure the local paths and ports are correct.
 
