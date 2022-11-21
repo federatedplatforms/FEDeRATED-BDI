@@ -58,7 +58,7 @@ class EventControllerTest {
             set(HttpHeaders.AUTHORIZATION, "Bearer doitanyway")
         }
 
-        val response = testRestTemplate.postForEntity("/events/NL", HttpEntity(body, headers), String::class.java)
+        val response = testRestTemplate.postForEntity("/events/TNO/Soesterberg/NL", HttpEntity(body, headers), String::class.java)
 
         assertEquals(HttpStatus.CREATED, response.statusCode)
         assertTrue("Response body should contain UUID returned from NewEvent flow", response.body!!.contains(uuid.toString()))
@@ -108,7 +108,7 @@ class EventControllerTest {
             set(HttpHeaders.AUTHORIZATION, "Bearer wontwork")
         }
 
-        val response = testRestTemplate.postForEntity("/events/NL", HttpEntity("bla", headers), String::class.java)
+        val response = testRestTemplate.postForEntity("/events/TNO/Soesterberg/NL", HttpEntity("bla", headers), String::class.java)
 
         assertEquals(HttpStatus.FORBIDDEN, response.statusCode)
     }
