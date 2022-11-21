@@ -65,6 +65,44 @@ class EventControllerTest {
     }
 
     @Test
+    fun generateRandomEventNoFlow() {
+
+        val headers = HttpHeaders().apply {
+            set(HttpHeaders.AUTHORIZATION, "Bearer doitanyway")
+        }
+
+        val response = testRestTemplate.postForEntity("/events/random/NL?start-flow=false&number-events=1", HttpEntity("", headers), String::class.java)
+
+        assertEquals(HttpStatus.CREATED, response.statusCode)
+        assertTrue("Response body should contain UUID returned from NewEvent flow", response.body!!.contains("Event:Event"))
+    }
+
+    @Test
+    fun generateRandomEventWithFlow() {
+        val client = mockk<CordaRPCOps>()
+        val flowHandle = mockk<FlowHandle<SignedTransaction>>()
+        val uuid = UUID.randomUUID()
+
+        whenever(rpc.client()).thenReturn(client) // return mockk mock which is more flexible than mockito
+
+        every {
+            (flowHandle.returnValue.get().coreTransaction.getOutput(0) as EventState).linearId.id
+        }.returns(uuid)
+
+        every { client.startFlowDynamic(NewEventFlow::class.java, *anyVararg()) }.returns(flowHandle)
+
+
+        val headers = HttpHeaders().apply {
+            set(HttpHeaders.AUTHORIZATION, "Bearer doitanyway")
+        }
+
+        val response = testRestTemplate.postForEntity("/events/random/NL?start-flow=true&number-events=1", HttpEntity("", headers), String::class.java)
+
+        assertEquals(HttpStatus.CREATED, response.statusCode)
+        assertTrue("Response body should contain UUID returned from NewEvent flow", response.body!!.contains(uuid.toString()))
+    }
+
+    @Test
     fun newEventIncorrectAuthorizationHeader() {
         val headers = HttpHeaders().apply {
             set(HttpHeaders.AUTHORIZATION, "Bearer wontwork")

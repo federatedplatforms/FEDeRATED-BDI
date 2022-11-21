@@ -18,26 +18,7 @@ data class GeneratedTTL(val constructedTTL: String,
 
 class TTLRandomGenerator {
 
-    val prefixes = """
-        @base <http://example.com/base/> . 
-        @prefix : <https://ontology.tno.nl/logistics/federated/Event#> .
-        @prefix pi: <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#> . 
-        @prefix classifications: <https://ontology.tno.nl/logistics/federated/Classifications#> . 
-        @prefix dcterms: <http://purl.org/dc/terms/> . 
-        @prefix LogisticsRoles: <https://ontology.tno.nl/logistics/federated/LogisticsRoles#> . 
-        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . 
-        @prefix owl: <http://www.w3.org/2002/07/owl#> . 
-        @prefix Event: <https://ontology.tno.nl/logistics/federated/Event#> . 
-        @prefix ReusableTags: <https://ontology.tno.nl/logistics/federated/ReusableTags#> .
-        @prefix businessService: <https://ontology.tno.nl/logistics/federated/BusinessService#> . 
-        @prefix DigitalTwin: <https://ontology.tno.nl/logistics/federated/DigitalTwin#> . 
-        @prefix skos: <http://www.w3.org/2004/02/skos/core#> . 
-        @prefix xsd: <http://www.w3.org/2001/XMLSchema#> . 
-        @prefix ex: <http://example.com/base#> . 
-        @prefix time: <http://www.w3.org/2006/time#> . 
-        @prefix dc: <http://purl.org/dc/elements/1.1/> . 
-        @prefix era: <http://era.europa.eu/ns#> .  
-    """
+    val prefixes = PrefixHandlerTTLGenerator.getPrefixesTTLGenerator()
 
     fun generateRandomEvents(numberEvents: Int = 4): GeneratedTTL {
 
@@ -45,10 +26,12 @@ class TTLRandomGenerator {
 
         val (generatedEquipment, generatedEquipmentEntry) = generateEquipment()
 
+        val (generatedPIname, generatedPIentry) = generatePhysicalInfrstructure()
+
         val (generatedBusinessTransaction, generatedBusinessTransactionEntry) =
                 generateBusinessTransaction(generatedLegalPerson)
 
-        var constructedTTL = prefixes + generatedLegalPersonEntry + generatedEquipmentEntry + generatedBusinessTransactionEntry
+        var constructedTTL = prefixes + generatedLegalPersonEntry + generatedEquipmentEntry + generatedBusinessTransactionEntry + generatedPIentry
 
         val eventIdentifiers = arrayListOf<String>()
 
@@ -67,7 +50,7 @@ class TTLRandomGenerator {
         for (i in 0 until numberEvents) {
             constructedTTL = "$constructedTTL ${digitalTwinTransportMeansEntry[i]}"
             val (eventIdentifier, generatedEventEntry) = generateEvent(digitalTwinTransportMeansIdentifiers[i],
-                    generatedBusinessTransaction, generatedEquipment, i%2)
+                    generatedBusinessTransaction, generatedEquipment, generatedPIname, i%2)
             eventIdentifiers.add(eventIdentifier)
             generatedEventsEntries.add(generatedEventEntry)
             constructedTTL = "$constructedTTL ${generatedEventsEntries[i]}"
@@ -85,11 +68,11 @@ class TTLRandomGenerator {
 
     private fun generateDigitalTwinTransportMeans(transportMeansIdentifier: Int): Pair<String, String> {
         val digitalTwinIdentifier = UUID.randomUUID().toString()
-        return Pair("DigitalTwin-$digitalTwinIdentifier", """
-        ex:DigitalTwin-$digitalTwinIdentifier a DigitalTwin:TransportMeans, owl:NamedIndividual, DigitalTwin:Vessel;
+        return Pair("dt-$digitalTwinIdentifier", """
+        ex:dt-$digitalTwinIdentifier a dt:TransportMeans, owl:NamedIndividual, dt:Vessel;
           rdfs:label "Vessel";
-          DigitalTwin:hasVIN "$transportMeansIdentifier";
-          DigitalTwin:hasTransportMeansID "$transportMeansIdentifier" .
+          dt:hasVIN "$transportMeansIdentifier";
+          dt:hasTransportMeansID "$transportMeansIdentifier" .
             """)
     }
 
@@ -115,10 +98,20 @@ class TTLRandomGenerator {
             """)
     }
 
+    private fun generatePhysicalInfrstructure(): Pair<String, String> {
+        // generate random 5-char physical infrastucture name
+        val charPool = ('A'..'Z')
+        val piName = charPool.random(5)
+
+        return Pair(piName,"""
+        ex:PhysicalInfrastructure-$piName a pi:Location, owl:NamedIndividual.
+        """)
+    }
+
     private fun generateEquipment(): Pair<String, String> {
         val equipmentIdentifier = UUID.randomUUID().toString()
         return Pair(equipmentIdentifier, """
-        ex:Equipment-$equipmentIdentifier a DigitalTwin:Equipment, owl:NamedIndividual;
+        ex:Equipment-$equipmentIdentifier a dt:Equipment, owl:NamedIndividual;
           rdfs:label "TNO-test092022" .
             """)
     }
@@ -179,7 +172,7 @@ class TTLRandomGenerator {
     // string 1: identifier, string 2: entry for TTL
     private fun generateEvent(digitalTwinIdentifier: String,
                               generatedBusinessTransaction: String, generatedEquipment: String,
-                              milestonePosition: Int): Pair<String, String> {
+                              piName: String, milestonePosition: Int): Pair<String, String> {
         val generatedEventIdentifier = UUID.randomUUID().toString()
         val (hasTimestamp, hasSubmissionTimestamp) = generateTimestamps()
         val generatedEventEntry = """
@@ -188,6 +181,7 @@ class TTLRandomGenerator {
           Event:hasDateTimeType Event:${generateDateTimeType()};
           Event:involvesDigitalTwin ex:$digitalTwinIdentifier, ex:Equipment-$generatedEquipment;
           Event:involvesBusinessTransaction ex:businessTransaction-$generatedBusinessTransaction;
+          Event:involvesPhysicalInfrastructure ex:PhysicalInfrastructure-$piName;
           Event:hasMilestone Event:${generateHasMilestone(milestonePosition)};
           $hasSubmissionTimestamp
             """

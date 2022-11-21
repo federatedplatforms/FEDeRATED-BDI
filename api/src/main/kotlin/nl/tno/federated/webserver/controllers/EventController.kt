@@ -8,6 +8,7 @@ import nl.tno.federated.flows.GeneralSPARQLqueryFlow
 import nl.tno.federated.flows.NewEventFlow
 import nl.tno.federated.flows.ParseRDFFlow
 import nl.tno.federated.flows.QueryGraphDBbyIdFlow
+import nl.tno.federated.services.TTLRandomGenerator
 import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
 import nl.tno.federated.webserver.L1Services
@@ -34,10 +35,31 @@ class EventController(
 
     private val log = LoggerFactory.getLogger(EventController::class.java)
 
-    @ApiOperation(value = "Create a new event")
-    @PostMapping(value = ["/"])
-    fun newEvent(@RequestBody event: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
-        return newEvent(event, null, authorizationHeader)
+    private val eventGenerator = TTLRandomGenerator()
+
+    @ApiOperation(value = "Generate a new random event")
+    @PostMapping(value = ["/random/{destination}"])
+    fun generateRandomEvent(@RequestHeader("Authorization") authorizationHeader: String, @RequestParam("start-flow") startFlow: String, @RequestParam("number-events") numberEvents: String): ResponseEntity<String> {
+        // 1. check if number of events is a correct integer
+        numberEvents.toIntOrNull() ?: return ResponseEntity("number-events was incorrectly specified", HttpStatus.BAD_REQUEST)
+
+        // 2. interpret the startFlow as boolean
+        return if (startFlow.ToBooleanOrNull() == null) {
+            ResponseEntity("start-flow was incorrectly specified", HttpStatus.BAD_REQUEST)
+        } else {
+            // 3. generate the random event
+            val generatedTTL = eventGenerator.generateRandomEvents(numberEvents.toInt())
+
+            // 4. check if needed to start a new event flow
+            if (startFlow.ToBooleanOrNull() == true) {
+                newEvent(generatedTTL.constructedTTL, null, authorizationHeader)
+            } else {
+                ResponseEntity("Event created: ${generatedTTL.constructedTTL}", HttpStatus.CREATED)
+            }
+        }
+        // escape call if everything goes wrong
+        return ResponseEntity("Error caused by unknown reasons please report back the reqeust parameters: start flow = $startFlow, number of events = $numberEvents", HttpStatus.BAD_REQUEST)
+
     }
 
     @ApiOperation(value = "Create a new event and returns the UUID of the newly created event.")
@@ -122,5 +144,11 @@ class EventController(
         return eventStates.associate { val parseRDFToEvents = rpc.client().startFlowDynamic(ParseRDFFlow::class.java, it.fullEvent).returnValue.get()
             it.linearId.id to parseRDFToEvents
         }
+    }
+
+    private fun String.ToBooleanOrNull(): Boolean? {
+        if ((this.toLowerCase() != "true") && (this.toLowerCase() != "false")) return null
+
+        return this.toBoolean()
     }
 }
