@@ -91,11 +91,10 @@ class GraphDBService : IGraphDBService {
 
     override fun queryEventIds(): String {
         val sparql = """
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX Event: <https://ontology.tno.nl/logistics/federated/event#>
-            SELECT ?x WHERE {
-              ?x a Event:Event
-            }         
+            ${PrefixHandlerQueries.getPrefixesEvent()}
+            select ?s where { 
+                ?s a Event:Event
+            }   
         """.trimIndent()
         return performSparql(sparql) ?: ""
     }
@@ -110,7 +109,7 @@ class GraphDBService : IGraphDBService {
         assertSPARQLInput(id)
 
         val sparql = """
-            PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
+            ${PrefixHandlerQueries.getPrefixesEvent()}
             select ?s where {
             ?s a Event:Event .
             FILTER regex (STR(?s), "$id")
@@ -121,15 +120,15 @@ class GraphDBService : IGraphDBService {
 
     override fun queryAllEventPropertiesById(id: String): String {
         val sparql = """
-            PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
-            PREFIX DigitalTwin: <https://ontology.tno.nl/logistics/federated/DigitalTwin#>
+            ${PrefixHandlerQueries.getPrefixesEvent()}
+            ${PrefixHandlerQueries.getPrefixesDigitalTwin()}
             SELECT DISTINCT ?subject ?object ?object1 ?object2
 	        WHERE {
                 ?subject a Event:Event .
                 ?subject Event:involvesBusinessTransaction ?object .
                 ?subject Event:involvesDigitalTwin ?object1, ?object2 .
-                ?object1 a DigitalTwin:Equipment .
-                ?object2 a DigitalTwin:TransportMeans .
+                ?object1 a dt:Equipment .
+                ?object2 a dt:TransportMeans .
                 FILTER regex (STR(?subject), "$id")
             }
             """.trimIndent()
@@ -138,17 +137,13 @@ class GraphDBService : IGraphDBService {
 
     override fun queryEventComponent(id: String): String {
         val sparql = """
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
-            PREFIX ex: <http://example.com/base#>
-            PREFIX businessService: <https://ontology.tno.nl/logistics/federated/BusinessService#>
+            ${PrefixHandlerQueries.getPrefixesSemanticElements()}
             SELECT ?subject
             WHERE {
                 ?subject a owl:NamedIndividual
-                FILTER (?subject = ex:$id)
+                FILTER regex (STR(?subject), "$id")
             }
             """.trimIndent()
-        return performSparql(sparql) ?: ""
         return performSparql(sparql) ?: ""
     }
 
@@ -244,7 +239,7 @@ class GraphDBService : IGraphDBService {
         }
     }
 
-    fun uploadFile(filename: String): Boolean {
+    private fun uploadFile(filename: String): Boolean {
         val graph = getResourceFromClassPath(filename).toPath().toFile()
         log.info("Uploading file $filename")
         val httpPost = HttpPost(URL("${getGraphDBBaseUri()}/rest/repositories/bdi/import/upload/update/file").toURI())
@@ -296,7 +291,7 @@ class GraphDBService : IGraphDBService {
         return false
     }
 
-    fun importFile(filename: String, context: String): Boolean {
+    private fun importFile(filename: String, context: String): Boolean {
         log.info("Importing $filename")
         val httpPost = HttpPost(URL("${getGraphDBBaseUri()}/rest/repositories/bdi/import/upload/file").toURI())
         val textBody = """
@@ -341,6 +336,20 @@ class GraphDBService : IGraphDBService {
         }
 
         return false
+    }
+
+    fun areGraphFilesImported(): Boolean {
+        val getResponse = client.get(URL("${getGraphDBBaseUri()}/rest/repositories/bdi/import/upload").toURI())!!
+        val body = getResponse.entity.contentAsString
+
+        val mapper = jacksonObjectMapper().readTree(body)
+
+        if (!mapper.elements().hasNext()) return false
+
+        val statusGraphFileFirst = mapper[0]["status"].asText()
+        val statusGraphFileSecond = mapper[1]["status"].asText()
+
+        return ((statusGraphFileFirst == "DONE") && (statusGraphFileSecond == "DONE"))
     }
 
     private fun getInputStreamFromClassPathResource(filename: String): InputStream? {

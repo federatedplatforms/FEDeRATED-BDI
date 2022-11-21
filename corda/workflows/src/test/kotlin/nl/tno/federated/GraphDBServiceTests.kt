@@ -1,13 +1,20 @@
 package nl.tno.federated
 
 import com.google.common.collect.testing.Helpers.assertContainsAllOf
+import net.corda.core.internal.randomOrNull
 import nl.tno.federated.services.GraphDBService
+import nl.tno.federated.services.PrefixHandlerTTLGenerator
+import nl.tno.federated.services.TTLRandomGenerator
+import nl.tno.federated.states.EventType
+import nl.tno.federated.states.Milestone
 import org.junit.Assert.assertFalse
 import org.junit.BeforeClass
 import org.junit.Ignore
 import org.junit.Test
+import org.testcontainers.shaded.org.awaitility.Awaitility.await
 import java.io.File
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 
 
@@ -17,9 +24,10 @@ import kotlin.test.assertEquals
 class GraphDBServiceTests : GraphDBTestContainersSupport() {
 
     companion object {
-
         private val invalidSampleTTL = File("src/test/resources/SHACL_FAIL - TradelensEvents_ArrivalDeparture.ttl").readText()
-        private val validSampleTtl = File("src/test/resources/correct-event.ttl").readText()
+        private val generatedTTL = TTLRandomGenerator().generateRandomEvents()
+        private val validSampleTtl = generatedTTL.constructedTTL
+        private val eventPool = generatedTTL.eventIdentifiers
         private val graphdb = GraphDBService()
 
         @JvmStatic
@@ -32,75 +40,68 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
             // 1. Create repositories
             graphdb.createRemoteRepositoryFromConfig("bdi-repository-config.ttl")
             graphdb.createRemoteRepositoryFromConfig("private-repository-config.ttl")
-            // 2. Insert data
+
+            // 2. Import graph files
+            graphdb.importGraphFile("federated-shacl.zip", "http://rdf4j.org/schema/rdf4j#SHACLShapeGraph")
+
+            graphdb.importGraphFile("ontologies.zip", "")
+
+            await().atMost(10, TimeUnit.SECONDS).until { graphdb.areGraphFilesImported() }
+
+            // 3. Insert data
             graphdb.insertEvent(validSampleTtl, false)
         }
     }
 
     @Test
     fun `Query everything`() {
-        val weKnowEvent = graphdb.queryEventById("b0efeca7-7b33-4d4e-8a5e-1d33b75a3e19")
-        assertFalse(graphdb.isQueryResultEmpty(weKnowEvent))
+        val everythingQueryResult = graphdb.queryEventIds()
+        assertFalse(graphdb.isQueryResultEmpty(everythingQueryResult))
     }
 
     @Test
     fun `Query event by ID`() {
-        val result = graphdb.queryEventById("b0efeca7-7b33-4d4e-8a5e-1d33b75a3e19")
+        val randomEvent = eventPool.randomOrNull()!!
+        val result = graphdb.queryEventById(randomEvent)
         assertFalse(graphdb.isQueryResultEmpty(result))
     }
+
 
     @Test
     fun `Parse event - 1`() {
         val testRdfEvent = """
-            @base <http://example.com/base/> . 
-            @prefix : <https://ontology.tno.nl/logistics/federated/Event#> .
-            @prefix pi: <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#> . 
-            @prefix classifications: <https://ontology.tno.nl/logistics/federated/Classifications#> . 
-            @prefix dcterms: <http://purl.org/dc/terms/> . 
-            @prefix LogisticsRoles: <https://ontology.tno.nl/logistics/federated/LogisticsRoles#> . 
-            @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . 
-            @prefix owl: <http://www.w3.org/2002/07/owl#> . 
-            @prefix Event: <https://ontology.tno.nl/logistics/federated/Event#> . 
-            @prefix ReusableTags: <https://ontology.tno.nl/logistics/federated/ReusableTags#> .
-            @prefix businessService: <https://ontology.tno.nl/logistics/federated/BusinessService#> . 
-            @prefix DigitalTwin: <https://ontology.tno.nl/logistics/federated/DigitalTwin#> . 
-            @prefix skos: <http://www.w3.org/2004/02/skos/core#> . 
-            @prefix xsd: <http://www.w3.org/2001/XMLSchema#> . 
-            @prefix ex: <http://example.com/base#> . 
-            @prefix time: <http://www.w3.org/2006/time#> . 
-            @prefix dc: <http://purl.org/dc/elements/1.1/> . 
-            @prefix era: <http://era.europa.eu/ns#> .  
-            :Event-5edc2423-d258-4002-8d6c-9fb3b1f6ff9a a Event:Event, owl:NamedIndividual;
+            ${PrefixHandlerTTLGenerator.getPrefixesTTLGenerator()}
+            ex:Event-5edc2423-d258-4002-8d6c-9fb3b1f6ff9a a Event:Event, owl:NamedIndividual;
               rdfs:label "GateOut", "Planned gate out";
               Event:hasTimestamp "2020-01-25T18:00:00Z"^^xsd:dateTime;
               Event:hasDateTimeType Event:Planned;
-              Event:involvesDigitalTwin :DigitalTwin-5edc2423-d258-4002-8d6c-9fb3b1f6ff9a, :DigitalTwin-6c7edb9c-cfee-4b0c-998d-435cca8eeb39;
-              Event:involvesBusinessTransaction :businessTransaction-6c7edb9c-cfee-4b0c-998d-435cca8eeb39;
-              Event:involvesPhysicalInfrastructure :physicalInfrastructure-BEDEU01;
+              Event:involvesDigitalTwin ex:dt-5edc2423-d258-4002-8d6c-9fb3b1f6ff9a, ex:dt-6c7edb9c-cfee-4b0c-998d-435cca8eeb39;
+              Event:involvesBusinessTransaction Event:businessTransaction-6c7edb9c-cfee-4b0c-998d-435cca8eeb39;
+              Event:involvesPhysicalInfrastructure Event:physicalInfrastructure-BEDEU01;
               Event:hasMilestone Event:End;
               Event:hasSubmissionTimestamp "2020-01-21T14:24:36"^^xsd:dateTime .
             
-            :DigitalTwin-5edc2423-d258-4002-8d6c-9fb3b1f6ff9a a DigitalTwin:TransportMeans,
+            ex:dt-5edc2423-d258-4002-8d6c-9fb3b1f6ff9a a dt:TransportMeans,
                 owl:NamedIndividual .
             
-            :businessTransaction-6c7edb9c-cfee-4b0c-998d-435cca8eeb39 a businessService:Consignment,
+            ex:businessTransaction-6c7edb9c-cfee-4b0c-998d-435cca8eeb39 a businessService:Consignment,
                 owl:NamedIndividual;
               businessService:consignmentCreationTime "2021-05-13T21:23:04"^^xsd:dateTime;
-              businessService:involvedActor :LegalPerson-Maersk .
+              businessService:involvedActor ex:LegalPerson-Maersk .
             
-            :LegalPerson-Maersk a businessService:LegalPerson, owl:NamedIndividual, businessService:PrivateEnterprise;
+            ex:LegalPerson-Maersk a businessService:LegalPerson, owl:NamedIndividual, businessService:PrivateEnterprise;
               businessService:actorName "Maersk" .
             
-            :physicalInfrastructure-BEDEU01 a pi:Terminal, pi:LogisticalFunction, owl:NamedIndividual;
+            ex:physicalInfrastructure-BEDEU01 a pi:Terminal, pi:LogisticalFunction, owl:NamedIndividual;
               rdfs:label "BEDEU01";
-              pi:locatedAt :Location-BEDEG .
+              pi:locatedAt pi:Location-BEDEG .
             
-            :Location-BEDEG a pi:Location, owl:NamedIndividual;
+            ex:Location-BEDEG a pi:Location, owl:NamedIndividual;
               pi:cityName "Deurne, BE";
               pi:cityLoCode "BEDEG" .
             
-            :DigitalTwin-6c7edb9c-cfee-4b0c-998d-435cca8eeb39 a DigitalTwin:Equipment, owl:NamedIndividual;
-              DigitalTwin:containerID "XINU4010266" .
+            ex:dt-6c7edb9c-cfee-4b0c-998d-435cca8eeb39 a dt:Equipment, owl:NamedIndividual;
+              dt:containerID "XINU4010266" .
 
             """.trimIndent()
         val parsedEvents = graphdb.parseRDFToEvents(testRdfEvent)
@@ -111,45 +112,34 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
         assertEquals("5edc2423-d258-4002-8d6c-9fb3b1f6ff9a", parsedEvent.transportMean.single().toString())
 
         assertEquals("BEDEU01", parsedEvent.location.single().toString())
+
+        assertEquals(EventType.PLANNED, parsedEvent.timestamps.single().type)
+
+        assertEquals(1579975200000, parsedEvent.timestamps.single().time.time)
+        assertEquals(Milestone.END, parsedEvent.milestone)
+        assertEquals("5edc2423-d258-4002-8d6c-9fb3b1f6ff9a", parsedEvent.timestamps.single().id)
     }
 
     @Test
     fun `Parse event - 2`() {
         val testRdfEvent = """
-                        @base <http://example.com/base/> . 
-                        @prefix : <https://ontology.tno.nl/logistics/federated/Event#> .
-                        @prefix pi: <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#> . 
-                        @prefix classifications: <https://ontology.tno.nl/logistics/federated/Classifications#> . 
-                        @prefix dcterms: <http://purl.org/dc/terms/> . 
-                        @prefix LogisticsRoles: <https://ontology.tno.nl/logistics/federated/LogisticsRoles#> . 
-                        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . 
-                        @prefix owl: <http://www.w3.org/2002/07/owl#> . 
-                        @prefix Event: <https://ontology.tno.nl/logistics/federated/Event#> . 
-                        @prefix ReusableTags: <https://ontology.tno.nl/logistics/federated/ReusableTags#> .
-                        @prefix businessService: <https://ontology.tno.nl/logistics/federated/BusinessService#> . 
-                        @prefix DigitalTwin: <https://ontology.tno.nl/logistics/federated/DigitalTwin#> . 
-                        @prefix skos: <http://www.w3.org/2004/02/skos/core#> . 
-                        @prefix xsd: <http://www.w3.org/2001/XMLSchema#> . 
-                        @prefix ex: <http://example.com/base#> . 
-                        @prefix time: <http://www.w3.org/2006/time#> . 
-                        @prefix dc: <http://purl.org/dc/elements/1.1/> . 
-                        @prefix era: <http://era.europa.eu/ns#> .  
-            :Event-0c1e0ed5-636c-48b2-8f52-542e6f4d156a a Event:Event, owl:NamedIndividual;
+        ${PrefixHandlerTTLGenerator.getPrefixesTTLGenerator()}
+            ex:Event-0c1e0ed5-636c-48b2-8f52-542e6f4d156a a Event:Event, owl:NamedIndividual;
               rdfs:label "GateIn", "Planned gate in";
               Event:hasTimestamp "2020-01-25T22:00:00Z"^^xsd:dateTime;
               Event:hasDateTimeType Event:Planned;
-              Event:involvesDigitalTwin :DigitalTwin-0c1e0ed5-636c-48b2-8f52-542e6f4d156a, :DigitalTwin-6c7edb9c-cfee-4b0c-998d-435cca8eeb39;
-              Event:involvesBusinessTransaction :businessTransaction-6c7edb9c-cfee-4b0c-998d-435cca8eeb39;
-              Event:involvesPhysicalInfrastructure :physicalInfrastructure-BEANTMP;
+              Event:involvesDigitalTwin ex:dt-0c1e0ed5-636c-48b2-8f52-542e6f4d156a, ex:dt-6c7edb9c-cfee-4b0c-998d-435cca8eeb39;
+              Event:involvesBusinessTransaction ex:businessTransaction-6c7edb9c-cfee-4b0c-998d-435cca8eeb39;
+              Event:involvesPhysicalInfrastructure ex:physicalInfrastructure-BEANTMP;
               Event:hasMilestone Event:Start;
               Event:hasSubmissionTimestamp "2020-01-21T14:24:39Z"^^xsd:dateTime .
             
-            :DigitalTwin-0c1e0ed5-636c-48b2-8f52-542e6f4d156a a DigitalTwin:TransportMeans,
+            ex:dt-0c1e0ed5-636c-48b2-8f52-542e6f4d156a a dt:TransportMeans,
                 owl:NamedIndividual .
             
-            :physicalInfrastructure-BEANTMP a pi:Terminal, pi:LogisticalFunction, owl:NamedIndividual;
+            ex:physicalInfrastructure-BEANTMP a pi:Terminal, pi:LogisticalFunction, owl:NamedIndividual;
               rdfs:label "BEANTMP";
-              pi:locatedAt :Location-BEANR .
+              pi:locatedAt pi:Location-BEANR .
             """.trimIndent()
 
         val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).first()
@@ -162,32 +152,15 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
     @Test
     fun `Parse event - 3`() {
         val testRdfEvent = """
-                        @base <http://example.com/base/> . 
-                        @prefix : <https://ontology.tno.nl/logistics/federated/Event#> .
-                        @prefix pi: <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#> . 
-                        @prefix classifications: <https://ontology.tno.nl/logistics/federated/Classifications#> . 
-                        @prefix dcterms: <http://purl.org/dc/terms/> . 
-                        @prefix LogisticsRoles: <https://ontology.tno.nl/logistics/federated/LogisticsRoles#> . 
-                        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . 
-                        @prefix owl: <http://www.w3.org/2002/07/owl#> . 
-                        @prefix Event: <https://ontology.tno.nl/logistics/federated/Event#> . 
-                        @prefix ReusableTags: <https://ontology.tno.nl/logistics/federated/ReusableTags#> .
-                        @prefix businessService: <https://ontology.tno.nl/logistics/federated/BusinessService#> . 
-                        @prefix DigitalTwin: <https://ontology.tno.nl/logistics/federated/DigitalTwin#> . 
-                        @prefix skos: <http://www.w3.org/2004/02/skos/core#> . 
-                        @prefix xsd: <http://www.w3.org/2001/XMLSchema#> . 
-                        @prefix ex: <http://example.com/base#> . 
-                        @prefix time: <http://www.w3.org/2006/time#> . 
-                        @prefix dc: <http://purl.org/dc/elements/1.1/> . 
-                        @prefix era: <http://era.europa.eu/ns#> .  
-            :Event-5b856159-4788-11ec-a78e-5c879c8043a4 a Event:Event, Event:ArrivalEvent;
+            ${PrefixHandlerTTLGenerator.getPrefixesTTLGenerator()} 
+            ex:Event-5b856159-4788-11ec-a78e-5c879c8043a4 a Event:Event, Event:ArrivalEvent;
                 Event:hasMilestone Event:Start;
                 Event:hasDateTimeType Event:Actual;
                 Event:hasTimestamp "2021-11-10T08:44:07Z"^^xsd:dateTime;
-                Event:involvesDigitalTwin :DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a;
-                Event:involvesPhysicalInfrastructure :PhysicalInfrastructure-b4d51938-5ae5-330d-af2e-a198dd2c16ab.
+                Event:involvesDigitalTwin ex:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a;
+                Event:involvesPhysicalInfrastructure ex:PhysicalInfrastructure-b4d51938-5ae5-330d-af2e-a198dd2c16ab.
             
-            :DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a a DigitalTwin:TransportMeans.
+            ex:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a a dt:TransportMeans.
             """.trimIndent()
 
         val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).first()
@@ -200,33 +173,16 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
     @Test
     fun `Parse event - 4`() {
         val testRdfEvent = """
-                        @base <http://example.com/base/> . 
-                        @prefix : <https://ontology.tno.nl/logistics/federated/Event#> .
-                        @prefix pi: <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#> . 
-                        @prefix classifications: <https://ontology.tno.nl/logistics/federated/Classifications#> . 
-                        @prefix dcterms: <http://purl.org/dc/terms/> . 
-                        @prefix LogisticsRoles: <https://ontology.tno.nl/logistics/federated/LogisticsRoles#> . 
-                        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . 
-                        @prefix owl: <http://www.w3.org/2002/07/owl#> . 
-                        @prefix Event: <https://ontology.tno.nl/logistics/federated/Event#> . 
-                        @prefix ReusableTags: <https://ontology.tno.nl/logistics/federated/ReusableTags#> .
-                        @prefix businessService: <https://ontology.tno.nl/logistics/federated/BusinessService#> . 
-                        @prefix DigitalTwin: <https://ontology.tno.nl/logistics/federated/DigitalTwin#> . 
-                        @prefix skos: <http://www.w3.org/2004/02/skos/core#> . 
-                        @prefix xsd: <http://www.w3.org/2001/XMLSchema#> . 
-                        @prefix ex: <http://example.com/base#> . 
-                        @prefix time: <http://www.w3.org/2006/time#> . 
-                        @prefix dc: <http://purl.org/dc/elements/1.1/> . 
-                        @prefix era: <http://era.europa.eu/ns#> .  
-            :Event-5b8699f1-4788-11ec-b5e4-5c879c8043a4 a Event:Event, Event:DischargeEvent;
+            ${PrefixHandlerTTLGenerator.getPrefixesTTLGenerator()}  
+            ex:Event-5b8699f1-4788-11ec-b5e4-5c879c8043a4 a Event:Event, Event:DischargeEvent;
                 Event:hasMilestone Event:End;
                 Event:hasDateTimeType Event:Planned;
                 Event:hasTimestamp "2021-11-10T18:51:20Z"^^xsd:dateTime;
-                Event:involvesDigitalTwin :DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a, :DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1.
+                Event:involvesDigitalTwin ex:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a, ex:DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1.
             
-            :DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a a DigitalTwin:TransportMeans.
+            ex:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a a dt:TransportMeans.
             
-            :DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1 a DigitalTwin:Goods.
+            ex:DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1 a dt:Goods.
             """.trimIndent()
 
         val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
@@ -238,33 +194,16 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
     @Test
     fun `Parse event - 5`() {
         val testRdfEvent = """
-            @base <http://example.com/base/> . 
-            @prefix : <https://ontology.tno.nl/logistics/federated/Event#> .
-            @prefix pi: <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#> . 
-            @prefix classifications: <https://ontology.tno.nl/logistics/federated/Classifications#> . 
-            @prefix dcterms: <http://purl.org/dc/terms/> . 
-            @prefix LogisticsRoles: <https://ontology.tno.nl/logistics/federated/LogisticsRoles#> . 
-            @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . 
-            @prefix owl: <http://www.w3.org/2002/07/owl#> . 
-            @prefix Event: <https://ontology.tno.nl/logistics/federated/Event#> . 
-            @prefix ReusableTags: <https://ontology.tno.nl/logistics/federated/ReusableTags#> .
-            @prefix businessService: <https://ontology.tno.nl/logistics/federated/BusinessService#> . 
-            @prefix DigitalTwin: <https://ontology.tno.nl/logistics/federated/DigitalTwin#> . 
-            @prefix skos: <http://www.w3.org/2004/02/skos/core#> . 
-            @prefix xsd: <http://www.w3.org/2001/XMLSchema#> . 
-            @prefix ex: <http://example.com/base#> . 
-            @prefix time: <http://www.w3.org/2006/time#> . 
-            @prefix dc: <http://purl.org/dc/elements/1.1/> . 
-            @prefix era: <http://era.europa.eu/ns#> .  
+            ${PrefixHandlerTTLGenerator.getPrefixesTTLGenerator()}  
             
-            :Event-f223c17c-c3ab-4871-9b78-3536d121925c a Event:Event, Event:ArrivalEvent;
+            ex:Event-f223c17c-c3ab-4871-9b78-3536d121925c a Event:Event, Event:ArrivalEvent;
                 Event:hasMilestone Event:Start;
                 Event:hasDateTimeType Event:Actual;
                 Event:hasTimestamp "2021-11-10T08:44:07Z"^^xsd:dateTime;
-                Event:involvesDigitalTwin :DigitalTwin-43691f54-091c-4378-a176-b730a4966996;
-                Event:involvesPhysicalInfrastructure :PhysicalInfrastructure-b4d51938-5ae5-330d-af2e-a198dd2c16ab.
+                Event:involvesDigitalTwin ex:dt-43691f54-091c-4378-a176-b730a4966996;
+                Event:involvesPhysicalInfrastructure ex:PhysicalInfrastructure-b4d51938-5ae5-330d-af2e-a198dd2c16ab.
             
-            :DigitalTwin-43691f54-091c-4378-a176-b730a4966996 a DigitalTwin:TransportMeans.
+            ex:dt-43691f54-091c-4378-a176-b730a4966996 a dt:TransportMeans.
             """.trimIndent()
 
         val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
@@ -276,25 +215,16 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
     @Test
     fun `Parse event - 6`() {
         val testRdfEvent = """
-            @prefix : <https://ontology.tno.nl/logistics/federated/Event#> .
-            @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
-            @prefix owl: <http://www.w3.org/2002/07/owl#>.
-            @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
-            @prefix sd: <http://www.w3.org/ns/sparql-service-description#>.
-            @prefix event: <https://ontology.tno.nl/logistics/federated/Event#>.
-            @prefix dt: <https://ontology.tno.nl/logistics/federated/digitalTwin#>.
-            @prefix bs: <https://ontology.tno.nl/logistics/federated/businessService#>.
-            @prefix pi: <https://ontology.tno.nl/logistics/federated/physicalInfrastructure#>.
-            @prefix cl: <https://ontology.tno.nl/logistics/federated/Classifications#>.
+            ${PrefixHandlerTTLGenerator.getPrefixesTTLGenerator()}
             
-            :event-41068e69-4be0-11ec-a52a-5c879c8043a5 a event:Event, event:ArrivalEvent;
-                event:hasMilestone event:Start;
-                event:hasDateTimeType event:Planned;
-                event:hasTimestamp "2021-11-10T08:44:07Z"^^xsd:dateTime;
-                event:involvesDigitalTwin :DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f;
-                event:involvesPhysicalInfrastructure :PhysicalInfrastructure-be989099-2e25-3259-975b-9f17c63b0281.
+            ex:Event-41068e69-4be0-11ec-a52a-5c879c8043a5 a Event:Event, Event:ArrivalEvent;
+                Event:hasMilestone Event:Start;
+                Event:hasDateTimeType Event:Planned;
+                Event:hasTimestamp "2021-11-10T08:44:07Z"^^xsd:dateTime;
+                Event:involvesDigitalTwin ex:DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f;
+                Event:involvesPhysicalInfrastructure ex:PhysicalInfrastructure-be989099-2e25-3259-975b-9f17c63b0281.
             
-            :DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f a dt:TransportMeans, owl:NamedIndividual.
+            ex:dt-dce1774a-b2a1-338e-bd56-1902c57f836f a dt:TransportMeans, owl:NamedIndividual.
             """.trimIndent()
 
         val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
@@ -306,28 +236,22 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
     @Test
     fun `Parse event - 7 - milliseconds`() {
         val testRdfEvent = """
-            @prefix data: <https://ontology.tno.nl/logistics/federated/tradelens#> .
-            @prefix dt: <https://ontology.tno.nl/logistics/federated/DigitalTwin#> .
-            @prefix event: <https://ontology.tno.nl/logistics/federated/Event#> .
-            @prefix owl: <http://www.w3.org/2002/07/owl#> .
-            @prefix pi: <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#> .
-            @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-            @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+            ${PrefixHandlerTTLGenerator.getPrefixesTTLGenerator()}
             
-            data:DigitalTwin-bf93dc6a-1f04-4dec-ba0d-3ba987b2723f a owl:NamedIndividual, dt:TransportMeans .
+            data:dt-bf93dc6a-1f04-4dec-ba0d-3ba987b2723f a owl:NamedIndividual, dt:TransportMeans .
             
             data:PhysicalInfrastructure-INNSA a "http://www.w3.org/2002/07/owl#NamedIndivudal~iri",
                 pi:Location .
             
-            data:event-10d7fd0d-7a26-4b83-be1a-9c2606cebdc9 a "http://www.w3.org/2002/07/owl#NamedIndividual",
-                event:Event, event:LoadEvent;
-              event:hasDateTimeType event:Actual;
-              event:hasMilestone event:Start;
-              event:hasSubmissionTimestamp "2022-09-09T12:20:15.332Z"^^xsd:dateTime;
-              event:hasTimestamp "2022-09-09T18:20:15.329Z"^^xsd:dateTime;
-              event:involvesBusinessTransaction "https://ontology.tno.nl/logistics/federated/tradelens#BusinessTransaction-bc71cb37-f2a9-4844-8d8b-891c8bf75521";
-              event:involvesDigitalTwin data:DigitalTwin-bf93dc6a-1f04-4dec-ba0d-3ba987b2723f;
-              event:involvesPhysicalInfrastructure data:PhysicalInfrastructure-INNSA .
+            data:Event-10d7fd0d-7a26-4b83-be1a-9c2606cebdc9 a "http://www.w3.org/2002/07/owl#NamedIndividual",
+                Event:Event, Event:LoadEvent;
+              Event:hasDateTimeType Event:Actual;
+              Event:hasMilestone Event:Start;
+              Event:hasSubmissionTimestamp "2022-09-09T12:20:15.332Z"^^xsd:dateTime;
+              Event:hasTimestamp "2022-09-09T18:20:15.329Z"^^xsd:dateTime;
+              Event:involvesBusinessTransaction "https://ontology.tno.nl/logistics/federated/tradelens#BusinessTransaction-bc71cb37-f2a9-4844-8d8b-891c8bf75521";
+              Event:involvesDigitalTwin data:dt-bf93dc6a-1f04-4dec-ba0d-3ba987b2723f;
+              Event:involvesPhysicalInfrastructure data:PhysicalInfrastructure-INNSA .
 
             """.trimIndent()
 
@@ -340,28 +264,22 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
     @Test
     fun `Parse event - TL`() {
         val testRdfEvent = """
-                @prefix data: <https://ontology.tno.nl/logistics/federated/tradelens#> .
-                @prefix dt: <https://ontology.tno.nl/logistics/federated/DigitalTwin#> .
-                @prefix event: <https://ontology.tno.nl/logistics/federated/Event#> .
-                @prefix owl: <http://www.w3.org/2002/07/owl#> .
-                @prefix pi: <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#> .
-                @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-                @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+                ${PrefixHandlerTTLGenerator.getPrefixesTTLGenerator()}
                 
-                data:DigitalTwin-bf93dc6a-1f04-4dec-ba0d-3ba987b2723f a owl:NamedIndividual, dt:TransportMeans .
+                data:dt-bf93dc6a-1f04-4dec-ba0d-3ba987b2723f a owl:NamedIndividual, dt:TransportMeans .
                 
                 data:PhysicalInfrastructure-INNSA a "http://www.w3.org/2002/07/owl#NamedIndivudal~iri",
                     pi:Location .
                 
-                data:event-10d7fd0d-7a26-4b83-be1a-9c2606cebdc9 a "http://www.w3.org/2002/07/owl#NamedIndividual",
-                    event:Event, event:LoadEvent;
-                  event:hasDateTimeType event:Actual;
-                  event:hasMilestone event:Start;
-                  event:hasSubmissionTimestamp "2022-09-09T12:20:15Z"^^xsd:dateTime;
-                  event:hasTimestamp "2022-09-09T18:20:15Z"^^xsd:dateTime;
-                  event:involvesBusinessTransaction "https://ontology.tno.nl/logistics/federated/tradelens#BusinessTransaction-bc71cb37-f2a9-4844-8d8b-891c8bf75521";
-                  event:involvesDigitalTwin data:DigitalTwin-bf93dc6a-1f04-4dec-ba0d-3ba987b2723f;
-                  event:involvesPhysicalInfrastructure data:PhysicalInfrastructure-INNSA .
+                data:Event-10d7fd0d-7a26-4b83-be1a-9c2606cebdc9 a "http://www.w3.org/2002/07/owl#NamedIndividual",
+                    Event:Event, Event:LoadEvent;
+                  Event:hasDateTimeType Event:Actual;
+                  Event:hasMilestone Event:Start;
+                  Event:hasSubmissionTimestamp "2022-09-09T12:20:15Z"^^xsd:dateTime;
+                  Event:hasTimestamp "2022-09-09T18:20:15Z"^^xsd:dateTime;
+                  Event:involvesBusinessTransaction "https://ontology.tno.nl/logistics/federated/tradelens#BusinessTransaction-bc71cb37-f2a9-4844-8d8b-891c8bf75521";
+                  Event:involvesDigitalTwin data:dt-bf93dc6a-1f04-4dec-ba0d-3ba987b2723f;
+                  Event:involvesPhysicalInfrastructure data:PhysicalInfrastructure-INNSA .
             """.trimIndent()
 
         val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
@@ -372,7 +290,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
 
     @Test
     fun `Insert new event`() {
-        val successfulInsertion = graphdb.insertEvent(validSampleTtl, false)
+        val successfulInsertion = graphdb.insertEvent(TTLRandomGenerator().generateRandomEvents(1).constructedTTL, false)
         assert(successfulInsertion)
     }
 
@@ -386,26 +304,17 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
     @Test
     fun `parse labels`() {
         val testRdfEvent = """
-            @prefix : <https://ontology.tno.nl/logistics/federated/Event#> .
-            @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-            @prefix owl: <http://www.w3.org/2002/07/owl#>.
-            @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
-            @prefix sd: <http://www.w3.org/ns/sparql-service-description#>.
-            @prefix event: <https://ontology.tno.nl/logistics/federated/Event#>.
-            @prefix dt: <https://ontology.tno.nl/logistics/federated/digitalTwin#>.
-            @prefix bs: <https://ontology.tno.nl/logistics/federated/businessService#>.
-            @prefix pi: <https://ontology.tno.nl/logistics/federated/physicalInfrastructure#>.
-            @prefix cl: <https://ontology.tno.nl/logistics/federated/Classifications#>.
+            ${PrefixHandlerTTLGenerator.getPrefixesTTLGenerator()}
             
-            :event-41068e69-4be0-11ec-a52a-5c879c8043a5 a event:Event;
+            ex:Event-41068e69-4be0-11ec-a52a-5c879c8043a5 a Event:Event;
                 rdfs:label "GateOut test"^^xsd:string, "insuranceEvent"^^xsd:string;
-                event:hasMilestone event:Start;
-                event:hasDateTimeType event:Planned;
-                event:hasTimestamp "2021-11-10T08:44:07Z"^^xsd:dateTime;
-                event:involvesDigitalTwin :DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f;
-                event:involvesPhysicalInfrastructure :PhysicalInfrastructure-be989099-2e25-3259-975b-9f17c63b0281.
+                Event:hasMilestone Event:Start;
+                Event:hasDateTimeType Event:Planned;
+                Event:hasTimestamp "2021-11-10T08:44:07Z"^^xsd:dateTime;
+                Event:involvesDigitalTwin ex:dt-dce1774a-b2a1-338e-bd56-1902c57f836f;
+                Event:involvesPhysicalInfrastructure ex:PhysicalInfrastructure-be989099-2e25-3259-975b-9f17c63b0281.
             
-            :DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f a dt:TransportMeans, owl:NamedIndividual.
+            ex:dt-dce1774a-b2a1-338e-bd56-1902c57f836f a dt:TransportMeans, owl:NamedIndividual.
             """.trimIndent()
 
         val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
@@ -417,26 +326,17 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
     @Test
     fun `parse other dt mean`() {
         val testRdfEvent = """
-            @prefix : <https://ontology.tno.nl/logistics/federated/Event#> .
-            @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-            @prefix owl: <http://www.w3.org/2002/07/owl#>.
-            @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
-            @prefix sd: <http://www.w3.org/ns/sparql-service-description#>.
-            @prefix event: <https://ontology.tno.nl/logistics/federated/Event#>.
-            @prefix dt: <https://ontology.tno.nl/logistics/federated/digitalTwin#>.
-            @prefix bs: <https://ontology.tno.nl/logistics/federated/businessService#>.
-            @prefix pi: <https://ontology.tno.nl/logistics/federated/physicalInfrastructure#>.
-            @prefix cl: <https://ontology.tno.nl/logistics/federated/Classifications#>.
+            ${PrefixHandlerTTLGenerator.getPrefixesTTLGenerator()}
             
-            :event-41068e69-4be0-11ec-a52a-5c879c8043a5 a event:Event;
+            ex:Event-41068e69-4be0-11ec-a52a-5c879c8043a5 a Event:Event;
                 rdfs:label "GateOut test"^^xsd:string, "insuranceEvent"^^xsd:string;
-                event:hasMilestone event:Start;
-                event:hasDateTimeType event:Planned;
-                event:hasTimestamp "2021-11-10T08:44:07Z"^^xsd:dateTime;
-                event:involvesDigitalTwin :DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f;
-                event:involvesPhysicalInfrastructure :PhysicalInfrastructure-be989099-2e25-3259-975b-9f17c63b0281.
+                Event:hasMilestone Event:Start;
+                Event:hasDateTimeType Event:Planned;
+                Event:hasTimestamp "2021-11-10T08:44:07Z"^^xsd:dateTime;
+                Event:involvesDigitalTwin ex:DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f;
+                Event:involvesPhysicalInfrastructure ex:PhysicalInfrastructure-be989099-2e25-3259-975b-9f17c63b0281.
             
-            :DigitalTwin-dce1774a-b2a1-338e-bd56-1902c57f836f a dt:TransportMeans, owl:NamedIndividual.
+            ex:dt-dce1774a-b2a1-338e-bd56-1902c57f836f a dt:TransportMeans, owl:NamedIndividual.
             """.trimIndent()
 
         val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()

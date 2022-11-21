@@ -6,38 +6,44 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.BeforeClass
 import org.junit.Test
-import java.io.File
+import org.testcontainers.shaded.org.awaitility.Awaitility.await
+import java.util.concurrent.TimeUnit
 
 class GraphDBAccuracyTests : GraphDBTestContainersSupport() {
 
     companion object {
-        private val validSampleTtl = File("src/test/resources/correct-event.ttl").readText()
         private val graphdb = GraphDBService()
 
         @JvmStatic
         @BeforeClass
         fun setup() {
             // Override database.properties with docker properties
-            System.setProperty("triplestore.host",  graphDB.host)
-            System.setProperty("triplestore.port",  graphDB.exposedPorts?.firstOrNull()?.toString() ?: "7200")
+            System.setProperty("triplestore.host", graphDB.host)
+            System.setProperty("triplestore.port", graphDB.exposedPorts?.firstOrNull()?.toString() ?: "7200")
 
             // 1. Create repositories
             graphdb.createRemoteRepositoryFromConfig("bdi-repository-config.ttl")
             graphdb.createRemoteRepositoryFromConfig("private-repository-config.ttl")
-            // 2. Insert data
-            graphdb.insertEvent(validSampleTtl, false)
+
+            // 2. Import graph files
+            graphdb.importGraphFile("federated-shacl.zip", "http://rdf4j.org/schema/rdf4j#SHACLShapeGraph")
+
+            graphdb.importGraphFile("ontologies.zip", "")
+
+            await().atMost(10, TimeUnit.SECONDS).until { graphdb.areGraphFilesImported() }
         }
     }
 
     private val generator = TTLRandomGenerator()
+
     // change value below to generate a diff number of events for the test
     private val numberOfEvents = 6
 
     @Test
     fun `Query events empty at first, insert events, query events inserted successfully`() {
         val (constructedTTL, eventsIdentifiers, legalPerson,
-                businessTransaction, equipmentUsed, digitalTwinTransportMeans) =
-                generator.generateRandomEvents(numberOfEvents)
+            businessTransaction, equipmentUsed, digitalTwinTransportMeans) =
+            generator.generateRandomEvents(numberOfEvents)
 
         // 1. query for all 4 events in part, everything should be false
         for (eventIdentifier in eventsIdentifiers) {
@@ -47,7 +53,7 @@ class GraphDBAccuracyTests : GraphDBTestContainersSupport() {
             assertTrue("Query made illegal results", graphdb.isQueryResultEmpty(sparqlQuery))
         }
 
-        assertTrue("Constructed TTL is incorrect", graphdb.insertEvent(constructedTTL,false))
+        assertTrue("Constructed TTL is incorrect", graphdb.insertEvent(constructedTTL, false))
 
         // 3. check if all items required for events are correctly saved (legalPerson, businessTransaction and equipmentUsed)
 
@@ -82,7 +88,7 @@ class GraphDBAccuracyTests : GraphDBTestContainersSupport() {
 
             assertTrue("Event with id ${eventsIdentifiers[i]} inaccurately saved",
                 graphdb.areEventComponentsAccurate(allEventPropertiesSparqlQuery, businessTransaction,
-                            digitalTwinTransportMeans[i], equipmentUsed))
+                    digitalTwinTransportMeans[i], equipmentUsed))
         }
 
     }
