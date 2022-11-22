@@ -5,14 +5,12 @@ import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
-import net.corda.core.serialization.CordaSerializable
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
 import nl.tno.federated.states.EventState
-import nl.tno.federated.states.PhysicalObject
 import org.slf4j.LoggerFactory
 
 @InitiatingFlow
@@ -110,7 +108,7 @@ class NewEventFlow(
     private fun findParties(): List<Party> = destinations.map { destination ->
         try {
             serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
-                .single { it.name.organisation == destination.organisation && it.name.locality == destination.locality && it.name.country == destination.country }
+                .single { it.name.organisation.equals(destination.organisation, ignoreCase = true) && it.name.locality.equals(destination.locality, ignoreCase = true) && it.name.country.equals(destination.country, ignoreCase = true) }
         } catch (e: IllegalArgumentException) {
             log.debug("Too many parties found matching organisation: $destination.name and locality: $destination.locality and country $destination.country")
             throw IllegalArgumentException("Too many parties found matching organisation: $destination.name and locality: $destination.locality and country $destination.country")
@@ -171,10 +169,4 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
         return subFlow(ReceiveFinalityFlow(counterpartySession, expectedTxId = txId))
     }
 }
-
-@CordaSerializable
-data class DigitalTwinPair(
-    val content: String,
-    val type: PhysicalObject
-)
 
