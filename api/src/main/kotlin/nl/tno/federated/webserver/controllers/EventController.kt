@@ -69,19 +69,19 @@ class EventController(
     }
 
     @ApiOperation(value = "Create a new event and returns the UUID of the newly created event.")
-    @PostMapping(value = ["/{destinationName}/{destinationLocality}/{destinationCountry}"])
+    @PostMapping(value = ["/{destinationOrganisation}/{destinationLocality}/{destinationCountry}"])
     fun newEvent(@RequestBody event: String,
-                 @PathVariable destinationName: String?,
+                 @PathVariable destinationOrganisation: String?,
                  @PathVariable destinationLocality: String?,
                  @PathVariable destinationCountry: String?,
                  @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
         l1service.verifyAccessToken(authorizationHeader)
-        if (destinationName != null && (destinationLocality == null || destinationCountry == null)) { return ResponseEntity("Missing destination fields", HttpStatus.BAD_REQUEST)}
+        if (destinationOrganisation != null && (destinationLocality == null || destinationCountry == null)) { return ResponseEntity("Missing destination fields", HttpStatus.BAD_REQUEST)}
 
-        log.info("Start NewEventFlow, sending event to destination: {}, {}, {}", destinationName, destinationLocality, destinationCountry)
+        log.info("Start NewEventFlow, sending event to destination: {}, {}, {}", destinationOrganisation, destinationLocality, destinationCountry)
         val newEventTx = rpc.client().startFlowDynamic(
             NewEventFlow::class.java,
-            if (destinationName == null) null else CordaX500Name(destinationName, destinationLocality!!, destinationCountry!!),
+            if (destinationOrganisation == null) null else CordaX500Name(destinationOrganisation, destinationLocality!!, destinationCountry!!),
             event
         ).returnValue.get()
 

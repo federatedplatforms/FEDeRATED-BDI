@@ -4,6 +4,7 @@ import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
@@ -18,9 +19,7 @@ import org.slf4j.LoggerFactory
 @InitiatingFlow
 @StartableByRPC
 class DataPullQueryFlow(
-    val destinationName: String,
-    val destinationLocality: String,
-    val destinationCountry: String,
+    val destination: CordaX500Name,
     val sPARQLquery: String
 ) : FlowLogic<SignedTransaction>() {
 
@@ -106,16 +105,16 @@ class DataPullQueryFlow(
         return subFlow(FinalityFlow(fullySignedTx, otherPartySession, FINALISING_TRANSACTION.childProgressTracker()))
     }
 
-    fun findParty(): Party {
+    private fun findParty(): Party {
         val counterParty = try {
             serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
-                .single { it.name.organisation == destinationName && it.name.locality == destinationLocality && it.name.country == destinationCountry }
+                .single { it.name.organisation.equals(destination.organisation, ignoreCase = true) && it.name.locality.equals(destination.locality, ignoreCase = true) && it.name.country.equals(destination.country, ignoreCase = true) }
         } catch (e: IllegalArgumentException) {
-            log.debug("Too many parties found matching organisation: $destinationName and locality: $destinationLocality and country $destinationCountry")
-            throw IllegalArgumentException("Too many parties found matching organisation: $destinationName and locality: $destinationLocality and country $destinationCountry")
+            log.debug("Too many parties found matching organisation: $destination.organisation and locality: $destination.Locality and country $destination.Country")
+            throw IllegalArgumentException("Too many parties found matching organisation: $destination.organisation and locality: $destination.Locality and country $destination.Country")
         } catch (e: NoSuchElementException) {
-            log.debug("No parties found matching organisation: $destinationName and locality: $destinationLocality and country $destinationCountry")
-            throw IllegalArgumentException("No parties found matching organisation: $destinationName and locality: $destinationLocality and country $destinationCountry")
+            log.debug("No parties found matching organisation: $destination.organisation and locality: $destination.Locality and country $destination.Country")
+            throw IllegalArgumentException("No parties found matching organisation: $destination.organisation and locality: $destination.Locality and country $destination.Country")
         } catch (e: Exception) {
             log.info("Finding the correct party failed because $e.message")
             throw e

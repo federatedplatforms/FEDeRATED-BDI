@@ -2,6 +2,7 @@ package nl.tno.federated.webserver.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.flows.DataPullQueryFlow
@@ -27,26 +28,27 @@ class DataPullController(private val rpc: NodeRPCConnection, private val l1servi
     private val log = LoggerFactory.getLogger(DataPullController::class.java)
 
     @ApiOperation(value = "Request data and run a SPARQL query on another node")
-    @PostMapping(value = ["/request/{destinationName}/{destinationLocality}/{destinationCountry}"])
+    @PostMapping(value = ["/request/{destinationOrganisation}/{destinationLocality}/{destinationCountry}"])
     private fun request(
         @RequestBody query: String,
-        @PathVariable destinationName: String?,
+        @PathVariable destinationOrganisation: String?,
         @PathVariable destinationLocality: String?,
         @PathVariable destinationCountry: String?,
         @RequestHeader("Authorization") authorizationHeader: String
     ): ResponseEntity<String> {
         l1service.verifyAccessToken(authorizationHeader)
+        if (destinationOrganisation == null || destinationLocality == null || destinationCountry == null) { return ResponseEntity("Missing destination fields", HttpStatus.BAD_REQUEST)}
 
-        log.info("Data pull SPARQL query requested for destination: {}", destinationName)
+        log.info("Data pull SPARQL query requested for destination: {}", destinationOrganisation)
         val dataPull = rpc.client().startFlowDynamic(
             DataPullQueryFlow::class.java,
-            destinationName,
+            CordaX500Name(destinationOrganisation,
             destinationLocality,
-            destinationCountry,
+            destinationCountry),
             query
         ).returnValue.get()
         val uuidOfStateWithResult = (dataPull.coreTransaction.getOutput(0) as DataPullState).linearId.id
-        log.info("Data pull completed for destination: {}, result can be found in DataPullState with UUID: {}", destinationName, uuidOfStateWithResult)
+        log.info("Data pull completed for destination: {}, result can be found in DataPullState with UUID: {}", destinationOrganisation, uuidOfStateWithResult)
         return ResponseEntity("State with result: $uuidOfStateWithResult", HttpStatus.ACCEPTED)
     }
 

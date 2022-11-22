@@ -26,9 +26,14 @@ class DataPullFlowTests {
     private lateinit var network: MockNetwork
     private lateinit var a: StartedMockNode
     private lateinit var b: StartedMockNode
+    private val aName = CordaX500Name("PartyA", "Reykjavik", "IS")
+    private val bName = CordaX500Name("PartyB", "Rotterdam", "NL")
+
     private lateinit var graphDBService: IGraphDBService
 
     private val fakeResult = "Very nice result, the best result ever, I've never seen such a good result. Let's make results great again."
+
+
 
     @Before
     fun setup() {
@@ -41,8 +46,8 @@ class DataPullFlowTests {
             networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
         )
 
-        a = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyA", "Reykjavik", "IS")))
-        b = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyB", "Rotterdam", "NL")))
+        a = network.createNode(MockNodeParameters(legalName = aName))
+        b = network.createNode(MockNodeParameters(legalName = bName))
 
         val startedNodes = arrayListOf(a, b)
 
@@ -67,7 +72,7 @@ class DataPullFlowTests {
 
     @Test
     fun `Simple data pull flow test`() {
-        val flow = DataPullQueryFlow("PartyB", "Rotterdam", "NL","Very special Query")
+        val flow = DataPullQueryFlow(bName, "Very special Query")
         val future = a.startFlow(flow)
         network.runNetwork()
 
