@@ -1,0 +1,45 @@
+[
+    {
+        "eventPublishTime": 1663936501514,
+        "eventSubmissionTime": 1663936501307,
+        "eventSubmissionTime8601": "2022-09-23T12:35:01.307Z",
+        "eventName": "Actual loaded on vessel",
+        "senderOrgName": "test-ocean-carrier",
+        "senderOrgTypes": [
+            "ocean carrier"
+        ],
+        "originatorId": "OC",
+        "eventOccurrenceTime": 1664624101302,
+        "eventOccurrenceTime8601": "2022-10-01T11:35:01.302Z",
+        "fromOceanAggregator": false,
+        "originatorName": "Ocean Carrier",
+        "transportationPhase": "Transshipment",
+        "eventTransactionId": "746dd77c-2b71-4b05-b928-7fcd7663e8df",
+        "carrierBookingNumber": "429905",
+        "consignmentId": "9c0a54d9-b152-4019-8994-283353ffdaaa",
+        "transportEquipmentId": "c2cb84ce-87e9-4465-bb03-79e34c4d54fe",
+        "equipmentNumber": "47665409563",
+        "subscriptionId": "81792cfe-78a0-48a0-a572-b828eebdb99b",
+        "billOfLadingNumber": "BL429905",
+        "fullStatus": "Full",
+        "eventType": "actualLoadedOnVessel",
+        "associatedConsignmentIds": [
+            "9c0a54d9-b152-4019-8994-283353ffdaaa"
+        ],
+        "associatedCarrierBookingNumbers": [
+            "429905"
+        ],
+        "associatedBillOfLadingNumbers": [
+            "BL429905"
+        ],
+        "location": {
+            "unlocode": "AEJEA",
+            "description": "Jebel Ali, AE"
+        },
+        "messages": [
+            "common.event.status.success"
+        ],
+        "facilityType": "PortTerminal",
+        "eventPriority": 2
+    }
+]

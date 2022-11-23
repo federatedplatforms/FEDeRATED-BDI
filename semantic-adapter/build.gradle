@@ -8,8 +8,16 @@ apply plugin: 'kotlin'
 apply plugin: 'kotlin-allopen'
 apply plugin: 'io.spring.dependency-management'
 
-group = "nl.tno.semantic.adapter"
-version = "0.0.1-SNAPSHOT"
+jar {
+    // https://github.com/spring-projects/spring-boot/issues/16689
+    enabled = true
+}
+
+bootJar {
+    enabled = true
+    classifier = "standalone"
+    mainClassName = "nl.tno.federated.semantic.adapter.SemanticAdapterApplicationKt"
+}
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -19,10 +27,22 @@ dependencies {
     implementation("be.ugent.rml:rmlmapper") {
         exclude group: "org.apache.jena"
     }
-    implementation("org.apache.jena:apache-jena-libs")
+    implementation "org.eclipse.rdf4j:rdf4j-rio-api:$rdf4j_version"
+    implementation "org.eclipse.rdf4j:rdf4j-rio-turtle:$rdf4j_version"
+    implementation "org.eclipse.rdf4j:rdf4j-runtime:$rdf4j_version"
+    implementation "org.apache.jena:apache-jena-libs"
     implementation "io.springfox:springfox-swagger2"
     implementation "io.springfox:springfox-swagger-ui"
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+    kotlinOptions {
+        languageVersion = "1.3"
+        apiVersion = "1.3"
+        jvmTarget = "1.8"
+        javaParameters = true   // Useful for reflection.
+    }
 }
 
 tasks.withType(Test) {
