@@ -23,6 +23,8 @@ dependencies {
     // Corda dependency we need for the rpc connection.
     implementation "net.corda:corda-rpc"
 
+    implementation project(":semantic-adapter")
+
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "io.springfox:springfox-swagger2"
     implementation "io.springfox:springfox-swagger-ui"
@@ -44,18 +46,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
 }
 
 springBoot {
-    mainClassName = "nl.tno.federated.webserver.ServerKt"
-}
-
-/**
- * The Client is the communication channel between the external and the node. This task will help you immediately
- * execute your rpc methods in the main method of the client.kt. You can somewhat see this as a quick test of making
- * RPC calls to your nodes.
- */
-task runTemplateClient(type: JavaExec, dependsOn: assemble) {
-    classpath = sourceSets.main.runtimeClasspath
-    main = 'nl.tno.federated.ClientKt'
-    args 'federated.sensorlab.tno.nl:10006', 'user1', 'vzzuABeCut3jGoJfEp94'
+    mainClassName = "nl.tno.federated.api.ServerKt"
 }
 
 /**
@@ -64,6 +55,6 @@ task runTemplateClient(type: JavaExec, dependsOn: assemble) {
  */
 task runTemplateServer(type: JavaExec, dependsOn: assemble) {
     classpath = sourceSets.main.runtimeClasspath
-    main = 'nl.tno.federated.webserver.ServerKt'
+    main = 'nl.tno.federated.ServerKt'
     args '--server.port=10050', '--config.rpc.host=localhost', '--config.rpc.port=10012', '--config.rpc.username=user1', '--config.rpc.password=vzzuABeCut3jGoJfEp94'
 }

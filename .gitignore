@@ -7,7 +7,6 @@ tags
 *.log.gz
 *.orig
 .hprof
-
 .gradle
 
 # General build files
@@ -55,3 +54,5 @@ lib
 
 # sensorlab logs
 logs/sensorlabLogs/
+
+**/*.lock

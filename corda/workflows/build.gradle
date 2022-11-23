@@ -17,31 +17,6 @@ cordapp {
     }
 }
 
-sourceSets {
-    main {
-        resources {
-            srcDir rootProject.file("config/dev")
-        }
-    }
-    test {
-        resources {
-            srcDir rootProject.file("config/test")
-        }
-    }
-    integrationTest {
-        kotlin {
-            compileClasspath += main.output + test.output
-            runtimeClasspath += main.output + test.output
-            srcDir file('src/integrationTest/kotlin')
-        }
-    }
-}
-
-configurations {
-    integrationTestCompile.extendsFrom testCompile
-    integrationTestRuntime.extendsFrom testRuntime
-}
-
 dependencies {
     cordapp project(":corda:contracts")
 
@@ -49,8 +24,11 @@ dependencies {
     cordaCompile "net.corda:corda-core"
     cordaRuntime "net.corda:corda"
 
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin"
-    implementation "org.eclipse.rdf4j:rdf4j-rio-turtle"
+    // We need to use compile instead of implementation because the corda plugin does not recognize implementation
+    // and the dependency wont be included in the generated cordapp workflows.jar
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin"
+    compile "org.eclipse.rdf4j:rdf4j-rio-turtle"
+    compile "org.eclipse.rdf4j:rdf4j-rio-api"
 
     testImplementation "junit:junit"
     testImplementation "io.mockk:mockk"
@@ -59,13 +37,16 @@ dependencies {
     testImplementation "net.corda:corda-node-driver"
 }
 
-task integrationTest(type: Test, dependsOn: []) {
-    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    classpath = sourceSets.integrationTest.runtimeClasspath
-}
-
 test {
     maxHeapSize = "4096m"
+}
+
+jar {
+    // This makes the JAR's SHA-256 hash repeatable.
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+    // Because the cordapp flattens the jar (fat jar) we need to make sure no duplicate entries end up in the jar.
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {

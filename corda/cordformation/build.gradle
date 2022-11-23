@@ -1,3 +1,4 @@
+import net.corda.plugins.Cordform
 
 plugins {
     id 'net.corda.plugins.cordapp' version "$corda_gradle_plugin_version"
@@ -6,18 +7,7 @@ plugins {
 }
 
 jar {
-    // This makes the JAR's SHA-256 hash repeatable.
-    preserveFileTimestamps = false
-    reproducibleFileOrder = true
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
-sourceSets {
-    main {
-        resources {
-            srcDir rootProject.file("config/dev")
-        }
-    }
+    enabled = false
 }
 
 // Module dependencies
@@ -40,7 +30,7 @@ dependencies {
 
 // Task to deploy a single node. Note that to use this node a notary node and any other nodes should be set up separately
 // and the additional-node-infos should be populated. Alternatively a network map service can be configured.
-task deploySingleNode(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
+task deploySingleNode(type: Cordform, dependsOn: ['jar']) {
     nodeDefaults {
         projectCordapp {
             deploy = false
@@ -61,14 +51,14 @@ task deploySingleNode(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
 
     doLast {
         copy {
-            from 'workflows/src/main/resources/database.properties'
+            from '../workflows/src/main/resources/database.properties'
             into "build/nodes/SingleNode_SN"
         }
     }
 }
 
 // Task to deploy the nodes in order to bootstrap a network
-task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
+task deployNodes(type: Cordform, dependsOn: ['jar']) {
 
     /* This property will load the CorDapps to each of the node by default, including the Notary. You can find them
      * in the cordapps folder of the node at build/nodes/Notary/cordapps. However, the notary doesn't really understand
@@ -124,19 +114,19 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
 
     doLast {
         copy {
-            from 'workflows/src/main/resources/database.properties'
+            from '../workflows/src/main/resources/database.properties'
             into "build/nodes/Netherlands_MS"
         }
         copy {
-            from 'workflows/src/main/resources/database.properties'
+            from '../workflows/src/main/resources/database.properties'
             into "build/nodes/Belgium_MS"
         }
         copy {
-            from 'workflows/src/main/resources/database.properties'
+            from '../workflows/src/main/resources/database.properties'
             into "build/nodes/Notary_Notary"
         }
         copy {
-            from 'workflows/src/main/resources/database.properties'
+            from '../workflows/src/main/resources/database.properties'
             into "build/nodes/PlanetExpress_LSP"
         }
     }
