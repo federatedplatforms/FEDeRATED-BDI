@@ -38,18 +38,22 @@ class EventController(
 
     private val eventGenerator = TTLRandomGenerator()
 
-    @ApiOperation(value = "Create a new event")
-    @PostMapping(value = ["/"])
-    fun newEvent(@RequestBody event: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
-        return newEvent(event, null, null, null, authorizationHeader)
-    }
-
     @ApiOperation(value = "Generate a new random event")
-    @PostMapping(value = ["/random/{destination}"])
-    fun generateRandomEvent(@RequestHeader("Authorization") authorizationHeader: String, @RequestParam("start-flow") startFlow: String, @RequestParam("number-events") numberEvents: String): ResponseEntity<String> {
+    @PostMapping(value = [
+        "/random/{destinationOrganisation}/{destinationLocality}/{destinationCountry}",
+        "/random/{destinationOrganisation}/{destinationLocality}",
+        "/random/{destinationOrganisation}",
+        "/random"
+    ])
+    fun generateRandomEvent(@RequestHeader("Authorization") authorizationHeader: String,
+                            @RequestParam("start-flow") startFlow: String,
+                            @RequestParam("number-events") numberEvents: String,
+                            @PathVariable destinationOrganisation: String?,
+                            @PathVariable destinationLocality: String?,
+                            @PathVariable destinationCountry: String?): ResponseEntity<String> {
         // 1. check if number of events is a correct integer
         numberEvents.toIntOrNull() ?: return ResponseEntity("number-events was incorrectly specified", HttpStatus.BAD_REQUEST)
-
+        log.debug("Startflow: {}, numberEvents: {}, org: {}, local: {}, country: {}",startFlow, numberEvents, destinationOrganisation, destinationLocality, destinationCountry)
         // 2. interpret the startFlow as boolean
         return if (startFlow.ToBooleanOrNull() == null) {
             ResponseEntity("start-flow was incorrectly specified", HttpStatus.BAD_REQUEST)
@@ -59,8 +63,19 @@ class EventController(
 
             // 4. check if needed to start a new event flow
             if (startFlow.ToBooleanOrNull() == true) {
-                newEvent(generatedTTL.constructedTTL, null, null, null, authorizationHeader)
+
+                newEvent(generatedTTL.constructedTTL, destinationOrganisation, destinationLocality, destinationCountry, authorizationHeader)
+
             } else {
+
+                if (destinationOrganisation != null && (destinationLocality == null || destinationCountry == null)) {
+                    return if (destinationLocality == null) {
+                        ResponseEntity("Missing destination fields destinationLocality & destinationCountry", HttpStatus.BAD_REQUEST)
+                    } else {
+                        ResponseEntity("Missing destination field destinationCountry", HttpStatus.BAD_REQUEST)
+                    }
+                }
+
                 ResponseEntity("Event created: ${generatedTTL.constructedTTL}", HttpStatus.CREATED)
             }
         }
@@ -69,14 +84,26 @@ class EventController(
     }
 
     @ApiOperation(value = "Create a new event and returns the UUID of the newly created event.")
-    @PostMapping(value = ["/{destinationOrganisation}/{destinationLocality}/{destinationCountry}"])
+    @PostMapping(value = [
+        "/{destinationOrganisation}/{destinationLocality}/{destinationCountry}",
+        "/{destinationOrganisation}/{destinationLocality}",
+        "/{destinationOrganisation}",
+        "/"
+    ])
     fun newEvent(@RequestBody event: String,
                  @PathVariable destinationOrganisation: String?,
                  @PathVariable destinationLocality: String?,
                  @PathVariable destinationCountry: String?,
                  @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
         l1service.verifyAccessToken(authorizationHeader)
-        if (destinationOrganisation != null && (destinationLocality == null || destinationCountry == null)) { return ResponseEntity("Missing destination fields", HttpStatus.BAD_REQUEST)}
+        log.info("Start NewEventFlow, sending event to destination: {}, {}, {}", destinationOrganisation, destinationLocality, destinationCountry)
+        if (destinationOrganisation != null && (destinationLocality == null || destinationCountry == null)) {
+            return if (destinationLocality == null) {
+                ResponseEntity("Missing destination fields destinationLocality & destinationCountry", HttpStatus.BAD_REQUEST)
+            } else {
+                ResponseEntity("Missing destination field destinationCountry", HttpStatus.BAD_REQUEST)
+            }
+        }
 
         log.info("Start NewEventFlow, sending event to destination: {}, {}, {}", destinationOrganisation, destinationLocality, destinationCountry)
         val newEventTx = rpc.client().startFlowDynamic(
@@ -155,7 +182,8 @@ class EventController(
     }
 
     private fun eventStatesToEventMap(eventStates: List<EventState>): Map<UUID, List<Event>> {
-        return eventStates.associate { val parseRDFToEvents = rpc.client().startFlowDynamic(ParseRDFFlow::class.java, it.fullEvent).returnValue.get()
+        return eventStates.associate {
+            val parseRDFToEvents = rpc.client().startFlowDynamic(ParseRDFFlow::class.java, it.fullEvent).returnValue.get()
             it.linearId.id to parseRDFToEvents
         }
     }
