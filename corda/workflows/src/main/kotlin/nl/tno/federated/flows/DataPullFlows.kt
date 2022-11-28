@@ -4,6 +4,8 @@ import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
+import net.corda.core.identity.CordaX500Name
+import net.corda.core.identity.Party
 import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
@@ -17,7 +19,7 @@ import org.slf4j.LoggerFactory
 @InitiatingFlow
 @StartableByRPC
 class DataPullQueryFlow(
-    val nodeIdentity: String,
+    val destination: CordaX500Name,
     val sPARQLquery: String
 ) : FlowLogic<SignedTransaction>() {
 
@@ -59,7 +61,7 @@ class DataPullQueryFlow(
     override fun call(): SignedTransaction {
         log.debug("DataPullFlow initiated.")
         val notary = serviceHub.networkMapCache.notaryIdentities.firstOrNull()
-        require(notary != null) { "Notary is null!" }.also { log.info("Notary is null!") }
+        require(notary != null) { "No notary found!" }.also { log.info("No notary found!") }
 
         val me = serviceHub.myInfo.legalIdentities.firstOrNull()
         require(me != null) { "Me is null!" }.also { log.info("Me is null!") }
@@ -68,12 +70,9 @@ class DataPullQueryFlow(
 
         /////////////
         progressTracker.currentStep = RETRIEVING_COUNTERPARTY_INFO
-        val counterParty = listOf(serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }.single { it.name.organisation == nodeIdentity })
-        // TODO Use a more unique param to find the node
+        val counterParty = findParty()
 
-        require(counterParty.isNotEmpty()) { "Other party not found" }.also { log.info("Other party not found") }
-
-        val queryState = DataPullState(sPARQLquery, emptyList(), participants = counterParty + me!!)
+        val queryState = DataPullState(sPARQLquery, emptyList(), participants = listOf(counterParty, me!!))
 
         /////////////
         progressTracker.currentStep = GENERATING_TRANSACTION
@@ -97,13 +96,30 @@ class DataPullQueryFlow(
         /////////////
         progressTracker.currentStep = GATHERING_SIGS
         // Send the state to the counterparty, and receive it back with their signature.
-        val otherPartySession = counterParty.map { initiateFlow(it) }
+        val otherPartySession = listOf(initiateFlow(counterParty))
         val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, otherPartySession, GATHERING_SIGS.childProgressTracker()))
 
         /////////////
         progressTracker.currentStep = FINALISING_TRANSACTION
         // Notarise and record the transaction in both parties' vaults.
         return subFlow(FinalityFlow(fullySignedTx, otherPartySession, FINALISING_TRANSACTION.childProgressTracker()))
+    }
+
+    private fun findParty(): Party {
+        val counterParty = try {
+            serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
+                .single { it.name.organisation.equals(destination.organisation, ignoreCase = true) && it.name.locality.equals(destination.locality, ignoreCase = true) && it.name.country.equals(destination.country, ignoreCase = true) }
+        } catch (e: IllegalArgumentException) {
+            log.debug("Too many parties found matching organisation: $destination.organisation and locality: $destination.Locality and country $destination.Country")
+            throw IllegalArgumentException("Too many parties found matching organisation: $destination.organisation and locality: $destination.Locality and country $destination.Country")
+        } catch (e: NoSuchElementException) {
+            log.debug("No parties found matching organisation: $destination.organisation and locality: $destination.Locality and country $destination.Country")
+            throw IllegalArgumentException("No parties found matching organisation: $destination.organisation and locality: $destination.Locality and country $destination.Country")
+        } catch (e: Exception) {
+            log.info("Finding the correct party failed because $e.message")
+            throw e
+        }
+        return counterParty
     }
 }
 
@@ -200,7 +216,6 @@ class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTran
                 .map { participants -> participants.owningKey }
         }
         assert(meList.size == 1 && otherPartyList.size == 1) { "Too many or too few parties found to send a response to a data pull query." }
-        val me = meList.single()
         val otherParty = otherPartyList.single()
         /////////////
         progressTracker.currentStep = RUN_SPARQL_QUERY
