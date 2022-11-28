@@ -1,5 +1,5 @@
-include 'api'
 include 'semantic-adapter'
+include 'api'
 include 'corda:contracts'
 include 'corda:workflows'
 include 'corda:cordformation'

@@ -2,7 +2,6 @@ image: azul/zulu-openjdk:8
 
 stages:
   - build
-#  - test
   - deploy
 
 before_script:
@@ -19,7 +18,6 @@ build:
   stage: build
   script:
     - ./gradlew clean test --info
-#    - ./gradlew :workflows:test
   artifacts:
     when: on_failure
     paths:
@@ -34,8 +32,8 @@ deploySingleNode:
     - ./gradlew deploySingleNode
   artifacts:
     paths:
-      - build/nodes/SingleNode_SN/cordapps
-      - build/nodes/SingleNode_SN/corda.jar
+      - corda/cordformation/build/nodes/SingleNode_SN/cordapps
+      - corda/cordformation/build/nodes/SingleNode_SN/corda.jar
     expire_in: 30 days
 
 bootJar:
@@ -46,15 +44,5 @@ bootJar:
     - ./gradlew bootJar
   artifacts:
     paths:
-      - clients/build/libs/clients-0.1.jar
+      - api/build/libs/api.jar
     expire_in: 30 days
-
-#deploy_sensorlab_1:
-#  tags:
-#    - corda
-#  stage: deploy
-#  script:
-#    - echo "Deploy first node to sensorlab"
-#  environment:
-#    name: sensorlab_1
-#    url: https://federated.sensorlab.tno.nl

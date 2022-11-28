@@ -1,20 +1,19 @@
 version: '3.9'
-
+#
+# For more info see: https://github.com/khaller93/graphdb-free
+#
+# If on Windows WSL2 the mounting of the volume does not work, make sure to check that in your Windows home dir .wslconfig the following option is set:
+#
+#  [automount]
+#  options = "metadata"
+#
+# Note: remove the graphdb-data/<repo>/init.lock if you want to reinitialize the graphdb repository.
+#
 services:
     graphdb:
         volumes:
-            - 'graphdb-data:/opt/graphdb/data'
+            - './graphdb-data:/repository.init'
         ports:
             - '7200:7200'
         image: 'khaller/graphdb-free:10.0.0'
         container_name: graphdb
-    semanticadapter:
-        ports:
-            - '1337:1337'
-        image: 'tystnad/semantic-adapter:tl-0.5'
-        container_name: semanticadapter
-
-volumes:
-    graphdb-data:
-
-# https://github.com/khaller93/graphdb-free

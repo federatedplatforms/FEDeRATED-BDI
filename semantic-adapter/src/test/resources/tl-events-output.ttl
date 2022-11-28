@@ -1,0 +1,21 @@
+@prefix data: <https://ontology.tno.nl/logistics/federated/tradelens#> .
+@prefix dt: <https://ontology.tno.nl/logistics/federated/DigitalTwin#> .
+@prefix event: <https://ontology.tno.nl/logistics/federated/Event#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix pi: <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+data:DigitalTwin-c2cb84ce-87e9-4465-bb03-79e34c4d54fe a owl:NamedIndividual, dt:Container .
+
+data:PhysicalInfrastructure-AEJEA a owl:NamedIndividual, pi:Location .
+
+data:event-746dd77c-2b71-4b05-b928-7fcd7663e8df a owl:NamedIndividual, event:Event,
+    event:LoadEvent;
+  event:hasDateTimeType event:Actual;
+  event:hasMilestone event:Start;
+  event:hasSubmissionTimestamp "2022-09-23T12:35:01.307Z"^^xsd:dateTime;
+  event:hasTimestamp "2022-10-01T11:35:01.302Z"^^xsd:dateTime;
+  event:involvesBusinessTransaction data:BusinessTransaction-9c0a54d9-b152-4019-8994-283353ffdaaa;
+  event:involvesDigitalTwin data:DigitalTwin-c2cb84ce-87e9-4465-bb03-79e34c4d54fe;
+  event:involvesPhysicalInfrastructure data:PhysicalInfrastructure-AEJEA .
