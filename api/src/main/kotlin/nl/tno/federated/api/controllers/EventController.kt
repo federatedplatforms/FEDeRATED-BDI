@@ -37,26 +37,49 @@ class EventController(
     private val log = LoggerFactory.getLogger(EventController::class.java)
     private val eventGenerator = TTLRandomGenerator()
 
-    @ApiOperation(value = "Generate a new random event")
-    @PostMapping(
-        value = [
-            "/random/{destinationOrganisation}/{destinationLocality}/{destinationCountry}",
-            "/random/{destinationOrganisation}/{destinationLocality}",
-            "/random/{destinationOrganisation}",
-            "/random"
-        ]
-    )
-    fun generateRandomEvent(
-        @RequestHeader("Authorization") authorizationHeader: String,
-        @RequestParam("start-flow") startFlow: String,
-        @RequestParam("number-events") numberEvents: String,
-        @PathVariable destinationOrganisation: String?,
-        @PathVariable destinationLocality: String?,
-        @PathVariable destinationCountry: String?
-    ): ResponseEntity<String> {
+    @ApiOperation(value = "Generate a new random event with no destination")
+    @PostMapping(value = ["/random"])
+    fun generateRandomEventNoDestination(@RequestHeader("Authorization") authorizationHeader: String,
+                            @RequestParam("start-flow") startFlow: String,
+                            @RequestParam("number-events") numberEvents: String): ResponseEntity<String> {
         // 1. check if number of events is a correct integer
         numberEvents.toIntOrNull() ?: return ResponseEntity("number-events was incorrectly specified", HttpStatus.BAD_REQUEST)
-        log.debug("Startflow: {}, numberEvents: {}, org: {}, local: {}, country: {}", startFlow, numberEvents, destinationOrganisation, destinationLocality, destinationCountry)
+        log.debug("Startflow: {}, numberEvents: {}, no destination info",startFlow, numberEvents)
+        // 2. interpret the startFlow as boolean
+        return if (startFlow.toBooleanOrNull() == null) {
+            ResponseEntity("start-flow was incorrectly specified", HttpStatus.BAD_REQUEST)
+        } else {
+            // 3. generate the random event
+            val generatedTTL = eventGenerator.generateRandomEvents(numberEvents.toInt())
+
+            // 4. check if needed to start a new event flow
+            if (startFlow.toBooleanOrNull() == true) {
+
+                newEvent(generatedTTL.constructedTTL, null, null, null, authorizationHeader)
+
+            } else {
+                generateRandomEvent(authorizationHeader, startFlow, numberEvents, null, null, null)
+            }
+        }
+        // escape call if everything goes wrong
+        return ResponseEntity("Error caused by unknown reasons please report back the reqeust parameters: start flow = $startFlow, number of events = $numberEvents", HttpStatus.BAD_REQUEST)
+    }
+
+    @ApiOperation(value = "Generate a new random event")
+    @PostMapping(value = [
+        "/random/{destinationOrganisation}/{destinationLocality}/{destinationCountry}",
+        "/random/{destinationOrganisation}/{destinationLocality}",
+        "/random/{destinationOrganisation}"
+    ])
+    fun generateRandomEvent(@RequestHeader("Authorization") authorizationHeader: String,
+                            @RequestParam("start-flow") startFlow: String,
+                            @RequestParam("number-events") numberEvents: String,
+                            @PathVariable destinationOrganisation: String?,
+                            @PathVariable destinationLocality: String?,
+                            @PathVariable destinationCountry: String?): ResponseEntity<String> {
+        // 1. check if number of events is a correct integer
+        numberEvents.toIntOrNull() ?: return ResponseEntity("number-events was incorrectly specified", HttpStatus.BAD_REQUEST)
+        log.debug("Startflow: {}, numberEvents: {}, org: {}, local: {}, country: {}",startFlow, numberEvents, destinationOrganisation, destinationLocality, destinationCountry)
         // 2. interpret the startFlow as boolean
         return if (startFlow.toBooleanOrNull() == null) {
             ResponseEntity("start-flow was incorrectly specified", HttpStatus.BAD_REQUEST)
@@ -117,7 +140,7 @@ class EventController(
         log.info("Start NewEventFlow, sending event to destination: {}, {}, {}", destinationOrganisation, destinationLocality, destinationCountry)
         val newEventTx = rpc.client().startFlowDynamic(
             NewEventFlow::class.java,
-            if (destinationOrganisation == null) null else CordaX500Name(destinationOrganisation, destinationLocality!!, destinationCountry!!),
+            if (destinationOrganisation == null) emptySet() else setOf(CordaX500Name(destinationOrganisation, destinationLocality!!, destinationCountry!!)),
             event
         ).returnValue.get()
 
