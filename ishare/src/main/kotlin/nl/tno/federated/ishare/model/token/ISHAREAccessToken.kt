@@ -1,4 +1,4 @@
-package nl.tno.federated.ishare.utils
+package nl.tno.federated.ishare.model.token
 
 import java.time.Instant
 
