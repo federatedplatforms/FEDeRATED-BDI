@@ -1,5 +1,6 @@
 include 'semantic-adapter'
 include 'api'
+include 'ishare'
 include 'corda:contracts'
 include 'corda:workflows'
 include 'corda:cordformation'

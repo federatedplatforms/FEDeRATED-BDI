@@ -5,16 +5,16 @@ import io.swagger.annotations.ApiOperation
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
-import nl.tno.federated.flows.GeneralSPARQLqueryFlow
-import nl.tno.federated.flows.NewEventFlow
-import nl.tno.federated.flows.ParseRDFFlow
-import nl.tno.federated.flows.QueryGraphDBbyIdFlow
-import nl.tno.federated.services.TTLRandomGenerator
-import nl.tno.federated.states.Event
-import nl.tno.federated.states.EventState
 import nl.tno.federated.api.L1Services
 import nl.tno.federated.api.NodeRPCConnection
 import nl.tno.federated.api.SemanticAdapterService
+import nl.tno.federated.corda.flows.GeneralSPARQLqueryFlow
+import nl.tno.federated.corda.flows.NewEventFlow
+import nl.tno.federated.corda.flows.QueryGraphDBbyIdFlow
+import nl.tno.federated.corda.services.TTLRandomGenerator
+import nl.tno.federated.corda.services.graphdb.GraphDBEventConverter
+import nl.tno.federated.states.Event
+import nl.tno.federated.states.EventState
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -35,25 +35,28 @@ class EventController(
 ) {
 
     private val log = LoggerFactory.getLogger(EventController::class.java)
-
     private val eventGenerator = TTLRandomGenerator()
 
     @ApiOperation(value = "Generate a new random event")
-    @PostMapping(value = [
-        "/random/{destinationOrganisation}/{destinationLocality}/{destinationCountry}",
-        "/random/{destinationOrganisation}/{destinationLocality}",
-        "/random/{destinationOrganisation}",
-        "/random"
-    ])
-    fun generateRandomEvent(@RequestHeader("Authorization") authorizationHeader: String,
-                            @RequestParam("start-flow") startFlow: String,
-                            @RequestParam("number-events") numberEvents: String,
-                            @PathVariable destinationOrganisation: String?,
-                            @PathVariable destinationLocality: String?,
-                            @PathVariable destinationCountry: String?): ResponseEntity<String> {
+    @PostMapping(
+        value = [
+            "/random/{destinationOrganisation}/{destinationLocality}/{destinationCountry}",
+            "/random/{destinationOrganisation}/{destinationLocality}",
+            "/random/{destinationOrganisation}",
+            "/random"
+        ]
+    )
+    fun generateRandomEvent(
+        @RequestHeader("Authorization") authorizationHeader: String,
+        @RequestParam("start-flow") startFlow: String,
+        @RequestParam("number-events") numberEvents: String,
+        @PathVariable destinationOrganisation: String?,
+        @PathVariable destinationLocality: String?,
+        @PathVariable destinationCountry: String?
+    ): ResponseEntity<String> {
         // 1. check if number of events is a correct integer
         numberEvents.toIntOrNull() ?: return ResponseEntity("number-events was incorrectly specified", HttpStatus.BAD_REQUEST)
-        log.debug("Startflow: {}, numberEvents: {}, org: {}, local: {}, country: {}",startFlow, numberEvents, destinationOrganisation, destinationLocality, destinationCountry)
+        log.debug("Startflow: {}, numberEvents: {}, org: {}, local: {}, country: {}", startFlow, numberEvents, destinationOrganisation, destinationLocality, destinationCountry)
         // 2. interpret the startFlow as boolean
         return if (startFlow.ToBooleanOrNull() == null) {
             ResponseEntity("start-flow was incorrectly specified", HttpStatus.BAD_REQUEST)
@@ -79,8 +82,6 @@ class EventController(
                 ResponseEntity("Event created: ${generatedTTL.constructedTTL}", HttpStatus.CREATED)
             }
         }
-        // escape call if everything goes wrong
-        return ResponseEntity("Error caused by unknown reasons please report back the reqeust parameters: start flow = $startFlow, number of events = $numberEvents", HttpStatus.BAD_REQUEST)
     }
 
     @ApiOperation(value = "Create a new event without destination and return the UUID of the newly created event.")
@@ -191,7 +192,7 @@ class EventController(
 
     private fun eventStatesToEventMap(eventStates: List<EventState>): Map<UUID, List<Event>> {
         return eventStates.associate {
-            val parseRDFToEvents = rpc.client().startFlowDynamic(ParseRDFFlow::class.java, it.fullEvent).returnValue.get()
+            val parseRDFToEvents = GraphDBEventConverter.parseRDFToEvents(it.fullEvent)
             it.linearId.id to parseRDFToEvents
         }
     }

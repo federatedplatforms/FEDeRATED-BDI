@@ -1,7 +1,7 @@
 package nl.tno.federated.api
 
-import nl.tno.federated.flows.InsertRDFFlow
-import nl.tno.federated.flows.ParseRDFFlow
+import nl.tno.federated.corda.flows.InsertRDFFlow
+import nl.tno.federated.corda.services.graphdb.GraphDBEventConverter
 import nl.tno.federated.semantic.adapter.tradelens.TradelensTripleService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -88,7 +88,7 @@ class SemanticAdapterService(
     }
 
     private fun parseDTIdsAndBusinessTransactionIds(event: String): Map<List<UUID>, String> {
-        val parsedEvent = rpc.client().startFlowDynamic(ParseRDFFlow::class.java, event).returnValue.get()
+        val parsedEvent = GraphDBEventConverter.parseRDFToEvents(event)
         return parsedEvent.associate { it.allEvents().flatten() to it.businessTransaction }
     }
 }

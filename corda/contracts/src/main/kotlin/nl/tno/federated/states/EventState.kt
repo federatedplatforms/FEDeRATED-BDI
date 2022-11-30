@@ -15,7 +15,8 @@ import java.util.*
 data class EventState(
     val fullEvent: String,
     override val participants: List<AbstractParty> = listOf(),
-    override val linearId: UniqueIdentifier = UniqueIdentifier()
+    override val linearId: UniqueIdentifier = UniqueIdentifier(),
+    var accessTokens: MutableMap<AbstractParty,String> = mutableMapOf()
 ) : LinearState
 @CordaSerializable
 enum class Milestone {
