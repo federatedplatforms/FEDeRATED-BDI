@@ -58,14 +58,14 @@ class EventController(
         numberEvents.toIntOrNull() ?: return ResponseEntity("number-events was incorrectly specified", HttpStatus.BAD_REQUEST)
         log.debug("Startflow: {}, numberEvents: {}, org: {}, local: {}, country: {}", startFlow, numberEvents, destinationOrganisation, destinationLocality, destinationCountry)
         // 2. interpret the startFlow as boolean
-        return if (startFlow.ToBooleanOrNull() == null) {
+        return if (startFlow.toBooleanOrNull() == null) {
             ResponseEntity("start-flow was incorrectly specified", HttpStatus.BAD_REQUEST)
         } else {
             // 3. generate the random event
             val generatedTTL = eventGenerator.generateRandomEvents(numberEvents.toInt())
 
             // 4. check if needed to start a new event flow
-            if (startFlow.ToBooleanOrNull() == true) {
+            if (startFlow.toBooleanOrNull() == true) {
 
                 newEvent(generatedTTL.constructedTTL, destinationOrganisation, destinationLocality, destinationCountry, authorizationHeader)
 
@@ -197,7 +197,7 @@ class EventController(
         }
     }
 
-    private fun String.ToBooleanOrNull(): Boolean? {
+    private fun String.toBooleanOrNull(): Boolean? {
         if ((this.toLowerCase() != "true") && (this.toLowerCase() != "false")) return null
 
         return this.toBoolean()
