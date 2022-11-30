@@ -85,7 +85,7 @@ task deployNodes(type: Cordform, dependsOn: ['jar']) {
         }
     }
     node {
-        name "O=Netherlands,L=Soesterberg,C=NL,OU=MS"
+        name "O=Grenswacht,L=Rotterdam,C=NL,OU=MS"
         p2pAddress "localhost:10005"
         rpcSettings {
             address("localhost:10006")
@@ -94,7 +94,7 @@ task deployNodes(type: Cordform, dependsOn: ['jar']) {
         rpcUsers = [[user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
     }
     node {
-        name "O=Planet Express,L=Den Haag,C=DE,OU=LSP"
+        name "O=Tradeviewer,L=Den Haag,C=NL,OU=LSP"
         p2pAddress "localhost:10008"
         rpcSettings {
             address("localhost:10009")
@@ -103,7 +103,7 @@ task deployNodes(type: Cordform, dependsOn: ['jar']) {
         rpcUsers = [[user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
     }
     node {
-        name "O=Belgium,L=Brussels,C=BE,OU=MS"
+        name "O=Cargobase,L=Utrecht,C=NL,OU=LSP"
         p2pAddress "localhost:10011"
         rpcSettings {
             address("localhost:10012")
@@ -115,19 +115,19 @@ task deployNodes(type: Cordform, dependsOn: ['jar']) {
     doLast {
         copy {
             from '../workflows/src/main/resources/database.properties'
-            into "build/nodes/Netherlands_MS"
+            into "build/nodes/Grenswacht_MS"
         }
         copy {
             from '../workflows/src/main/resources/database.properties'
-            into "build/nodes/Belgium_MS"
+            into "build/nodes/Tradeviewer_LSP"
+        }
+        copy {
+            from '../workflows/src/main/resources/database.properties'
+            into "build/nodes/Cargobase_LSP"
         }
         copy {
             from '../workflows/src/main/resources/database.properties'
             into "build/nodes/Notary_Notary"
-        }
-        copy {
-            from '../workflows/src/main/resources/database.properties'
-            into "build/nodes/PlanetExpress_LSP"
         }
     }
 }

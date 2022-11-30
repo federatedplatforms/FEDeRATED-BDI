@@ -1,4 +1,4 @@
-POST {{api_url}}/datapull/request/{{data_pull_dataholder}}
+POST {{api_url}}/datapull/request/{{destination}}
 Authorization: Bearer doitanyway
 Content-Type: text/plain
 Accept: application/json
