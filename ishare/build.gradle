@@ -1,30 +1,6 @@
-
-plugins {
-    id 'net.corda.plugins.cordapp' version "$corda_gradle_plugin_version"
-    id 'net.corda.plugins.quasar-utils' version "$corda_gradle_plugin_version"
-}
-
 apply plugin: 'kotlin'
 
-cordapp {
-    targetPlatformVersion corda_platform_version
-    minimumPlatformVersion corda_platform_version
-    workflow {
-        name "Template Flows"
-        vendor "Corda Open Source"
-        licence "Apache License, Version 2.0"
-        versionId 4
-    }
-}
-
 dependencies {
-    cordapp project(":corda:contracts")
-
-    // Corda dependencies.
-    cordaCompile "net.corda:corda-core"
-    cordaRuntime "net.corda:corda"
-
-    compile project(":ishare")
 
     // We need to use compile instead of implementation because the corda plugin does not recognize implementation
     // and the dependency wont be included in the generated cordapp workflows.jar
@@ -40,21 +16,7 @@ dependencies {
 
     testImplementation "junit:junit"
     testImplementation "io.mockk:mockk"
-    testImplementation "org.testcontainers:testcontainers"
     testImplementation "org.jetbrains.kotlin:kotlin-test"
-    testImplementation "net.corda:corda-node-driver"
-}
-
-test {
-    maxHeapSize = "4096m"
-}
-
-jar {
-    // This makes the JAR's SHA-256 hash repeatable.
-    preserveFileTimestamps = false
-    reproducibleFileOrder = true
-    // Because the cordapp flattens the jar (fat jar) we need to make sure no duplicate entries end up in the jar.
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
