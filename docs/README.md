@@ -36,8 +36,8 @@ and set the run directory to the project root directory for each test.
 1. open a terminal
 2. navigate to the project root
 3. run `./gradlew deployNodes`
-4. wait
-5. navigate to `build/nodes` and run `./runnodes`
+4. wait until your are prompted `BUILD SUCCESSFUL`
+5. navigate to `corda/cordformation/build/nodes` and run `./runnodes`
 6. three windows will pop up (node A, node B, notary), wait for these to be finished, you will see an interactive shell
 
 See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.

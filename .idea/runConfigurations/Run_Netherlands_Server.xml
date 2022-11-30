@@ -9,7 +9,7 @@
     </envs>
     <option name="MAIN_CLASS_NAME" value="nl.tno.federated.api.ServerKt" />
     <module name="platform-corda.api.main" />
-    <shortenClasspath name="NONE" />
+    <shortenClasspath name="ARGS_FILE" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
