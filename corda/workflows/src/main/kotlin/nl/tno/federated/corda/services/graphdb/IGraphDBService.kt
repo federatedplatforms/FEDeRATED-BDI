@@ -1,4 +1,4 @@
-package nl.tno.federated.services
+package nl.tno.federated.corda.services.graphdb
 
 import nl.tno.federated.states.Event
 

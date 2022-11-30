@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
+- ishare specific corda flows
+- ishare module containing all the ishare specific logic
 - Kotlin based version of the semantic adapter that was previously written in Python.
 
 ### Changed

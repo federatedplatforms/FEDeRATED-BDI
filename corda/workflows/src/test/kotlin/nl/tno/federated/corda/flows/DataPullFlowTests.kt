@@ -1,4 +1,4 @@
-package nl.tno.federated
+package nl.tno.federated.corda.flows
 
 import io.mockk.every
 import io.mockk.mockk
@@ -11,11 +11,8 @@ import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
-import nl.tno.federated.flows.DataPullQueryFlow
-import nl.tno.federated.flows.DataPullQueryResponderFlow
-import nl.tno.federated.flows.DataPullResultResponderFlow
-import nl.tno.federated.services.CordaGraphDBService
-import nl.tno.federated.services.IGraphDBService
+import nl.tno.federated.corda.services.graphdb.GraphDBCordaService
+import nl.tno.federated.corda.services.graphdb.IGraphDBService
 import nl.tno.federated.states.DataPullState
 import org.junit.After
 import org.junit.Before
@@ -53,7 +50,7 @@ class DataPullFlowTests {
 
         // For real nodes this happens automatically, but we have to manually register the flow for tests
         startedNodes.forEach {
-            it.services.cordaService(CordaGraphDBService::class.java).setGraphDBService(graphDBService)
+            it.services.cordaService(GraphDBCordaService::class.java).setGraphDBService(graphDBService)
             it.registerInitiatedFlow(DataPullQueryResponderFlow::class.java)
             it.registerInitiatedFlow(DataPullResultResponderFlow::class.java)
         }

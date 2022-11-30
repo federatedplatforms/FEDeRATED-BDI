@@ -5,7 +5,7 @@ import io.mockk.mockk
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.FlowHandle
 import net.corda.core.transactions.SignedTransaction
-import nl.tno.federated.flows.NewEventFlow
+import nl.tno.federated.corda.flows.NewEventFlow
 import nl.tno.federated.states.EventState
 import nl.tno.federated.api.NodeRPCConnection
 import org.junit.Assert.assertEquals

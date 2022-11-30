@@ -7,14 +7,6 @@ apply plugin: 'kotlin'
 apply plugin: 'kotlin-allopen'
 apply plugin: 'io.spring.dependency-management'
 
-sourceSets {
-    main {
-        resources {
-            srcDir rootProject.file("config/dev")
-        }
-    }
-}
-
 dependencies {
     // CorDapp dependencies.
     implementation project(":corda:contracts")

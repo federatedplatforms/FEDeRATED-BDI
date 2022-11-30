@@ -1,8 +1,9 @@
-package nl.tno.federated
+package nl.tno.federated.corda.flows
 
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.queryBy
 import net.corda.core.utilities.getOrThrow
@@ -12,15 +13,18 @@ import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
-import nl.tno.federated.flows.NewEventFlow
-import nl.tno.federated.flows.NewEventResponder
-import nl.tno.federated.services.CordaGraphDBService
-import nl.tno.federated.services.IGraphDBService
+import nl.tno.federated.corda.services.graphdb.GraphDBCordaService
+import nl.tno.federated.corda.services.graphdb.IGraphDBService
+import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
+import nl.tno.federated.states.EventType
+import nl.tno.federated.states.Milestone
+import nl.tno.federated.states.Timestamp
 import org.junit.After
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
+import java.util.*
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
@@ -33,10 +37,10 @@ class EventFlowTests {
     private lateinit var graphDBService: IGraphDBService
 
     private val unknownNames = setOf(CordaX500Name("PartyY", "Reykjavik", "IS"), CordaX500Name("PartyZ", "Reykjavik", "IS"))
-    val aName = CordaX500Name("PA", "PartyA", "Reykjavik", "IS")
-    val bName = CordaX500Name("PartyB", "Rotterdam", "NL")
-    val cName = CordaX500Name("PartyC", "Berlin", "DE")
-    val dName = CordaX500Name("PartyD", "Paris", "FR")
+    private val aName = CordaX500Name("PA", "PartyA", "Reykjavik", "IS")
+    private val bName = CordaX500Name("PartyB", "Rotterdam", "NL")
+    private val cName = CordaX500Name("PartyC", "Berlin", "DE")
+    private val dName = CordaX500Name("PartyD", "Paris", "FR")
     private val countriesInvolved = setOf(bName, cName, dName)
 
     @Before
@@ -47,21 +51,18 @@ class EventFlowTests {
         network = MockNetwork(
             listOf("nl.tno.federated"), notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary", "Brussels", "BE"))), networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
         )
-        // including commonName for Party A to test if party lookups still work
-        a = network.createNode(MockNodeParameters(legalName = aName ))
-        b = network.createNode(MockNodeParameters(legalName = bName))
-        c = network.createNode(MockNodeParameters(legalName = cName))
-        d = network.createNode(MockNodeParameters(legalName = dName))
+        a = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyA", "Reykjavik", "IS")))
+        b = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyB", "Rotterdam", "NL")))
+        c = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyC", "Berlin", "DE")))
+        d = network.createNode(MockNodeParameters(legalName = CordaX500Name("PartyD", "Paris", "FR")))
 
         val startedNodes = arrayListOf(a, b, c, d)
 
         // For real nodes this happens automatically, but we have to manually register the flow for tests
         startedNodes.forEach {
-            it.services.cordaService(CordaGraphDBService::class.java).setGraphDBService(graphDBService)
+            it.services.cordaService(GraphDBCordaService::class.java).setGraphDBService(graphDBService)
             it.registerInitiatedFlow(NewEventResponder::class.java)
         }
-
-        network.runNetwork()
     }
 
     @After
@@ -70,11 +71,24 @@ class EventFlowTests {
         unmockkAll()
     }
 
-
-
     @Test
     fun `Start event with goods and transport`() {
         val flow = NewEventFlow(countriesInvolved, "unused event")
+        val future = a.startFlow(flow)
+        network.runNetwork()
+
+        val signedTx = future.getOrThrow()
+        signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+    }
+
+    @Test
+    fun `Receive iShare message`() {
+        val eCMRuriExample = "This is a URI example for an eCMR"
+        val sampleEvent = ""
+        val businessTx = ""
+        val event = Event(setOf(UniqueIdentifier().id), setOf(UniqueIdentifier().id), emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, businessTx,  sampleEvent)
+        every { graphDBService.parseRDFToEvents(any()) } returns listOf(event)
+        val flow = NewEventFlow(countriesInvolved,"unused event")
         val future = a.startFlow(flow)
         network.runNetwork()
 

@@ -1,4 +1,4 @@
-package nl.tno.federated.flows
+package nl.tno.federated.corda.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command

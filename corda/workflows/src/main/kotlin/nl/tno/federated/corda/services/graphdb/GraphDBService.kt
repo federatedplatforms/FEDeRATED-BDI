@@ -1,7 +1,8 @@
-package nl.tno.federated.services
+package nl.tno.federated.corda.services.graphdb
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import net.corda.core.internal.toPath
+import nl.tno.federated.services.PrefixHandlerQueries
 import nl.tno.federated.states.Event
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse

@@ -1,5 +1,6 @@
-package nl.tno.federated.services
+package nl.tno.federated.corda.services
 
+import nl.tno.federated.services.PrefixHandlerTTLGenerator
 import nl.tno.federated.states.EventType
 import nl.tno.federated.states.Milestone
 import org.apache.commons.lang3.RandomUtils

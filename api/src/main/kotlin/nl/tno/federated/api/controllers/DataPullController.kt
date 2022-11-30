@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiOperation
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
-import nl.tno.federated.flows.DataPullQueryFlow
+import nl.tno.federated.corda.flows.DataPullQueryFlow
 import nl.tno.federated.states.DataPullState
 import nl.tno.federated.api.L1Services
 import nl.tno.federated.api.NodeRPCConnection

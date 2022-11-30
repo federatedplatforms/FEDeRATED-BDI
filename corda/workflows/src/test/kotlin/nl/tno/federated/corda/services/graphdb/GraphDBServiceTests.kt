@@ -1,13 +1,13 @@
-package nl.tno.federated
+package nl.tno.federated.corda.services.graphdb
 
 import com.google.common.collect.testing.Helpers.assertContainsAllOf
 import net.corda.core.internal.randomOrNull
-import nl.tno.federated.services.GraphDBService
 import nl.tno.federated.services.PrefixHandlerTTLGenerator
-import nl.tno.federated.services.TTLRandomGenerator
+import nl.tno.federated.corda.services.TTLRandomGenerator
 import nl.tno.federated.states.EventType
 import nl.tno.federated.states.Milestone
 import org.junit.Assert.assertFalse
+import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Ignore
 import org.junit.Test
@@ -28,42 +28,24 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
         private val generatedTTL = TTLRandomGenerator().generateRandomEvents()
         private val validSampleTtl = generatedTTL.constructedTTL
         private val eventPool = generatedTTL.eventIdentifiers
-        private val graphdb = GraphDBService()
+    }
 
-        @JvmStatic
-        @BeforeClass
-        fun setup() {
-            // Override database.properties with docker properties
-            System.setProperty("triplestore.host",  graphDB.host)
-            System.setProperty("triplestore.port",  graphDB.firstMappedPort?.toString() ?: "7200")
-
-            // 1. Create repositories
-            graphdb.createRemoteRepositoryFromConfig("bdi-repository-config.ttl")
-            graphdb.createRemoteRepositoryFromConfig("private-repository-config.ttl")
-
-            // 2. Import graph files
-            graphdb.importGraphFile("federated-shacl.zip", "http://rdf4j.org/schema/rdf4j#SHACLShapeGraph")
-
-            graphdb.importGraphFile("ontologies.zip", "")
-
-            await().atMost(10, TimeUnit.SECONDS).until { graphdb.areGraphFilesImported() }
-
-            // 3. Insert data
-            graphdb.insertEvent(validSampleTtl, false)
-        }
+    @Before
+    fun before() {
+        graphDBService.insertEvent(validSampleTtl, false)
     }
 
     @Test
     fun `Query everything`() {
-        val everythingQueryResult = graphdb.queryEventIds()
-        assertFalse(graphdb.isQueryResultEmpty(everythingQueryResult))
+        val everythingQueryResult = graphDBService.queryEventIds()
+        assertFalse(graphDBService.isQueryResultEmpty(everythingQueryResult))
     }
 
     @Test
     fun `Query event by ID`() {
         val randomEvent = eventPool.randomOrNull()!!
-        val result = graphdb.queryEventById(randomEvent)
-        assertFalse(graphdb.isQueryResultEmpty(result))
+        val result = graphDBService.queryEventById(randomEvent)
+        assertFalse(graphDBService.isQueryResultEmpty(result))
     }
 
 
@@ -104,7 +86,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
               dt:containerID "XINU4010266" .
 
             """.trimIndent()
-        val parsedEvents = graphdb.parseRDFToEvents(testRdfEvent)
+        val parsedEvents = graphDBService.parseRDFToEvents(testRdfEvent)
         assertEquals(1, parsedEvents.size)
         val parsedEvent = parsedEvents.single()
 
@@ -142,7 +124,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
               pi:locatedAt pi:Location-BEANR .
             """.trimIndent()
 
-        val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).first()
+        val parsedEvent = graphDBService.parseRDFToEvents(testRdfEvent).first()
 
         assertEquals("0c1e0ed5-636c-48b2-8f52-542e6f4d156a", parsedEvent.transportMean.single().toString())
 
@@ -163,7 +145,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
             ex:DigitalTwin-c5836199-8809-3930-9cf8-1d14a54d242a a dt:TransportMeans.
             """.trimIndent()
 
-        val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).first()
+        val parsedEvent = graphDBService.parseRDFToEvents(testRdfEvent).first()
 
         assertEquals("c5836199-8809-3930-9cf8-1d14a54d242a", parsedEvent.transportMean.single().toString())
 
@@ -185,7 +167,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
             ex:DigitalTwin-ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1 a dt:Goods.
             """.trimIndent()
 
-        val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
+        val parsedEvent = graphDBService.parseRDFToEvents(testRdfEvent).single()
 
         assertEquals("c5836199-8809-3930-9cf8-1d14a54d242a", parsedEvent.transportMean.single().toString())
         assertEquals("ce1c5fa7-707d-385b-bdcd-d1d4025eb3d1", parsedEvent.goods.single().toString())
@@ -206,7 +188,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
             ex:dt-43691f54-091c-4378-a176-b730a4966996 a dt:TransportMeans.
             """.trimIndent()
 
-        val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
+        val parsedEvent = graphDBService.parseRDFToEvents(testRdfEvent).single()
 
         assertEquals("43691f54-091c-4378-a176-b730a4966996", parsedEvent.transportMean.single().toString())
         assertEquals("b4d51938-5ae5-330d-af2e-a198dd2c16ab", parsedEvent.location.single().toString())
@@ -227,7 +209,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
             ex:dt-dce1774a-b2a1-338e-bd56-1902c57f836f a dt:TransportMeans, owl:NamedIndividual.
             """.trimIndent()
 
-        val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
+        val parsedEvent = graphDBService.parseRDFToEvents(testRdfEvent).single()
 
         assertEquals("dce1774a-b2a1-338e-bd56-1902c57f836f", parsedEvent.otherDigitalTwins.single().toString())
         assertEquals("be989099-2e25-3259-975b-9f17c63b0281", parsedEvent.location.single().toString())
@@ -255,7 +237,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
 
             """.trimIndent()
 
-        val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
+        val parsedEvent = graphDBService.parseRDFToEvents(testRdfEvent).single()
 
         assertEquals("bf93dc6a-1f04-4dec-ba0d-3ba987b2723f", parsedEvent.transportMean.single().toString())
         assertEquals("INNSA", parsedEvent.location.single().toString())
@@ -282,7 +264,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
                   Event:involvesPhysicalInfrastructure data:PhysicalInfrastructure-INNSA .
             """.trimIndent()
 
-        val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
+        val parsedEvent = graphDBService.parseRDFToEvents(testRdfEvent).single()
 
         assertEquals("bf93dc6a-1f04-4dec-ba0d-3ba987b2723f", parsedEvent.transportMean.single().toString())
         assertEquals("INNSA", parsedEvent.location.single().toString())
@@ -290,14 +272,14 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
 
     @Test
     fun `Insert new event`() {
-        val successfulInsertion = graphdb.insertEvent(TTLRandomGenerator().generateRandomEvents(1).constructedTTL, false)
+        val successfulInsertion = graphDBService.insertEvent(TTLRandomGenerator().generateRandomEvents(1).constructedTTL, false)
         assert(successfulInsertion)
     }
 
     @Ignore("Enable this when shacl validation is back working")
     @Test
     fun `Insert invalid event`() {
-        val successfulInsertion = graphdb.insertEvent(invalidSampleTTL, false)
+        val successfulInsertion = graphDBService.insertEvent(invalidSampleTTL, false)
         assert(!successfulInsertion)
     }
 
@@ -317,7 +299,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
             ex:dt-dce1774a-b2a1-338e-bd56-1902c57f836f a dt:TransportMeans, owl:NamedIndividual.
             """.trimIndent()
 
-        val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
+        val parsedEvent = graphDBService.parseRDFToEvents(testRdfEvent).single()
 
         assertEquals(2, parsedEvent.labels.size)
         assertContainsAllOf(parsedEvent.labels, "GateOut test", "insuranceEvent")
@@ -339,7 +321,7 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
             ex:dt-dce1774a-b2a1-338e-bd56-1902c57f836f a dt:TransportMeans, owl:NamedIndividual.
             """.trimIndent()
 
-        val parsedEvent = graphdb.parseRDFToEvents(testRdfEvent).single()
+        val parsedEvent = graphDBService.parseRDFToEvents(testRdfEvent).single()
 
         assertEquals(1, parsedEvent.otherDigitalTwins.size)
         assertEquals(UUID.fromString("dce1774a-b2a1-338e-bd56-1902c57f836f"), parsedEvent.otherDigitalTwins.single())

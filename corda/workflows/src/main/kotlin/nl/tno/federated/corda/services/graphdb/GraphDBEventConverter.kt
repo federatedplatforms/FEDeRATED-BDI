@@ -1,4 +1,4 @@
-package nl.tno.federated.services
+package nl.tno.federated.corda.services.graphdb
 
 import nl.tno.federated.states.*
 import org.eclipse.rdf4j.common.text.StringUtil

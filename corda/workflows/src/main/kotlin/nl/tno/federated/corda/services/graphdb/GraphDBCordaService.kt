@@ -1,4 +1,4 @@
-package nl.tno.federated.services
+package nl.tno.federated.corda.services.graphdb
 
 import net.corda.core.node.AppServiceHub
 import net.corda.core.node.services.CordaService
@@ -6,7 +6,7 @@ import net.corda.core.serialization.SingletonSerializeAsToken
 import nl.tno.federated.states.Event
 
 @CordaService
-class CordaGraphDBService(serviceHub: AppServiceHub) : IGraphDBService, SingletonSerializeAsToken() {
+class GraphDBCordaService(serviceHub: AppServiceHub) : IGraphDBService, SingletonSerializeAsToken() {
 
     private var graphDBService: IGraphDBService? = null
 
