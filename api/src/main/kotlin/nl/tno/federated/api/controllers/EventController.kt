@@ -83,12 +83,20 @@ class EventController(
         return ResponseEntity("Error caused by unknown reasons please report back the reqeust parameters: start flow = $startFlow, number of events = $numberEvents", HttpStatus.BAD_REQUEST)
     }
 
+    @ApiOperation(value = "Create a new event without destination and return the UUID of the newly created event.")
+    @PostMapping(value = ["/"])
+    fun newEventNoDestination(@RequestBody event: String,
+                              @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<String> {
+        l1service.verifyAccessToken(authorizationHeader)
+        log.info("Start NewEventFlow, no destination")
+        return newEvent(event, null, null, null, authorizationHeader)
+    }
+
     @ApiOperation(value = "Create a new event and returns the UUID of the newly created event.")
     @PostMapping(value = [
         "/{destinationOrganisation}/{destinationLocality}/{destinationCountry}",
         "/{destinationOrganisation}/{destinationLocality}",
-        "/{destinationOrganisation}",
-        "/"
+        "/{destinationOrganisation}"
     ])
     fun newEvent(@RequestBody event: String,
                  @PathVariable destinationOrganisation: String?,
