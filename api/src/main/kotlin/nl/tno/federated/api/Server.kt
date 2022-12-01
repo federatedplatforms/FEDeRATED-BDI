@@ -30,9 +30,6 @@ class Server {
     @Autowired
     lateinit var environment: Environment
 
-    @Bean("ishareRestTemplate")
-    fun ishareRestTemplate(): RestTemplate = restTemplateFor("ishare")
-
     @Bean("tradelensRestTemplate")
     fun tradelensRestTemplate(): RestTemplate = restTemplateFor("tradelens")
 

@@ -11,7 +11,6 @@ import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
 import nl.tno.federated.corda.services.ishare.ISHARECordaService
-import nl.tno.federated.ishare.config.ISHAREConfig
 import nl.tno.federated.states.EventState
 import org.slf4j.LoggerFactory
 
@@ -47,8 +46,6 @@ class NewEventFlow(
             GATHERING_SIGS,
             FINALISING_TRANSACTION
         )
-
-        val ishareConfig = ISHAREConfig.loadProperties("ishare.properties")
     }
 
     override val progressTracker = tracker()
@@ -90,13 +87,12 @@ class NewEventFlow(
         progressTracker.currentStep = SIGNING_TRANSACTION
 
         /*
-          When a Event is send he same  event is send to all parties
-          This needs to change, because if ISHARE is used every party hands out his own accesstoken, which is stored in the event.
-          If we could store the accesstoken in the session maybe it will persist.
+          When an Event is sent, the same event is sent to all parties
+          This needs to change, because if ISHARE is used, every party hands out his own accesstoken,
+          which is stored in the event.
         */
-        if (ishareConfig.enabled) {
+        if (serviceHub.cordaService(ISHARECordaService::class.java).ishareEnabled()) {
             // create an eventstate for every party , since they all have different accesstokens
-
             counterParties.forEach {
                 //  create new session to get the tokens ?
                 val tokenResponse = subFlow(ISHARETokenFlow(it))
@@ -118,9 +114,10 @@ class NewEventFlow(
         progressTracker.currentStep = FINALISING_TRANSACTION
         // Notarise and record the transaction in both parties' vaults.
 
-        require(graphdb().insertEvent(newEventState.fullEvent, false)) { "Unable to insert event data into the triple store at $me." }.also {
-            log.info("Unable" +
-                "to insert event data into the triple store at $me.")
+        require(await(GraphDBInsert(graphdb(), newEventState.fullEvent,false))) {
+            "Unable to insert event data into the triple store at $me."
+        }.also {
+            log.info("Unable to insert event data into the triple store at $me.")
         }
         return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
     }
@@ -140,7 +137,6 @@ class NewEventFlow(
             throw e
         }
     }
-
 }
 
 @InitiatedBy(NewEventFlow::class)
@@ -166,32 +162,29 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
     override fun call(): SignedTransaction {
         progressTracker.currentStep = VERIFYING_STRING_INTEGRITY
 
-
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
+            @Suspendable
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 val outputState = stx.tx.outputStates.single() as EventState
+                val ishareService = serviceHub.cordaService(ISHARECordaService::class.java)
 
                 // Check accesstoken if required and available in the eventState
-                if (serviceHub.cordaService(ISHARECordaService::class.java).ishareEnabled()) {
+                if (ishareService.ishareEnabled()) {
                     require(outputState.accessTokens.contains(serviceHub.myInfo.legalIdentities.first())) {
                         "ISHARE accessToken not found while it is required"
                     }
                     outputState.accessTokens[serviceHub.myInfo.legalIdentities.first()]?.let {
-                        require(serviceHub.cordaService(ISHARECordaService::class.java).checkAccessToken(it).first) {
+                        require(ishareService.checkAccessToken(it).first) {
                             "ISHARE AccessToken is invalid."
                         }
                         // TODO optional check if insert of event is allowed by the iSHARE AR
                     }
                 }
 
-                require(
-                    graphdb().insertEvent(
-                        outputState.fullEvent,
-                        false
-                    )
-                ) { "Unable to insert event data into the triple store at " + serviceHub.myInfo.legalIdentities.first() }.also {
-                    log.info("Unable to insert event data" +
-                        "into the triple store at " + serviceHub.myInfo.legalIdentities.first())
+                require(await(GraphDBInsert(graphdb(), outputState.fullEvent,false))) {
+                    "Unable to insert event data into the triple store at " + serviceHub.myInfo.legalIdentities.first()
+                }.also {
+                    log.info("Unable to insert event data into the triple store at " + serviceHub.myInfo.legalIdentities.first())
                 }
                 // TODO what to check in the counterparty flow?
                 // especially: if I'm not passing all previous states in the tx (see "requires" in the flow)
