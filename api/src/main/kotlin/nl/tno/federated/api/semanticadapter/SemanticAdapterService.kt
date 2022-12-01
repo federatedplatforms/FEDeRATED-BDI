@@ -1,5 +1,7 @@
-package nl.tno.federated.api
+package nl.tno.federated.api.semanticadapter
 
+import nl.tno.federated.api.corda.NodeRPCConnection
+import nl.tno.federated.api.tradelens.TradelensService
 import nl.tno.federated.corda.flows.InsertRDFFlow
 import nl.tno.federated.corda.services.graphdb.GraphDBEventConverter
 import nl.tno.federated.semantic.adapter.tradelens.TradelensTripleService
@@ -11,8 +13,8 @@ class SemanticAdapterException(message: String) : Exception(message)
 
 @Service
 class SemanticAdapterService(
-    private val tradelensService: TradelensService,
     private val rpc: NodeRPCConnection,
+    private val tradelensService: TradelensService,
     private val tradelensTripleService: TradelensTripleService
 ) {
 

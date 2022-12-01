@@ -5,9 +5,9 @@ import io.mockk.mockk
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.FlowHandle
 import net.corda.core.transactions.SignedTransaction
+import nl.tno.federated.api.corda.NodeRPCConnection
 import nl.tno.federated.corda.flows.NewEventFlow
 import nl.tno.federated.states.EventState
-import nl.tno.federated.api.NodeRPCConnection
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -174,17 +174,6 @@ class EventControllerTest {
 
         assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
         assertTrue("The missing destination fields have not been identified", response.body!!.contains("Missing destination field"))
-    }
-
-    @Test
-    fun newEventIncorrectAuthorizationHeader() {
-        val headers = HttpHeaders().apply {
-            set(HttpHeaders.AUTHORIZATION, "Bearer wontwork")
-        }
-
-        val response = testRestTemplate.postForEntity("/events/TNO/Soesterberg/NL", HttpEntity("bla", headers), String::class.java)
-
-        assertEquals(HttpStatus.FORBIDDEN, response.statusCode)
     }
 
     @Test

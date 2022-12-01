@@ -2,7 +2,7 @@ package nl.tno.federated.api.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
-import nl.tno.federated.api.NodeRPCConnection
+import nl.tno.federated.api.corda.NodeRPCConnection
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping

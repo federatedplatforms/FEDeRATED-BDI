@@ -1,4 +1,4 @@
-package nl.tno.federated.api
+package nl.tno.federated.api.tradelens
 
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value

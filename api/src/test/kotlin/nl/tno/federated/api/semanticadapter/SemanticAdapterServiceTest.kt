@@ -1,4 +1,4 @@
-package nl.tno.federated.api
+package nl.tno.federated.api.semanticadapter
 
 import org.junit.Test
 

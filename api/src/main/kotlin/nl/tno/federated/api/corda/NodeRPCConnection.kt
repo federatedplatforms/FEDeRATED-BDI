@@ -1,4 +1,4 @@
-package nl.tno.federated.api
+package nl.tno.federated.api.corda
 
 import net.corda.client.rpc.CordaRPCClient
 import net.corda.client.rpc.CordaRPCConnection
