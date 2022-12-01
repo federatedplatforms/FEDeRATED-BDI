@@ -5,10 +5,9 @@ import io.swagger.annotations.ApiOperation
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
+import nl.tno.federated.api.corda.NodeRPCConnection
 import nl.tno.federated.corda.flows.DataPullQueryFlow
 import nl.tno.federated.states.DataPullState
-import nl.tno.federated.api.L1Services
-import nl.tno.federated.api.NodeRPCConnection
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -23,7 +22,7 @@ import java.util.*
 @RestController
 @RequestMapping("/datapull")
 @Api(value = "DataPullController", tags = ["Data pull endpoints"])
-class DataPullController(private val rpc: NodeRPCConnection, private val l1service: L1Services) {
+class DataPullController(private val rpc: NodeRPCConnection) {
 
     private val log = LoggerFactory.getLogger(DataPullController::class.java)
 
@@ -33,10 +32,8 @@ class DataPullController(private val rpc: NodeRPCConnection, private val l1servi
         @RequestBody query: String,
         @PathVariable destinationOrganisation: String?,
         @PathVariable destinationLocality: String?,
-        @PathVariable destinationCountry: String?,
-        @RequestHeader("Authorization") authorizationHeader: String
+        @PathVariable destinationCountry: String?
     ): ResponseEntity<String> {
-        l1service.verifyAccessToken(authorizationHeader)
         if (destinationOrganisation == null || destinationLocality == null || destinationCountry == null) { return ResponseEntity("Missing destination fields", HttpStatus.BAD_REQUEST)}
 
         log.info("Data pull SPARQL query requested for destination: {}", destinationOrganisation)
@@ -54,9 +51,7 @@ class DataPullController(private val rpc: NodeRPCConnection, private val l1servi
 
     @ApiOperation(value = "Retrieve data from a previous request")
     @GetMapping(value = ["/retrieve/{uuid}"], produces =  [MediaType.APPLICATION_JSON_VALUE])
-    fun retrieve(@PathVariable uuid: String, @RequestHeader("Authorization") authorizationHeader: String): ResponseEntity<List<String>> {
-        l1service.verifyAccessToken(authorizationHeader)
-
+    fun retrieve(@PathVariable uuid: String): ResponseEntity<List<String>> {
         val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(UUID.fromString(uuid)))
         val datapullResults = rpc.client().vaultQueryBy<DataPullState>(criteria).states
                 .flatMap{ it.state.data.result }

@@ -1,4 +1,4 @@
-package nl.tno.federated.api
+package nl.tno.federated.api.tradelens
 
 import org.junit.Before
 import org.junit.Test
