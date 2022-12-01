@@ -6,8 +6,6 @@ import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.InitiatingFlow
 import net.corda.core.flows.StartableByRPC
 import nl.tno.federated.corda.services.graphdb.GraphDBCordaService
-import nl.tno.federated.corda.services.ishare.ISHARECordaService
-import nl.tno.federated.states.Event
 
 @InitiatingFlow
 @StartableByRPC
@@ -17,8 +15,7 @@ class QueryGraphDBbyIdFlow(
 
     @Suspendable
     override fun call(): String {
-        // TODO https://docs.r3.com/en/platform/corda/4.9/community/api-flows.html#calling-external-systems-inside-of-flows
-        return graphdb().queryEventById(id)
+        return await(GraphDBQueryById(graphdb(), id))
     }
 }
 
@@ -30,8 +27,7 @@ class GeneralSPARQLqueryFlow(
 
     @Suspendable
     override fun call(): String {
-        // TODO https://docs.r3.com/en/platform/corda/4.9/community/api-flows.html#calling-external-systems-inside-of-flows
-        return graphdb().generalSPARQLquery(query)
+        return await(GraphDBGeneralSPARQLquery(graphdb(), query))
     }
 }
 
@@ -44,8 +40,42 @@ class InsertRDFFlow(
 
     @Suspendable
     override fun call(): Boolean {
-        // TODO https://docs.r3.com/en/platform/corda/4.9/community/api-flows.html#calling-external-systems-inside-of-flows
-        return graphdb().insertEvent(rdfEvent, privateRepo)
+        return await(GraphDBInsert(graphdb(), rdfEvent, privateRepo))
+    }
+}
+
+/**
+ * https://docs.r3.com/en/platform/corda/4.9/community/api-flows.html#calling-external-systems-inside-of-flows
+ */
+class GraphDBInsert(
+    private val graphDBCordaService: GraphDBCordaService,
+    private val rdfEvent: String,
+    private val privateRepo: Boolean
+) : FlowExternalOperation<Boolean> {
+
+    // Implement [execute] which will be run on a thread outside of the flow's context
+    override fun execute(deduplicationId: String): Boolean {
+        return graphDBCordaService.insertEvent(rdfEvent, privateRepo)
+    }
+}
+
+class GraphDBGeneralSPARQLquery(
+    private val graphDBCordaService: GraphDBCordaService,
+    private val query: String
+) : FlowExternalOperation<String> {
+
+    override fun execute(deduplicationId: String): String {
+        return graphDBCordaService.generalSPARQLquery(query)
+    }
+}
+
+class GraphDBQueryById(
+    private val graphDBCordaService: GraphDBCordaService,
+    private val id: String
+) : FlowExternalOperation<String> {
+
+    override fun execute(deduplicationId: String): String {
+        return graphDBCordaService.queryEventById(id)
     }
 }
 
