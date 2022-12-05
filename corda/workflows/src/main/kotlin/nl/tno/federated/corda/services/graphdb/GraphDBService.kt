@@ -20,6 +20,8 @@ import java.net.URI
 import java.net.URL
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets.UTF_8
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.*
 
 /**
@@ -49,15 +51,20 @@ class GraphDBService : IGraphDBService {
 
             with(System.getProperties()) {
                 getProperty("triplestore.protocol")?.run {
+                    log.info("Overriding database.properties with System properties: triplestore.protocol: {}", this)
                     properties.setProperty("triplestore.protocol", this)
                 }
                 getProperty("triplestore.host")?.run {
+                    log.info("Overriding database.properties with System properties: triplestore.host: {}", this)
                     properties.setProperty("triplestore.host", this)
                 }
                 getProperty("triplestore.port")?.let {
+                    log.info("Overriding database.properties with System properties: triplestore.port: {}", this)
                     properties.setProperty("triplestore.port", it)
                 }
             }
+
+            log.info("Loaded database.properties: triplestore.protocol: {}, triplestore.host: {}, triplestore.port: {}", properties.get("triplestore.protocol"), properties.get("triplestore.host"), properties.get("triplestore.port"))
             properties
         }
     }
@@ -339,21 +346,13 @@ class GraphDBService : IGraphDBService {
         return false
     }
 
-    fun areGraphFilesImported(): Boolean {
-        val getResponse = client.get(URL("${getGraphDBBaseUri()}/rest/repositories/bdi/import/upload").toURI())!!
-        val body = getResponse.entity.contentAsString
-
-        val mapper = jacksonObjectMapper().readTree(body)
-
-        if (!mapper.elements().hasNext()) return false
-
-        val statusGraphFileFirst = mapper[0]["status"].asText()
-        val statusGraphFileSecond = mapper[1]["status"].asText()
-
-        return ((statusGraphFileFirst == "DONE") && (statusGraphFileSecond == "DONE"))
-    }
-
     private fun getInputStreamFromClassPathResource(filename: String): InputStream? {
+        val file = Paths.get(filename)
+        if(Files.exists(file)) {
+            log.info("Using file: {}", file.toAbsolutePath())
+            return Files.newInputStream(file)
+        }
+        log.info("Using classpath resource: {}", filename)
         return Thread.currentThread().contextClassLoader.getResourceAsStream(filename)
     }
 
