@@ -34,6 +34,30 @@ class EventControllerTest {
     lateinit var rpc: NodeRPCConnection
 
     @Test
+    fun eventAutoDistributed() {
+        val client = mockk<CordaRPCOps>()
+        val flowHandle = mockk<FlowHandle<SignedTransaction>>()
+        val uuid = UUID.randomUUID()
+
+        whenever(rpc.client()).thenReturn(client) // return mockk mock which is more flexible than mockito
+
+        every {
+            (flowHandle.returnValue.get().coreTransaction.getOutput(0) as EventState).linearId.id
+        }.returns(uuid)
+
+
+        val headers = HttpHeaders().apply {
+            set(HttpHeaders.AUTHORIZATION, "Bearer doitanyway")
+        }
+
+        val fullBody = testRestTemplate.postForEntity("/events/random?start-flow=false&number-events=2", HttpEntity("", headers), String::class.java).body
+
+        val body = fullBody.split("created:")[1]
+
+        val response = testRestTemplate.postForEntity("/events/autodistributed", HttpEntity(body), String::class.java)
+    }
+
+    @Test
     fun newEventWithDestination() {
         val client = mockk<CordaRPCOps>()
         val flowHandle = mockk<FlowHandle<SignedTransaction>>()

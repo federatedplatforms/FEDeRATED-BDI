@@ -111,7 +111,7 @@ object GraphDBEventConverter {
         val factory = SimpleValueFactory.getInstance()
         val cities = model.filter(
             factory.createIRI(eventId),
-            factory.createIRI("https://ontology.tno.nl/logistics/federated/Event#Location"),
+            factory.createIRI("https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#cityName"),
             null
         )
 
