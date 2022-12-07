@@ -5,10 +5,10 @@ import io.swagger.annotations.ApiOperation
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
+import nl.tno.federated.api.corda.CordaFlowService
 import nl.tno.federated.api.corda.NodeRPCConnection
 import nl.tno.federated.api.semanticadapter.SemanticAdapterService
 import nl.tno.federated.corda.flows.GeneralSPARQLqueryFlow
-import nl.tno.federated.corda.flows.NewEventFlow
 import nl.tno.federated.corda.flows.QueryGraphDBbyIdFlow
 import nl.tno.federated.corda.services.TTLRandomGenerator
 import nl.tno.federated.corda.services.graphdb.GraphDBEventConverter
@@ -28,8 +28,10 @@ import java.util.*
 @RequestMapping("/events")
 @Api(value = "EventController", tags = ["Event details"])
 class EventController(
+    // TODO: move everything rpc related to CordaFlowService
     private val rpc: NodeRPCConnection,
-    private val semanticAdapterService: SemanticAdapterService
+    private val semanticAdapterService: SemanticAdapterService,
+    private val cordaFlowService: CordaFlowService
 ) {
     private val log = LoggerFactory.getLogger(EventController::class.java)
     private val eventGenerator = TTLRandomGenerator()
@@ -116,19 +118,12 @@ class EventController(
     @PostMapping(value = ["/autodistributed"])
     fun newEventDestinationImplied(@RequestBody event: String): ResponseEntity<String> {
         log.info("Extract destinations")
-        val destination = extractDestinationFromEvent(event)
+
+        // class.extractDestinationFromEvent
+        val destination = cordaFlowService.extractDestinationFromEvent(event) ?: return ResponseEntity("Could not find party", HttpStatus.BAD_REQUEST)
 
         log.info("Start NewEventFlow for each destination and return UUIDs")
         return newEvent(event, destination.organisation, destination.locality, destination.country)
-    }
-
-
-    private fun extractDestinationFromEvent(event: String): CordaX500Name {
-        return rpc.client().networkMapSnapshot().flatMap { it.legalIdentities }.single {
-            it.name.locality.equals(
-                GraphDBEventConverter.parseRDFToCity(event)
-            )
-        }.name
     }
 
     @ApiOperation(value = "Create a new event and returns the UUID of the newly created event.")
@@ -155,13 +150,11 @@ class EventController(
         }
 
         log.info("Start NewEventFlow, sending event to destination: {}, {}, {}", destinationOrganisation, destinationLocality, destinationCountry)
-        val newEventTx = rpc.client().startFlowDynamic(
-            NewEventFlow::class.java,
-            if (destinationOrganisation == null) emptySet() else setOf(CordaX500Name(destinationOrganisation, destinationLocality!!, destinationCountry!!)),
-            event
-        ).returnValue.get()
 
-        val createdEventId = (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
+        val cordaName = if (destinationOrganisation == null) null else CordaX500Name(destinationOrganisation, destinationLocality!!, destinationCountry!!)
+
+        val createdEventId = cordaFlowService.startNewEventFlow(event, cordaName)
+
         log.info("NewEventFlow ready, new event created with UUID: {}", createdEventId)
         return ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
     }
