@@ -28,6 +28,17 @@ object GraphDBEventConverter {
         }
     }
 
+    fun parseRDFToCity(rdfFullData: String): List<String> {
+        val model = parseRDFToModel(rdfFullData)
+
+        val eventIds = eventIdsFromModel(model)
+        require(eventIds.isNotEmpty()) { "No events found in RDF data. " }.also { log.debug("No events found in RDF data. ") }
+
+        return eventIds.map {
+            cityFromModel(model, it)
+        }
+    }
+
     fun eventFromModel(
         model: Model,
         eventId: String
@@ -85,6 +96,17 @@ object GraphDBEventConverter {
         )
 
         return locations.objects().map { it.toString().substringAfter("-") }.toSet()
+    }
+
+    private fun cityFromModel(model: Model, eventId: String): String {
+        val factory = SimpleValueFactory.getInstance()
+        val cities = model.filter(
+            factory.createIRI(eventId),
+            factory.createIRI("https://ontology.tno.nl/logistics/federated/Event#Location"),
+            null
+        )
+
+        return cities.objects().map { it.toString().substringAfter("-") }.single()
     }
 
     private fun milestoneFromModel(model: Model, eventId: String): Milestone {

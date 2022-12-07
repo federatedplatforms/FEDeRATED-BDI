@@ -126,8 +126,7 @@ class EventController(
     private fun extractDestinationFromEvent(event: String): CordaX500Name {
         return rpc.client().networkMapSnapshot().flatMap { it.legalIdentities }.single {
             it.name.locality.equals(
-                GraphDBEventConverter.parseRDFToEvents(event).single().location
-                // TODO Write an ad hoc function in GDB services to extract directly the city
+                GraphDBEventConverter.parseRDFToCity(event)
             )
         }.name
     }
