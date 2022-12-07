@@ -3,6 +3,7 @@ package nl.tno.federated.api.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import net.corda.core.identity.CordaX500Name
+import net.corda.core.identity.Party
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.api.corda.NodeRPCConnection
@@ -25,6 +26,15 @@ import java.util.*
 class DataPullController(private val rpc: NodeRPCConnection) {
 
     private val log = LoggerFactory.getLogger(DataPullController::class.java)
+
+    @ApiOperation(value = "Request data and run a SPARQL query on another unknown node")
+    @GetMapping(value = ["/request/{eventuuid}"], produces =  [MediaType.APPLICATION_JSON_VALUE])
+    fun request(@RequestBody query: String, @PathVariable eventuuid: String): ResponseEntity<String> {
+
+        val counterPartyCertificate = extractSender(eventuuid)
+
+        return request(query, counterPartyCertificate.name.organisation, counterPartyCertificate.name.locality, counterPartyCertificate.name.country)
+    }
 
     @ApiOperation(value = "Request data and run a SPARQL query on another node")
     @PostMapping(value = ["/request/{destinationOrganisation}/{destinationLocality}/{destinationCountry}"])
@@ -57,5 +67,22 @@ class DataPullController(private val rpc: NodeRPCConnection) {
                 .flatMap{ it.state.data.result }
 
         return ResponseEntity(datapullResults, HttpStatus.OK)
+    }
+
+    /**
+     * Given UUID of event state, returns the certificate of the node that
+     * initiated the transaction that created that state.
+     *
+     * Assumption:  the initiator of the transaction who created the event is always
+     *              the first element of the list `participants` in the state.
+     */
+    private fun extractSender(eventuuid: String) : Party {
+        val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(UUID.fromString(eventuuid)))
+        val eventStateParties = rpc.client().vaultQueryBy<DataPullState>(criteria).states.single().state.data.participants
+
+        val me = eventStateParties.first()
+        val eventStateCounterParty = (eventStateParties - me).single()
+
+        return rpc.client().partyFromKey(eventStateCounterParty.owningKey)!!
     }
 }
