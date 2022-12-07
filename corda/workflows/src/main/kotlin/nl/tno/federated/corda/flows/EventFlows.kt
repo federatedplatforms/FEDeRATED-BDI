@@ -81,7 +81,7 @@ class NewEventFlow(
 
         val newEventState = EventState(
             fullEvent = event,
-            participants = counterParties + me,
+            participants = listOf(me) + counterParties,
             linearId = UniqueIdentifier(null, UUID.fromString(eventID))
         )
 
