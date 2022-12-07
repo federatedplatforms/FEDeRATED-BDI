@@ -112,6 +112,26 @@ class EventController(
         return newEvent(event, null, null, null)
     }
 
+    @ApiOperation(value = "Create a new event without destination and infer distribution from event content. Return the UUID of the newly created event.")
+    @PostMapping(value = ["/autodistributed"])
+    fun newEventDestinationImplied(@RequestBody event: String): ResponseEntity<String> {
+        log.info("Extract destinations")
+        val destination = extractDestinationFromEvent(event)
+
+        log.info("Start NewEventFlow for each destination and return UUIDs")
+        return newEvent(event, destination.organisation, destination.locality, destination.country)
+    }
+
+
+    private fun extractDestinationFromEvent(event: String): CordaX500Name {
+        return rpc.client().networkMapSnapshot().flatMap { it.legalIdentities }.single {
+            it.name.locality.equals(
+                GraphDBEventConverter.parseRDFToEvents(event).single().location
+                // TODO Write an ad hoc function in GDB services to extract directly the city
+            )
+        }.name
+    }
+
     @ApiOperation(value = "Create a new event and returns the UUID of the newly created event.")
     @PostMapping(
         value = [
