@@ -28,6 +28,12 @@ dependencies {
     testImplementation "junit:junit"
 }
 
+configurations.implementation {
+    exclude group: 'net.corda', module: 'corda'
+    exclude group: 'org.hibernate', module: 'hibernate-core'
+    exclude group: 'org.liquibase', module: 'liquibase-core'
+}
+
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
     kotlinOptions {
         languageVersion = "1.3"
