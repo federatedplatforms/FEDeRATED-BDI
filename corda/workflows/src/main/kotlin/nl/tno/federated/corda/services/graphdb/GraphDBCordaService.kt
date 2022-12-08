@@ -19,8 +19,6 @@ class GraphDBCordaService(serviceHub: AppServiceHub) : IGraphDBService, Singleto
         return graphDBService!!
     }
 
-    override fun parseRDFToEvents(rdfFullData: String): List<Event> = graphdb().parseRDFToEvents(rdfFullData)
-
     override fun queryEventIds(): String = graphdb().queryEventIds()
 
     override fun generalSPARQLquery(query: String, privateRepo: Boolean): String = graphdb().generalSPARQLquery(query, privateRepo)
