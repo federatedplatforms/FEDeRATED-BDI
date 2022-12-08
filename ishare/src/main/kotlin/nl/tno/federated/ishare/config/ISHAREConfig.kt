@@ -1,6 +1,8 @@
 package nl.tno.federated.ishare.config
 
 import java.io.InputStream
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.*
 
 
@@ -19,6 +21,18 @@ class ISHAREConfig(
                 val properties = Properties().apply {
                     load(it)
                 }
+
+                // System properties overrides
+                with(System.getProperties()) {
+                    getProperty("ishare.EORI")?.let { properties.setProperty("ishare.EORI", it) }
+                    getProperty("ishare.key")?.let { properties.setProperty("ishare.key", it) }
+                    getProperty("ishare.cert")?.let { properties.setProperty("ishare.cert", it) }
+                    getProperty("ishare.pass")?.let { properties.setProperty("ishare.pass", it) }
+                    getProperty("ishare.schemeURL")?.let { properties.setProperty("ishare.schemeURL", it) }
+                    getProperty("ishare.schemeID")?.let { properties.setProperty("ishare.schemeID", it) }
+                    getProperty("ishare.enabled")?.let { properties.setProperty("ishare.enabled", it) }
+                }
+
                 return with(properties) {
                     ISHAREConfig(
                         EORI = getProperty("ishare.EORI"),
@@ -38,5 +52,9 @@ class ISHAREConfig(
 }
 
 private fun getInputStreamFromClassPathResource(filename: String): InputStream? {
+    val file = Paths.get(filename)
+    if(Files.exists(file)) {
+        return Files.newInputStream(file)
+    }
     return Thread.currentThread().contextClassLoader.getResourceAsStream(filename)
 }

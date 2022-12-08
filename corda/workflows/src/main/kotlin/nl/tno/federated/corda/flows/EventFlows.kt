@@ -91,6 +91,7 @@ class NewEventFlow(
           This needs to change, because if ISHARE is used, every party hands out his own accesstoken,
           which is stored in the event.
         */
+        log.debug("Event sender using iShare: {}", serviceHub.cordaService(ISHARECordaService::class.java).ishareEnabled())
         if (serviceHub.cordaService(ISHARECordaService::class.java).ishareEnabled()) {
             // create an eventstate for every party , since they all have different accesstokens
             counterParties.forEach {
@@ -167,7 +168,7 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 val outputState = stx.tx.outputStates.single() as EventState
                 val ishareService = serviceHub.cordaService(ISHARECordaService::class.java)
-
+                log.debug("Responder flow uses iShare: {}", ishareService.ishareEnabled())
                 // Check accesstoken if required and available in the eventState
                 if (ishareService.ishareEnabled()) {
                     require(outputState.accessTokens.contains(serviceHub.myInfo.legalIdentities.first())) {
