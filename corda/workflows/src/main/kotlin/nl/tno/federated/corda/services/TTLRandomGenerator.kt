@@ -27,7 +27,7 @@ class TTLRandomGenerator {
 
         val (generatedEquipment, generatedEquipmentEntry) = generateEquipment()
 
-        val (generatedPIname, generatedPIentry) = generatePhysicalInfrstructure()
+        val (generatedPIname, generatedPIentry) = generatePhysicalInfrstructure("NL")
 
         val (generatedBusinessTransaction, generatedBusinessTransactionEntry) =
                 generateBusinessTransaction(generatedLegalPerson)
@@ -67,6 +67,25 @@ class TTLRandomGenerator {
         )
     }
 
+    // string 1: identifier, string 2: entry for TTL
+    private fun generateEvent(digitalTwinIdentifier: String,
+                              generatedBusinessTransaction: String, generatedEquipment: String,
+                              piName: String, milestonePosition: Int): Pair<String, String> {
+        val generatedEventIdentifier = UUID.randomUUID().toString()
+        val (hasTimestamp, hasSubmissionTimestamp) = generateTimestamps()
+        val generatedEventEntry = """
+        ex:Event-$generatedEventIdentifier a Event:Event, owl:NamedIndividual;
+          $hasTimestamp
+          Event:hasDateTimeType Event:${generateDateTimeType()};
+          Event:involvesDigitalTwin ex:$digitalTwinIdentifier, ex:Equipment-$generatedEquipment;
+          Event:involvesBusinessTransaction ex:businessTransaction-$generatedBusinessTransaction;
+          Event:involvesPhysicalInfrastructure ex:PhysicalInfrastructure-$piName;
+          Event:hasMilestone Event:${generateHasMilestone(milestonePosition)};
+          $hasSubmissionTimestamp
+            """
+        return Pair(generatedEventIdentifier, generatedEventEntry)
+    }
+
     private fun generateDigitalTwinTransportMeans(transportMeansIdentifier: Int): Pair<String, String> {
         val digitalTwinIdentifier = UUID.randomUUID().toString()
         return Pair("dt-$digitalTwinIdentifier", """
@@ -75,16 +94,6 @@ class TTLRandomGenerator {
           dt:hasVIN "$transportMeansIdentifier";
           dt:hasTransportMeansID "$transportMeansIdentifier" .
             """)
-    }
-
-    private fun CharRange.random(numberOfChars: Int): String {
-        var randomString = ""
-        for (index in 0 until numberOfChars){
-            val firstCharChoice = RandomUtils.nextInt(0, this.count())
-            randomString += this.elementAt(firstCharChoice)
-        }
-
-        return randomString
     }
 
      private fun generateLegalPerson(): Pair<String, String> {
@@ -99,13 +108,21 @@ class TTLRandomGenerator {
             """)
     }
 
-    private fun generatePhysicalInfrstructure(): Pair<String, String> {
+    private fun generatePhysicalInfrstructure(countryCode: String): Pair<String, String> {
         // generate random 5-char physical infrastucture name
         val charPool = ('A'..'Z')
         val piName = charPool.random(5)
 
+        // both countries have equal # cities => we use 1 indexer
+        val cityIndex = RandomUtils.nextInt(0, NetherlandsCities.values().count())
+
+
+        val piCity = if (countryCode == "NL") NetherlandsCities.values()[cityIndex].toString() else GermanCities.values()[cityIndex].toString()
+
         return Pair(piName,"""
-        ex:PhysicalInfrastructure-$piName a pi:Location, owl:NamedIndividual.
+        ex:PhysicalInfrastructure-$piName a pi:Location, owl:NamedIndividual;
+            pi:CityName "$piCity" ;
+            pi:countryName "$countryCode" .
         """)
     }
 
@@ -155,6 +172,8 @@ class TTLRandomGenerator {
         return Pair(hasTimestamp, hasSubmissionTimestamp)
     }
 
+
+    // HELPER FUNCTIONS BELOW
     private fun String.ReCapitalize(): String {
         return this.toLowerCase().capitalize()
     }
@@ -170,23 +189,49 @@ class TTLRandomGenerator {
         return hasMilestone[startStop].toString().ReCapitalize()
     }
 
-    // string 1: identifier, string 2: entry for TTL
-    private fun generateEvent(digitalTwinIdentifier: String,
-                              generatedBusinessTransaction: String, generatedEquipment: String,
-                              piName: String, milestonePosition: Int): Pair<String, String> {
-        val generatedEventIdentifier = UUID.randomUUID().toString()
-        val (hasTimestamp, hasSubmissionTimestamp) = generateTimestamps()
-        val generatedEventEntry = """
-        ex:Event-$generatedEventIdentifier a Event:Event, owl:NamedIndividual;
-          $hasTimestamp
-          Event:hasDateTimeType Event:${generateDateTimeType()};
-          Event:involvesDigitalTwin ex:$digitalTwinIdentifier, ex:Equipment-$generatedEquipment;
-          Event:involvesBusinessTransaction ex:businessTransaction-$generatedBusinessTransaction;
-          Event:involvesPhysicalInfrastructure ex:PhysicalInfrastructure-$piName;
-          Event:hasMilestone Event:${generateHasMilestone(milestonePosition)};
-          $hasSubmissionTimestamp
-            """
-        return Pair(generatedEventIdentifier, generatedEventEntry)
-    }
+    private fun CharRange.random(numberOfChars: Int): String {
+        var randomString = ""
+        for (index in 0 until numberOfChars){
+            val firstCharChoice = RandomUtils.nextInt(0, this.count())
+            randomString += this.elementAt(firstCharChoice)
+        }
 
+        return randomString
+    }
+}
+
+enum class NetherlandsCities {
+    TheHague,
+    Amsterdam,
+    Utrecht,
+    Rotterdam,
+    Eindhoven,
+    Almere,
+    Groningen,
+    Breda,
+    Apeldoorn,
+    Haarlem,
+    Zaanstad,
+    Arnhem,
+    DenBosch,
+    Leeuwarden,
+    Maastricht,
+}
+
+enum class GermanCities {
+    Berlin,
+    Hamburg,
+    Munich,
+    Cologne,
+    Frankfurt,
+    Bremen,
+    Dusseldorf,
+    Stuttgart,
+    Leipzig,
+    Dortmund,
+    Essen,
+    Dresden,
+    Hannover,
+    Nuremberg,
+    Duisburg
 }
