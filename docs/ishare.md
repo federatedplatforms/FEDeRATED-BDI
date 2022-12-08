@@ -1,12 +1,12 @@
-# # iSHARE implementation notes
+# iSHARE implementation notes
 
-In order to use iSHARE in Flows in a Federated Corda implementation, a set of tools (in the form of Kotlin classes and data classes ) has been created to make integration into Corda Workflows easier.
-The library handles all communication with external services (in this case the iSHARE scheme/satellite) 
+In order to use iSHARE in Flows in a Federated Corda implementation, a set of tools (in the form of Kotlin classes and data classes) has been created to make integration into Corda Workflows easier.
+The library handles all communication with external services (in this case the iSHARE scheme/satellite). 
 
 ## Prerequisites
 
  - Membership of the iSHARE scheme
- - ISHARE certificate (EIDAS)
+ - iSHARE certificate (eIDAS)
  - HTTPS access to the configured iSHARE scheme
 
 ## Usage
@@ -25,7 +25,7 @@ The property file should contain the following values :
 | ishare.pass      | String   | The password for the iSHARE private key            |
 | ishare.schemeURL | String   | The URL for the iSHARE scheme/Satelite             |
 | ishare.schemeID  | String   | The iSHARE id for the scheme/satellite participant | 
-| ishare.enabled   | Boolean  | Enable iSHARE (defaut = false)                     | 
+| ishare.enabled   | Boolean  | Enable iSHARE (default = false)                     | 
 
 
 
@@ -42,13 +42,13 @@ The ISHAREAccessToken class is used by the ISHAREClient to store and maintain th
 
 #### party package
 The PartiesToken (wrapped in a PartiesResponse) defines the format the iSHARE scheme sends in response to a party information request (/parties?eori=<'eori'>)
-and is used to determine if a participant is active in the scheme and signed all agreements ot that scheme.
+and is used to determine if a participant is active in the scheme and signed all agreements to that scheme.
 
 #### token package
 The token package holds all classes needed to request an access token.
-ClientAssertion and ConsumerAccessToken define the format of the JWT used to in acquiring an access token from a service provider
-ISHAREAccessToken is used in the management of acquired access tokens
-ISHARETokenRequest and ISHARETokenResponse define the content of the request and reply of the /connect/ API endpoint as defined the iSHARE specification
+ClientAssertion and ConsumerAccessToken define the format of the JWT used to in acquiring an access token from a service provider.
+ISHAREAccessToken is used in the management of acquired access tokens.
+ISHARETokenRequest and ISHARETokenResponse define the content of the request and reply of the /connect/ API endpoint as defined the iSHARE specification.
 
 ### Utils package
 The Utils package contains useful classes that help during the access token communication
