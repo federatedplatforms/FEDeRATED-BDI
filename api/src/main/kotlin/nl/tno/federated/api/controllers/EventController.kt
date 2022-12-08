@@ -3,13 +3,9 @@ package nl.tno.federated.api.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import net.corda.core.identity.CordaX500Name
-import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.api.corda.CordaFlowService
-import nl.tno.federated.api.corda.NodeRPCConnection
 import nl.tno.federated.api.semanticadapter.SemanticAdapterService
-import nl.tno.federated.corda.flows.GeneralSPARQLqueryFlow
-import nl.tno.federated.corda.flows.QueryGraphDBbyIdFlow
 import nl.tno.federated.corda.services.TTLRandomGenerator
 import nl.tno.federated.corda.services.graphdb.GraphDBEventConverter
 import nl.tno.federated.states.Event
@@ -28,8 +24,6 @@ import java.util.*
 @RequestMapping("/events")
 @Api(value = "EventController", tags = ["Event details"])
 class EventController(
-    // TODO: move everything rpc related to CordaFlowService
-    private val rpc: NodeRPCConnection,
     private val semanticAdapterService: SemanticAdapterService,
     private val cordaFlowService: CordaFlowService
 ) {
@@ -180,7 +174,7 @@ class EventController(
     @ApiOperation(value = "Return all known events")
     @GetMapping(value = [""])
     fun events(): Map<UUID, List<Event>> {
-        val eventStates = rpc.client().vaultQuery(EventState::class.java).states.map { it.state.data }
+        val eventStates = cordaFlowService.startVaultQuery()
         return eventStatesToEventMap(eventStates)
     }
 
@@ -188,27 +182,21 @@ class EventController(
     @GetMapping(value = ["/{id}"])
     fun eventById(@PathVariable id: String): Map<UUID, List<Event>> {
         val criteria = QueryCriteria.LinearStateQueryCriteria(externalId = listOf(id))
-        val state = rpc.client().vaultQueryBy<EventState>(criteria).states.map { it.state.data }
+        val state = cordaFlowService.startVaultQueryBy(criteria)
         return eventStatesToEventMap(state)
     }
 
     @ApiOperation(value = "Return RDF data by event ID from GraphDB instance")
     @GetMapping(value = ["/rdfevent/{id}"])
     fun gdbQueryEventById(@PathVariable id: String): ResponseEntity<String> {
-        val gdbQuery = rpc.client().startFlowDynamic(
-            QueryGraphDBbyIdFlow::class.java,
-            id
-        ).returnValue.get()
+        val gdbQuery = cordaFlowService.startNewQueryGraphDBbyIdFlow(id)
         return ResponseEntity("Query result: $gdbQuery", HttpStatus.ACCEPTED)
     }
 
     @ApiOperation(value = "Return result of a custom SPARQL query")
     @GetMapping(value = ["/gdbsparql/"])
     fun gdbGeneralSparqlQuery(query: String): ResponseEntity<String> {
-        val gdbQuery = rpc.client().startFlowDynamic(
-            GeneralSPARQLqueryFlow::class.java,
-            query
-        ).returnValue.get()
+        val gdbQuery = cordaFlowService.startNewGeneralSPARQLqueryFlow(query)
         return ResponseEntity("Query result: $gdbQuery", HttpStatus.ACCEPTED)
     }
 
