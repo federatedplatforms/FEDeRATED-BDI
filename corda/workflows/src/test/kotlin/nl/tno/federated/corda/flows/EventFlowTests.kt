@@ -2,6 +2,7 @@ package nl.tno.federated.corda.flows
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
@@ -14,17 +15,13 @@ import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
 import nl.tno.federated.corda.services.graphdb.GraphDBCordaService
+import nl.tno.federated.corda.services.graphdb.GraphDBEventConverter
 import nl.tno.federated.corda.services.graphdb.IGraphDBService
-import nl.tno.federated.states.Event
 import nl.tno.federated.states.EventState
-import nl.tno.federated.states.EventType
-import nl.tno.federated.states.Milestone
-import nl.tno.federated.states.Timestamp
 import org.junit.After
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
-import java.util.*
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
@@ -46,6 +43,9 @@ class EventFlowTests {
     @Before
     fun setup() {
         graphDBService = mockk()
+        mockkObject(GraphDBEventConverter)
+
+        every { GraphDBEventConverter.parseRDFToEventIDs(any()) }.returns(listOf(UniqueIdentifier().id.toString()))
         every { graphDBService.insertEvent(any(), false) } returns true
 
         network = MockNetwork(
@@ -74,21 +74,6 @@ class EventFlowTests {
     @Test
     fun `Start event with goods and transport`() {
         val flow = NewEventFlow(countriesInvolved, "unused event")
-        val future = a.startFlow(flow)
-        network.runNetwork()
-
-        val signedTx = future.getOrThrow()
-        signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
-    }
-
-    @Test
-    fun `Receive iShare message`() {
-        val eCMRuriExample = "This is a URI example for an eCMR"
-        val sampleEvent = ""
-        val businessTx = ""
-        val event = Event(setOf(UniqueIdentifier().id), setOf(UniqueIdentifier().id), emptySet(), setOf(UniqueIdentifier().id, UniqueIdentifier().id), setOf(Timestamp(UniqueIdentifier().id.toString(), Date(), EventType.PLANNED)), eCMRuriExample, Milestone.START, businessTx,  sampleEvent)
-        every { graphDBService.parseRDFToEvents(any()) } returns listOf(event)
-        val flow = NewEventFlow(countriesInvolved,"unused event")
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -144,6 +129,8 @@ class EventFlowTests {
         val signedTxStart = futureStart.getOrThrow()
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
+        every { GraphDBEventConverter.parseRDFToEventIDs(any()) }.returns(listOf(UniqueIdentifier().id.toString()))
+
         val flowStop = NewEventFlow(countriesInvolved, "unused event")
         val futureStop = a.startFlow(flowStop)
         network.runNetwork()
@@ -160,6 +147,9 @@ class EventFlowTests {
 
         val signedTxStart = futureStart.getOrThrow()
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+
+        every { GraphDBEventConverter.parseRDFToEventIDs(any()) }.returns(listOf(UniqueIdentifier().id.toString()))
+
         val flowUpdated = NewEventFlow(countriesInvolved, "unused event")
         val futureUpdated = a.startFlow(flowUpdated)
         network.runNetwork()
@@ -178,12 +168,16 @@ class EventFlowTests {
         val signedTxStart = futureStart.getOrThrow()
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
+        every { GraphDBEventConverter.parseRDFToEventIDs(any()) }.returns(listOf(UniqueIdentifier().id.toString()))
+
         val flowUpdated = NewEventFlow(countriesInvolved, "unused event")
         val futureUpdated = a.startFlow(flowUpdated)
         network.runNetwork()
 
         val signedTxStop = futureUpdated.getOrThrow()
         signedTxStop.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+
+        every { GraphDBEventConverter.parseRDFToEventIDs(any()) }.returns(listOf(UniqueIdentifier().id.toString()))
 
         val flowExecuted = NewEventFlow(countriesInvolved, "unused event")
         val futureExecuted = a.startFlow(flowExecuted)
@@ -199,6 +193,8 @@ class EventFlowTests {
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
+        every { GraphDBEventConverter.parseRDFToEventIDs(any()) }.returns(listOf(UniqueIdentifier().id.toString()))
+
         val signedTxStart = futureStart.getOrThrow()
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
         val flowStopped = NewEventFlow(countriesInvolved, "unused event")
@@ -208,12 +204,16 @@ class EventFlowTests {
         val signedTxStop = futureUpdated.getOrThrow()
         signedTxStop.verifySignaturesExcept(a.info.singleIdentity().owningKey)
 
+        every { GraphDBEventConverter.parseRDFToEventIDs(any()) }.returns(listOf(UniqueIdentifier().id.toString()))
+
         val flowStartExecuted = NewEventFlow(countriesInvolved, "unused event")
         val futureStartExecuted = a.startFlow(flowStartExecuted)
         network.runNetwork()
 
         val signedTxStartExec = futureStartExecuted.getOrThrow()
         signedTxStartExec.verifySignaturesExcept(a.info.singleIdentity().owningKey)
+
+        every { GraphDBEventConverter.parseRDFToEventIDs(any()) }.returns(listOf(UniqueIdentifier().id.toString()))
 
         val flowExecuted = NewEventFlow(countriesInvolved, "unused event")
         val futureExecuted = a.startFlow(flowExecuted)

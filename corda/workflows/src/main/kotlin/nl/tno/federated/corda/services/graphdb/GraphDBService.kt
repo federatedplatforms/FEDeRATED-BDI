@@ -3,7 +3,6 @@ package nl.tno.federated.corda.services.graphdb
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import net.corda.core.internal.toPath
 import nl.tno.federated.services.PrefixHandlerQueries
-import nl.tno.federated.states.Event
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
 import org.apache.http.client.HttpClient
@@ -91,11 +90,6 @@ class GraphDBService : IGraphDBService {
                 .build()
         }
     }
-
-    /**
-     * Does not really belong here.
-     */
-    override fun parseRDFToEvents(rdfFullData: String): List<Event> = GraphDBEventConverter.parseRDFToEvents(rdfFullData)
 
     override fun queryEventIds(): String {
         val sparql = """
