@@ -3,6 +3,7 @@ package nl.tno.federated.corda.services.graphdb
 import net.corda.core.internal.randomOrNull
 import nl.tno.federated.corda.services.TTLRandomGenerator
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
@@ -16,14 +17,39 @@ class GraphDBServiceTests : GraphDBTestContainersSupport() {
 
     companion object {
         private val invalidSampleTTL = File("src/test/resources/SHACL_FAIL - TradelensEvents_ArrivalDeparture.ttl").readText()
-        private val generatedTTL = TTLRandomGenerator().generateRandomEvents()
-        private val validSampleTtl = generatedTTL.constructedTTL
+        private val ttlRandomGenerator = TTLRandomGenerator()
+        private val generatedTTL = ttlRandomGenerator.generateRandomEvents()
+        private val validSampleTTL = generatedTTL.constructedTTL
         private val eventPool = generatedTTL.eventIdentifiers
     }
 
     @Before
     fun before() {
-        graphDBService.insertEvent(validSampleTtl, false)
+        graphDBService.insertEvent(validSampleTTL, false)
+    }
+
+    @Test
+    fun `Create trip, check if country is SPARQL-ed correctly`() {
+        val generatedTripTTL = ttlRandomGenerator.generateTripEvents()
+        val tripTTL = generatedTripTTL.constructedTTL
+        graphDBService.insertEvent(tripTTL, false)
+        val eventsInTrip = generatedTripTTL.eventsIdentifiers
+        val eventsAtCities = generatedTripTTL.eventsAtCities
+        val eventsAtCountries = generatedTripTTL.eventsAtCountries
+
+        for (eventIdentifier in eventsInTrip) {
+            val countries = eventsAtCountries[eventIdentifier]!!
+            val countrySparqlResult = graphDBService.queryCountryGivenEventId(eventIdentifier)
+            val countriesFromSparql = graphDBService.unpackCountriesFromSPARQLresult(countrySparqlResult)
+            for (country in countries) {
+                assertTrue("Country was not correctly queried: $country", country in countriesFromSparql)
+            }
+        }
+    }
+
+    @Test
+    fun `Extract country with parser, validate with SPARQL`() {
+
     }
 
     @Test
