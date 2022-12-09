@@ -1,21 +1,24 @@
 package nl.tno.federated.corda.services.graphdb
 
 import nl.tno.federated.corda.services.TTLRandomGenerator
-import org.junit.Assert
+import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 
 class GraphDBTripTests : GraphDBTestContainersSupport() {
     companion object {
         private val generator = TTLRandomGenerator()
+        private val generatedTripTTL = generator.generateTripEvents()
+    }
+
+    @Before
+    fun before() {
+        graphDBService.insertEvent(generatedTripTTL.constructedTTL, false)
     }
 
     @Test
     fun `Create trip, check if country of each event is SPARQL-ed correctly`() {
-        val generatedTripTTL = generator.generateTripEvents()
-        val tripTTL = generatedTripTTL.constructedTTL
-        graphDBService.insertEvent(tripTTL, false)
         val eventsInTrip = generatedTripTTL.eventsIdentifiers
-        val eventsAtCities = generatedTripTTL.eventsAtCities
         val eventsAtCountries = generatedTripTTL.eventsAtCountries
 
         for (eventIdentifier in eventsInTrip) {
@@ -23,13 +26,20 @@ class GraphDBTripTests : GraphDBTestContainersSupport() {
             val countrySparqlResult = graphDBService.queryCountryGivenEventId(eventIdentifier)
             val countriesFromSparql = graphDBService.unpackCountriesFromSPARQLresult(countrySparqlResult)
             for (country in countries) {
-                Assert.assertTrue("Country was not correctly queried: $country", country in countriesFromSparql)
+                assertTrue("Country was not correctly queried: $country", country in countriesFromSparql)
             }
         }
     }
 
     @Test
     fun `Extract country with parser, validate with SPARQL`() {
+        val eventsAtCountries = generatedTripTTL.eventsAtCountries
+        val modelMapEventsCountry = GraphDBEventConverter.parseRDFToMapEventsCountry(generatedTripTTL.constructedTTL)
 
+        for (eventIdentifier in eventsAtCountries.keys) {
+            for (country in eventsAtCountries[eventIdentifier]!!) {
+                assertTrue("Country $country of event id $eventIdentifier was not correctly parsed", country in modelMapEventsCountry[eventIdentifier]!!)
+            }
+        }
     }
 }

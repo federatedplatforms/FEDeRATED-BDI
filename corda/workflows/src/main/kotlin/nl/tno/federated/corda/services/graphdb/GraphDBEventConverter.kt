@@ -28,15 +28,17 @@ object GraphDBEventConverter {
         }
     }
 
-    fun parseRDFToCity(rdfFullData: String): List<String> {
+    fun parseRDFToMapEventsCountry(rdfFullData: String): Map<String, List<String>> {
         val model = parseRDFToModel(rdfFullData)
+        val eventIDs = eventIdsFromModel(model)
+        val countriesFromModel = mutableMapOf<String, List<String>>()
 
-        val eventIds = eventIdsFromModel(model)
-        require(eventIds.isNotEmpty()) { "No events found in RDF data. " }.also { log.debug("No events found in RDF data. ") }
-
-        return eventIds.map {
-            cityFromModel(model, it)
+        for (eventID in eventIDs) {
+            val mappedLocations = locationsFromModel(model, eventID).map { countryFromModel(model, it) }
+            countriesFromModel[eventID] = mappedLocations
         }
+
+        return countriesFromModel
     }
 
     fun parseRDFToEventIDs(rdfFullData: String): List<String> {
@@ -107,11 +109,11 @@ object GraphDBEventConverter {
         return locations.objects().map { it.toString().substringAfter("-") }.toSet()
     }
 
-    private fun cityFromModel(model: Model, eventId: String): String {
+    private fun countryFromModel(model: Model, physicalInfrastructureName: String): String {
         val factory = SimpleValueFactory.getInstance()
         val cities = model.filter(
-            factory.createIRI(eventId),
-            factory.createIRI("https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#cityName"),
+            factory.createIRI(physicalInfrastructureName),
+            factory.createIRI("https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#countryName"),
             null
         )
 
