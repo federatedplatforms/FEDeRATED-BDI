@@ -28,9 +28,21 @@ object GraphDBEventConverter {
         }
     }
 
-    fun parseRDFToMapEventsCountry(rdfFullData: String): Map<String, List<String>> {
+    // for GraphDBCordaService
+    fun parseRDFtoCountries(rdfFullData: String): List<String> {
         val model = parseRDFToModel(rdfFullData)
         val eventIDs = eventIdsFromModel(model)
+        return parseModelToMapEventsCountry(model, eventIDs)[eventIDs[0]]!!
+    }
+
+    // for quicker tests in GraphDBTripTests
+    fun parseRDFtoMapEventsCountry(rdfFullData: String): Map<String, List<String>> {
+        val model = parseRDFToModel(rdfFullData)
+        val eventIDs = eventIdsFromModel(model)
+        return parseModelToMapEventsCountry(model, eventIDs)
+    }
+
+    private fun parseModelToMapEventsCountry(model: Model, eventIDs: List<String>): Map<String, List<String>> {
         val countriesFromModel = mutableMapOf<String, List<String>>()
 
         for (eventID in eventIDs) {

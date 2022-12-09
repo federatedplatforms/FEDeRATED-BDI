@@ -34,7 +34,7 @@ class GraphDBTripTests : GraphDBTestContainersSupport() {
     @Test
     fun `Extract country with parser, validate with SPARQL`() {
         val eventsAtCountries = generatedTripTTL.eventsAtCountries
-        val modelMapEventsCountry = GraphDBEventConverter.parseRDFToMapEventsCountry(generatedTripTTL.constructedTTL)
+        val modelMapEventsCountry = GraphDBEventConverter.parseRDFtoMapEventsCountry(generatedTripTTL.constructedTTL)
 
         for (eventIdentifier in eventsAtCountries.keys) {
             for (country in eventsAtCountries[eventIdentifier]!!) {
