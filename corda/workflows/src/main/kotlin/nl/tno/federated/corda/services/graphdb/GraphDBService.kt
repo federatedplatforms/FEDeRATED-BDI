@@ -208,10 +208,10 @@ class GraphDBService : IGraphDBService {
         val queryCountryByEventId = """
     PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
     PREFIX pi: <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#>
-    select ?oCity where { 
-	    ?s a Event:Event .
+    select ?oCountry where {
+        ?s a Event:Event .
         ?s Event:involvesPhysicalInfrastructure ?o .
-        ?o pi:cityName ?oCity
+        ?o pi:countryName ?oCountry .
         FILTER regex(str(?s), "$eventId")
     }""".trimIndent()
 

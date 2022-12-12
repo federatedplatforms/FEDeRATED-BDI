@@ -189,7 +189,7 @@ class TTLRandomGenerator {
         //  5.1. arrival at border
         val (digitalTwinTransportMeanIdentifier5, digitalTwinTransportMeanEntry5) = generateDigitalTwinTransportMeans(transportMeansCode)
         val (arrivalBorderEventIdentifier, arrivalBorderEventEntry) = generateSpecificEvent(
-            TripEvents.BorderCrossingEvent,
+            TripEvents.ArrivalEvent,
             EventType.ACTUAL.toString().ReCapitalize(),
             digitalTwinTransportMeanIdentifier5,
             generatedGoodsIdentifier,
@@ -206,7 +206,7 @@ class TTLRandomGenerator {
         //  5.2. departure from border
         val (digitalTwinTransportMeanIdentifier6, digitalTwinTransportMeanEntry6) = generateDigitalTwinTransportMeans(transportMeansCode)
         val (departureBorderEventIdentifier, departureBorderEventEntry) = generateSpecificEvent(
-            TripEvents.BorderCrossingEvent,
+            TripEvents.DepartureEvent,
             EventType.ACTUAL.toString().ReCapitalize(),
             digitalTwinTransportMeanIdentifier6,
             generatedGoodsIdentifier,
@@ -374,10 +374,10 @@ class TTLRandomGenerator {
 
     private fun generateBorderLocation(): Pair<String, String> {
         return Pair("Veldhuizen", """
-        ex:Location-Veldhuizen a pi:Location, owl:NamedIndividual;
+        ex:PhysicalInfrastructure-Veldhuizen a pi:Location, owl:NamedIndividual;
             pi:cityName "Veldhuizen" ;
             pi:countryName "NL" ;
-            pi:countryName "BE" .
+            pi:countryName "DE" .
         """)
     }
 
@@ -506,6 +506,5 @@ enum class TripEvents {
     LoadEvent,
     DepartureEvent,
     ArrivalEvent,
-    BorderCrossingEvent,
     DischargeEvent
 }
