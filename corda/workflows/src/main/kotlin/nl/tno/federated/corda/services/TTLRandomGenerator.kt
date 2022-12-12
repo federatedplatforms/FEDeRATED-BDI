@@ -394,9 +394,9 @@ class TTLRandomGenerator {
         return Pair(goodsIdentifier, """
         ex:Goods-$goodsIdentifier a dt:Goods, owl:NamedIndividual;
           dt:goodsDescription "a container";
-          dt:goodsTypeCode "$goodsCode" ;
-          dt:goodsWeight "${goodsWeight}kg";
-          dt:grossMass "${goodsWeight + 500}kg" .
+          dt:GoodsTypeCode "$goodsCode";
+          dt:goodsWeight $goodsWeight;
+          dt:grossMass ${goodsWeight + 500} .
             """)
     }
 
