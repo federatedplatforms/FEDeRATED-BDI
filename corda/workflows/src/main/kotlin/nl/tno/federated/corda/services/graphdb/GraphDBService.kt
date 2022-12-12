@@ -161,15 +161,15 @@ class GraphDBService : IGraphDBService {
 
         val businessTransactionFromQueryURI = bindings[0]["object"]["value"].asText()
         val businessTransactionFromQuery = businessTransactionFromQueryURI.split("#")[1]
-        if (businessTransaction != businessTransactionFromQuery) return false
+        if (businessTransaction !in businessTransactionFromQuery) return false
 
         val equipmentFromQueryURI = bindings[0]["object1"]["value"].asText()
         val equipmentFromQuery = equipmentFromQueryURI.split("#")[1]
-        if (equipmentUsed != equipmentFromQuery) return false
+        if (equipmentUsed !in equipmentFromQuery) return false
 
         val transportMeansFromQueryURI = bindings[0]["object2"]["value"].asText()
         val transportMeansFromQuery = transportMeansFromQueryURI.split("#")[1]
-        if (transportMeans != transportMeansFromQuery) return false
+        if (transportMeans !in transportMeansFromQuery) return false
 
         return true
     }
