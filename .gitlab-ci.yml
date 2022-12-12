@@ -24,7 +24,7 @@ build:
       - workflows/build/reports
     expire_in: 30 days
     reports:
-        junit: build/test-results/test/**/TEST-*.xml
+        junit: "*/build/test-results/test/**/TEST-*.xml"
 deploySingleNode:
   tags:
     - corda
