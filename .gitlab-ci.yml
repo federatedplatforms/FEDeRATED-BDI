@@ -20,10 +20,9 @@ build:
     - ./gradlew clean test --info
   artifacts:
     when: on_failure
-    paths:
-      - workflows/build/reports
     expire_in: 30 days
-
+    reports:
+        junit: "**/build/test-results/test/**/TEST-*.xml"
 deploySingleNode:
   tags:
     - corda
