@@ -375,7 +375,7 @@ class TTLRandomGenerator {
     private fun generateBorderLocation(): Pair<String, String> {
         return Pair("Veldhuizen", """
         ex:Location-Veldhuizen a pi:Location, owl:NamedIndividual;
-            pi:cityName Veldhuizen ;
+            pi:cityName "Veldhuizen" ;
             pi:countryName "NL" ;
             pi:countryName "BE" .
         """)
