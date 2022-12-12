@@ -312,20 +312,19 @@ class TTLRandomGenerator {
         val (hasTimestamp, hasSubmissionTimestamp) = if (timestamps.first == "") generateTimestamps() else timestamps
         val genericEventEntry = """
         ex:Event-$generatedEventIdentifier a Event:$eventType, owl:NamedIndividual;
-          Event:hasTimestamp $hasTimestamp ^^xsd:dateTime;
+          Event:hasTimestamp ${hasTimestamp}^^xsd:dateTime;
           Event:hasDateTimeType Event:$eventDateTimeType;
           Event:involvesBusinessTransaction ex:businessTransaction-$generatedBusinessTransaction;
           Event:involvesPhysicalInfrastructure ex:PhysicalInfrastructure-$locationName;
           Event:hasMilestone Event:$milestone;
-          Event:hasSubmissionTimestamp $hasSubmissionTimestamp ^^xsd:dateTime .
-            """
+          Event:hasSubmissionTimestamp ${hasSubmissionTimestamp}^^xsd:dateTime;"""
         val specificEventEntry = when (eventType) {
             in listOf(TripEvents.LoadEvent, TripEvents.DischargeEvent) -> """
-          Event:involvesDigitalTwin ex:dt-$transportMeansIdentifier, ex:Equipment-$goodsIdentifier;
+          Event:involvesDigitalTwin ex:dt-$transportMeansIdentifier, ex:Equipment-$goodsIdentifier.
         """
 
             else -> """
-          Event:involvesDigitalTwin ex:dt-$transportMeansIdentifier;
+          Event:involvesDigitalTwin ex:dt-$transportMeansIdentifier.
         """
         }
         val generatedEventEntry = genericEventEntry + specificEventEntry
