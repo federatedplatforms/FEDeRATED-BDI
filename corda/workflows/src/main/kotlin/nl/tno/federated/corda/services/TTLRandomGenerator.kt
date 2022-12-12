@@ -279,13 +279,13 @@ class TTLRandomGenerator {
         val (hasTimestamp, hasSubmissionTimestamp) = generateTimestamps()
         val generatedEventEntry = """
         ex:Event-$generatedEventIdentifier a Event:Event, owl:NamedIndividual;
-          Event:hasTimestamp $hasTimestamp ^^xsd:dateTime;
+          Event:hasTimestamp ${hasTimestamp}^^xsd:dateTime;
           Event:hasDateTimeType Event:${generateDateTimeType()};
           Event:involvesDigitalTwin ex:dt-$digitalTwinIdentifierTransportMeans, ex:Equipment-$generatedEquipment;
           Event:involvesBusinessTransaction ex:businessTransaction-$generatedBusinessTransaction;
           Event:involvesPhysicalInfrastructure ex:PhysicalInfrastructure-$locationName;
           Event:hasMilestone Event:${generateHasMilestone(milestonePosition)};
-          Event:hasSubmissionTimestamp $hasSubmissionTimestamp ^^xsd:dateTime .
+          Event:hasSubmissionTimestamp ${hasSubmissionTimestamp}^^xsd:dateTime .
             """
         return Pair(generatedEventIdentifier, generatedEventEntry)
     }
