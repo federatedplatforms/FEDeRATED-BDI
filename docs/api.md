@@ -1,6 +1,6 @@
 # BDI API
 
-BDI API exposed a few endpoints for interaction with a BDI Node.
+BDI API exposed all the endpoints for interaction with a BDI Node.
 
 ## Available endpoints
 
@@ -70,7 +70,6 @@ For more information regarding the CordaRPC please refer to the official corda d
 
 Configuration details for the CordaRPC connection are described in the configuration section below.
 
-
 ### Semantic Adapter
 
 Semantic Adapter module is included in the BDI API application, therefore the Semantic Adapter endpoints are also exposed via the BDI API.
@@ -91,3 +90,9 @@ Overview of the most important properties:
 | tradelens.apikey    | Tradelens API key   |
 | tradelens.orgId     | Tradelens Org ID    |
 
+## Security
+
+In this prototype the BDI API application endpoints are accessible by anyone. 
+In production like environment these endpoint need to be secured. 
+For Spring Boot applications one could integrate Spring Security for this purpose. 
+Alternatively use an edge service or API gateway that could provide this functionality in a more transparent way.
