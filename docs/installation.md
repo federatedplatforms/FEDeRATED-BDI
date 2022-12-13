@@ -1,6 +1,4 @@
-
-
-# Server Deployment - Instructions
+# Installation
 
 The following instructions are written for Ubuntu 20.04 LTS, but are easily adaptable to other linux servers.
 
