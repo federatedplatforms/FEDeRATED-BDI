@@ -18,7 +18,7 @@ import java.util.*
 class CordaFlowService(private val rpc: NodeRPCConnection) {
     fun extractDestinationFromEvent(event: String): CordaX500Name? {
         return rpc.client().networkMapSnapshot().flatMap { it.legalIdentities }.singleOrNull {
-            it.name.locality == GraphDBEventConverter.parseRDFtoCountries(event).single()
+            it.name.country == GraphDBEventConverter.parseRDFtoCountries(event).single()
         }?.name
     }
 

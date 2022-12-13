@@ -22,7 +22,7 @@ data class TripTTL(val constructedTTL: String,
                    val eventsAtLocations: Map<String, String>,
                    val transportMeansIdentifiers: List<String>,
                    val eventsAtCities: Map<String, String>,
-                   val eventsAtCountries: Map<String, List<String>>)
+                   val eventsAtCountries: Map<String, String>)
 
 class TTLRandomGenerator {
 
@@ -77,27 +77,41 @@ class TTLRandomGenerator {
 
     // TODO: generate the 8 events described in GitLab
     fun generateTripEvents(): TripTTL {
-        // generate goods
+        // I.generate goods
         val goodsCode = RandomUtils.nextInt(0, 9999999)
         val goodsWeight = RandomUtils.nextInt(0, 9999999)
         val (generatedGoodsIdentifier, generatedGoodsEntry) = generateGoods(goodsCode, goodsWeight)
 
-        // generate Departure location - unpack it
+        // II.(NL) generate Departure location - unpack it
         val generatedLocationDeparture = generateLocation("NL")
         val generatedDepartureCity = generatedLocationDeparture.first.first
         val generatedDepartureCountry = generatedLocationDeparture.first.second
         val generatedPInameDeparture = generatedLocationDeparture.second.first
         val generatedPIentryDeparture = generatedLocationDeparture.second.second
 
-        // generate Arrival location - unpack it
+        // III.(DE) generate Arrival location - unpack it
         val generatedLocationArrival = generateLocation("DE")
         val generatedArrivalCity = generatedLocationArrival.first.first
         val generatedArrivalCountry = generatedLocationArrival.first.second
         val generatedPInameArrival = generatedLocationArrival.second.first
         val generatedPIentryArrival = generatedLocationArrival.second.second
 
-        // the border location Veldhuizen
-        val (generatedPInameborder, generatedPIentryborder) = generateBorderLocation()
+        // IV. generate the border location Veldhuizen
+
+        val generatedPInameBorderNetherlands = "VeldhuizenNL"
+        val generatedPInameBorderGermany = "VeldhuizenDE"
+
+        // IV.1.NETHERLANDS
+        val generatedLocationBorderNetherlands = generateLocation("NL", generatedPInameBorderNetherlands, generatedPInameBorderNetherlands)
+        val generatedBorderCityNL = generatedLocationBorderNetherlands.first.first
+        val generatedBorderCountryNL = generatedLocationBorderNetherlands.first.second
+        val generatedPIentryBorderNL = generatedLocationBorderNetherlands.second.second
+
+        // generate the border location Veldhuizen - DEUTSCHALND
+        val generatedLocationBorderGermany = generateLocation("DE", generatedPInameBorderGermany, generatedPInameBorderGermany)
+        val generatedBorderCityDE = generatedLocationBorderGermany.first.first
+        val generatedBorderCountryDE = generatedLocationBorderGermany.first.second
+        val generatedPIentryBorderDE = generatedLocationBorderGermany.second.second
 
         // generate legal person and business transaction
         val (generatedLegalPerson, generatedLegalPersonEntry) = generateLegalPerson()
@@ -109,7 +123,8 @@ class TTLRandomGenerator {
             generatedLegalPersonEntry +
             generatedPIentryDeparture +
             generatedPIentryArrival +
-            generatedPIentryborder +
+            generatedPIentryBorderNL +
+            generatedPIentryBorderDE +
             generatedBusinessTransactionEntry
 
         // for each event generate a new transportMeans entry based on the identification code
@@ -117,7 +132,7 @@ class TTLRandomGenerator {
 
         val eventsAtLocation = mutableMapOf<String, String>()
         val eventsAtCities = mutableMapOf<String, String>()
-        val eventsAtCountries = mutableMapOf<String, List<String>>()
+        val eventsAtCountries = mutableMapOf<String, String>()
 
         // 1. generateLoadEvent()
         val (digitalTwinTransportMeanIdentifier, digitalTwinTransportMeanEntry) = generateDigitalTwinTransportMeans(transportMeansCode)
@@ -132,7 +147,7 @@ class TTLRandomGenerator {
         )
         eventsAtLocation[loadEventIdentifier] = generatedPInameDeparture
         eventsAtCities[loadEventIdentifier] = generatedDepartureCity
-        eventsAtCountries[loadEventIdentifier] = listOf(generatedDepartureCountry)
+        eventsAtCountries[loadEventIdentifier] = generatedDepartureCountry
         constructedTTL += digitalTwinTransportMeanEntry + loadEventEntry
 
         //  2. generateDepartureEvent(Planned)
@@ -148,7 +163,7 @@ class TTLRandomGenerator {
         )
         eventsAtLocation[plannedDepartureEventIdentifier] = generatedPInameDeparture
         eventsAtCities[plannedDepartureEventIdentifier] = generatedDepartureCity
-        eventsAtCountries[plannedDepartureEventIdentifier] = listOf(generatedDepartureCountry)
+        eventsAtCountries[plannedDepartureEventIdentifier] = generatedDepartureCountry
         constructedTTL += digitalTwinTransportMeanEntry2 + plannedDepartureEventEntry
 
         //  3. generateArrivalEvent(Planned)
@@ -164,7 +179,7 @@ class TTLRandomGenerator {
         )
         eventsAtLocation[plannedArrivalEventIdentifier] = generatedPInameArrival
         eventsAtCities[plannedArrivalEventIdentifier] = generatedArrivalCity
-        eventsAtCountries[plannedArrivalEventIdentifier] = listOf(generatedArrivalCountry)
+        eventsAtCountries[plannedArrivalEventIdentifier] = generatedArrivalCountry
         constructedTTL += digitalTwinTransportMeanEntry3 + plannedArrivalEventEntry
 
         //  4. generateDepartureEvent(Actual)
@@ -180,13 +195,13 @@ class TTLRandomGenerator {
         )
         eventsAtLocation[actualDepartureEventIdentifier] = generatedPInameDeparture
         eventsAtCities[actualDepartureEventIdentifier] = generatedDepartureCity
-        eventsAtCountries[actualDepartureEventIdentifier] = listOf(generatedDepartureCountry)
+        eventsAtCountries[actualDepartureEventIdentifier] = generatedDepartureCountry
         constructedTTL += digitalTwinTransportMeanEntry4 + actualDepartureEventEntry
 
         //  5. generateBorderCrossingEvents()
         //  5.0. generate timestamp for both events
         val borderCrossingTimestamps = generateTimestamps()
-        //  5.1. arrival at border
+        //  5.1. arrival at border - NETHERLANDS
         val (digitalTwinTransportMeanIdentifier5, digitalTwinTransportMeanEntry5) = generateDigitalTwinTransportMeans(transportMeansCode)
         val (arrivalBorderEventIdentifier, arrivalBorderEventEntry) = generateSpecificEvent(
             TripEvents.ArrivalEvent,
@@ -194,16 +209,16 @@ class TTLRandomGenerator {
             digitalTwinTransportMeanIdentifier5,
             generatedGoodsIdentifier,
             generatedBusinessTransaction,
-            generatedPInameborder,
+            generatedPInameBorderNetherlands,
             Milestone.START.toString().ReCapitalize(),
             borderCrossingTimestamps
         )
-        eventsAtLocation[arrivalBorderEventIdentifier] = generatedPInameborder
-        eventsAtCities[arrivalBorderEventIdentifier] = generatedPInameborder
-        eventsAtCountries[arrivalBorderEventIdentifier] = listOf(generatedDepartureCountry, generatedArrivalCountry)
+        eventsAtLocation[arrivalBorderEventIdentifier] = generatedPInameBorderNetherlands
+        eventsAtCities[arrivalBorderEventIdentifier] = generatedPInameBorderNetherlands
+        eventsAtCountries[arrivalBorderEventIdentifier] = generatedBorderCountryNL
         constructedTTL += digitalTwinTransportMeanEntry5 + arrivalBorderEventEntry
 
-        //  5.2. departure from border
+        //  5.2. departure from border - DEUTSCHLAND
         val (digitalTwinTransportMeanIdentifier6, digitalTwinTransportMeanEntry6) = generateDigitalTwinTransportMeans(transportMeansCode)
         val (departureBorderEventIdentifier, departureBorderEventEntry) = generateSpecificEvent(
             TripEvents.DepartureEvent,
@@ -211,13 +226,13 @@ class TTLRandomGenerator {
             digitalTwinTransportMeanIdentifier6,
             generatedGoodsIdentifier,
             generatedBusinessTransaction,
-            generatedPInameborder,
+            generatedPInameBorderGermany,
             Milestone.END.toString().ReCapitalize(),
             borderCrossingTimestamps
         )
-        eventsAtLocation[departureBorderEventIdentifier] = generatedPInameborder
-        eventsAtCities[departureBorderEventIdentifier] = generatedPInameborder
-        eventsAtCountries[departureBorderEventIdentifier] = listOf(generatedDepartureCountry, generatedArrivalCountry)
+        eventsAtLocation[departureBorderEventIdentifier] = generatedPInameBorderGermany
+        eventsAtCities[departureBorderEventIdentifier] = generatedPInameBorderGermany
+        eventsAtCountries[departureBorderEventIdentifier] = generatedBorderCountryDE
         constructedTTL += digitalTwinTransportMeanEntry6 + departureBorderEventEntry
 
         //  6. generateArrivalEvent(Actual)
@@ -233,7 +248,7 @@ class TTLRandomGenerator {
         )
         eventsAtLocation[actualArrivalEventIdentifier] = generatedPInameArrival
         eventsAtCities[actualArrivalEventIdentifier] = generatedArrivalCity
-        eventsAtCountries[actualArrivalEventIdentifier] = listOf(generatedArrivalCountry)
+        eventsAtCountries[actualArrivalEventIdentifier] = generatedArrivalCountry
         constructedTTL += digitalTwinTransportMeanEntry7 + actualArrivalEventEntry
 
         //  7. generateDischargeEvent()
@@ -249,7 +264,7 @@ class TTLRandomGenerator {
         )
         eventsAtLocation[dischargeEventIdentifier] = generatedPInameArrival
         eventsAtCities[dischargeEventIdentifier] = generatedArrivalCity
-        eventsAtCountries[dischargeEventIdentifier] = listOf(generatedArrivalCountry)
+        eventsAtCountries[dischargeEventIdentifier] = generatedArrivalCountry
         constructedTTL += digitalTwinTransportMeanEntry8 + dischargeEventEntry
 
         val transportMeansIdentifiers = listOf(digitalTwinTransportMeanEntry, digitalTwinTransportMeanEntry2,
@@ -354,16 +369,17 @@ class TTLRandomGenerator {
             """)
     }
 
-    private fun generateLocation(countryCode: String): Pair<Pair<String, String>, Pair<String, String>> {
+    private fun generateLocation(countryCode: String, name: String = "", cityName: String = ""): Pair<Pair<String, String>, Pair<String, String>> {
         // generate random 5-char location name
         val charPool = ('A'..'Z')
-        val piName = charPool.random(5)
+        val piName = if (name.isBlank()) charPool.random(5) else name
 
         // both countries have equal # cities => we use 1 indexer
         val cityIndex = RandomUtils.nextInt(0, NetherlandsCities.values().count())
 
-
-        val piCity = if (countryCode == "NL") NetherlandsCities.values()[cityIndex].toString() else GermanCities.values()[cityIndex].toString()
+        val piCity = if (countryCode == "NL" && cityName.isBlank()) NetherlandsCities.values()[cityIndex].toString()
+        else if (countryCode == "DE" && cityName.isBlank()) GermanCities.values()[cityIndex].toString()
+        else cityName
 
         return Pair(Pair(piCity, countryCode), Pair(piName, """
         ex:PhysicalInfrastructure-$piName a pi:Location, owl:NamedIndividual;
@@ -372,14 +388,6 @@ class TTLRandomGenerator {
         """))
     }
 
-    private fun generateBorderLocation(): Pair<String, String> {
-        return Pair("Veldhuizen", """
-        ex:PhysicalInfrastructure-Veldhuizen a pi:Location, owl:NamedIndividual;
-            pi:cityName "Veldhuizen" ;
-            pi:countryName "NL" ;
-            pi:countryName "DE" .
-        """)
-    }
 
     private fun generateEquipment(): Pair<String, String> {
         val equipmentIdentifier = UUID.randomUUID().toString()

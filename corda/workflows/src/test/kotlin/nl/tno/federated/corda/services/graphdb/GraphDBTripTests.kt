@@ -22,12 +22,10 @@ class GraphDBTripTests : GraphDBTestContainersSupport() {
         val eventsAtCountries = generatedTripTTL.eventsAtCountries
 
         for (eventIdentifier in eventsInTrip) {
-            val countries = eventsAtCountries[eventIdentifier]!!
+            val country = eventsAtCountries[eventIdentifier]!!
             val countrySparqlResult = graphDBService.queryCountryGivenEventId(eventIdentifier)
-            val countriesFromSparql = graphDBService.unpackCountriesFromSPARQLresult(countrySparqlResult)
-            for (country in countries) {
-                assertTrue("Country was not correctly queried: $country", country in countriesFromSparql)
-            }
+            val countryFromSparql = graphDBService.unpackCountriesFromSPARQLresult(countrySparqlResult)
+            assertTrue("Country of event $eventIdentifier was not correctly queried: $country", country == countryFromSparql.single())
         }
     }
 
@@ -37,9 +35,8 @@ class GraphDBTripTests : GraphDBTestContainersSupport() {
         val modelMapEventsCountry = GraphDBEventConverter.parseRDFtoMapEventsCountry(generatedTripTTL.constructedTTL)
 
         for (eventIdentifier in eventsAtCountries.keys) {
-            for (country in eventsAtCountries[eventIdentifier]!!) {
-                assertTrue("Country $country of event id $eventIdentifier was not correctly parsed", country in modelMapEventsCountry[eventIdentifier]!!)
-            }
+            assertTrue("Country ${eventsAtCountries[eventIdentifier]!!} of event id $eventIdentifier was not correctly parsed",
+                eventsAtCountries[eventIdentifier]!! in modelMapEventsCountry[eventIdentifier]!!)
         }
     }
 }
