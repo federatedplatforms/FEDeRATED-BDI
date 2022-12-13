@@ -46,8 +46,9 @@ object GraphDBEventConverter {
         val countriesFromModel = mutableMapOf<String, List<String>>()
 
         for (eventID in eventIDs) {
-            val mappedLocations = locationsFromModel(model, eventID).map { countryFromModel(model, it) }
-            countriesFromModel[eventID] = mappedLocations
+            val locationsFromModelForEvent = locationsFromModel(model, eventID)
+            val mappedLocations = locationsFromModelForEvent.flatMap { countryFromModel(model, it) }
+            countriesFromModel[eventID.substringAfter("-")] = mappedLocations.map { StringUtil.trimDoubleQuotes(it) }
         }
 
         return countriesFromModel
@@ -121,15 +122,15 @@ object GraphDBEventConverter {
         return locations.objects().map { it.toString().substringAfter("-") }.toSet()
     }
 
-    private fun countryFromModel(model: Model, physicalInfrastructureName: String): String {
+    private fun countryFromModel(model: Model, physicalInfrastructureName: String): List<String> {
         val factory = SimpleValueFactory.getInstance()
         val cities = model.filter(
-            factory.createIRI(physicalInfrastructureName),
+            factory.createIRI("http://example.com/base#PhysicalInfrastructure-$physicalInfrastructureName"),
             factory.createIRI("https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#countryName"),
             null
         )
 
-        return cities.objects().map { it.toString().substringAfter("-") }.single()
+        return cities.objects().map { it.toString().substringAfter("-") }
     }
 
     private fun milestoneFromModel(model: Model, eventId: String): Milestone {
