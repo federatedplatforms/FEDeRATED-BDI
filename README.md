@@ -6,9 +6,10 @@ This repository contains the FEDeRATED BDI prototype implementation.
 
 A BDI node is composed by the following components:
 
+- BDI API 
 - Corda node
-- BDI API (includes the semantic adapter)
 - GraphDB
+- Semantic Adapter
 
 ### Diagram
 
