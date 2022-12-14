@@ -8,7 +8,6 @@ import org.junit.Test
 class GraphDBAccuracyTests : GraphDBTestContainersSupport() {
 
     companion object {
-
         private val generator = TTLRandomGenerator()
     }
 

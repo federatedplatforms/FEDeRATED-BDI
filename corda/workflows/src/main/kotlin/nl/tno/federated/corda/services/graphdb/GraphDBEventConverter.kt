@@ -28,6 +28,41 @@ object GraphDBEventConverter {
         }
     }
 
+    // for GraphDBCordaService
+    fun parseRDFtoCountries(rdfFullData: String): List<String> {
+        val model = parseRDFToModel(rdfFullData)
+        val eventIDs = eventIdsFromModel(model)
+        return parseModelToMapEventsCountry(model, eventIDs)[eventIDs[0]]!!
+    }
+
+    // for quicker tests in GraphDBTripTests
+    fun parseRDFtoMapEventsCountry(rdfFullData: String): Map<String, List<String>> {
+        val model = parseRDFToModel(rdfFullData)
+        val eventIDs = eventIdsFromModel(model)
+        return parseModelToMapEventsCountry(model, eventIDs)
+    }
+
+    private fun parseModelToMapEventsCountry(model: Model, eventIDs: List<String>): Map<String, List<String>> {
+        val countriesFromModel = mutableMapOf<String, List<String>>()
+
+        for (eventID in eventIDs) {
+            val locationsFromModelForEvent = locationsFromModel(model, eventID)
+            val mappedLocations = locationsFromModelForEvent.flatMap { countryFromModel(model, it) }
+            countriesFromModel[eventID.substringAfter("-")] = mappedLocations.map { StringUtil.trimDoubleQuotes(it) }
+        }
+
+        return countriesFromModel
+    }
+
+    fun parseRDFToEventIDs(rdfFullData: String): List<String> {
+        val model = parseRDFToModel(rdfFullData)
+
+        val eventIds = eventIdsFromModel(model)
+        require(eventIds.isNotEmpty()) { "No events found in RDF data. " }.also { log.debug("No events found in RDF data. ") }
+
+        return eventIds
+    }
+
     fun eventFromModel(
         model: Model,
         eventId: String
@@ -85,6 +120,17 @@ object GraphDBEventConverter {
         )
 
         return locations.objects().map { it.toString().substringAfter("-") }.toSet()
+    }
+
+    private fun countryFromModel(model: Model, physicalInfrastructureName: String): List<String> {
+        val factory = SimpleValueFactory.getInstance()
+        val cities = model.filter(
+            factory.createIRI("http://example.com/base#PhysicalInfrastructure-$physicalInfrastructureName"),
+            factory.createIRI("https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#countryName"),
+            null
+        )
+
+        return cities.objects().map { it.toString().substringAfter("-") }
     }
 
     private fun milestoneFromModel(model: Model, eventId: String): Milestone {

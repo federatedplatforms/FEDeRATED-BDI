@@ -15,7 +15,14 @@ data class GeneratedTTL(val constructedTTL: String,
                         val legalPerson: String,
                         val businessTransaction: String,
                         val equipment: String,
-                        val digitalTwinTransportMeans:List<String>)
+                        val digitalTwinTransportMeans: List<String>)
+
+data class TripTTL(val constructedTTL: String,
+                   val eventsIdentifiers: List<String>,
+                   val eventsAtLocations: Map<String, String>,
+                   val transportMeansIdentifiers: List<String>,
+                   val eventsAtCities: Map<String, String>,
+                   val eventsAtCountries: Map<String, String>)
 
 class TTLRandomGenerator {
 
@@ -27,10 +34,11 @@ class TTLRandomGenerator {
 
         val (generatedEquipment, generatedEquipmentEntry) = generateEquipment()
 
-        val (generatedPIname, generatedPIentry) = generatePhysicalInfrstructure()
+        val generatedLocation = generateLocation("NL")
+        val generatedPIname = generatedLocation.second.first
+        val generatedPIentry = generatedLocation.second.second
 
-        val (generatedBusinessTransaction, generatedBusinessTransactionEntry) =
-                generateBusinessTransaction(generatedLegalPerson)
+        val (generatedBusinessTransaction, generatedBusinessTransactionEntry) = generateBusinessTransaction(generatedLegalPerson)
 
         var constructedTTL = prefixes + generatedLegalPersonEntry + generatedEquipmentEntry + generatedBusinessTransactionEntry + generatedPIentry
 
@@ -51,25 +59,297 @@ class TTLRandomGenerator {
         for (i in 0 until numberEvents) {
             constructedTTL = "$constructedTTL ${digitalTwinTransportMeansEntry[i]}"
             val (eventIdentifier, generatedEventEntry) = generateEvent(digitalTwinTransportMeansIdentifiers[i],
-                    generatedBusinessTransaction, generatedEquipment, generatedPIname, i%2)
+                generatedBusinessTransaction, generatedEquipment, generatedPIname, i % 2)
             eventIdentifiers.add(eventIdentifier)
             generatedEventsEntries.add(generatedEventEntry)
             constructedTTL = "$constructedTTL ${generatedEventsEntries[i]}"
         }
 
         return GeneratedTTL(
-                constructedTTL = constructedTTL,
-                eventIdentifiers = eventIdentifiers,
-                legalPerson = generatedLegalPerson,
-                businessTransaction = "businessTransaction-$generatedBusinessTransaction",
-                equipment = "Equipment-$generatedEquipment",
-                digitalTwinTransportMeans = digitalTwinTransportMeansIdentifiers
+            constructedTTL = constructedTTL,
+            eventIdentifiers = eventIdentifiers,
+            legalPerson = generatedLegalPerson,
+            businessTransaction = "businessTransaction-$generatedBusinessTransaction",
+            equipment = "Equipment-$generatedEquipment",
+            digitalTwinTransportMeans = digitalTwinTransportMeansIdentifiers
         )
+    }
+
+    // TODO: generate the 8 events described in GitLab
+    fun generateTripEvents(): TripTTL {
+        // I.generate goods
+        val goodsCode = RandomUtils.nextInt(0, 9999999)
+        val goodsWeight = RandomUtils.nextInt(0, 9999999)
+        val (generatedGoodsIdentifier, generatedGoodsEntry) = generateGoods(goodsCode, goodsWeight)
+
+        // II.(NL) generate Departure location - unpack it
+        val generatedLocationDeparture = generateLocation("NL")
+        val generatedDepartureCity = generatedLocationDeparture.first.first
+        val generatedDepartureCountry = generatedLocationDeparture.first.second
+        val generatedPInameDeparture = generatedLocationDeparture.second.first
+        val generatedPIentryDeparture = generatedLocationDeparture.second.second
+
+        // III.(DE) generate Arrival location - unpack it
+        val generatedLocationArrival = generateLocation("DE")
+        val generatedArrivalCity = generatedLocationArrival.first.first
+        val generatedArrivalCountry = generatedLocationArrival.first.second
+        val generatedPInameArrival = generatedLocationArrival.second.first
+        val generatedPIentryArrival = generatedLocationArrival.second.second
+
+        // IV. generate the border location Veldhuizen
+
+        val generatedPInameBorderNetherlands = "VeldhuizenNL"
+        val generatedPInameBorderGermany = "VeldhuizenDE"
+
+        // IV.1.NETHERLANDS
+        val generatedLocationBorderNetherlands = generateLocation("NL", generatedPInameBorderNetherlands, generatedPInameBorderNetherlands)
+        val generatedBorderCityNL = generatedLocationBorderNetherlands.first.first
+        val generatedBorderCountryNL = generatedLocationBorderNetherlands.first.second
+        val generatedPIentryBorderNL = generatedLocationBorderNetherlands.second.second
+
+        // generate the border location Veldhuizen - DEUTSCHALND
+        val generatedLocationBorderGermany = generateLocation("DE", generatedPInameBorderGermany, generatedPInameBorderGermany)
+        val generatedBorderCityDE = generatedLocationBorderGermany.first.first
+        val generatedBorderCountryDE = generatedLocationBorderGermany.first.second
+        val generatedPIentryBorderDE = generatedLocationBorderGermany.second.second
+
+        // generate legal person and business transaction
+        val (generatedLegalPerson, generatedLegalPersonEntry) = generateLegalPerson()
+        val (generatedBusinessTransaction, generatedBusinessTransactionEntry) =
+            generateBusinessTransaction(generatedLegalPerson)
+
+        var constructedTTL = prefixes +
+            generatedGoodsEntry +
+            generatedLegalPersonEntry +
+            generatedPIentryDeparture +
+            generatedPIentryArrival +
+            generatedPIentryBorderNL +
+            generatedPIentryBorderDE +
+            generatedBusinessTransactionEntry
+
+        // for each event generate a new transportMeans entry based on the identification code
+        val transportMeansCode = RandomUtils.nextInt(0, 9999999)
+
+        val eventsAtLocation = mutableMapOf<String, String>()
+        val eventsAtCities = mutableMapOf<String, String>()
+        val eventsAtCountries = mutableMapOf<String, String>()
+
+        // 1. generateLoadEvent()
+        val (digitalTwinTransportMeanIdentifier, digitalTwinTransportMeanEntry) = generateDigitalTwinTransportMeans(transportMeansCode)
+        val (loadEventIdentifier, loadEventEntry) = generateSpecificEvent(
+            TripEvents.LoadEvent,
+            EventType.ACTUAL.toString().ReCapitalize(),
+            digitalTwinTransportMeanIdentifier,
+            generatedGoodsIdentifier,
+            generatedBusinessTransaction,
+            generatedPInameDeparture,
+            Milestone.START.toString().ReCapitalize()
+        )
+        eventsAtLocation[loadEventIdentifier] = generatedPInameDeparture
+        eventsAtCities[loadEventIdentifier] = generatedDepartureCity
+        eventsAtCountries[loadEventIdentifier] = generatedDepartureCountry
+        constructedTTL += digitalTwinTransportMeanEntry + loadEventEntry
+
+        //  2. generateDepartureEvent(Planned)
+        val (digitalTwinTransportMeanIdentifier2, digitalTwinTransportMeanEntry2) = generateDigitalTwinTransportMeans(transportMeansCode)
+        val (plannedDepartureEventIdentifier, plannedDepartureEventEntry) = generateSpecificEvent(
+            TripEvents.DepartureEvent,
+            EventType.PLANNED.toString().ReCapitalize(),
+            digitalTwinTransportMeanIdentifier2,
+            generatedGoodsIdentifier,
+            generatedBusinessTransaction,
+            generatedPInameDeparture,
+            Milestone.END.toString().ReCapitalize()
+        )
+        eventsAtLocation[plannedDepartureEventIdentifier] = generatedPInameDeparture
+        eventsAtCities[plannedDepartureEventIdentifier] = generatedDepartureCity
+        eventsAtCountries[plannedDepartureEventIdentifier] = generatedDepartureCountry
+        constructedTTL += digitalTwinTransportMeanEntry2 + plannedDepartureEventEntry
+
+        //  3. generateArrivalEvent(Planned)
+        val (digitalTwinTransportMeanIdentifier3, digitalTwinTransportMeanEntry3) = generateDigitalTwinTransportMeans(transportMeansCode)
+        val (plannedArrivalEventIdentifier, plannedArrivalEventEntry) = generateSpecificEvent(
+            TripEvents.ArrivalEvent,
+            EventType.PLANNED.toString().ReCapitalize(),
+            digitalTwinTransportMeanIdentifier3,
+            generatedGoodsIdentifier,
+            generatedBusinessTransaction,
+            generatedPInameArrival,
+            Milestone.START.toString().ReCapitalize()
+        )
+        eventsAtLocation[plannedArrivalEventIdentifier] = generatedPInameArrival
+        eventsAtCities[plannedArrivalEventIdentifier] = generatedArrivalCity
+        eventsAtCountries[plannedArrivalEventIdentifier] = generatedArrivalCountry
+        constructedTTL += digitalTwinTransportMeanEntry3 + plannedArrivalEventEntry
+
+        //  4. generateDepartureEvent(Actual)
+        val (digitalTwinTransportMeanIdentifier4, digitalTwinTransportMeanEntry4) = generateDigitalTwinTransportMeans(transportMeansCode)
+        val (actualDepartureEventIdentifier, actualDepartureEventEntry) = generateSpecificEvent(
+            TripEvents.DepartureEvent,
+            EventType.ACTUAL.toString().ReCapitalize(),
+            digitalTwinTransportMeanIdentifier4,
+            generatedGoodsIdentifier,
+            generatedBusinessTransaction,
+            generatedPInameDeparture,
+            Milestone.END.toString().ReCapitalize()
+        )
+        eventsAtLocation[actualDepartureEventIdentifier] = generatedPInameDeparture
+        eventsAtCities[actualDepartureEventIdentifier] = generatedDepartureCity
+        eventsAtCountries[actualDepartureEventIdentifier] = generatedDepartureCountry
+        constructedTTL += digitalTwinTransportMeanEntry4 + actualDepartureEventEntry
+
+        //  5. generateBorderCrossingEvents()
+        //  5.0. generate timestamp for both events
+        val borderCrossingTimestamps = generateTimestamps()
+        //  5.1. arrival at border - NETHERLANDS
+        val (digitalTwinTransportMeanIdentifier5, digitalTwinTransportMeanEntry5) = generateDigitalTwinTransportMeans(transportMeansCode)
+        val (arrivalBorderEventIdentifier, arrivalBorderEventEntry) = generateSpecificEvent(
+            TripEvents.ArrivalEvent,
+            EventType.ACTUAL.toString().ReCapitalize(),
+            digitalTwinTransportMeanIdentifier5,
+            generatedGoodsIdentifier,
+            generatedBusinessTransaction,
+            generatedPInameBorderNetherlands,
+            Milestone.START.toString().ReCapitalize(),
+            borderCrossingTimestamps
+        )
+        eventsAtLocation[arrivalBorderEventIdentifier] = generatedPInameBorderNetherlands
+        eventsAtCities[arrivalBorderEventIdentifier] = generatedPInameBorderNetherlands
+        eventsAtCountries[arrivalBorderEventIdentifier] = generatedBorderCountryNL
+        constructedTTL += digitalTwinTransportMeanEntry5 + arrivalBorderEventEntry
+
+        //  5.2. departure from border - DEUTSCHLAND
+        val (digitalTwinTransportMeanIdentifier6, digitalTwinTransportMeanEntry6) = generateDigitalTwinTransportMeans(transportMeansCode)
+        val (departureBorderEventIdentifier, departureBorderEventEntry) = generateSpecificEvent(
+            TripEvents.DepartureEvent,
+            EventType.ACTUAL.toString().ReCapitalize(),
+            digitalTwinTransportMeanIdentifier6,
+            generatedGoodsIdentifier,
+            generatedBusinessTransaction,
+            generatedPInameBorderGermany,
+            Milestone.END.toString().ReCapitalize(),
+            borderCrossingTimestamps
+        )
+        eventsAtLocation[departureBorderEventIdentifier] = generatedPInameBorderGermany
+        eventsAtCities[departureBorderEventIdentifier] = generatedPInameBorderGermany
+        eventsAtCountries[departureBorderEventIdentifier] = generatedBorderCountryDE
+        constructedTTL += digitalTwinTransportMeanEntry6 + departureBorderEventEntry
+
+        //  6. generateArrivalEvent(Actual)
+        val (digitalTwinTransportMeanIdentifier7, digitalTwinTransportMeanEntry7) = generateDigitalTwinTransportMeans(transportMeansCode)
+        val (actualArrivalEventIdentifier, actualArrivalEventEntry) = generateSpecificEvent(
+            TripEvents.ArrivalEvent,
+            EventType.ACTUAL.toString().ReCapitalize(),
+            digitalTwinTransportMeanIdentifier7,
+            generatedGoodsIdentifier,
+            generatedBusinessTransaction,
+            generatedPInameArrival,
+            Milestone.START.toString().ReCapitalize()
+        )
+        eventsAtLocation[actualArrivalEventIdentifier] = generatedPInameArrival
+        eventsAtCities[actualArrivalEventIdentifier] = generatedArrivalCity
+        eventsAtCountries[actualArrivalEventIdentifier] = generatedArrivalCountry
+        constructedTTL += digitalTwinTransportMeanEntry7 + actualArrivalEventEntry
+
+        //  7. generateDischargeEvent()
+        val (digitalTwinTransportMeanIdentifier8, digitalTwinTransportMeanEntry8) = generateDigitalTwinTransportMeans(transportMeansCode)
+        val (dischargeEventIdentifier, dischargeEventEntry) = generateSpecificEvent(
+            TripEvents.DischargeEvent,
+            EventType.ACTUAL.toString().ReCapitalize(),
+            digitalTwinTransportMeanIdentifier8,
+            generatedGoodsIdentifier,
+            generatedBusinessTransaction,
+            generatedPInameArrival,
+            Milestone.END.toString().ReCapitalize()
+        )
+        eventsAtLocation[dischargeEventIdentifier] = generatedPInameArrival
+        eventsAtCities[dischargeEventIdentifier] = generatedArrivalCity
+        eventsAtCountries[dischargeEventIdentifier] = generatedArrivalCountry
+        constructedTTL += digitalTwinTransportMeanEntry8 + dischargeEventEntry
+
+        val transportMeansIdentifiers = listOf(digitalTwinTransportMeanEntry, digitalTwinTransportMeanEntry2,
+            digitalTwinTransportMeanEntry3, digitalTwinTransportMeanEntry4,
+            digitalTwinTransportMeanEntry5, digitalTwinTransportMeanEntry6,
+            digitalTwinTransportMeanEntry7, digitalTwinTransportMeanEntry8)
+
+        val eventsIdentifiers = listOf(loadEventIdentifier, plannedDepartureEventIdentifier,
+            plannedArrivalEventIdentifier, actualDepartureEventIdentifier, arrivalBorderEventIdentifier,
+            departureBorderEventIdentifier, actualArrivalEventIdentifier, dischargeEventIdentifier)
+
+        return TripTTL(constructedTTL, eventsIdentifiers, eventsAtLocation, transportMeansIdentifiers, eventsAtCities, eventsAtCountries)
+    }
+
+    /**
+     * Generate an event ttl entry, return a pair of the event identifier and the ttl entry
+     * @param digitalTwinIdentifierTransportMeans The UUID of the digital twin of the transport means
+     * @param generatedBusinessTransaction The UUID of the business transaction
+     * @param generatedEquipment The UUID of the equipment
+     * @param locationName The name of the location
+     *
+     */
+    private fun generateEvent(digitalTwinIdentifierTransportMeans: String,
+                              generatedBusinessTransaction: String, generatedEquipment: String,
+                              locationName: String, milestonePosition: Int): Pair<String, String> {
+        val generatedEventIdentifier = UUID.randomUUID().toString()
+        val (hasTimestamp, hasSubmissionTimestamp) = generateTimestamps()
+        val generatedEventEntry = """
+        ex:Event-$generatedEventIdentifier a Event:Event, owl:NamedIndividual;
+          Event:hasTimestamp ${hasTimestamp}^^xsd:dateTime;
+          Event:hasDateTimeType Event:${generateDateTimeType()};
+          Event:involvesDigitalTwin ex:dt-$digitalTwinIdentifierTransportMeans, ex:Equipment-$generatedEquipment;
+          Event:involvesBusinessTransaction ex:businessTransaction-$generatedBusinessTransaction;
+          Event:involvesPhysicalInfrastructure ex:PhysicalInfrastructure-$locationName;
+          Event:hasMilestone Event:${generateHasMilestone(milestonePosition)};
+          Event:hasSubmissionTimestamp ${hasSubmissionTimestamp}^^xsd:dateTime .
+            """
+        return Pair(generatedEventIdentifier, generatedEventEntry)
+    }
+
+    /**
+     * Generate an event ttl entry, return a pair of the event identifier and the ttl entry
+     * @param eventType can be one of: LoadEvent, DepartureEvent, BorderCrossingEvent, ArrivalEvent, DischargeEvent
+     * @param eventDateTimeType can be either Planned or Actual (we don't deal with estimate yet)
+     * @param transportMeansIdentifier every event has its own transport means with a distinct
+     * @param generatedBusinessTransaction The UUID of the business transaction
+     * @param goodsIdentifier the UUID of the goods
+     * @param locationName The name of the location
+     * @param milestone can be either Start or End
+     * @param timestamps if provided the event will be specified with the timestamps, first hasTimestamp, second hasSubmissionTimestamp
+     *
+     */
+    private fun generateSpecificEvent(eventType: TripEvents,
+                                      eventDateTimeType: String,
+                                      transportMeansIdentifier: String,
+                                      goodsIdentifier: String, generatedBusinessTransaction: String,
+                                      locationName: String,
+                                      milestone: String,
+                                      timestamps: Pair<String, String> = Pair("", "")): Pair<String, String> {
+        val generatedEventIdentifier = UUID.randomUUID().toString()
+        val (hasTimestamp, hasSubmissionTimestamp) = if (timestamps.first == "") generateTimestamps() else timestamps
+        val genericEventEntry = """
+        ex:Event-$generatedEventIdentifier a Event:$eventType, owl:NamedIndividual;
+          Event:hasTimestamp ${hasTimestamp}^^xsd:dateTime;
+          Event:hasDateTimeType Event:$eventDateTimeType;
+          Event:involvesBusinessTransaction ex:businessTransaction-$generatedBusinessTransaction;
+          Event:involvesPhysicalInfrastructure ex:PhysicalInfrastructure-$locationName;
+          Event:hasMilestone Event:$milestone;
+          Event:hasSubmissionTimestamp ${hasSubmissionTimestamp}^^xsd:dateTime;"""
+        val specificEventEntry = when (eventType) {
+            in listOf(TripEvents.LoadEvent, TripEvents.DischargeEvent) -> """
+          Event:involvesDigitalTwin ex:dt-$transportMeansIdentifier, ex:Goods-$goodsIdentifier.
+        """
+
+            else -> """
+          Event:involvesDigitalTwin ex:dt-$transportMeansIdentifier.
+        """
+        }
+        val generatedEventEntry = genericEventEntry + specificEventEntry
+        return Pair(generatedEventIdentifier, generatedEventEntry)
     }
 
     private fun generateDigitalTwinTransportMeans(transportMeansIdentifier: Int): Pair<String, String> {
         val digitalTwinIdentifier = UUID.randomUUID().toString()
-        return Pair("dt-$digitalTwinIdentifier", """
+        return Pair(digitalTwinIdentifier, """
         ex:dt-$digitalTwinIdentifier a dt:TransportMeans, owl:NamedIndividual, dt:Vessel;
           rdfs:label "Vessel";
           dt:hasVIN "$transportMeansIdentifier";
@@ -77,17 +357,7 @@ class TTLRandomGenerator {
             """)
     }
 
-    private fun CharRange.random(numberOfChars: Int): String {
-        var randomString = ""
-        for (index in 0 until numberOfChars){
-            val firstCharChoice = RandomUtils.nextInt(0, this.count())
-            randomString += this.elementAt(firstCharChoice)
-        }
-
-        return randomString
-    }
-
-     private fun generateLegalPerson(): Pair<String, String> {
+    private fun generateLegalPerson(): Pair<String, String> {
 
         // generate random 6-chars
         val firstChar = ('A'..'Z')
@@ -99,21 +369,42 @@ class TTLRandomGenerator {
             """)
     }
 
-    private fun generatePhysicalInfrstructure(): Pair<String, String> {
-        // generate random 5-char physical infrastucture name
+    private fun generateLocation(countryCode: String, name: String = "", cityName: String = ""): Pair<Pair<String, String>, Pair<String, String>> {
+        // generate random 5-char location name
         val charPool = ('A'..'Z')
-        val piName = charPool.random(5)
+        val piName = if (name.isBlank()) charPool.random(5) else name
 
-        return Pair(piName,"""
-        ex:PhysicalInfrastructure-$piName a pi:Location, owl:NamedIndividual.
-        """)
+        // both countries have equal # cities => we use 1 indexer
+        val cityIndex = RandomUtils.nextInt(0, NetherlandsCities.values().count())
+
+        val piCity = if (countryCode == "NL" && cityName.isBlank()) NetherlandsCities.values()[cityIndex].toString()
+        else if (countryCode == "DE" && cityName.isBlank()) GermanCities.values()[cityIndex].toString()
+        else cityName
+
+        return Pair(Pair(piCity, countryCode), Pair(piName, """
+        ex:PhysicalInfrastructure-$piName a pi:Location, owl:NamedIndividual;
+            pi:cityName "$piCity" ;
+            pi:countryName "$countryCode" .
+        """))
     }
+
 
     private fun generateEquipment(): Pair<String, String> {
         val equipmentIdentifier = UUID.randomUUID().toString()
         return Pair(equipmentIdentifier, """
         ex:Equipment-$equipmentIdentifier a dt:Equipment, owl:NamedIndividual;
           rdfs:label "TNO-test092022" .
+            """)
+    }
+
+    private fun generateGoods(goodsCode: Int, goodsWeight: Int): Pair<String, String> {
+        val goodsIdentifier = UUID.randomUUID().toString()
+        return Pair(goodsIdentifier, """
+        ex:Goods-$goodsIdentifier a dt:Goods, owl:NamedIndividual;
+          dt:goodsDescription "a container";
+          dt:GoodsTypeCode "$goodsCode";
+          dt:goodsWeight $goodsWeight;
+          dt:grossMass ${goodsWeight + 500} .
             """)
     }
 
@@ -149,12 +440,14 @@ class TTLRandomGenerator {
 
         val stringDateSubmission = offsetDateSubmission.format(DateTimeFormatter.ISO_DATE_TIME)
 
-        val hasTimestamp = "Event:hasTimestamp \"$stringDate\"^^xsd:dateTime;"
-        val hasSubmissionTimestamp = "Event:hasSubmissionTimestamp \"$stringDateSubmission\"^^xsd:dateTime ."
+        val hasTimestamp = "\"$stringDate\""
+        val hasSubmissionTimestamp = "\"$stringDateSubmission\""
 
         return Pair(hasTimestamp, hasSubmissionTimestamp)
     }
 
+
+    // HELPER FUNCTIONS BELOW
     private fun String.ReCapitalize(): String {
         return this.toLowerCase().capitalize()
     }
@@ -170,23 +463,56 @@ class TTLRandomGenerator {
         return hasMilestone[startStop].toString().ReCapitalize()
     }
 
-    // string 1: identifier, string 2: entry for TTL
-    private fun generateEvent(digitalTwinIdentifier: String,
-                              generatedBusinessTransaction: String, generatedEquipment: String,
-                              piName: String, milestonePosition: Int): Pair<String, String> {
-        val generatedEventIdentifier = UUID.randomUUID().toString()
-        val (hasTimestamp, hasSubmissionTimestamp) = generateTimestamps()
-        val generatedEventEntry = """
-        ex:Event-$generatedEventIdentifier a Event:Event, owl:NamedIndividual;
-          $hasTimestamp
-          Event:hasDateTimeType Event:${generateDateTimeType()};
-          Event:involvesDigitalTwin ex:$digitalTwinIdentifier, ex:Equipment-$generatedEquipment;
-          Event:involvesBusinessTransaction ex:businessTransaction-$generatedBusinessTransaction;
-          Event:involvesPhysicalInfrastructure ex:PhysicalInfrastructure-$piName;
-          Event:hasMilestone Event:${generateHasMilestone(milestonePosition)};
-          $hasSubmissionTimestamp
-            """
-        return Pair(generatedEventIdentifier, generatedEventEntry)
-    }
+    private fun CharRange.random(numberOfChars: Int): String {
+        var randomString = ""
+        for (index in 0 until numberOfChars) {
+            val firstCharChoice = RandomUtils.nextInt(0, this.count())
+            randomString += this.elementAt(firstCharChoice)
+        }
 
+        return randomString
+    }
+}
+
+enum class NetherlandsCities {
+    TheHague,
+    Amsterdam,
+    Utrecht,
+    Rotterdam,
+    Eindhoven,
+    Almere,
+    Groningen,
+    Breda,
+    Apeldoorn,
+    Haarlem,
+    Zaanstad,
+    Arnhem,
+    DenBosch,
+    Leeuwarden,
+    Maastricht,
+}
+
+enum class GermanCities {
+    Berlin,
+    Hamburg,
+    Munich,
+    Cologne,
+    Frankfurt,
+    Bremen,
+    Dusseldorf,
+    Stuttgart,
+    Leipzig,
+    Dortmund,
+    Essen,
+    Dresden,
+    Hannover,
+    Nuremberg,
+    Duisburg
+}
+
+enum class TripEvents {
+    LoadEvent,
+    DepartureEvent,
+    ArrivalEvent,
+    DischargeEvent
 }
