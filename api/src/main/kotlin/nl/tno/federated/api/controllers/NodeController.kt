@@ -9,8 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * Endpoints to find out more about the Corda network. These endpoints are for debugging and proof of concept purposes
- * only. Do not expose these endpoints to the outside world.
+ * Endpoints to find out more about the Corda network.
+ * These endpoints are for debugging and proof of concept purposes only.
+ * Do not expose these endpoints to the outside world without implementing security.
  */
 @RestController
 @RequestMapping("/node", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -19,15 +20,15 @@ class NodeController(val rpc: NodeRPCConnection) {
 
     @ApiOperation(value = "How the node identifies itself to the network")
     @GetMapping(value = ["/identities"])
-    fun identities() = rpc.client().nodeInfo().legalIdentities
+    fun identities() = rpc.client().nodeInfo().legalIdentities.map { it.name }
 
     @ApiOperation(value = "Who the node knows")
     @GetMapping(value = ["/peers"])
-    fun peers() = rpc.client().networkMapSnapshot().flatMap { it.legalIdentities }
+    fun peers() = rpc.client().networkMapSnapshot().flatMap { it.legalIdentities }.map { it.name }
 
     @ApiOperation(value = "What notaries are known")
     @GetMapping(value = ["/notaries"])
-    fun notaries() = rpc.client().notaryIdentities()
+    fun notaries() = rpc.client().notaryIdentities().map { it.name }
 
     @ApiOperation(value = "What operations / 'smart contracts' / flows the node supports")
     @GetMapping(value = ["/flows"])
