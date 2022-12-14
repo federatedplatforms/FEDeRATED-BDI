@@ -55,6 +55,9 @@ jar {
     reproducibleFileOrder = true
     // Because the cordapp flattens the jar (fat jar) we need to make sure no duplicate entries end up in the jar.
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    exclude('database.properties')
+    exclude('ishare.properties')
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {

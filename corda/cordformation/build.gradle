@@ -52,6 +52,7 @@ task deploySingleNode(type: Cordform, dependsOn: ['jar']) {
     doLast {
         copy {
             from '../workflows/src/main/resources/database.properties'
+            from '../workflows/src/main/resources/ishare.properties'
             into "build/nodes/SingleNode_SN"
         }
     }
@@ -115,18 +116,20 @@ task deployNodes(type: Cordform, dependsOn: ['jar']) {
     doLast {
         copy {
             from '../workflows/src/main/resources/database.properties'
+            from '../workflows/src/main/resources/ishare.properties'
             into "build/nodes/Grenswacht_MS"
         }
         copy {
             from '../workflows/src/main/resources/database.properties'
+            from '../workflows/src/main/resources/ishare.properties'
             into "build/nodes/Tradeviewer_LSP"
         }
         copy {
             from '../workflows/src/main/resources/database.properties'
+            from '../workflows/src/main/resources/ishare.properties'
             into "build/nodes/Cargobase_LSP"
         }
         copy {
-            from '../workflows/src/main/resources/database.properties'
             into "build/nodes/Notary_Notary"
         }
     }
