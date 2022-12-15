@@ -15,12 +15,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class CordaFlowService(private val rpc: NodeRPCConnection) {
-    fun extractDestinationFromEvent(event: String): CordaX500Name? {
-        return rpc.client().networkMapSnapshot().flatMap { it.legalIdentities }.singleOrNull {
-            it.name.country == GraphDBEventConverter.parseRDFtoCountries(event).single()
-        }?.name
-    }
+class CordaNodeService(private val rpc: NodeRPCConnection) {
 
     fun startNewEventFlow(event: String, cordaName: CordaX500Name?): UUID {
         val newEventTx = rpc.client().startFlowDynamic(

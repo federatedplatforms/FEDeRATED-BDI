@@ -6,34 +6,35 @@ This document contains the technical documentation for the FEDeRATED BDI prototy
 
 ```mermaid
 graph TD
-    CLIENT(Client) -- HTTP --> API
+    CLIENT[Client] -- HTTP --> API
         subgraph BDI Node
             subgraph api[BDI API]
             API(Spring Boot) -- includes --> SEM(Semantic Adapter)
+            API -- includes --> EventDistribution(Event Distribution Service)
             subgraph Semantic Adapter
             SEM -- uses --> RMLMapper
             end
-            API -- uses --> CordaRPC(CordaRPC Client)
+            API -- uses --> CordaRPC[CordaRPC Client]
             end
-            CordaRPC -- AMQP --> CORDA(Corda)
+            CordaRPC -- AMQP --> CORDA[Corda]
             subgraph Corda Node [Corda Node]
-                CORDA -- includes --> Contracts
-                CORDA -- includes --> Workflows
+                CORDA -- includes --> Contracts(Contracts)
+                CORDA -- includes --> Workflows(Workflows)
                 Workflows -- uses --> iSHARE(iSHARE Client)
                 Workflows -- uses --> GRAPHDB(GraphDB Client)
             end
             subgraph GraphDB
                 subgraph Repositories
-                    GRAPHDB -- HTTP --> BDI
-                    GRAPHDB -- HTTP --> PRIVATE
-                    BDI -- uses --> SHACL
+                    GRAPHDB -- HTTP --> BDI(bdi)
+                    GRAPHDB -- HTTP --> PRIVATE(private)
+                    BDI -- uses --> SHACL(SHACL)
                 end
             end
         end
-    CORDA --> Notary(Corda Notary)
-    CORDA --> NetworkMap(Corda Network Map)
-    CORDA --> OtherCorda(Other Corda Nodes)    
-    iSHARE -- TLS/HTTPS --> ISHARE(iSHARE)
+    CORDA --> Notary[Corda Notary]
+    CORDA --> NetworkMap[Corda Network Map]
+    CORDA --> OtherCorda[Other Corda Nodes]    
+    iSHARE -- TLS/HTTPS --> ISHARE[iSHARE]
 ```
 
 ## Technical documentation
