@@ -38,13 +38,13 @@ class TTLRandomGenerator {
 
     private val prefixes = PrefixHandlerTTLGenerator.getPrefixesTTLGenerator()
 
-    fun generateRandomEvents(numberEvents: Int = 4): GeneratedTTL {
+    fun generateRandomEvents(numberEvents: Int = 4, countryCode: String = "NL"): GeneratedTTL {
 
         val (generatedLegalPerson, generatedLegalPersonEntry) = generateLegalPerson()
 
         val (generatedEquipment, generatedEquipmentEntry) = generateEquipment()
 
-        val generatedLocation = generateLocation("NL")
+        val generatedLocation = generateLocation(countryCode)
         val generatedPIname = generatedLocation.second.first
         val generatedPIentry = generatedLocation.second.second
 
