@@ -1,12 +1,12 @@
 # FEDeRATED BDI prototype
 
-This repository contains the FEDeRATED BDI prototype implementation. 
+This repository contains the FEDeRATED BDI prototype implementation.
 
 ## Components
 
 A BDI node is composed by the following components:
 
-- BDI API 
+- BDI API
 - Corda node
 - GraphDB
 - Semantic Adapter
@@ -16,9 +16,9 @@ A BDI node is composed by the following components:
 ```mermaid
 graph TD
     API(BDI API) --> SEM(Semantic Adapter)
-    API(BDI API) -- CordaRPC/AMQP --> CORDA(Corda Node)
+    API(BDI API) --> CORDA(Corda Node)
     CORDA --> GRAPHDB(GraphDB)
-    CORDA -- TLS/HTTPS --> ISHARE(iSHARE)
+    CORDA --> ISHARE(iSHARE)
 ```
 
 ## How this project is organized

@@ -2,6 +2,40 @@
 
 This document contains the technical documentation for the FEDeRATED BDI prototype.
 
+## Components
+
+```mermaid
+graph TD
+    CLIENT(Client) -- HTTP --> API
+        subgraph BDI Node
+            subgraph api[BDI API]
+            API(Spring Boot) -- includes --> SEM(Semantic Adapter)
+            subgraph Semantic Adapter
+            SEM -- uses --> RMLMapper
+            end
+            API -- uses --> CordaRPC(CordaRPC Client)
+            end
+            CordaRPC -- AMQP --> CORDA(Corda)
+            subgraph Corda Node [Corda Node]
+                CORDA -- includes --> Contracts
+                CORDA -- includes --> Workflows
+                Workflows -- uses --> iSHARE(iSHARE Client)
+                Workflows -- uses --> GRAPHDB(GraphDB Client)
+            end
+            subgraph GraphDB
+                subgraph Repositories
+                    GRAPHDB -- HTTP --> BDI
+                    GRAPHDB -- HTTP --> PRIVATE
+                    BDI -- uses --> SHACL
+                end
+            end
+        end
+    CORDA --> Notary(Corda Notary)
+    CORDA --> NetworkMap(Corda Network Map)
+    CORDA --> OtherCorda(Other Corda Nodes)    
+    iSHARE -- TLS/HTTPS --> ISHARE(iSHARE)
+```
+
 ## Technical documentation
 
 The following documentation is available:
