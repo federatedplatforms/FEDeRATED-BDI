@@ -1,26 +1,33 @@
 # Development Guide
 
+This document describes how to setup a development environment for this repository. 
+
 ## Pre-requisites
+
+### Hardware
+
+For development purposes it's recommended to use a machine with x86 architecture and to have at least 16GB of memory.    
 
 ### JDK
 
-This project uses Java <u>**8**</u>⚠️ due to Corda only supporting Java 8 at the time of writing. It was tested using Zulu OpenJDK (preferred for licensing reasons).
-
-### Gradle
-
-Gradle 6.3 is used as the build system. Gradle will automatically be downloaded once a command is issued using the gradle wrapper (gradlew).
-
-### IDE 
-
-Development was done using JetBrains IntelliJ, run configurations and editorconfig are included with the project.
+This project uses Java 8 (⚠ Corda 4.9 only supports Java 8). The code has been build and tested using Zulu OpenJDK. 
 
 ### Corda setup
 
-For more information regarding the setup of Corda development environment please refer to: https://docs.corda.net/getting-set-up.html for more details.
+For more information regarding the setup of Corda development environment please refer to: https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html for more details.
+
+### Gradle
+
+Gradle 6.3 is used as the build system. Gradle will automatically be downloaded once a command is issued using the gradle wrapper (gradlew). 
+Upgrading to a newer Gradle version will result in compatibility issues with the Corda gradle plugins.
+
+### IDE 
+
+For development JetBrains IntelliJ is recommended as this repository provides run configurations and an editorconfig.
 
 ### GraphDB
 
-This project uses GraphDB free version 10 for its triple store. Its not required to download and install is manually as a Docker composed file is available for running GraphDB.
+This project uses GraphDB free version 10 as a triple store. It's not required to download, install and setup manually as a Docker composed file is available for running GraphDB.
 
 ### Docker compose
 
@@ -38,11 +45,9 @@ Building the application will also trigger (unit/integration) test to run.
 
 ## Running GraphDB
 
-GraphDB is used in the Corda workflows a persistent triple store. 
-This project includes a docker-compose.yml file for running GraphDB. 
+GraphDB is used in the Corda workflows a persistent triple store. This project includes a docker-compose.yml file for running GraphDB. 
 When starting the Docker container for GraphDB two repositories will automatically be intialized, the `bdi` and `private` repositories.
 Next to that the `bdi` repository is initialized with the ontologies and federated SHACL files.
-
 
 ## Running the Corda nodes
 
