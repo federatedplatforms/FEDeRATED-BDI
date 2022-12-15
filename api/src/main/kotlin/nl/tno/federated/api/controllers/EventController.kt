@@ -36,7 +36,8 @@ class EventController(
     @PostMapping(value = ["/random"])
     fun generateRandomEventNoDestination(
         @RequestParam("start-flow") startFlow: String,
-        @RequestParam("number-events") numberEvents: String
+        @RequestParam("number-events") numberEvents: String,
+        @RequestParam("country-code") countryCode: String
     ): ResponseEntity<String> {
         // 1. check if number of events is a correct integer
         numberEvents.toIntOrNull() ?: return ResponseEntity("number-events was incorrectly specified", HttpStatus.BAD_REQUEST)
@@ -46,7 +47,7 @@ class EventController(
             ResponseEntity("start-flow was incorrectly specified", HttpStatus.BAD_REQUEST)
         } else {
             // 3. generate the random event
-            val generatedTTL = eventGenerator.generateRandomEvents(numberEvents.toInt())
+            val generatedTTL = eventGenerator.generateRandomEvents(numberEvents.toInt(), countryCode)
 
             // 4. check if needed to start a new event flow
             if (startFlow.toBooleanOrNull() == true) {

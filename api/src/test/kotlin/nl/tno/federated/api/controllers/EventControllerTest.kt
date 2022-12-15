@@ -39,7 +39,7 @@ class EventControllerTest {
         val cordaName = CordaX500Name("TNO", "Soesterberg", "NL") // used to start the flow
         whenever(eventDistributionService.extractDestinationFromEvent(any())).thenReturn(EventDestination( cordaName))
 
-        val fullBody = testRestTemplate.postForEntity("/events/random?start-flow=false&number-events=1", HttpEntity(""), String::class.java).body
+        val fullBody = testRestTemplate.postForEntity("/events/random?start-flow=false&number-events=1&country-code=NL", HttpEntity(""), String::class.java).body
 
         val body = fullBody!!.split("created:")[1]
 
@@ -55,7 +55,7 @@ class EventControllerTest {
     fun `Post an event for an unknown destination expect bad request`() {
         whenever(eventDistributionService.extractDestinationFromEvent(any())).thenReturn(null)
 
-        val fullBody = testRestTemplate.postForEntity("/events/random?start-flow=false&number-events=1", HttpEntity(""), String::class.java).body
+        val fullBody = testRestTemplate.postForEntity("/events/random?start-flow=false&number-events=1&country-code=NL", HttpEntity(""), String::class.java).body
 
         val body = fullBody!!.split("created:")[1]
 
@@ -127,7 +127,7 @@ class EventControllerTest {
     @Test
     fun generateRandomEventNoFlow() {
 
-        val response = testRestTemplate.postForEntity("/events/random?start-flow=false&number-events=5", HttpEntity(""), String::class.java)
+        val response = testRestTemplate.postForEntity("/events/random?start-flow=false&number-events=5&country-code=NL", HttpEntity(""), String::class.java)
 
         assertEquals(HttpStatus.CREATED, response.statusCode)
         assertTrue("Response body should contain UUID returned from NewEvent flow", response.body!!.contains("Event:Event"))
@@ -139,7 +139,7 @@ class EventControllerTest {
 
         whenever(cordaNodeService.startNewEventFlow(any(), anyOrNull())).thenReturn(uuid)
 
-        val response = testRestTemplate.postForEntity("/events/random?start-flow=true&number-events=1", HttpEntity(""), String::class.java)
+        val response = testRestTemplate.postForEntity("/events/random?start-flow=true&number-events=1&country-code=NL", HttpEntity(""), String::class.java)
 
         assertEquals(HttpStatus.CREATED, response.statusCode)
         assertTrue("Response body should contain UUID returned from NewEvent flow", response.body!!.contains(uuid.toString()))
@@ -151,7 +151,7 @@ class EventControllerTest {
             set(HttpHeaders.AUTHORIZATION, "Bearer doitanyway")
         }
 
-        val response = testRestTemplate.postForEntity("/events/random/TNO?start-flow=false&number-events=1", HttpEntity("", headers), String::class.java)
+        val response = testRestTemplate.postForEntity("/events/random/TNO?start-flow=false&number-events=1&country-code=NL", HttpEntity("", headers), String::class.java)
 
         assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
         assertTrue("The missing destination fields have not been identified", response.body!!.contains("Missing destination field"))
