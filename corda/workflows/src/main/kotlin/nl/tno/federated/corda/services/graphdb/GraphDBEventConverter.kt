@@ -32,7 +32,10 @@ object GraphDBEventConverter {
     fun parseRDFtoCountries(rdfFullData: String): List<String> {
         val model = parseRDFToModel(rdfFullData)
         val eventIDs = eventIdsFromModel(model)
-        return parseModelToMapEventsCountry(model, eventIDs)[eventIDs[0]]!!
+        val eventIdentifier = eventIDs.single().substringAfter("-")
+        val mappedEventsToCountries = parseModelToMapEventsCountry(model, eventIDs)
+        return mappedEventsToCountries[eventIdentifier]!!
+
     }
 
     // for quicker tests in GraphDBTripTests
