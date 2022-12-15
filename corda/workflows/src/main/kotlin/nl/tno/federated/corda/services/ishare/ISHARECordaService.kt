@@ -13,7 +13,7 @@ import nl.tno.federated.ishare.model.token.ISHARETokenResponse
 @CordaService
 class ISHARECordaService(serviceHub: AppServiceHub) : SingletonSerializeAsToken() {
 
-    private val ishareClient = ISHAREClient("ishare.properties")
+    private val ishareClient by lazy { ISHAREClient("ishare.properties") }
 
     fun checkPartyWithScheme(partyEORI: String): Boolean = ishareClient.checkPartyWithScheme(partyEORI)
 

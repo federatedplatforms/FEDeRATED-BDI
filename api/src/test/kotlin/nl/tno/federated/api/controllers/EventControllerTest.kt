@@ -1,7 +1,9 @@
 package nl.tno.federated.api.controllers
 
 import net.corda.core.identity.CordaX500Name
-import nl.tno.federated.api.corda.CordaFlowService
+import nl.tno.federated.api.corda.CordaNodeService
+import nl.tno.federated.api.distribution.EventDestination
+import nl.tno.federated.api.distribution.EventDistributionService
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -25,23 +27,23 @@ class EventControllerTest {
 
     @Autowired
     lateinit var testRestTemplate: TestRestTemplate
-
     @MockBean
-    lateinit var cordaFlowService: CordaFlowService
+    lateinit var cordaNodeService: CordaNodeService
+    @MockBean
+    lateinit var eventDistributionService: EventDistributionService
 
     @Test
     fun `Post an event for a known destination expect a creation success`() {
         val uuid = UUID.randomUUID()
 
         val cordaName = CordaX500Name("TNO", "Soesterberg", "NL") // used to start the flow
-
-        whenever(cordaFlowService.extractDestinationFromEvent(any())).thenReturn(cordaName)
+        whenever(eventDistributionService.extractDestinationFromEvent(any())).thenReturn(EventDestination( cordaName))
 
         val fullBody = testRestTemplate.postForEntity("/events/random?start-flow=false&number-events=1&country-code=NL", HttpEntity(""), String::class.java).body
 
         val body = fullBody!!.split("created:")[1]
 
-        whenever(cordaFlowService.startNewEventFlow(body, cordaName)).thenReturn(uuid)
+        whenever(cordaNodeService.startNewEventFlow(body, cordaName)).thenReturn(uuid)
 
         val response = testRestTemplate.postForEntity("/events/autodistributed", HttpEntity(body), String::class.java)
 
@@ -51,7 +53,7 @@ class EventControllerTest {
 
     @Test
     fun `Post an event for an unknown destination expect bad request`() {
-        whenever(cordaFlowService.extractDestinationFromEvent(any())).thenReturn(null)
+        whenever(eventDistributionService.extractDestinationFromEvent(any())).thenReturn(null)
 
         val fullBody = testRestTemplate.postForEntity("/events/random?start-flow=false&number-events=1&country-code=NL", HttpEntity(""), String::class.java).body
 
@@ -78,7 +80,7 @@ class EventControllerTest {
 
         val cordaName = CordaX500Name("TNO", "Soesterberg", "NL")
 
-        whenever(cordaFlowService.startNewEventFlow(body, cordaName)).thenReturn(uuid)
+        whenever(cordaNodeService.startNewEventFlow(body, cordaName)).thenReturn(uuid)
 
         val response = testRestTemplate.postForEntity("/events/TNO/Soesterberg/NL", HttpEntity(body), String::class.java)
 
@@ -98,7 +100,7 @@ class EventControllerTest {
             }
         """".trimIndent()
 
-        whenever(cordaFlowService.startNewEventFlow(body, null)).thenReturn(uuid)
+        whenever(cordaNodeService.startNewEventFlow(body, null)).thenReturn(uuid)
 
         val response = testRestTemplate.postForEntity("/events/", HttpEntity(body), String::class.java)
 
@@ -135,7 +137,7 @@ class EventControllerTest {
     fun generateRandomEventWithFlow() {
         val uuid = UUID.randomUUID()
 
-        whenever(cordaFlowService.startNewEventFlow(any(), anyOrNull())).thenReturn(uuid)
+        whenever(cordaNodeService.startNewEventFlow(any(), anyOrNull())).thenReturn(uuid)
 
         val response = testRestTemplate.postForEntity("/events/random?start-flow=true&number-events=1&country-code=NL", HttpEntity(""), String::class.java)
 
