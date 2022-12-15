@@ -85,85 +85,14 @@ class TTLRandomGenerator {
         )
     }
 
-    fun generateEventHelperItems(): TripHelperItems {
-        // I.generate goods
-        val goodsCode = RandomUtils.nextInt(0, 9999999)
-        val goodsWeight = RandomUtils.nextInt(0, 9999999)
-        val (generatedGoodsIdentifier, generatedGoodsEntry) = generateGoods(goodsCode, goodsWeight)
-
-        val tripLocations = mutableListOf<PILocation>()
-
-        // II.(NL) generate Departure location - unpack it
-        val generatedLocationDeparture = generateLocation("NL")
-        val generatedDepartureCity = generatedLocationDeparture.first.first
-        val generatedDepartureCountry = generatedLocationDeparture.first.second
-        val generatedPInameDeparture = generatedLocationDeparture.second.first
-        val generatedPIentryDeparture = generatedLocationDeparture.second.second
-
-        val departurePILocation = PILocation(generatedPInameDeparture, generatedPIentryDeparture, generatedDepartureCity, generatedDepartureCountry)
-        tripLocations.add(departurePILocation)
-
-        // III.(DE) generate Arrival location - unpack it
-        val generatedLocationArrival = generateLocation("DE")
-        val generatedArrivalCity = generatedLocationArrival.first.first
-        val generatedArrivalCountry = generatedLocationArrival.first.second
-        val generatedPInameArrival = generatedLocationArrival.second.first
-        val generatedPIentryArrival = generatedLocationArrival.second.second
-
-        val arrivalPILocation = PILocation(generatedPInameArrival, generatedPIentryArrival, generatedArrivalCity, generatedArrivalCountry)
-        tripLocations.add(arrivalPILocation)
-
-        // IV. generate the border location Veldhuizen
-
-        val generatedPInameBorderNetherlands = "VeldhuizenNL"
-        val generatedPInameBorderGermany = "VeldhuizenDE"
-
-        // IV.1.NETHERLANDS
-        val generatedLocationBorderNetherlands = generateLocation("NL", generatedPInameBorderNetherlands, generatedPInameBorderNetherlands)
-        val generatedBorderCityNL = generatedLocationBorderNetherlands.first.first
-        val generatedBorderCountryNL = generatedLocationBorderNetherlands.first.second
-        val generatedPIentryBorderNL = generatedLocationBorderNetherlands.second.second
-
-        val borderPILocationNL = PILocation(generatedPInameBorderNetherlands, generatedPIentryBorderNL, generatedBorderCityNL, generatedBorderCountryNL)
-        tripLocations.add(borderPILocationNL)
-
-        // generate the border location Veldhuizen - DEUTSCHLAND
-        val generatedLocationBorderGermany = generateLocation("DE", generatedPInameBorderGermany, generatedPInameBorderGermany)
-        val generatedBorderCityDE = generatedLocationBorderGermany.first.first
-        val generatedBorderCountryDE = generatedLocationBorderGermany.first.second
-        val generatedPIentryBorderDE = generatedLocationBorderGermany.second.second
-
-        val borderPILocationDE = PILocation(generatedPInameBorderGermany, generatedPIentryBorderDE, generatedBorderCityDE, generatedBorderCountryDE)
-        tripLocations.add(borderPILocationDE)
-
-        // generate legal person and business transaction
-        val (generatedLegalPerson, generatedLegalPersonEntry) = generateLegalPerson()
-        val (generatedBusinessTransaction, generatedBusinessTransactionEntry) =
-            generateBusinessTransaction(generatedLegalPerson)
-
-        val helperItemsTTL = prefixes +
-            generatedGoodsEntry +
-            generatedLegalPersonEntry +
-            generatedPIentryDeparture +
-            generatedPIentryArrival +
-            generatedPIentryBorderNL +
-            generatedPIentryBorderDE +
-            generatedBusinessTransactionEntry
-
-        val transportMeansCode = RandomUtils.nextInt(0, 9999999)
-
-        return TripHelperItems(helperItemsTTL, generatedGoodsIdentifier, generatedBusinessTransaction, tripLocations, transportMeansCode)
-    }
-    
     fun generateTripEvents(): TripTTL {
         val eventEntries = mutableListOf<String>()
-        var constructedTTL = generateEventHelperItems().helperItemsTTL
+        val helperItems = generateEventHelperItems()
+        var constructedTTL = helperItems.helperItemsTTL
 
         val eventsAtLocation = mutableMapOf<String, String>()
         val eventsAtCities = mutableMapOf<String, String>()
         val eventsAtCountries = mutableMapOf<String, String>()
-
-        val helperItems = generateEventHelperItems()
 
         // unpack helper items: transportMeansCode
         val transportMeansCode = helperItems.transportMeansIdentifier
@@ -346,6 +275,76 @@ class TTLRandomGenerator {
             departureBorderEventIdentifier, actualArrivalEventIdentifier, dischargeEventIdentifier)
 
         return TripTTL(constructedTTL, eventsIdentifiers, eventsAtLocation, transportMeansIdentifiers, eventsAtCities, eventsAtCountries, eventEntries, helperItems)
+    }
+
+    private fun generateEventHelperItems(): TripHelperItems {
+        // I.generate goods
+        val goodsCode = RandomUtils.nextInt(0, 9999999)
+        val goodsWeight = RandomUtils.nextInt(0, 9999999)
+        val (generatedGoodsIdentifier, generatedGoodsEntry) = generateGoods(goodsCode, goodsWeight)
+
+        val tripLocations = mutableListOf<PILocation>()
+
+        // II.(NL) generate Departure location - unpack it
+        val generatedLocationDeparture = generateLocation("NL")
+        val generatedDepartureCity = generatedLocationDeparture.first.first
+        val generatedDepartureCountry = generatedLocationDeparture.first.second
+        val generatedPInameDeparture = generatedLocationDeparture.second.first
+        val generatedPIentryDeparture = generatedLocationDeparture.second.second
+
+        val departurePILocation = PILocation(generatedPInameDeparture, generatedPIentryDeparture, generatedDepartureCity, generatedDepartureCountry)
+        tripLocations.add(departurePILocation)
+
+        // III.(DE) generate Arrival location - unpack it
+        val generatedLocationArrival = generateLocation("DE")
+        val generatedArrivalCity = generatedLocationArrival.first.first
+        val generatedArrivalCountry = generatedLocationArrival.first.second
+        val generatedPInameArrival = generatedLocationArrival.second.first
+        val generatedPIentryArrival = generatedLocationArrival.second.second
+
+        val arrivalPILocation = PILocation(generatedPInameArrival, generatedPIentryArrival, generatedArrivalCity, generatedArrivalCountry)
+        tripLocations.add(arrivalPILocation)
+
+        // IV. generate the border location Veldhuizen
+
+        val generatedPInameBorderNetherlands = "VeldhuizenNL"
+        val generatedPInameBorderGermany = "VeldhuizenDE"
+
+        // IV.1.NETHERLANDS
+        val generatedLocationBorderNetherlands = generateLocation("NL", generatedPInameBorderNetherlands, generatedPInameBorderNetherlands)
+        val generatedBorderCityNL = generatedLocationBorderNetherlands.first.first
+        val generatedBorderCountryNL = generatedLocationBorderNetherlands.first.second
+        val generatedPIentryBorderNL = generatedLocationBorderNetherlands.second.second
+
+        val borderPILocationNL = PILocation(generatedPInameBorderNetherlands, generatedPIentryBorderNL, generatedBorderCityNL, generatedBorderCountryNL)
+        tripLocations.add(borderPILocationNL)
+
+        // generate the border location Veldhuizen - DEUTSCHLAND
+        val generatedLocationBorderGermany = generateLocation("DE", generatedPInameBorderGermany, generatedPInameBorderGermany)
+        val generatedBorderCityDE = generatedLocationBorderGermany.first.first
+        val generatedBorderCountryDE = generatedLocationBorderGermany.first.second
+        val generatedPIentryBorderDE = generatedLocationBorderGermany.second.second
+
+        val borderPILocationDE = PILocation(generatedPInameBorderGermany, generatedPIentryBorderDE, generatedBorderCityDE, generatedBorderCountryDE)
+        tripLocations.add(borderPILocationDE)
+
+        // generate legal person and business transaction
+        val (generatedLegalPerson, generatedLegalPersonEntry) = generateLegalPerson()
+        val (generatedBusinessTransaction, generatedBusinessTransactionEntry) =
+            generateBusinessTransaction(generatedLegalPerson)
+
+        val helperItemsTTL = prefixes +
+            generatedGoodsEntry +
+            generatedLegalPersonEntry +
+            generatedPIentryDeparture +
+            generatedPIentryArrival +
+            generatedPIentryBorderNL +
+            generatedPIentryBorderDE +
+            generatedBusinessTransactionEntry
+
+        val transportMeansCode = RandomUtils.nextInt(0, 9999999)
+
+        return TripHelperItems(helperItemsTTL, generatedGoodsIdentifier, generatedBusinessTransaction, tripLocations, transportMeansCode)
     }
 
     /**
