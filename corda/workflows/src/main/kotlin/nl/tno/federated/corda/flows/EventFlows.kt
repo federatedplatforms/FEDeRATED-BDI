@@ -1,18 +1,24 @@
 package nl.tno.federated.corda.flows
 
 import co.paralleluniverse.fibers.Suspendable
+import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
+import net.corda.core.node.services.vault.QueryCriteria
+import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
+import nl.tno.federated.corda.services.graphdb.GraphDBEventConverter
 import nl.tno.federated.corda.services.ishare.ISHARECordaService
 import nl.tno.federated.states.EventState
 import org.slf4j.LoggerFactory
+import java.util.*
+import kotlin.NoSuchElementException
 
 @InitiatingFlow
 @StartableByRPC
@@ -64,9 +70,19 @@ class NewEventFlow(
         val me = serviceHub.myInfo.legalIdentities.first()
         val counterParties = findParties()
 
+        // Retrieving event ID from RDF event
+        val eventID = GraphDBEventConverter.parseRDFToEventIDs(event).single()
+
+        // Set criteria to match UUID of state with the supplied event UUID
+        val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(UUID.fromString(eventID)))
+        require(serviceHub.vaultService.queryBy<EventState>(criteria).states.isEmpty()) {
+            "An event with the same UUID already exists"
+        }
+
         val newEventState = EventState(
             fullEvent = event,
-            participants = counterParties + me
+            participants = listOf(me) + counterParties,
+            linearId = UniqueIdentifier(null, UUID.fromString(eventID))
         )
 
         val txBuilder = TransactionBuilder(notary)

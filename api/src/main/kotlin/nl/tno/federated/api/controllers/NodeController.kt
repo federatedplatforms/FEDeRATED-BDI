@@ -16,8 +16,9 @@ import org.springframework.web.bind.annotation.RestController
 data class NodeInfoData(val names: List<CordaX500Name>, val addresses: List<NetworkHostAndPort> = emptyList())
 
 /**
- * Endpoints to find out more about the Corda network. These endpoints are for debugging and proof of concept purposes
- * only. Do not expose these endpoints to the outside world.
+ * Endpoints to find out more about the Corda network.
+ * These endpoints are for debugging and proof of concept purposes only.
+ * Do not expose these endpoints to the outside world without implementing security.
  */
 @RestController
 @RequestMapping("/node", produces = [MediaType.APPLICATION_JSON_VALUE])

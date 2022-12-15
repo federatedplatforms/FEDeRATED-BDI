@@ -3,7 +3,6 @@ package nl.tno.federated.corda.services.graphdb
 import net.corda.core.node.AppServiceHub
 import net.corda.core.node.services.CordaService
 import net.corda.core.serialization.SingletonSerializeAsToken
-import nl.tno.federated.states.Event
 
 @CordaService
 class GraphDBCordaService(serviceHub: AppServiceHub) : IGraphDBService, SingletonSerializeAsToken() {
@@ -19,8 +18,6 @@ class GraphDBCordaService(serviceHub: AppServiceHub) : IGraphDBService, Singleto
         return graphDBService!!
     }
 
-    override fun parseRDFToEvents(rdfFullData: String): List<Event> = graphdb().parseRDFToEvents(rdfFullData)
-
     override fun queryEventIds(): String = graphdb().queryEventIds()
 
     override fun generalSPARQLquery(query: String, privateRepo: Boolean): String = graphdb().generalSPARQLquery(query, privateRepo)
@@ -29,9 +26,16 @@ class GraphDBCordaService(serviceHub: AppServiceHub) : IGraphDBService, Singleto
 
     override fun queryAllEventPropertiesById(id: String): String = graphdb().queryAllEventPropertiesById(id)
 
+    override fun queryCountryGivenEventId(eventId: String): String = graphdb().queryCountryGivenEventId(eventId)
+
+    override fun unpackCountriesFromSPARQLresult(sparqlResult: String): List<String> = graphdb().unpackCountriesFromSPARQLresult(sparqlResult)
+
     override fun queryEventComponent(id: String): String = graphdb().queryEventComponent(id)
 
     override fun isQueryResultEmpty(queryResult: String): Boolean = graphdb().isQueryResultEmpty(queryResult)
+
+    override fun queryCityName(locationName: String): String = graphdb().queryCityName(locationName)
+    override fun queryCountryName(locationName: String): String = graphdb().queryCountryName(locationName)
 
     override fun areEventComponentsAccurate(queryResult: String, businessTransaction: String, transportMeans: String, equipmentUsed: String): Boolean =
         graphdb().areEventComponentsAccurate(queryResult, businessTransaction, transportMeans, equipmentUsed)

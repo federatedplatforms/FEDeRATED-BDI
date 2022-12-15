@@ -1,23 +1,18 @@
 package nl.tno.federated.corda.services.graphdb
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import net.corda.core.internal.toPath
 import nl.tno.federated.services.PrefixHandlerQueries
-import nl.tno.federated.states.Event
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
 import org.apache.http.client.HttpClient
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPost
-import org.apache.http.entity.ContentType
 import org.apache.http.entity.StringEntity
-import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.impl.client.HttpClientBuilder
 import org.slf4j.LoggerFactory
 import java.io.InputStream
 import java.net.URI
-import java.net.URL
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Files
@@ -91,11 +86,6 @@ class GraphDBService : IGraphDBService {
                 .build()
         }
     }
-
-    /**
-     * Does not really belong here.
-     */
-    override fun parseRDFToEvents(rdfFullData: String): List<Event> = GraphDBEventConverter.parseRDFToEvents(rdfFullData)
 
     override fun queryEventIds(): String {
         val sparql = """
@@ -171,17 +161,74 @@ class GraphDBService : IGraphDBService {
 
         val businessTransactionFromQueryURI = bindings[0]["object"]["value"].asText()
         val businessTransactionFromQuery = businessTransactionFromQueryURI.split("#")[1]
-        if (businessTransaction != businessTransactionFromQuery) return false
+        if (businessTransaction !in businessTransactionFromQuery) return false
 
         val equipmentFromQueryURI = bindings[0]["object1"]["value"].asText()
         val equipmentFromQuery = equipmentFromQueryURI.split("#")[1]
-        if (equipmentUsed != equipmentFromQuery) return false
+        if (equipmentUsed !in equipmentFromQuery) return false
 
         val transportMeansFromQueryURI = bindings[0]["object2"]["value"].asText()
         val transportMeansFromQuery = transportMeansFromQueryURI.split("#")[1]
-        if (transportMeans != transportMeansFromQuery) return false
+        if (transportMeans !in transportMeansFromQuery) return false
 
         return true
+    }
+
+    override fun queryCityName(locationName: String): String {
+        val queryCity = """
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
+    PREFIX pi: <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#>
+    select ?oCity where { 
+        ?s a Event:Event .
+        ?s Event:involvesPhysicalInfrastructure ?o .
+        ?o pi:cityName ?oCity .
+        FILTER regex(str(?o), "$locationName")
+        }""".trimIndent()
+
+        return performSparql(queryCity) ?: ""
+    }
+
+    override fun queryCountryName(locationName: String): String {
+        val queryCountry = """
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
+    PREFIX pi: <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#>
+    select ?oCountry where { 
+        ?s a Event:Event .
+        ?s Event:involvesPhysicalInfrastructure ?o .
+        ?o pi:countryName ?oCountry .
+        FILTER regex(str(?o), "$locationName")
+        }""".trimIndent()
+
+        return performSparql(queryCountry) ?: ""
+    }
+
+    override fun queryCountryGivenEventId(eventId: String): String {
+        val queryCountryByEventId = """
+    PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
+    PREFIX pi: <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#>
+    select ?oCountry where {
+        ?s a Event:Event .
+        ?s Event:involvesPhysicalInfrastructure ?o .
+        ?o pi:countryName ?oCountry .
+        FILTER regex(str(?s), "$eventId")
+    }""".trimIndent()
+
+        return performSparql(queryCountryByEventId) ?: ""
+    }
+
+    override fun unpackCountriesFromSPARQLresult(sparqlResult: String): List<String> {
+        val mapper = jacksonObjectMapper().readTree(sparqlResult)
+        val bindings = mapper["results"]["bindings"]
+
+        val extractedCountries = mutableListOf<String>()
+
+        for (country in bindings.elements()) {
+            extractedCountries.add(country["oCountry"]["value"].asText())
+        }
+
+        return extractedCountries
     }
 
     override fun insertEvent(ttl: String, privateRepo: Boolean): Boolean {
@@ -195,34 +242,6 @@ class GraphDBService : IGraphDBService {
         return client.get(URI("$uri?query=${URLEncoder.encode(sparql, UTF_8.toString())}"))?.bodyAsString
     }
 
-    /**
-     * Creates the repository from the provided file. Since the GraphDB repository manager
-     * does not support this we do it here.
-     *
-     * Usage: GraphDBService.createRemoteRepositoryFromConfig("bdi-repository-config.ttl")
-     * Where the filename should exist on the classpath.
-     */
-    fun createRemoteRepositoryFromConfig(filename: String) {
-        val config = getResourceFromClassPath(filename).toPath().toFile()
-        log.info("Creating repository from: $config")
-        val httpPost = HttpPost("${getGraphDBBaseUri()}/rest/repositories")
-
-        val builder = MultipartEntityBuilder.create()
-        builder.addBinaryBody("config", config, ContentType.APPLICATION_OCTET_STREAM, config.name)
-        httpPost.entity = builder.build()
-
-        val response: HttpResponse = client.execute(httpPost)
-        val body = response.entity.contentAsString
-
-        when (response.statusLine.statusCode) {
-            in 200..299 -> log.info("Repository created successfully!")
-            400 -> log.info("Bad request: {}", body)
-            else -> {
-                log.warn("Repository creation failed. StatusCode: ${response.statusLine.statusCode}, ResponseBody: $body")
-            }
-        }
-    }
-
     private fun getRepositoryURI(privateRepo: Boolean): String {
         return with(properties) {
             val protocol = getProperty("triplestore.protocol")
@@ -233,131 +252,14 @@ class GraphDBService : IGraphDBService {
         }
     }
 
-    fun importGraphFile(filename: String, context: String) {
-        require(uploadFile(filename))
-        require(importFile(filename, context))
-    }
-
-    private fun getGraphDBBaseUri(): String {
-        return with(properties) {
-            val protocol = getProperty("triplestore.protocol")
-            val host = getProperty("triplestore.host")
-            val port = getProperty("triplestore.port")
-            "$protocol://$host:$port"
-        }
-    }
-
-    private fun uploadFile(filename: String): Boolean {
-        val graph = getResourceFromClassPath(filename).toPath().toFile()
-        log.info("Uploading file $filename")
-        val httpPost = HttpPost(URL("${getGraphDBBaseUri()}/rest/repositories/bdi/import/upload/update/file").toURI())
-
-        val builder = MultipartEntityBuilder.create()
-        builder.addBinaryBody("file", graph, ContentType.APPLICATION_OCTET_STREAM, graph.name)
-        val textBody = """
-            {"name":"$filename",
-            "status":"NONE",
-            "message":"",
-            "context":null,
-            "replaceGraphs":[],
-            "baseURI":null,
-            "forceSerial":false,
-            "type":null,
-            "format":null,
-            "data":null,
-            "timestamp":1667834639926,
-            "parserSettings":
-                {
-                "preserveBNodeIds":false,
-                "failOnUnknownDataTypes":false,
-                "verifyDataTypeValues":false,
-                "normalizeDataTypeValues":false,
-                "failOnUnknownLanguageTags":false,
-                "verifyLanguageTags":true,
-                "normalizeLanguageTags":false,
-                "stopOnError":true
-                },
-            "requestIdHeadersToForward":null}
-        """.trimIndent()
-        builder.addTextBody("importSettings", textBody, ContentType.APPLICATION_JSON)
-        httpPost.entity = builder.build()
-
-        val response: HttpResponse = client.execute(httpPost)
-        val body = response.entity.contentAsString
-
-        when (response.statusLine.statusCode) {
-            200 -> {
-                log.info("$filename uploaded successfully!").also { return true }
-            }
-
-            400 -> log.info("Bad request: {}", body)
-            else -> {
-                log.warn("Uploading of $filename failed. StatusCode: ${response.statusLine.statusCode}, ResponseBody: $body")
-            }
-        }
-
-        return false
-    }
-
-    private fun importFile(filename: String, context: String): Boolean {
-        log.info("Importing $filename")
-        val httpPost = HttpPost(URL("${getGraphDBBaseUri()}/rest/repositories/bdi/import/upload/file").toURI())
-        val textBody = """
-            {"name":"$filename",
-            "type":"file",
-            "file":null,
-            "status":"NONE",
-            "message":"",
-            "context":"$context",
-            "replaceGraphs":[],
-            "baseURI":null,
-            "forceSerial":false,
-            "format":null,
-            "data":"c23b728d-0f1f-4f91-ad7e-bcc9599393f2",
-            "timestamp":1667836557602,
-            "parserSettings":
-                {
-                "preserveBNodeIds":false,
-                "failOnUnknownDataTypes":false,
-                "verifyDataTypeValues":false,
-                "normalizeDataTypeValues":false,
-                "failOnUnknownLanguageTags":false,
-                "verifyLanguageTags":true,
-                "normalizeLanguageTags":false,
-                "stopOnError":true
-                },
-            "requestIdHeadersToForward":null}
-        """.trimIndent()
-        val builder = MultipartEntityBuilder.create()
-        builder.addTextBody("importSettings", textBody, ContentType.APPLICATION_JSON)
-        httpPost.entity = builder.build()
-
-        val response: HttpResponse = client.execute(httpPost)
-        val body = response.entity.contentAsString
-
-        when (response.statusLine.statusCode) {
-            202 -> log.info("$filename imported successfully!").also { return true }
-            400 -> log.info("Bad request: {}", body)
-            else -> {
-                log.warn("Repository creation failed. StatusCode: ${response.statusLine.statusCode}, ResponseBody: $body")
-            }
-        }
-
-        return false
-    }
-
     private fun getInputStreamFromClassPathResource(filename: String): InputStream? {
         val file = Paths.get(filename)
-        if(Files.exists(file)) {
+        if (Files.exists(file)) {
             log.info("Using file: {}", file.toAbsolutePath())
             return Files.newInputStream(file)
         }
         log.info("Using classpath resource: {}", filename)
         return Thread.currentThread().contextClassLoader.getResourceAsStream(filename)
-    }
-
-    private fun getResourceFromClassPath(filename: String): URL {
-        return Thread.currentThread().contextClassLoader.getResource(filename)!!
     }
 
     /**
@@ -384,9 +286,9 @@ private fun HttpClient.get(uri: URI): HttpResponse? {
 private fun HttpClient.post(uri: URI, body: String): HttpResponse {
     return post(
         uri, StringEntity(body), mapOf(
-            "Accept" to "application/json",
-            "Content-Type" to "text/turtle"
-        )
+        "Accept" to "application/json",
+        "Content-Type" to "text/turtle"
+    )
     )
 }
 
