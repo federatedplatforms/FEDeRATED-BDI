@@ -6,7 +6,8 @@ This document contains the technical documentation for the FEDeRATED BDI prototy
 
 ```mermaid
 graph TD
-    CLIENT[Client] -- HTTP --> API
+    DataPull[Data Pull] -- SPARQL/HTTP --> API
+    PublishEvent[New Event] -- JSON or RDF/HTTP --> API
         subgraph BDI Node
             subgraph api[BDI API]
             API(Spring Boot) -- includes --> SEM(Semantic Adapter)
