@@ -30,6 +30,11 @@ All the individual components are described in the following pages:
 | [Corda](corda.md)                         | Corda documentation (workflows, contracts, cordformation) | 
 | [iSHARE](ishare.md)                       | iSHARE documentation                                      | 
 | [Semantic Adapter](semantic-adapter.md)   | Semantic adapter documentation                            | 
-| [GraphDB](graphdb.md)                     | GraphDB setup guide                                       |
-| [Installation](installation.md)           | BDI installation guide                                    | 
+| [GraphDB](graphdb.md)                     | GraphDB setup guide                                       | 
 | [Development guide](development-guide.md) | Development environment setup guide                       | 
+
+### Running using Docker
+
+The is also a Dockerized setup available on github, please refer to: https://github.com/Federated-BDI/Docker-BDI-Node
+
+
