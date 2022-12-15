@@ -60,7 +60,7 @@ object GraphDBEventConverter {
     fun parseRDFToEventIDs(rdfFullData: String): List<String> {
         val model = parseRDFToModel(rdfFullData)
 
-        val eventIds = eventIdsFromModel(model)
+        val eventIds = eventIdsFromModel(model).map { it.toLowerCase().substringAfter("event-") }
         require(eventIds.isNotEmpty()) { "No events found in RDF data. " }.also { log.debug("No events found in RDF data. ") }
 
         return eventIds
