@@ -89,10 +89,3 @@ Overview of the most important properties:
 | server.port         | BDI API server port |
 | tradelens.apikey    | Tradelens API key   |
 | tradelens.orgId     | Tradelens Org ID    |
-
-## Security
-
-In this prototype the BDI API application endpoints are accessible by anyone. 
-In production like environment these endpoint need to be secured. 
-For Spring Boot applications one could integrate Spring Security for this purpose. 
-Alternatively use an edge service or API gateway that could provide this functionality in a more transparent way.

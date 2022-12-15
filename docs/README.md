@@ -2,36 +2,20 @@
 
 This document contains the technical documentation for the FEDeRATED BDI prototype.
 
-## Components
+## Technical documentation
 
-A BDI node is composed by the following components:
+The following documentation is available:
 
-- Corda node
-- BDI API (includes the semantic adapter)
-- GraphDB
-
-### Diagram
-
-```mermaid
-graph TD
-    API(BDI API) --> SEM(Semantic Adapter)
-    API(BDI API) -- CordaRPC/AMQP --> CORDA(Corda Node)
-    CORDA --> GRAPHDB(GraphDB)
-    CORDA -- TLS/HTTPS --> ISHARE(iSHARE)
-```
-
-### Documentation 
-
-All the individual components are described in the following pages:
-
-| module                                    | description                                               |
+| Component                                 | Description                                               |
 |-------------------------------------------|-----------------------------------------------------------|
-| [BDI API](api.md)                         | BDI API documentation                                     | 
+| [API](api.md)                             | BDI API documentation                                     | 
 | [Corda](corda.md)                         | Corda documentation (workflows, contracts, cordformation) | 
-| [iSHARE](ishare.md)                       | iSHARE documentation                                      | 
-| [Semantic Adapter](semantic-adapter.md)   | Semantic adapter documentation                            | 
+| [Development Guide](development-guide.md) | Development environment setup guide                       | 
 | [GraphDB](graphdb.md)                     | GraphDB setup guide                                       | 
-| [Development guide](development-guide.md) | Development environment setup guide                       | 
+| [iSHARE](ishare.md)                       | iSHARE documentation                                      | 
+| [Security](security.md)                   | Security consideration                                    | 
+| [Semantic Adapter](semantic-adapter.md)   | Semantic adapter documentation                            |
+| [Testing](testing.md)                     | Unit and integration testing documentation                | 
 
 ### Running using Docker
 
