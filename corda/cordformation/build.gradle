@@ -95,7 +95,7 @@ task deployNodes(type: Cordform, dependsOn: ['jar']) {
         rpcUsers = [[user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
     }
     node {
-        name "O=Tradeviewer,L=Den Haag,C=NL,OU=LSP"
+        name "O=Tradeviewer,L=Hull,C=GB,OU=LSP"
         p2pAddress "localhost:10008"
         rpcSettings {
             address("localhost:10009")
@@ -104,7 +104,7 @@ task deployNodes(type: Cordform, dependsOn: ['jar']) {
         rpcUsers = [[user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
     }
     node {
-        name "O=Cargobase,L=Utrecht,C=NL,OU=LSP"
+        name "O=Cargobase,L=Dusseldorf,C=DE,OU=LSP"
         p2pAddress "localhost:10011"
         rpcSettings {
             address("localhost:10012")
