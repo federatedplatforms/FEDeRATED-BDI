@@ -8,7 +8,6 @@ import nl.tno.federated.corda.flows.DataPullQueryFlow
 import nl.tno.federated.corda.flows.GeneralSPARQLqueryFlow
 import nl.tno.federated.corda.flows.NewEventFlow
 import nl.tno.federated.corda.flows.QueryGraphDBbyIdFlow
-import nl.tno.federated.corda.services.graphdb.GraphDBEventConverter
 import nl.tno.federated.states.DataPullState
 import nl.tno.federated.states.EventState
 import org.springframework.stereotype.Service
@@ -18,9 +17,13 @@ import java.util.*
 class CordaNodeService(private val rpc: NodeRPCConnection) {
 
     fun startNewEventFlow(event: String, cordaName: CordaX500Name?): UUID {
+        return startNewEventFlow(event = event, cordaNames = if (cordaName == null) emptySet() else setOf(cordaName))
+    }
+
+    fun startNewEventFlow(event: String, cordaNames: Set<CordaX500Name>): UUID {
         val newEventTx = rpc.client().startFlowDynamic(
             NewEventFlow::class.java,
-            if (cordaName == null) emptySet() else setOf(cordaName),
+            cordaNames,
             event
         ).returnValue.get()
 
