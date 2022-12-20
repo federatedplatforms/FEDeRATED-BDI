@@ -29,6 +29,10 @@ Since this application is a Spring Boot application, the default settings can be
 
 Semantic Adapter uses the RMLMapper library: https://github.com/RMLio/rmlmapper-java The RMLMapper executes RML rules to generate Linked Data. It is a Java library, which is available via the command line but can also be integrated into a JVM based application.
 
+## YARRRML
+
+The resources folder contains both ttl and yml files. The yml files or a more concise way of defining the mapping files and can be used to generate the ttl files with: https://rml.io/yarrrml/matey/
+
 # Organisation of files in this repository
 
 | Path                                                        | Description                                        |
