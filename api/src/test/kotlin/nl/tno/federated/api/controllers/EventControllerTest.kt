@@ -9,8 +9,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.anySet
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -42,9 +44,9 @@ class EventControllerTest {
 
         val fullBody = testRestTemplate.postForEntity("/events/random?start-flow=false&number-events=1&country-code=NL", HttpEntity(""), String::class.java).body
 
-        val body = fullBody!!.split("created:")[1]
+        val body = fullBody!!
 
-        whenever(cordaNodeService.startNewEventFlow(body, cordaName)).thenReturn(uuid)
+        whenever(cordaNodeService.startNewEventFlow(body, setOf(cordaName))).thenReturn(uuid)
 
         val response = testRestTemplate.postForEntity("/events/autodistributed", HttpEntity(body), String::class.java)
 
@@ -58,13 +60,11 @@ class EventControllerTest {
 
         val fullBody = testRestTemplate.postForEntity("/events/random?start-flow=false&number-events=1&country-code=NL", HttpEntity(""), String::class.java).body
 
-        val body = fullBody!!.split("created:")[1]
+        val body = fullBody!!
 
         val response = testRestTemplate.postForEntity("/events/autodistributed", HttpEntity(body), String::class.java)
 
         assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
-        // body for failure
-        // assertTrue("Response body should contain UUID returned from NewEvent flow", response.body!!.contains(uuid.toString()))
     }
 
     @Test
@@ -138,7 +138,7 @@ class EventControllerTest {
     fun generateRandomEventWithFlow() {
         val uuid = UUID.randomUUID()
 
-        whenever(cordaNodeService.startNewEventFlow(any(), emptySet())).thenReturn(uuid)
+        whenever(cordaNodeService.startNewEventFlow(any(), anyOrNull<CordaX500Name>())).thenReturn(uuid)
 
         val response = testRestTemplate.postForEntity("/events/random?start-flow=true&number-events=1&country-code=NL", HttpEntity(""), String::class.java)
 
