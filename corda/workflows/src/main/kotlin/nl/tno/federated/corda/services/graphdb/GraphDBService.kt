@@ -234,6 +234,7 @@ class GraphDBService : IGraphDBService {
     override fun insertEvent(ttl: String, privateRepo: Boolean): Boolean {
         val uri = getRepositoryURI(privateRepo)
         val result = client.post(URI("$uri/statements"), ttl)
+        log.info("Insert into GraphDB, statusCode: {}, responseBody: {}", result.statusLine.statusCode, result.bodyAsString)
         return result.bodyAsString.isNullOrEmpty()
     }
 

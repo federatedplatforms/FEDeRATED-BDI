@@ -95,7 +95,7 @@ class NewEventFlow(
         try {
             txBuilder.verify(serviceHub)
         } catch (e: Exception) {
-            log.debug("Verification of transaction failed because: {}", e.message, e)
+            log.warn("Verification of transaction failed because: {}", e.message, e)
             throw e
         }
 
@@ -107,11 +107,13 @@ class NewEventFlow(
           This needs to change, because if ISHARE is used, every party hands out his own accesstoken,
           which is stored in the event.
         */
-        log.debug("Event sender using iShare: {}", serviceHub.cordaService(ISHARECordaService::class.java).ishareEnabled())
+        log.info("Event flow using iSHARE: {}", serviceHub.cordaService(ISHARECordaService::class.java).ishareEnabled())
         if (serviceHub.cordaService(ISHARECordaService::class.java).ishareEnabled()) {
             // create an eventstate for every party , since they all have different accesstokens
+            log.info("Gathering Access Tokens for the Event counterparties")
             counterParties.forEach {
                 //  create new session to get the tokens ?
+                log.info("Retrieving iSHARE access token for: {}", it.name)
                 val tokenResponse = subFlow(ISHARETokenFlow(it))
                 newEventState.accessTokens[it] = tokenResponse.access_token
             }
@@ -123,6 +125,8 @@ class NewEventFlow(
         // Stage 4.
         progressTracker.currentStep = GATHERING_SIGS
         // Send the state to the counterparty, and receive it back with their signature.
+        log.info("Sending new Event to counterparties")
+
         val otherPartySessions = counterParties.map { initiateFlow(it) }
         val fullySignedTx =
             subFlow(CollectSignaturesFlow(partSignedTx, otherPartySessions, GATHERING_SIGS.childProgressTracker()))
@@ -131,10 +135,11 @@ class NewEventFlow(
         progressTracker.currentStep = FINALISING_TRANSACTION
         // Notarise and record the transaction in both parties' vaults.
 
-        require(await(GraphDBInsert(graphdb(), newEventState.fullEvent,false))) {
-            "Unable to insert event data into the triple store at $me."
+        val await = await(GraphDBInsert(graphdb(), newEventState.fullEvent, false))
+        require(await) {
+            "Unable to insert event data into the triple store at ${me.name}."
         }.also {
-            log.info("Unable to insert event data into the triple store at $me.")
+            log.info("Inserted event data into the triple store: {} at: {}", await, me.name)
         }
         return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
     }
@@ -144,13 +149,13 @@ class NewEventFlow(
             serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
                 .single { it.name.organisation.equals(destination.organisation, ignoreCase = true) && it.name.locality.equals(destination.locality, ignoreCase = true) && it.name.country.equals(destination.country, ignoreCase = true) }
         } catch (e: IllegalArgumentException) {
-            log.debug("Too many parties found matching organisation: $destination.name and locality: $destination.locality and country $destination.country")
+            log.warn("Too many parties found matching organisation: $destination.name and locality: $destination.locality and country $destination.country")
             throw IllegalArgumentException("Too many parties found matching organisation: $destination.name and locality: $destination.locality and country $destination.country")
         } catch (e: NoSuchElementException) {
-            log.debug("No parties found matching organisation: $destination.name and locality: $destination.locality and country $destination.country")
+            log.warn("No parties found matching organisation: $destination.name and locality: $destination.locality and country $destination.country")
             throw IllegalArgumentException("No parties found matching organisation: $destination.name and locality: $destination.locality and country $destination.country")
         } catch (e: Exception) {
-            log.info("Finding the correct party failed because $e.message")
+            log.warn("Finding the correct party failed because $e.message")
             throw e
         }
     }
@@ -184,7 +189,7 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 val outputState = stx.tx.outputStates.single() as EventState
                 val ishareService = serviceHub.cordaService(ISHARECordaService::class.java)
-                log.debug("Responder flow uses iShare: {}", ishareService.ishareEnabled())
+                log.info("Responder flow using iSHARE: {}", ishareService.ishareEnabled())
                 // Check accesstoken if required and available in the eventState
                 if (ishareService.ishareEnabled()) {
                     require(outputState.accessTokens.contains(serviceHub.myInfo.legalIdentities.first())) {
@@ -196,12 +201,15 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
                         }
                         // TODO optional check if insert of event is allowed by the iSHARE AR
                     }
+                    log.info("iSHARE AccessToken provided and valid, accepting new event!")
                 }
 
-                require(await(GraphDBInsert(graphdb(), outputState.fullEvent,false))) {
-                    "Unable to insert event data into the triple store at " + serviceHub.myInfo.legalIdentities.first()
+                val await = await(GraphDBInsert(graphdb(), outputState.fullEvent, false))
+
+                require(await) {
+                    "Unable to insert event data into the triple store at " + serviceHub.myInfo.legalIdentities.first().name
                 }.also {
-                    log.info("Unable to insert event data into the triple store at " + serviceHub.myInfo.legalIdentities.first())
+                    log.info("Inserted event data into the triple store: {} at: {}", await, serviceHub.myInfo.legalIdentities.first().name)
                 }
                 // TODO what to check in the counterparty flow?
                 // especially: if I'm not passing all previous states in the tx (see "requires" in the flow)

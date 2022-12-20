@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiOperation
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.api.corda.CordaNodeService
-import nl.tno.federated.api.distribution.EventDistributionService
+import nl.tno.federated.api.distribution.CordaEventDistributionService
 import nl.tno.federated.api.semanticadapter.SemanticAdapterService
 import nl.tno.federated.corda.services.TTLRandomGenerator
 import nl.tno.federated.corda.services.graphdb.GraphDBEventConverter
@@ -27,7 +27,7 @@ import java.util.*
 class EventController(
     private val semanticAdapterService: SemanticAdapterService,
     private val cordaNodeService: CordaNodeService,
-    private val eventDistributionService: EventDistributionService
+    private val cordaEventDistributionService: CordaEventDistributionService
 ) {
     private val log = LoggerFactory.getLogger(EventController::class.java)
     private val eventGenerator = TTLRandomGenerator()
@@ -41,7 +41,7 @@ class EventController(
     ): ResponseEntity<String> {
         // 1. check if number of events is a correct integer
         numberEvents.toIntOrNull() ?: return ResponseEntity("number-events was incorrectly specified", HttpStatus.BAD_REQUEST)
-        log.debug("Startflow: {}, numberEvents: {}, no destination info", startFlow, numberEvents)
+        log.debug("Start flow: {}, numberEvents: {}, no destination info", startFlow, numberEvents)
         // 2. interpret the startFlow as boolean
         return if (startFlow.toBooleanOrNull() == null) {
             ResponseEntity("start-flow was incorrectly specified", HttpStatus.BAD_REQUEST)
@@ -52,9 +52,8 @@ class EventController(
             // 4. check if needed to start a new event flow
             if (startFlow.toBooleanOrNull() == true) {
                 newEvent(generatedTTL.constructedTTL, null, null, null)
-
             } else {
-                generateRandomEvent(startFlow, numberEvents, null, null, null)
+                ResponseEntity(generatedTTL.constructedTTL, HttpStatus.CREATED)
             }
         }
     }
@@ -71,8 +70,8 @@ class EventController(
         @RequestParam("start-flow") startFlow: String,
         @RequestParam("number-events") numberEvents: String,
         @PathVariable destinationOrganisation: String?,
-        @PathVariable destinationLocality: String?,
-        @PathVariable destinationCountry: String?
+        @PathVariable(required = false) destinationLocality: String?,
+        @PathVariable(required = false) destinationCountry: String?
     ): ResponseEntity<String> {
         // 1. check if number of events is a correct integer
         numberEvents.toIntOrNull() ?: return ResponseEntity("number-events was incorrectly specified", HttpStatus.BAD_REQUEST)
@@ -96,7 +95,7 @@ class EventController(
                         ResponseEntity("Missing destination field destinationCountry", HttpStatus.BAD_REQUEST)
                     }
                 }
-                ResponseEntity("Event created: ${generatedTTL.constructedTTL}", HttpStatus.CREATED)
+                ResponseEntity(generatedTTL.constructedTTL, HttpStatus.CREATED)
             }
         }
     }
@@ -112,10 +111,10 @@ class EventController(
     @PostMapping(value = ["/autodistributed"])
     fun newEventDestinationImplied(@RequestBody event: String): ResponseEntity<String> {
         log.info("Extract destinations")
-        val destination = eventDistributionService.extractDestinationFromEvent(event) ?: return ResponseEntity("Could not find party", HttpStatus.BAD_REQUEST)
+        val destinations = cordaEventDistributionService.extractDestinationsFromEvent(event) ?: return ResponseEntity("Could not find party", HttpStatus.BAD_REQUEST)
 
         log.info("Start NewEventFlow for each destination and return UUIDs")
-        val createdEventId = cordaNodeService.startNewEventFlow(event, destination.cordaX500Name)
+        val createdEventId = cordaNodeService.startNewEventFlow(event, destinations.map { it.cordaX500Name }.toSet())
 
         log.info("NewEventFlow ready, new event created with UUID: {}", createdEventId)
         return ResponseEntity("Event created: $createdEventId", HttpStatus.CREATED)
