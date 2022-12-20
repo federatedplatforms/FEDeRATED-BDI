@@ -58,7 +58,7 @@ class ISHAREClient(ishareConfigFileName: String = "ishare.properties") {
                 val decodedToken = decodeJWTToken(partiesResponse.parties_token.replace("/\\s/g", ""))
                 val partiesToken = mapper.readValue(decodedToken.second, PartiesToken::class.java)
                 if (partiesToken.parties_info.data.isNotEmpty()) return "ACTIVE" == partiesToken.parties_info.data[0].adherence.status.toUpperCase()
-                logger.debug("Party with id $partyEORI is NOT active in the scheme information: ${partiesToken.parties_info.data[0]}")
+                logger.warn("Party with id $partyEORI is NOT active in the scheme information: ${partiesToken.parties_info.data[0]}")
                 return false
             } else {
                 throw ISHAREException("Could not request delegation evidence from ${ishareConfig.schemeURL}, HTTP returncode ${response.statusLine.statusCode}")
@@ -77,6 +77,7 @@ class ISHAREClient(ishareConfigFileName: String = "ishare.properties") {
      * - audience must be this service
      */
     fun checkAccessToken(token: String): Pair<Boolean, String> {
+        logger.info("Verifying iSHARE Access Token")
         // first decode the token to check the fields
         val decodedToken = decodeJWTToken(token)
         val accessToken = ConsumerAccessToken(mapper.readValue(decodedToken.first, AccessTokenHeader::class.java), mapper.readValue(decodedToken.second, AccessTokenBody::class.java), decodedToken.third)

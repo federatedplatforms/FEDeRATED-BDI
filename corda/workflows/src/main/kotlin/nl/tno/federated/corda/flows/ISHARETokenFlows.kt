@@ -11,6 +11,7 @@ import nl.tno.federated.corda.services.ishare.ISHARECordaService
 import nl.tno.federated.ishare.ISHAREException
 import nl.tno.federated.ishare.model.token.ISHARETokenRequest
 import nl.tno.federated.ishare.model.token.ISHARETokenResponse
+import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.*
 
@@ -36,6 +37,8 @@ class ISHARETokenFlow(private val participant: Party) : FlowLogic<TokenResponse>
             EXTRACT_TOKEN,
             ENDING_TOKENPROCES
         )
+
+        val log = LoggerFactory.getLogger(ISHARETokenFlow::class.java)
     }
 
     override val progressTracker = tracker()
@@ -45,6 +48,8 @@ class ISHARETokenFlow(private val participant: Party) : FlowLogic<TokenResponse>
      */
     @Suspendable
     override fun call(): TokenResponse {
+        log.info("iSHARE token flow called for: {}", participant.name)
+
         progressTracker.currentStep = STARTING_TOKENPROCES
         // Stage 1 : Create a tokenrequest
         progressTracker.currentStep = CREATING_TOKENREQUEST
@@ -75,6 +80,8 @@ class ISHARETokenResponder(val counterSession: FlowSession) : FlowLogic<Unit>() 
             CREATING_ACCESSTOKEN,
             RETURNING_ACCESSTOKEN
         )
+
+        val log = LoggerFactory.getLogger(ISHARETokenResponder::class.java)
     }
 
     override val progressTracker: ProgressTracker = tracker()
@@ -84,13 +91,16 @@ class ISHARETokenResponder(val counterSession: FlowSession) : FlowLogic<Unit>() 
         progressTracker.currentStep = RECEIVING_TOKENREQUEST
         val request = counterSession.receive<TokenRequest>().unwrap { data -> data }
 
+        log.info("iSHARE token responder flow called for request: {}", request)
+
         progressTracker.currentStep = RECEIVING_TOKENREQUEST
         val cordaService = serviceHub.cordaService(ISHARECordaService::class.java)
         try {
             val tokenCorrect = cordaService.checkTokenRequest(ISHARETokenRequest(request.grant_type, request.scope, request.client_id, request.client_assertion_type, request.client_assertion))
-            if (!tokenCorrect.first)
+            if (!tokenCorrect.first) {
+                log.warn("Error creating access token: client assertion is not valid: {}", request)
                 counterSession.send(TokenResponse(error = TokenResponseError("Error creating access token: client assertion is not valid")))
-
+            }
             val iSHAREMember: Boolean = await(
                 // Pass in an implementation of [FlowExternalOperation]
                 RetrieveDataFromExternalSystem(
@@ -100,9 +110,11 @@ class ISHARETokenResponder(val counterSession: FlowSession) : FlowLogic<Unit>() 
             )
 
             if (!iSHAREMember) {
+                log.warn("Error creating access token: Participant is not active in the iSHARE scheme: {}", request)
                 counterSession.send(TokenResponse(error = TokenResponseError("Error creating access token: Participant is not active in the iSHARE scheme")))
             }
         } catch (e: ISHAREException) {
+            log.warn("Error creating access token: an error has occured, message: {}", e.message, e)
             counterSession.send(TokenResponse(error = TokenResponseError("Error creating access token: an error has occured (${e.message})")))
         }
         progressTracker.currentStep = CREATING_ACCESSTOKEN

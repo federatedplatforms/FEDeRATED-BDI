@@ -6,6 +6,7 @@ import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.InitiatingFlow
 import net.corda.core.flows.StartableByRPC
 import nl.tno.federated.corda.services.graphdb.GraphDBCordaService
+import org.slf4j.LoggerFactory
 
 @InitiatingFlow
 @StartableByRPC
@@ -53,9 +54,13 @@ class GraphDBInsert(
     private val privateRepo: Boolean
 ) : FlowExternalOperation<Boolean> {
 
+    private val log = LoggerFactory.getLogger(GraphDBInsert::class.java)
+
     // Implement [execute] which will be run on a thread outside of the flow's context
     override fun execute(deduplicationId: String): Boolean {
-        return graphDBCordaService.insertEvent(rdfEvent, privateRepo)
+        return graphDBCordaService.insertEvent(rdfEvent, privateRepo).also {
+            log.info("Insert into GraphDB returned: {}", it)
+        }
     }
 }
 
