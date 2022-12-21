@@ -23,10 +23,18 @@ class DataPullController(private val cordaNodeService: CordaNodeService) {
     private val log = LoggerFactory.getLogger(DataPullController::class.java)
 
     @ApiOperation(value = "Request data and run a SPARQL query on another unknown node")
-    @GetMapping(value = ["/request/{eventuuid}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping(value = ["/request/{eventuuid}"], produces = [MediaType.TEXT_PLAIN_VALUE])
     fun request(@RequestBody query: String, @PathVariable eventuuid: String): ResponseEntity<String> {
         val counterPartyCertificate = cordaNodeService.extractSender(eventuuid)
-        return request(query, counterPartyCertificate.name.organisation, counterPartyCertificate.name.locality, counterPartyCertificate.name.country)
+        val uuidOfStateWithResult = cordaNodeService.startDataPullFlow(query, counterPartyCertificate.name).toString()
+        var datapullResults = cordaNodeService.getDataPullResults(uuidOfStateWithResult)
+
+        while (datapullResults.isEmpty()) {
+            repeat(10) {// TODO this is a workaround for waiting on the data pull results to be retrieved.
+                datapullResults = cordaNodeService.getDataPullResults(uuidOfStateWithResult)
+            }
+        }
+        return ResponseEntity(datapullResults.firstOrNull() ?: "no result", HttpStatus.OK)
     }
 
     @ApiOperation(value = "Request data and run a SPARQL query on another node")
