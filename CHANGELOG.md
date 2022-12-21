@@ -3,10 +3,14 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [Released]
+
+## [0.2] - 2022-12-21
+
 ### Added
 
-- ishare specific corda flows
-- ishare module containing all the ishare specific logic
+- iSHARE specific Corda flows
+- iSHARE module containing all the iSHARE specific logic
 - Kotlin based version of the semantic adapter that was previously written in Python.
 
 ### Changed
@@ -16,7 +20,6 @@ All notable changes to this project will be documented in this file. The format 
 - Rewrote gradle build scripts.
 - Moved all graphdb related calls to corda flows.
 
-## [Released]
 
 ## [0.1] - 2022-11-05
 
