@@ -192,10 +192,10 @@ class EventController(
     }
 
     @ApiOperation(value = "Return result of a custom SPARQL query")
-    @GetMapping(value = ["/gdbsparql/"])
-    fun gdbGeneralSparqlQuery(query: String): ResponseEntity<String> {
+    @PostMapping(value = ["/gdbsparql/"], consumes = ["text/plain"], produces = ["text/plain"])
+    fun gdbGeneralSparqlQuery(@RequestBody query: String): ResponseEntity<String> {
         val gdbQuery = cordaNodeService.startNewGeneralSPARQLqueryFlow(query)
-        return ResponseEntity("Query result: $gdbQuery", HttpStatus.ACCEPTED)
+        return ResponseEntity(gdbQuery, HttpStatus.ACCEPTED)
     }
 
     private fun eventStatesToEventMap(eventStates: List<EventState>): Map<UUID, List<Event>> {
