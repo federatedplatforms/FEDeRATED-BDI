@@ -1,0 +1,12 @@
+POST http://{{api_url}}/events/gdbsparql/
+Accept: */*
+Content-Type: text/plain
+
+PREFIX Event: <https://ontology.tno.nl/logistics/federated/Event#>
+select ?s where {
+	?s a Event:Event .
+    ?s Event:involvesDigitalTwin ?o .
+    FILTER regex (str(?o), "42f17294-712e-460d-818e-7a01866055f8")
+}
+
+###
