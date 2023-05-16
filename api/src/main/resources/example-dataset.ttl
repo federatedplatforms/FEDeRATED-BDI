@@ -1,0 +1,11 @@
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+ex:Stephan a ex:Artist ;
+           foaf:firstName "Stephan" ;
+           foaf:surname "Oudmaijer";
+           ex:homeAddress _:node1 .
+
+_:node1  ex:street "Tempeltuinlaan 8" ;
+         ex:city "Vleuten" ;
+         ex:country "The Netherlands" .

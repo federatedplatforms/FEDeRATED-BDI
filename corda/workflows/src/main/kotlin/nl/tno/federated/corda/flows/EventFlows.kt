@@ -108,6 +108,7 @@ class NewEventFlow(
           which is stored in the event.
         */
         log.info("Event flow using iSHARE: {}", serviceHub.cordaService(ISHARECordaService::class.java).ishareEnabled())
+
         if (serviceHub.cordaService(ISHARECordaService::class.java).ishareEnabled()) {
             // create an eventstate for every party , since they all have different accesstokens
             log.info("Gathering Access Tokens for the Event counterparties")

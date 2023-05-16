@@ -325,7 +325,7 @@ class GraphDBEventConverterTest {
                   Event:hasSubmissionTimestamp "2018-06-28T00:08:04Z"^^xsd:dateTime .
         """.trimIndent()
 
-        val parsedCountry = eventConverter.parseRDFtoCountries(testRdfEvent)
+        val parsedCountry = eventConverter.getCountryCodesFromRDFEventData(testRdfEvent)
 
         assertEquals("NL", parsedCountry.single())
     }

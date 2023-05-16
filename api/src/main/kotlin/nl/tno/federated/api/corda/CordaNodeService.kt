@@ -6,6 +6,7 @@ import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.corda.flows.DataPullQueryFlow
 import nl.tno.federated.corda.flows.GeneralSPARQLqueryFlow
+import nl.tno.federated.corda.flows.InsertRDFFlow
 import nl.tno.federated.corda.flows.NewEventFlow
 import nl.tno.federated.corda.flows.QueryGraphDBbyIdFlow
 import nl.tno.federated.states.DataPullState
@@ -16,11 +17,11 @@ import java.util.*
 @Service
 class CordaNodeService(private val rpc: NodeRPCConnection) {
 
-    fun startNewEventFlow(event: String, cordaName: CordaX500Name?): UUID {
+    fun startNewEventFlow(event: Any, cordaName: CordaX500Name?): UUID {
         return startNewEventFlow(event = event, cordaNames = if (cordaName == null) emptySet() else setOf(cordaName))
     }
 
-    fun startNewEventFlow(event: String, cordaNames: Set<CordaX500Name>): UUID {
+    fun startNewEventFlow(event: Any, cordaNames: Set<CordaX500Name>): UUID {
         val newEventTx = rpc.client().startFlowDynamic(
             NewEventFlow::class.java,
             cordaNames,
@@ -58,6 +59,7 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
             cordaName,
             query
         ).returnValue.get()
+
         return (dataPull.coreTransaction.getOutput(0) as DataPullState).linearId.id
     }
 
@@ -73,13 +75,15 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
      * Assumption:  the initiator of the transaction who created the event is always
      *              the first element of the list `participants` in the state.
      */
-    fun extractSender(eventuuid: String): Party {
-        val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(UUID.fromString(eventuuid)))
+    fun extractSender(eventId: String): Party? {
+        val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(UUID.fromString(eventId)))
         val eventStateParties = rpc.client().vaultQueryBy<EventState>(criteria).states.single().state.data.participants
 
         val me = rpc.client().nodeInfo().legalIdentities.first()
-        val eventStateCounterParty = (eventStateParties - me).single()
+        val eventStateCounterParty = (eventStateParties - me).singleOrNull() ?: return null
 
-        return rpc.client().partyFromKey(eventStateCounterParty.owningKey)!!
+        return rpc.client().partyFromKey(eventStateCounterParty.owningKey)
     }
+
+    fun getNetworkMapSnapshot() = rpc.client().networkMapSnapshot()
 }

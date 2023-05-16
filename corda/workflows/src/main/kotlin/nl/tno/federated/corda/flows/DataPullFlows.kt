@@ -220,6 +220,7 @@ class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTran
         /////////////
         progressTracker.currentStep = RUN_SPARQL_QUERY
         val result = graphdb().generalSPARQLquery(inputStateWithQuery.sparqlQuery, privateRepo = true)
+        // TODO here we need to call an external system
 
         /////////////
         // progressTracker.currentStep = GENERATING_TRANSACTION

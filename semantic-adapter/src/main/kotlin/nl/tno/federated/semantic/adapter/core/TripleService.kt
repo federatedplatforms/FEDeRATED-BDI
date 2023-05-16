@@ -15,9 +15,19 @@ import java.io.*
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 
-abstract class TripleService {
+class TripleService {
 
     private val log = LoggerFactory.getLogger(TripleService::class.java)
+
+    fun createTriples(data: String, ruleFileLocation: String, baseUri: String? = null): String? {
+        // Replace namespace in rules file if one is provided.
+        val ttl = replaceNamespaceUrl(ClassPathResource(ruleFileLocation), baseUri)
+
+        // Map the data with the provided rules
+        val result = mapRml(data, ttl)
+        log.trace("Result: $result")
+        return result
+    }
 
     fun createTriples(data: String, rules: ClassPathResource, baseUri: String? = null): String? {
         // Replace namespace in rules file if one is provided.
@@ -68,11 +78,11 @@ abstract class TripleService {
                 val executor = Executor(rmlStore, factory, outputStore, Utils.getBaseDirectiveTurtle(it), functionAgent)
 
                 // Execute the mapping
-                var result = executor.execute(null).get(NamedNode("rmlmapper://default.store"))
+                executor.execute(null).get(NamedNode("rmlmapper://default.store"))
 
                 val targets = executor.targets
                 if (targets != null) {
-                    result = targets[NamedNode("rmlmapper://default.store")]!!
+                    val result = targets[NamedNode("rmlmapper://default.store")]!!
                     result.copyNameSpaces(rmlStore)
                     return writeOutputTargets(targets)
                 } else {

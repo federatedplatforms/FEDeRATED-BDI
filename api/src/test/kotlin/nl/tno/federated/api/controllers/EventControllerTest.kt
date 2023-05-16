@@ -2,17 +2,13 @@ package nl.tno.federated.api.controllers
 
 import net.corda.core.identity.CordaX500Name
 import nl.tno.federated.api.corda.CordaNodeService
-import nl.tno.federated.api.distribution.CordaEventDistributionService
-import nl.tno.federated.api.distribution.EventDestination
-import nl.tno.federated.api.distribution.EventDistributionService
+import nl.tno.federated.api.event.distribution.corda.CordaEventDistributionService
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.anySet
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
-import org.mockito.kotlin.eq
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -30,42 +26,12 @@ class EventControllerTest {
 
     @Autowired
     lateinit var testRestTemplate: TestRestTemplate
+
     @MockBean
     lateinit var cordaNodeService: CordaNodeService
+
     @MockBean
     lateinit var eventDistributionService: CordaEventDistributionService
-
-    @Test
-    fun `Post an event for a known destination expect a creation success`() {
-        val uuid = UUID.randomUUID()
-
-        val cordaName = CordaX500Name("TNO", "Soesterberg", "NL") // used to start the flow
-        whenever(eventDistributionService.extractDestinationsFromEvent(any())).thenReturn(setOf(EventDestination( cordaName)))
-
-        val fullBody = testRestTemplate.postForEntity("/events/random?start-flow=false&number-events=1&country-code=NL", HttpEntity(""), String::class.java).body
-
-        val body = fullBody!!
-
-        whenever(cordaNodeService.startNewEventFlow(body, setOf(cordaName))).thenReturn(uuid)
-
-        val response = testRestTemplate.postForEntity("/events/autodistributed", HttpEntity(body), String::class.java)
-
-        assertEquals(HttpStatus.CREATED, response.statusCode)
-        assertTrue("Response body should contain UUID returned from NewEvent flow", response.body!!.contains(uuid.toString()))
-    }
-
-    @Test
-    fun `Post an event for an unknown destination expect bad request`() {
-        whenever(eventDistributionService.extractDestinationsFromEvent(any())).thenReturn(null)
-
-        val fullBody = testRestTemplate.postForEntity("/events/random?start-flow=false&number-events=1&country-code=NL", HttpEntity(""), String::class.java).body
-
-        val body = fullBody!!
-
-        val response = testRestTemplate.postForEntity("/events/autodistributed", HttpEntity(body), String::class.java)
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
-    }
 
     @Test
     fun newEventWithDestination() {

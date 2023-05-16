@@ -29,7 +29,7 @@ object GraphDBEventConverter {
     }
 
     // for GraphDBCordaService
-    fun parseRDFtoCountries(rdfFullData: String): List<String> {
+    fun getCountryCodesFromRDFEventData(rdfFullData: String): List<String> {
         val model = parseRDFToModel(rdfFullData)
         val eventIDs = eventIdsFromModel(model)
         val eventIdentifier = eventIDs.single().substringAfter("-")
