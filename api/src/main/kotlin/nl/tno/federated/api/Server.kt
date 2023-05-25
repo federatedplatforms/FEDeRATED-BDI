@@ -6,9 +6,11 @@ import nl.tno.federated.api.event.distribution.corda.CordaEventDestination
 import nl.tno.federated.api.event.distribution.rules.BroadcastToAllEventDistributionRule
 import nl.tno.federated.api.event.distribution.rules.EventDistributionRule
 import nl.tno.federated.api.event.distribution.rules.SparqlEventDistributionRule
+import nl.tno.federated.api.graphdb.GraphDBClient
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
+import org.springframework.core.env.Environment
 
 /**
  * BDI API Spring Boot application.
@@ -21,6 +23,9 @@ class Server {
         SparqlEventDistributionRule("SELECT *", listOf(CordaEventDestination(CordaX500Name("TNO", "Den Haag", "NL")))),
         BroadcastToAllEventDistributionRule(cordaNodeService)
     )
+
+    @Bean
+    fun graphDBClient(environment: Environment) = GraphDBClient(environment.getProperty("local.graphdb.url")!!)
 }
 
 /**
