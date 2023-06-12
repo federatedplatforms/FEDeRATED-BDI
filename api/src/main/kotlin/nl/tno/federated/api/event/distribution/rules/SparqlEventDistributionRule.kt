@@ -9,7 +9,7 @@ import java.io.StringReader
 
 class SparqlEventDistributionRule(
     private val sparql: String,
-    private val destinations: List<CordaEventDestination>
+    private val destinations: Set<CordaEventDestination>
 ) : EventDistributionRule<CordaEventDestination> {
 
     override fun getDestinations() = destinations

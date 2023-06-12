@@ -24,7 +24,8 @@ import kotlin.NoSuchElementException
 @StartableByRPC
 class NewEventFlow(
     private val destinations: Collection<CordaX500Name>,
-    private val event: String
+    private val event: String,
+    private val eventType: String
 ) : FlowLogic<SignedTransaction>() {
 
     private val log = LoggerFactory.getLogger(NewEventFlow::class.java)
@@ -61,7 +62,10 @@ class NewEventFlow(
      */
     @Suspendable
     override fun call(): SignedTransaction {
-        val notary = serviceHub.networkMapCache.notaryIdentities.first()
+        val notaryIdentities = serviceHub.networkMapCache.notaryIdentities
+        if(notaryIdentities.isEmpty()) throw FlowException("Expected at least one Notary, but none are present in the NetworkMap!")
+
+        val notary = notaryIdentities.first()
 
         // Stage 1.
         progressTracker.currentStep = GENERATING_TRANSACTION
@@ -70,22 +74,14 @@ class NewEventFlow(
         val me = serviceHub.myInfo.legalIdentities.first()
         val counterParties = findParties()
 
-        // Retrieving event ID from RDF event
-        val eventID = GraphDBEventConverter.parseRDFToEventIDs(event).single()
-
-        // Set criteria to match UUID of state with the supplied event UUID
-        val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(UUID.fromString(eventID)))
-        require(serviceHub.vaultService.queryBy<EventState>(criteria).states.isEmpty()) {
-            "An event with the same UUID already exists"
-        }
-
         val newEventState = EventState(
-            fullEvent = event,
+            event = event,
+            eventType = eventType,
             participants = listOf(me) + counterParties,
-            linearId = UniqueIdentifier(null, UUID.fromString(eventID))
+            linearId = UniqueIdentifier()
         )
 
-        val txBuilder = TransactionBuilder(notary)
+        val txBuilder = TransactionBuilder(notary = notary)
             .addOutputState(newEventState, EventContract.ID)
             .addCommand(EventContract.Commands.Create(), newEventState.participants.map { it.owningKey })
 
@@ -136,7 +132,7 @@ class NewEventFlow(
         progressTracker.currentStep = FINALISING_TRANSACTION
         // Notarise and record the transaction in both parties' vaults.
 
-        val await = await(GraphDBInsert(graphdb(), newEventState.fullEvent, false))
+        val await = await(GraphDBInsert(graphdb(), newEventState.event, false))
         require(await) {
             "Unable to insert event data into the triple store at ${me.name}."
         }.also {
@@ -205,7 +201,7 @@ class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<Signed
                     log.info("iSHARE AccessToken provided and valid, accepting new event!")
                 }
 
-                val await = await(GraphDBInsert(graphdb(), outputState.fullEvent, false))
+                val await = await(GraphDBInsert(graphdb(), outputState.event, false))
 
                 require(await) {
                     "Unable to insert event data into the triple store at " + serviceHub.myInfo.legalIdentities.first().name

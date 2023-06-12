@@ -3,12 +3,13 @@ package nl.tno.federated.api.corda
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.messaging.vaultQueryBy
+import net.corda.core.node.services.vault.DEFAULT_PAGE_NUM
+import net.corda.core.node.services.vault.DEFAULT_PAGE_SIZE
+import net.corda.core.node.services.vault.PageSpecification
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.corda.flows.DataPullQueryFlow
 import nl.tno.federated.corda.flows.GeneralSPARQLqueryFlow
-import nl.tno.federated.corda.flows.InsertRDFFlow
 import nl.tno.federated.corda.flows.NewEventFlow
-import nl.tno.federated.corda.flows.QueryGraphDBbyIdFlow
 import nl.tno.federated.states.DataPullState
 import nl.tno.federated.states.EventState
 import org.springframework.stereotype.Service
@@ -17,25 +18,16 @@ import java.util.*
 @Service
 class CordaNodeService(private val rpc: NodeRPCConnection) {
 
-    fun startNewEventFlow(event: Any, cordaName: CordaX500Name?): UUID {
-        return startNewEventFlow(event = event, cordaNames = if (cordaName == null) emptySet() else setOf(cordaName))
-    }
-
-    fun startNewEventFlow(event: Any, cordaNames: Set<CordaX500Name>): UUID {
+    fun startNewEventFlow(event: String, eventType: String, cordaNames: Set<CordaX500Name>): UUID {
+        if(cordaNames.isEmpty()) throw NoEventDestinationsAvailableException("No event destinations found to send the event to.")
         val newEventTx = rpc.client().startFlowDynamic(
             NewEventFlow::class.java,
             cordaNames,
-            event
+            event,
+            eventType
         ).returnValue.get()
 
         return (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
-    }
-
-    fun startNewQueryGraphDBbyIdFlow(id: String): String {
-        return rpc.client().startFlowDynamic(
-            QueryGraphDBbyIdFlow::class.java,
-            id
-        ).returnValue.get()
     }
 
     fun startNewGeneralSPARQLqueryFlow(query: String): String {
@@ -45,12 +37,8 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
         ).returnValue.get()
     }
 
-    fun startVaultQuery(): List<EventState> {
-        return rpc.client().vaultQuery(EventState::class.java).states.map { it.state.data }
-    }
-
-    fun startVaultQueryBy(criteria: QueryCriteria.LinearStateQueryCriteria): List<EventState> {
-        return rpc.client().vaultQueryBy<EventState>(criteria).states.map { it.state.data }
+    fun startVaultQueryBy(criteria: QueryCriteria, pagingSpec: PageSpecification = PageSpecification(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE)): List<EventState> {
+        return rpc.client().vaultQueryBy<EventState>(criteria, pagingSpec).states.map { it.state.data }
     }
 
     fun startDataPullFlow(query: String, cordaName: CordaX500Name?): UUID {
@@ -63,9 +51,9 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
         return (dataPull.coreTransaction.getOutput(0) as DataPullState).linearId.id
     }
 
-    fun getDataPullResults(uuid: String): List<String> {
+    fun getDataPullResults(uuid: String): String? {
         val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(UUID.fromString(uuid)))
-        return rpc.client().vaultQueryBy<DataPullState>(criteria).states.flatMap { it.state.data.result }
+        return rpc.client().vaultQueryBy<DataPullState>(criteria).states.firstOrNull()?.state?.data?.results
     }
 
     /**

@@ -12,15 +12,15 @@ import java.util.*
 @Service
 class CordaEventDistributionService(
     private val cordaNodeService: CordaNodeService,
-    private val rules: List<EventDistributionRule<CordaEventDestination>>,
+    private val rules: Set<EventDistributionRule<CordaEventDestination>>,
     private val environment: Environment
 ) : EventDistributionService<CordaEventDestination> {
 
-    override fun distributeEvent(event: String, destinations: Set<CordaEventDestination>?): UUID {
+    override fun distributeEvent(event: String, eventType: String, destinations: Set<CordaEventDestination>?): UUID {
         if (environment.getProperty("demo.mode", Boolean::class.java) == true) return UUID.randomUUID()
         val destinationSet = destinations ?: runEventDistributionRules(event)
-        return cordaNodeService.startNewEventFlow(event = event, cordaNames = destinationSet.map { it.destination }.toSet())
+        return cordaNodeService.startNewEventFlow(event = event, eventType = eventType, cordaNames = destinationSet.map { it.destination }.toSet())
     }
 
-    private fun runEventDistributionRules(eventRdf: String): List<CordaEventDestination> = rules.first { it.appliesTo(eventRdf) }.getDestinations()
+    private fun runEventDistributionRules(eventRdf: String): Set<CordaEventDestination> = rules.first { it.appliesTo(eventRdf) }.getDestinations()
 }

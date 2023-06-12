@@ -4,7 +4,7 @@ import net.corda.core.identity.CordaX500Name
 import nl.tno.federated.api.corda.CordaNodeService
 import nl.tno.federated.api.event.distribution.corda.CordaEventDestination
 import nl.tno.federated.api.event.distribution.rules.BroadcastToAllEventDistributionRule
-import nl.tno.federated.api.event.distribution.rules.EventDistributionRule
+import nl.tno.federated.api.event.distribution.rules.KeywordMatchEventDistributionRule
 import nl.tno.federated.api.event.distribution.rules.SparqlEventDistributionRule
 import nl.tno.federated.api.graphdb.GraphDBClient
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -18,9 +18,13 @@ import org.springframework.core.env.Environment
 @SpringBootApplication(scanBasePackages = ["nl.tno.federated.api"])
 class Server {
 
+    /**
+     * Rules are ordered, the first rule to return true will be used.
+     */
     @Bean
     fun rules(cordaNodeService: CordaNodeService) = listOf(
-        SparqlEventDistributionRule("SELECT *", listOf(CordaEventDestination(CordaX500Name("TNO", "Den Haag", "NL")))),
+        // SparqlEventDistributionRule("ASK { <http://example.org/some/namespace> ?p ?o> }", listOf(CordaEventDestination(CordaX500Name("TNO", "Den Haag", "NL")))),
+        // KeywordMatchEventDistributionRule("NL", listOf(CordaEventDestination(CordaX500Name("TNO", "Den Haag", "NL"))
         BroadcastToAllEventDistributionRule(cordaNodeService)
     )
 

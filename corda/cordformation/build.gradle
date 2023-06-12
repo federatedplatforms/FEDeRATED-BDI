@@ -40,7 +40,7 @@ task deploySingleNode(type: Cordform, dependsOn: ['jar']) {
         runSchemaMigration = false
     }
     node {
-        name "O=SingleNode,L=TestCity,C=NL,OU=SN"
+        name "O=SingleNode,L=Utrecht,C=NL,OU=SN"
         p2pAddress "localhost:10005"
         rpcSettings {
             address("localhost:10006")

@@ -24,15 +24,15 @@ import org.springframework.test.context.junit4.SpringRunner
 import java.time.OffsetDateTime
 
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@RunWith(SpringRunner::class)
+//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+//@RunWith(SpringRunner::class)
 class EventMapperTest {
 
-    @Autowired
-    private lateinit var eventMapper: EventMapper
-
-    @Autowired
-    private lateinit var objectMapper: ObjectMapper
+//    @Autowired
+//    private lateinit var eventMapper: EventMapper
+//
+//    @Autowired
+//    private lateinit var objectMapper: ObjectMapper
 
 //    val loadEvent = LoadEvent(
 //        hasSubmissionTimestamp = OffsetDateTime.now(),

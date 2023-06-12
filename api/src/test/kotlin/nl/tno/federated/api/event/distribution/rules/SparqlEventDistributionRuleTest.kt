@@ -29,7 +29,7 @@ class SparqlEventDistributionRuleTest {
         ASK  { ?x foaf:surname  "Oudmaijer" }
     """.trimIndent()
 
-    private val destinations = listOf(CordaEventDestination(CordaX500Name("TNO", "Den Haag", "NL")))
+    private val destinations = setOf(CordaEventDestination(CordaX500Name("TNO", "Den Haag", "NL")))
 
     private val rule = SparqlEventDistributionRule(sparql = sparql, destinations = destinations)
 

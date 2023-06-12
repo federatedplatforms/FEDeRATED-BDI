@@ -1,5 +1,6 @@
 package nl.tno.federated.api.controllers
 
+import nl.tno.federated.api.event.InvalidEventDataException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -22,13 +23,18 @@ class RestExceptionHandler {
     @ExceptionHandler(Throwable::class)
     fun handleUncaught(t: Throwable): ResponseEntity<Problem> {
         log.info("Uncaught exception while executing request: {}", t.message, t)
-        val stackTrace = StringWriter().apply { PrintWriter(this).apply { t.printStackTrace(this) } }
-        return ResponseEntity(Problem(type = t.javaClass.name, title = t.message, detail = stackTrace.toString()), HttpStatus.INTERNAL_SERVER_ERROR)
+        return ResponseEntity(Problem(type = t.javaClass.name, title = t.message, detail = "See error logs for more details."), HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
     @ExceptionHandler(AuthenticationException::class)
     fun authenticationException(ae: AuthenticationException): ResponseEntity<Problem> {
         log.info("Request not authorized. Message: {}", ae.message)
         return ResponseEntity(Problem(type = ae.javaClass.name, title = ae.message), HttpStatus.FORBIDDEN)
+    }
+
+    @ExceptionHandler(InvalidEventDataException::class)
+    fun invalidEventDataException(ae: AuthenticationException): ResponseEntity<Problem> {
+        log.debug("Invalid Event data provided. Message: {}", ae.message)
+        return ResponseEntity(Problem(type = ae.javaClass.name, title = ae.message), HttpStatus.BAD_REQUEST)
     }
 }
