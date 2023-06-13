@@ -2,7 +2,7 @@ package nl.tno.federated.api
 
 import nl.tno.federated.api.corda.CordaNodeService
 import nl.tno.federated.api.event.distribution.rules.BroadcastToAllEventDistributionRule
-import nl.tno.federated.api.graphdb.GraphSPARQLClient
+import nl.tno.federated.api.graphdb.GraphDBSPARQLClient
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -25,7 +25,7 @@ class Server {
     )
 
     @Bean
-    fun graphDBClient(environment: Environment) = GraphSPARQLClient(environment.getProperty("local.graphdb.url")!!)
+    fun graphDBSPARQLClient(environment: Environment) = GraphDBSPARQLClient(environment.getProperty("graphdb.sparql.url")!!)
 }
 
 /**

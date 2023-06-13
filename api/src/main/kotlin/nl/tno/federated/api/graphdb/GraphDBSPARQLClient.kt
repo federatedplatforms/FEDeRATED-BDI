@@ -5,7 +5,7 @@ import org.eclipse.rdf4j.query.resultio.sparqljson.SPARQLResultsJSONWriter
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository
 import java.io.StringWriter
 
-class GraphSPARQLClient(url: String) {
+class GraphDBSPARQLClient(url: String) {
 
     private val repository = SPARQLRepository(url)
 
