@@ -51,8 +51,8 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
         return (dataPull.coreTransaction.getOutput(0) as DataPullState).linearId.id
     }
 
-    fun getDataPullResults(uuid: String): String? {
-        val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(UUID.fromString(uuid)))
+    fun getDataPullResults(uuid: UUID): String? {
+        val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(uuid))
         return rpc.client().vaultQueryBy<DataPullState>(criteria).states.firstOrNull()?.state?.data?.results
     }
 

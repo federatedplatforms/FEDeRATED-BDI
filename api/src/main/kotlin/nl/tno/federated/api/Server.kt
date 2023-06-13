@@ -1,12 +1,8 @@
 package nl.tno.federated.api
 
-import net.corda.core.identity.CordaX500Name
 import nl.tno.federated.api.corda.CordaNodeService
-import nl.tno.federated.api.event.distribution.corda.CordaEventDestination
 import nl.tno.federated.api.event.distribution.rules.BroadcastToAllEventDistributionRule
-import nl.tno.federated.api.event.distribution.rules.KeywordMatchEventDistributionRule
-import nl.tno.federated.api.event.distribution.rules.SparqlEventDistributionRule
-import nl.tno.federated.api.graphdb.GraphDBClient
+import nl.tno.federated.api.graphdb.GraphSPARQLClient
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -29,7 +25,7 @@ class Server {
     )
 
     @Bean
-    fun graphDBClient(environment: Environment) = GraphDBClient(environment.getProperty("local.graphdb.url")!!)
+    fun graphDBClient(environment: Environment) = GraphSPARQLClient(environment.getProperty("local.graphdb.url")!!)
 }
 
 /**

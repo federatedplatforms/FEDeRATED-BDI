@@ -63,7 +63,7 @@ class NewEventFlow(
     @Suspendable
     override fun call(): SignedTransaction {
         val notaryIdentities = serviceHub.networkMapCache.notaryIdentities
-        if(notaryIdentities.isEmpty()) throw FlowException("Expected at least one Notary, but none are present in the NetworkMap!")
+        if(notaryIdentities.isEmpty()) throw FlowException("Expected at least one Notary, but none are present in the NetworkMap.")
 
         val notary = notaryIdentities.first()
 

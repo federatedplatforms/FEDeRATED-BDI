@@ -66,8 +66,8 @@ class EventsController(
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         content = [Content(
             examples = [
-                ExampleObject(name = "Event with single destination", description = "Event destinations should match any of the identities listed in the '/corda/peers' endpoint.", value = """{ "event" : "RDF data", "eventType" : "EventType", "eventDestinations" : ["TNO/Soesterberg/NL"] }"""),
-                ExampleObject(name = "Event with multiple destinations", description = "Event destinations should match any of the identities listed in the '/corda/peers' endpoint.", value = """{ "event" : "RDF data", "eventType" : "EventType", "eventDestinations" : ["TNO/Soesterberg/NL", "TNO/Utrecht/NL", "TNO/Groningen/NL"] }""")
+                ExampleObject(name = "Event with single destination", description = "Event destinations should match any of the identities listed in the '/corda/peers' endpoint. Format for the destination is: <organisation>/<locality>/<country>, for example: TNO/Soesterberg/NL", value = """{ "event" : "RDF turtle", "eventType" : "EventType", "eventDestinations" : ["TNO/Soesterberg/NL"] }"""),
+                ExampleObject(name = "Event with multiple destinations", description = "Event destinations should match any of the identities listed in the '/corda/peers' endpoint. Format for the destination is: <organisation>/<locality>/<country>, for example: TNO/Soesterberg/NL", value = """{ "event" : "RDF turtle", "eventType" : "EventType", "eventDestinations" : ["TNO/Soesterberg/NL", "TNO/Utrecht/NL", "TNO/Groningen/NL"] }""")
             ]
         )]
     )

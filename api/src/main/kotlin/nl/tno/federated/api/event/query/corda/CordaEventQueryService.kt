@@ -47,7 +47,7 @@ class CordaEventQueryService(
 
     private fun searchRemoteNode(query: EventQuery, remote: CordaX500Name): String? {
         if (environment.getProperty("demo.mode", Boolean::class.java) == true) return dummy
-        val stateId = cordaNodeService.startDataPullFlow(query.queryString, remote).toString()
+        val stateId = cordaNodeService.startDataPullFlow(query.queryString, remote)
         // TODO need to check if the flow has been completed, only then we can fetch the result.
         return cordaNodeService.getDataPullResults(stateId)
     }
@@ -56,6 +56,8 @@ class CordaEventQueryService(
         return cordaNodeService.extractSender(eventId)?.name
     }
 
-    private val dummy = DUMMY_DATA_LOAD_EVENT
+    companion object {
+        private val dummy = DUMMY_DATA_LOAD_EVENT
+    }
 
 }
