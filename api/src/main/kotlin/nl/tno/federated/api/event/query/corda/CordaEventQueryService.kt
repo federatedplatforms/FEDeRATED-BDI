@@ -9,6 +9,7 @@ import nl.tno.federated.api.event.query.EventQuery
 import nl.tno.federated.api.event.query.EventQueryService
 import org.springframework.core.env.Environment
 import org.springframework.stereotype.Service
+import java.lang.Exception
 
 @Service
 class CordaEventQueryService(
@@ -18,12 +19,8 @@ class CordaEventQueryService(
 
     override fun executeQuery(query: EventQuery): String? {
         if (environment.getProperty("demo.mode", Boolean::class.java) == true) return dummy
-        val sender = if (query.eventId != null) getEventSender(query.eventId) else null
-        val result = when (sender) {
-            null -> searchLocalIndex(query)
-            else -> searchRemoteNode(query, sender)
-        }
-        return result
+        val sender = getEventSender(query.eventUUID) ?: throw Exception("Cannot determine sender of Event with UUID: ${query.eventUUID}")
+        return searchRemoteNode(query, sender)
     }
 
     override fun findById(id: String): String? {
@@ -40,14 +37,9 @@ class CordaEventQueryService(
         return state.map { it.event }
     }
 
-    private fun searchLocalIndex(query: EventQuery): String {
-        if (environment.getProperty("demo.mode", Boolean::class.java) == true) return dummy
-        return cordaNodeService.startNewGeneralSPARQLqueryFlow(query.queryString)
-    }
-
     private fun searchRemoteNode(query: EventQuery, remote: CordaX500Name): String? {
         if (environment.getProperty("demo.mode", Boolean::class.java) == true) return dummy
-        val stateId = cordaNodeService.startDataPullFlow(query.queryString, remote)
+        val stateId = cordaNodeService.startDataPullFlow(query.sparql, remote)
         // TODO need to check if the flow has been completed, only then we can fetch the result.
         return cordaNodeService.getDataPullResults(stateId)
     }

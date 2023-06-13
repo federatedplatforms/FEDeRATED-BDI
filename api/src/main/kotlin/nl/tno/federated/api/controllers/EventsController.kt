@@ -75,4 +75,18 @@ class EventsController(
         log.info("Received EventWithDestinations: {}", event)
         return ResponseEntity.ok().body(eventService.handleNewEvent(event))
     }
+
+
+    @PostMapping(path = ["/query"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        content = [Content(
+            examples = [
+                ExampleObject(name = "Query additional information from the node related to specified event UUID.", description = "eventUUID should exit in the Corda Vault.", value = """{ "sparql" : "select * where { ?s ?p ?o . } limit 100", "eventUUID" : "asasd-asas234cda-sasw233ds" }""")
+            ]
+        )]
+    )
+    fun query(@RequestBody eventQuery: EventQuery): ResponseEntity<String> {
+        log.info("Executing event query: {}", eventQuery)
+        return ResponseEntity.ok().body(eventService.query(eventQuery))
+    }
 }

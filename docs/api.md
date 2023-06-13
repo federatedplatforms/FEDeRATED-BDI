@@ -4,12 +4,11 @@ BDI API exposed all the endpoints for interaction with a BDI Node.
 
 ## Available endpoints
 
-| Endpoint                                                                                                             | Description                                          |
-|----------------------------------------------------------------------------------------------------------------------|------------------------------------------------------|
-| [/events](../api/src/main/kotlin/nl/tno/federated/api/controllers/EventController.kt)                                | Event related endpoints                              | 
-| [/datapull](../api/src/main/kotlin/nl/tno/federated/api/controllers/DataPullController.kt)                           | Data pull related endpoints                          |
-| [/node](../api/src/main/kotlin/nl/tno/federated/api/controllers/NodeController.kt)                                   | Corda Node related endpoints                         |
-| [/tradelens](../semantic-adapter/src/main/kotlin/nl/tno/federated/semantic/adapter/tradelens/TradelensController.kt) | Tradelens specific endpoints of the semantic adapter |
+| Endpoint                                                                                 | Description                  |
+|------------------------------------------------------------------------------------------|------------------------------|
+| [/corda](../api/src/main/kotlin/nl/tno/federated/api/controllers/CordaNodeController.kt) | Corda node related endpoints |
+| [/events](../api/src/main/kotlin/nl/tno/federated/api/controllers/EventsController.kt)   | Event related endpoints      | 
+| [/sparql](../api/src/main/kotlin/nl/tno/federated/api/controllers/SPARQLController.kt)   | SPARQL endpoint              |
 
 ## API documentation
 
@@ -18,6 +17,23 @@ When the BDI API application is started, the following endpoint will be availabl
 - http://localhost:10050/swagger-ui.html
 
 In order to start the application first build and run it.
+
+## Configuration
+
+[application.properties](../api/src/main/resources/application.properties) contains all the configuration properties for the BDI API application. All the properties can be overridden by passing them to the startup command. For more information see: https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.files
+
+Important properties are listed in the table below.
+
+| Endpoint           | Description                               | Default value                          |
+|--------------------|-------------------------------------------|----------------------------------------|
+| demo.mode          | Enables dummy responses for demo purposes | false                                  | 
+| corda.rpc.host     | Corda RPC hostname                        | localhost                              |
+| corda.rpc.port     | Corda RPC port                            | 10006                                  |
+| corda.rpc.username | Corda RPC username                        | user1                                  |
+| corda.rpc.password | Corda RPC password                        | vzzuABeCut3jGoJfEp94                   |
+| server.port        | BDI API server port                       | 10050                                  | 
+| graphdb.sparql.url | GraphDB repository SPARQL endpoint URL    | http://localhost:7200/repositories/bdi | 
+
 
 ## Build
 
@@ -70,22 +86,3 @@ For more information regarding the CordaRPC please refer to the official corda d
 
 Configuration details for the CordaRPC connection are described in the configuration section below.
 
-### Semantic Adapter
-
-Semantic Adapter module is included in the BDI API application, therefore the Semantic Adapter endpoints are also exposed via the BDI API.
-
-## Configuration
-
-The [application.properties](../api/src/main/resources/application.properties) contains all the configuration properties for the BDI API application.
-
-Overview of the most important properties:
-
-| Endpoint            | Description         |
-|---------------------|---------------------|
-| config.rpc.host     | Corda node hostname | 
-| config.rpc.port     | Corda node RPC port |
-| config.rpc.username | Corda node username |
-| config.rpc.password | Corda node password |
-| server.port         | BDI API server port |
-| tradelens.apikey    | Tradelens API key   |
-| tradelens.orgId     | Tradelens Org ID    |

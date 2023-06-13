@@ -22,10 +22,10 @@ import javax.annotation.PreDestroy
  */
 @Component
 class NodeRPCConnection(
-    @Value("\${config.rpc.host}") private val host: String,
-    @Value("\${config.rpc.username}") private val username: String,
-    @Value("\${config.rpc.password}") private val password: String,
-    @Value("\${config.rpc.port}") private val rpcPort: Int
+    @Value("\${corda.rpc.host}") private val host: String,
+    @Value("\${corda.rpc.username}") private val username: String,
+    @Value("\${corda.rpc.password}") private val password: String,
+    @Value("\${corda.rpc.port}") private val rpcPort: Int
 ) {
     private val log = LoggerFactory.getLogger(NodeRPCConnection::class.java)
     private var rpcConnection: CordaRPCConnection? = null
