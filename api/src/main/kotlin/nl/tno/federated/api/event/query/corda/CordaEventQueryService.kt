@@ -41,6 +41,7 @@ class CordaEventQueryService(
         if (environment.getProperty("demo.mode", Boolean::class.java) == true) return dummy
         val stateId = cordaNodeService.startDataPullFlow(query.sparql, remote)
         // TODO need to check if the flow has been completed, only then we can fetch the result.
+        // https://docs.r3.com/en/platform/corda/4.9/enterprise/node/operating/querying-flow-data.html#view-summary-information-for-a-suspended-flow
         return cordaNodeService.getDataPullResults(stateId)
     }
 
@@ -51,5 +52,4 @@ class CordaEventQueryService(
     companion object {
         private val dummy = DUMMY_DATA_LOAD_EVENT
     }
-
 }

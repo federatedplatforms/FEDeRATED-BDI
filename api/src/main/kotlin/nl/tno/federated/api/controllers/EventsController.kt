@@ -76,7 +76,6 @@ class EventsController(
         return ResponseEntity.ok().body(eventService.handleNewEvent(event))
     }
 
-
     @PostMapping(path = ["/query"], produces = [MediaType.APPLICATION_JSON_VALUE])
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         content = [Content(

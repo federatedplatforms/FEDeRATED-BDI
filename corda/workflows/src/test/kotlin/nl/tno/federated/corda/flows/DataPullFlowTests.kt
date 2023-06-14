@@ -12,7 +12,7 @@ import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
 import nl.tno.federated.corda.services.data.fetcher.DataFetcherCordaService
-import nl.tno.federated.corda.services.data.fetcher.DefaultDataFetcher
+import nl.tno.federated.corda.services.data.fetcher.SPARQLDataFetcher
 import nl.tno.federated.states.DataPullState
 import org.junit.After
 import org.junit.Before
@@ -23,7 +23,7 @@ class DataPullFlowTests {
     private lateinit var network: MockNetwork
     private lateinit var a: StartedMockNode
     private lateinit var b: StartedMockNode
-    private lateinit var dataFetcher: DefaultDataFetcher
+    private lateinit var dataFetcher: SPARQLDataFetcher
 
     private val aName = CordaX500Name("PartyA", "Reykjavik", "IS")
     private val bName = CordaX500Name("PartyB", "Rotterdam", "NL")

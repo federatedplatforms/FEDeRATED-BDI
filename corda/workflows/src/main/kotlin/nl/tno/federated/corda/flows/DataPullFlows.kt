@@ -221,7 +221,7 @@ class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTran
         /////////////
         progressTracker.currentStep = RUN_SPARQL_QUERY
 
-        val result = dataFetcher().fetch(sparql = inputStateWithQuery.sparql)
+        val result = dataFetcher().fetch(input = inputStateWithQuery.sparql)
 
         /////////////
         // progressTracker.currentStep = GENERATING_TRANSACTION

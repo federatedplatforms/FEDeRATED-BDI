@@ -9,15 +9,15 @@ import net.corda.core.serialization.SingletonSerializeAsToken
 class DataFetcherCordaService(serviceHub: AppServiceHub) : SingletonSerializeAsToken() {
 
     // Since we cant mock @CordaService classes, we need to have some way of overriding the internals.
-    private val dataFetcher: DefaultDataFetcher by lazy { externalDataFetcher ?: DefaultDataFetcher() }
-    private var externalDataFetcher: DefaultDataFetcher? = null
+    private val dataFetcher by lazy { externalDataFetcher ?: SPARQLDataFetcher() }
+    private var externalDataFetcher: DataFetcher? = null
 
-    fun init(dataFetcher: DefaultDataFetcher) {
+    fun init(dataFetcher: DataFetcher) {
         this.externalDataFetcher = dataFetcher
     }
 
     // Delegate all calls to the non Corda object.
-    fun fetch(sparql: String) = dataFetcher.fetch(sparql)
+    fun fetch(input: String) = dataFetcher.fetch(input)
 }
 
 fun FlowLogic<*>.dataFetcher() = serviceHub.cordaService(DataFetcherCordaService::class.java)
