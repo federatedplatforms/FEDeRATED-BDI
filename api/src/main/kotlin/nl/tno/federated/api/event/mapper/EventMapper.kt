@@ -3,10 +3,10 @@ package nl.tno.federated.api.event.mapper
 import com.fasterxml.jackson.databind.ObjectMapper
 import nl.tno.federated.api.model.ArrivalEvent
 import nl.tno.federated.api.model.LoadEvent
+import nl.tno.federated.api.rml.RMLMapper
 import nl.tno.federated.api.util.RDFUtils.convert
 import nl.tno.federated.api.util.compactJsonLD
 import nl.tno.federated.api.util.toJsonString
-import nl.tno.federated.semantic.adapter.core.TripleService
 import org.eclipse.rdf4j.rio.RDFFormat
 import org.springframework.stereotype.Service
 
@@ -18,7 +18,7 @@ class UnsupportedEventTypeException(msg: String) : EventMapperException(msg)
 class EventMapper(
     private val objectMapper: ObjectMapper
 ) {
-    private val tripleService = TripleService()
+    private val tripleService = RMLMapper()
 
     fun <T : Any> toRDFTurtle(event: T): String {
         val json = event.toJsonString(objectMapper)

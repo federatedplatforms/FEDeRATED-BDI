@@ -1,4 +1,4 @@
-package nl.tno.federated.semantic.adapter.core
+package nl.tno.federated.api.rml
 
 /*
  * Copyright 2010-2021 JetBrains s.r.o. and Kotlin Programming Language contributors.

@@ -8,6 +8,10 @@ import net.corda.core.serialization.SingletonSerializeAsToken
 @CordaService
 class DataFetcherCordaService(serviceHub: AppServiceHub) : SingletonSerializeAsToken() {
 
+    init {
+        serviceHub.cordappProvider.getAppContext().config
+    }
+
     // Since we cant mock @CordaService classes, we need to have some way of overriding the internals.
     private val dataFetcher by lazy { externalDataFetcher ?: SPARQLDataFetcher() }
     private var externalDataFetcher: DataFetcher? = null

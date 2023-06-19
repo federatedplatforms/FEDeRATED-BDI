@@ -9,7 +9,7 @@ class CordaEventDestination(destination: CordaX500Name) : EventDestination<Corda
     companion object {
         fun parse(eventDestination: String): CordaEventDestination {
             val result = eventDestination.split("/")
-            return when (val size = result.size) {
+            return when (result.size) {
                 3 -> CordaEventDestination(CordaX500Name(result[0], result[1], result[2]))
                 4 -> CordaEventDestination(CordaX500Name(result[0], result[1], result[2], result[3]))
                 else -> throw InvalidEventDestinationFormat("Invalid format for: ${eventDestination}, expected format: ORGANISATION/LOCALITY/COUNTRY")

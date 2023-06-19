@@ -1,4 +1,4 @@
-package nl.tno.federated.semantic.adapter.core
+package nl.tno.federated.api.rml
 
 import be.ugent.idlab.knows.functions.agent.AgentFactory
 import be.ugent.rml.Executor
@@ -15,9 +15,9 @@ import java.io.*
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 
-class TripleService {
+class RMLMapper {
 
-    private val log = LoggerFactory.getLogger(TripleService::class.java)
+    private val log = LoggerFactory.getLogger(RMLMapper::class.java)
 
     fun createTriples(data: String, ruleFileLocation: String, baseUri: String? = null): String? {
         // Replace namespace in rules file if one is provided.

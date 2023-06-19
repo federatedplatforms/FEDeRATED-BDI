@@ -52,6 +52,7 @@ task deploySingleNode(type: Cordform, dependsOn: ['jar']) {
     doLast {
         copy {
             from '../workflows/src/main/resources/database.properties'
+            from '../workflows/src/main/resources/datafetcher.properties'
             from '../workflows/src/main/resources/ishare.properties'
             into "build/nodes/SingleNode_SN"
         }

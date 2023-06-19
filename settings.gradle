@@ -1,4 +1,3 @@
-include 'semantic-adapter'
 include 'api-spec'
 include 'api'
 include 'ishare'

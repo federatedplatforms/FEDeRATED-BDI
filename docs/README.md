@@ -10,11 +10,8 @@ graph TD
     PublishEvent[New Event] -- JSON or RDF/HTTP --> API
         subgraph BDI Node
             subgraph api[BDI API]
-            API(Spring Boot) -- includes --> SEM(Semantic Adapter)
-            API -- includes --> EventDistribution(Event Distribution Service)
-            subgraph Semantic Adapter
-            SEM -- uses --> RMLMapper
-            end
+            API(Spring Boot) -- contains --> RMLMapper
+            API -- contains --> EventDistribution(Event Distribution Service)
             API -- uses --> CordaRPC[CordaRPC Client]
             end
             CordaRPC -- AMQP --> CORDA[Corda]
@@ -51,7 +48,7 @@ The following documentation is available:
 | [GraphDB](graphdb.md)                     | GraphDB setup guide                                       | 
 | [iSHARE](ishare.md)                       | iSHARE documentation                                      | 
 | [Security](security.md)                   | Security consideration                                    | 
-| [Semantic Adapter](semantic-adapter.md)   | Semantic adapter documentation                            |
+| [RML Mapping](rml-mapping.md)             | RML mapping documentation                                 |
 | [Testing](testing.md)                     | Unit and integration testing documentation                | 
 
 ### Running using Docker
