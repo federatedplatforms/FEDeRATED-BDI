@@ -125,8 +125,7 @@ class NewEventFlow(
         log.info("Sending new Event to counterparties")
 
         val otherPartySessions = counterParties.map { initiateFlow(it) }
-        val fullySignedTx =
-            subFlow(CollectSignaturesFlow(partSignedTx, otherPartySessions, GATHERING_SIGS.childProgressTracker()))
+        val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, otherPartySessions, GATHERING_SIGS.childProgressTracker()))
 
         // Stage 5.
         progressTracker.currentStep = FINALISING_TRANSACTION

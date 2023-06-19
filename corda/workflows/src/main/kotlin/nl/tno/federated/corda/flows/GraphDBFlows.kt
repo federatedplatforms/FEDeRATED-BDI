@@ -58,6 +58,7 @@ class GraphDBInsert(
     private val log = LoggerFactory.getLogger(GraphDBInsert::class.java)
 
     // Implement [execute] which will be run on a thread outside of the flow's context
+    @Suspendable
     override fun execute(deduplicationId: String): Boolean {
         return graphDBCordaService.insertEvent(rdfEvent, privateRepo).also {
             log.info("Insert into GraphDB returned: {}", it)
@@ -70,6 +71,7 @@ class GraphDBGeneralSPARQLquery(
     private val query: String
 ) : FlowExternalOperation<String> {
 
+    @Suspendable
     override fun execute(deduplicationId: String): String {
         return graphDBCordaService.generalSPARQLquery(query)
     }
@@ -80,6 +82,7 @@ class GraphDBQueryById(
     private val id: String
 ) : FlowExternalOperation<String> {
 
+    @Suspendable
     override fun execute(deduplicationId: String): String {
         return graphDBCordaService.queryEventById(id)
     }

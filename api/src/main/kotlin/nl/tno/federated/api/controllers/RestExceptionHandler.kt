@@ -1,13 +1,12 @@
 package nl.tno.federated.api.controllers
 
 import nl.tno.federated.api.event.InvalidEventDataException
+import nl.tno.federated.api.event.mapper.UnsupportedEventTypeException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
-import java.io.PrintWriter
-import java.io.StringWriter
 import javax.naming.AuthenticationException
 
 /**
@@ -27,14 +26,20 @@ class RestExceptionHandler {
     }
 
     @ExceptionHandler(AuthenticationException::class)
-    fun authenticationException(ae: AuthenticationException): ResponseEntity<Problem> {
-        log.info("Request not authorized. Message: {}", ae.message)
-        return ResponseEntity(Problem(type = ae.javaClass.name, title = ae.message), HttpStatus.FORBIDDEN)
+    fun authenticationException(e: AuthenticationException): ResponseEntity<Problem> {
+        log.info("Request not authorized. Message: {}", e.message)
+        return ResponseEntity(Problem(type = e.javaClass.name, title = e.message), HttpStatus.FORBIDDEN)
     }
 
     @ExceptionHandler(InvalidEventDataException::class)
-    fun invalidEventDataException(ae: AuthenticationException): ResponseEntity<Problem> {
-        log.debug("Invalid Event data provided. Message: {}", ae.message)
-        return ResponseEntity(Problem(type = ae.javaClass.name, title = ae.message), HttpStatus.BAD_REQUEST)
+    fun invalidEventDataException(e: InvalidEventDataException): ResponseEntity<Problem> {
+        log.debug("Invalid Event data provided. Message: {}", e.message)
+        return ResponseEntity(Problem(type = e.javaClass.name, title = e.message), HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(UnsupportedEventTypeException::class)
+    fun unsupportedEventTypeException(e: UnsupportedEventTypeException): ResponseEntity<Problem> {
+        log.debug("Unsupported Event type provided. Message: {}", e.message)
+        return ResponseEntity(Problem(type = e.javaClass.name, title = e.message), HttpStatus.BAD_REQUEST)
     }
 }

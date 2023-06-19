@@ -24,7 +24,7 @@ object RDFUtils {
             input.use {
                 val model = Rio.parse(input, format)
                 // assert a certain event here?
-                log.debug(model.toString())
+                log.debug("Valid RDF data: {}", model.toString())
             }
             true
         } catch (e: Exception) {

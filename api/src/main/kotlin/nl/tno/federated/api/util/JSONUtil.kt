@@ -12,14 +12,9 @@ fun Any.toJsonString(objectMapper: ObjectMapper): String {
     return sw.toString()
 }
 
-fun <T : Any> String.fromJson(objectMapper: ObjectMapper, type: Class<T>): T {
-    return objectMapper.readValue(this, type)
-}
-
-fun compactJsonLD(jsonLd: String): String {
+fun compactJsonLD(jsonLd: String): Map<String, Any> {
     val jsonObject: Any = JsonUtils.fromString(jsonLd)
-    val result: Any = JsonLdProcessor.compact(jsonObject, HashMap<Any, Any>(), JsonLdOptions())
-    return JsonUtils.toString(result)
+    return JsonLdProcessor.compact(jsonObject, HashMap<Any, Any>(), JsonLdOptions())
 }
 
 fun flattenJsonLD(jsonLd: String): String {

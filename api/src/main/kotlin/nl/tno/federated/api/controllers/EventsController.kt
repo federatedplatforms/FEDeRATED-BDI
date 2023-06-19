@@ -1,5 +1,6 @@
 package nl.tno.federated.api.controllers
 
+import com.github.jsonldjava.utils.JsonUtils
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -33,31 +34,33 @@ class EventsController(
     }
 
     override fun arrivalEventPost(arrivalEvent: ArrivalEvent): ResponseEntity<ArrivalEvent> {
-        val uuid = eventService.handleNewEvent(arrivalEvent)
-        log.info("New event flow started for arrivalEvent with UUID: {}", uuid)
+        val rdf = eventService.convertEventToRDF(arrivalEvent)
+        val uuid = eventService.publishRDFEvent(rdf, ArrivalEvent::class.java.simpleName)
+        log.info("ArrivalEvent published with UUID: {}", uuid)
         return ResponseEntity
             .created(URI("/events/ArrivalEvent/${uuid}"))
             .body(arrivalEvent)
     }
 
     override fun arrivalEventResourceIdGet(resourceId: String): ResponseEntity<String> {
-        return ResponseEntity.ok(eventService.findEventById(resourceId))
+        return ResponseEntity.ok(JsonUtils.toString(eventService.findEventById(resourceId)))
     }
 
     override fun loadEventPost(loadEvent: LoadEvent): ResponseEntity<LoadEvent> {
-        val uuid = eventService.handleNewEvent(loadEvent)
-        log.info("New event flow started for loadEvent with UUID: {}", uuid)
+        val rdf = eventService.convertEventToRDF(loadEvent)
+        val uuid = eventService.publishRDFEvent(rdf, LoadEvent::class.java.simpleName)
+        log.info("LoadEvent published with UUID: {}", uuid)
         return ResponseEntity
             .created(URI("/events/LoadEvent/${uuid}"))
             .body(loadEvent)
     }
 
     override fun loadEventResourceIdGet(resourceId: String): ResponseEntity<String> {
-        return ResponseEntity.ok(eventService.findEventById(resourceId))
+        return ResponseEntity.ok(JsonUtils.toString(eventService.findEventById(resourceId)))
     }
 
     @GetMapping(path = [""], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getEvents(): ResponseEntity<List<String>> {
+    fun getEvents(): ResponseEntity<List<Map<String, Any>>> {
         log.info("get all events")
         return ResponseEntity.ok().body(eventService.findAll())
     }
@@ -66,14 +69,14 @@ class EventsController(
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         content = [Content(
             examples = [
-                ExampleObject(name = "Event with single destination", description = "Event destinations should match any of the identities listed in the '/corda/peers' endpoint. Format for the destination is: <organisation>/<locality>/<country>, for example: TNO/Soesterberg/NL", value = """{ "event" : "RDF turtle", "eventType" : "EventType", "eventDestinations" : ["TNO/Soesterberg/NL"] }"""),
-                ExampleObject(name = "Event with multiple destinations", description = "Event destinations should match any of the identities listed in the '/corda/peers' endpoint. Format for the destination is: <organisation>/<locality>/<country>, for example: TNO/Soesterberg/NL", value = """{ "event" : "RDF turtle", "eventType" : "EventType", "eventDestinations" : ["TNO/Soesterberg/NL", "TNO/Utrecht/NL", "TNO/Groningen/NL"] }""")
+                ExampleObject(name = "Event with single destination", description = "Event destinations should match any of the identities listed in the '/corda/peers' endpoint. Format for the destination is: <organisation>/<locality>/<country>, for example: TNO/Soesterberg/NL", value = """{ "event" : "text/turtle", "eventType" : "EventType", "eventDestinations" : ["TNO/Soesterberg/NL"] }"""),
+                ExampleObject(name = "Event with multiple destinations", description = "Event destinations should match any of the identities listed in the '/corda/peers' endpoint. Format for the destination is: <organisation>/<locality>/<country>, for example: TNO/Soesterberg/NL", value = """{ "event" : "text/turtle", "eventType" : "EventType", "eventDestinations" : ["TNO/Soesterberg/NL", "TNO/Utrecht/NL", "TNO/Groningen/NL"] }""")
             ]
         )]
     )
     fun postEvent(@RequestBody event: EventWithDestinations): ResponseEntity<UUID> {
         log.info("Received EventWithDestinations: {}", event)
-        return ResponseEntity.ok().body(eventService.handleNewEvent(event))
+        return ResponseEntity.ok().body(eventService.publishRDFEvent(event))
     }
 
     @PostMapping(path = ["/query"], produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -86,6 +89,6 @@ class EventsController(
     )
     fun query(@RequestBody eventQuery: EventQuery): ResponseEntity<String> {
         log.info("Executing event query: {}", eventQuery)
-        return ResponseEntity.ok().body(eventService.query(eventQuery))
+        return ResponseEntity.ok(JsonUtils.toString(eventService.query(eventQuery)))
     }
 }
