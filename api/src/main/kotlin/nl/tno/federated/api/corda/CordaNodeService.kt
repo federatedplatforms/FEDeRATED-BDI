@@ -8,7 +8,6 @@ import net.corda.core.node.services.vault.DEFAULT_PAGE_SIZE
 import net.corda.core.node.services.vault.PageSpecification
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.corda.flows.DataPullQueryFlow
-import nl.tno.federated.corda.flows.GeneralSPARQLqueryFlow
 import nl.tno.federated.corda.flows.NewEventFlow
 import nl.tno.federated.states.DataPullState
 import nl.tno.federated.states.EventState
@@ -28,13 +27,6 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
         ).returnValue.get()
 
         return (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
-    }
-
-    fun startNewGeneralSPARQLqueryFlow(query: String): String {
-        return rpc.client().startFlowDynamic(
-            GeneralSPARQLqueryFlow::class.java,
-            query
-        ).returnValue.get()
     }
 
     fun startVaultQueryBy(criteria: QueryCriteria, pagingSpec: PageSpecification = PageSpecification(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE)): List<EventState> {
