@@ -45,8 +45,9 @@ The following documentation is available:
 | Component                                 | Description                                               |
 |-------------------------------------------|-----------------------------------------------------------|
 | [API](api.md)                             | BDI API documentation                                     | 
-| [Corda](corda.md)                         | Corda documentation (workflows, contracts, cordformation) | 
-| [Development Guide](development-guide.md) | Development environment setup guide                       | 
+| [Corda](corda.md)                         | Corda documentation (workflows, contracts, cordformation) |
+| [Development Guide](development-guide.md) | Development environment setup guide                       |
+| [Deployment](deployment.md)               | Deployment guide                                          |
 | [GraphDB](graphdb.md)                     | GraphDB setup guide                                       | 
 | [iSHARE](ishare.md)                       | iSHARE documentation                                      | 
 | [Security](security.md)                   | Security consideration                                    | 
