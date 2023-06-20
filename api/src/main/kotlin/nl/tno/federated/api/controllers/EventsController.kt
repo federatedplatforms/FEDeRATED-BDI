@@ -1,6 +1,7 @@
 package nl.tno.federated.api.controllers
 
 import com.github.jsonldjava.utils.JsonUtils
+import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -59,12 +60,14 @@ class EventsController(
         return ResponseEntity.ok(JsonUtils.toString(eventService.findEventById(resourceId)))
     }
 
+    @Operation(summary = "Return the event data in compacted JSONLD format.")
     @GetMapping(path = [""], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getEvents(): ResponseEntity<List<Map<String, Any>>> {
         log.info("get all events")
         return ResponseEntity.ok().body(eventService.findAll())
     }
 
+    @Operation(summary = "Submit a new event in application/json format. Need to specify the eventType and destination(s), the receivers of the event.")
     @PostMapping(path = [""], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         content = [Content(
