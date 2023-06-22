@@ -1,12 +1,17 @@
 package nl.tno.federated.api.controllers
 
+import net.corda.core.CordaRuntimeException
+import net.corda.core.CordaThrowable
+import net.corda.core.flows.UnexpectedFlowEndException
 import nl.tno.federated.api.event.InvalidEventDataException
 import nl.tno.federated.api.event.mapper.UnsupportedEventTypeException
+import nl.tno.federated.api.util.InvalidRDFException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import java.util.concurrent.ExecutionException
 import javax.naming.AuthenticationException
 
 /**
@@ -37,9 +42,37 @@ class RestExceptionHandler {
         return ResponseEntity(Problem(type = e.javaClass.name, title = e.message), HttpStatus.BAD_REQUEST)
     }
 
+    @ExceptionHandler(InvalidRDFException::class)
+    fun invalidRDFException(e: InvalidRDFException): ResponseEntity<Problem> {
+        log.debug("Invalid Event data provided. Message: {}", e.message)
+        return ResponseEntity(Problem(type = e.javaClass.name, title = "Invalid RDF event data supplied, expected text/turtle.", detail = e.message), HttpStatus.BAD_REQUEST)
+    }
+
     @ExceptionHandler(UnsupportedEventTypeException::class)
     fun unsupportedEventTypeException(e: UnsupportedEventTypeException): ResponseEntity<Problem> {
         log.debug("Unsupported Event type provided. Message: {}", e.message)
-        return ResponseEntity(Problem(type = e.javaClass.name, title = e.message), HttpStatus.BAD_REQUEST)
+        return ResponseEntity(Problem(type = e.javaClass.name, title = "EventType that was supplied is not supported!", detail = e.message), HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(ExecutionException::class)
+    fun executionException(ee: ExecutionException): ResponseEntity<Problem> {
+        return when (val e = ee.cause) {
+            is UnexpectedFlowEndException -> {
+                log.warn("UnexpectedFlowEndException occurred Event type provided. Message: {}", e.message)
+                ResponseEntity(Problem(type = e.javaClass.name, title = "Flow ended unexpectedly, please check the logs. Message: "+ e.message), HttpStatus.INTERNAL_SERVER_ERROR)
+            }
+            is CordaRuntimeException -> {
+                log.warn("CordaRuntimeException occurred. Message: {}", e.message)
+                ResponseEntity(Problem(type = e.javaClass.name, title = "Runtime exception executing the flow, please check the logs."+ e.message), HttpStatus.INTERNAL_SERVER_ERROR)
+            }
+            is CordaThrowable -> {
+                log.warn("CordaThrowable occurred. Message: {}", e.message)
+                ResponseEntity(Problem(type = e.javaClass.name, title = e.message), HttpStatus.INTERNAL_SERVER_ERROR)
+            }
+            else -> {
+                log.warn("ExecutionException occurred. Message: {}", ee.message)
+                ResponseEntity(Problem(type = ee.javaClass.name, title = ee.message), HttpStatus.INTERNAL_SERVER_ERROR)
+            }
+        }
     }
 }
