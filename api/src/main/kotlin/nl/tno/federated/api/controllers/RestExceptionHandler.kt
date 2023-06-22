@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import java.util.concurrent.ExecutionException
-import javax.naming.AuthenticationException
 
 /**
  * Partial implementation of https://www.rfc-editor.org/rfc/rfc7807
@@ -28,12 +27,6 @@ class RestExceptionHandler {
     fun handleUncaught(t: Throwable): ResponseEntity<Problem> {
         log.info("Uncaught exception while executing request: {}", t.message, t)
         return ResponseEntity(Problem(type = t.javaClass.name, title = t.message, detail = "See error logs for more details."), HttpStatus.INTERNAL_SERVER_ERROR)
-    }
-
-    @ExceptionHandler(AuthenticationException::class)
-    fun authenticationException(e: AuthenticationException): ResponseEntity<Problem> {
-        log.info("Request not authorized. Message: {}", e.message)
-        return ResponseEntity(Problem(type = e.javaClass.name, title = e.message), HttpStatus.FORBIDDEN)
     }
 
     @ExceptionHandler(InvalidEventDataException::class)
