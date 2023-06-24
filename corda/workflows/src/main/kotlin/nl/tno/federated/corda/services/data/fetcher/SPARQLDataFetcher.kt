@@ -14,7 +14,7 @@ class SPARQLDataFetcher : DataFetcher {
 
     private val repository by lazy { SPARQLRepository(properties.getProperty("graphdb.sparql.url")) }
     private val log = LoggerFactory.getLogger(SPARQLDataFetcher::class.java)
-    private val propertiesFileName = "database.properties"
+    private val propertiesFileName = "datafetcher.properties"
 
     override fun fetch(input: String): String? {
         return executeSPARQL(input)
