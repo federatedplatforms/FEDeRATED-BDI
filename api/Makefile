@@ -1,0 +1,6 @@
+dlogin:
+	docker login -u federatedbdi
+
+dbuild:
+	@echo "Building docker image: usage make dbuild tag=1.2.3"
+	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag federatedbdi/bdi-api:$(tag) .
