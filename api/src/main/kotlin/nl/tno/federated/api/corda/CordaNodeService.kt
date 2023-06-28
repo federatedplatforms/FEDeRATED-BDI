@@ -7,6 +7,8 @@ import net.corda.core.node.services.vault.DEFAULT_PAGE_NUM
 import net.corda.core.node.services.vault.DEFAULT_PAGE_SIZE
 import net.corda.core.node.services.vault.PageSpecification
 import net.corda.core.node.services.vault.QueryCriteria
+import net.corda.core.node.services.vault.Sort
+import net.corda.core.node.services.vault.SortAttribute
 import nl.tno.federated.corda.flows.DataPullQueryFlow
 import nl.tno.federated.corda.flows.NewEventFlow
 import nl.tno.federated.states.DataPullState
@@ -30,7 +32,9 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
     }
 
     fun startVaultQueryBy(criteria: QueryCriteria, pagingSpec: PageSpecification = PageSpecification(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE)): List<EventState> {
-        return rpc.client().vaultQueryBy<EventState>(criteria, pagingSpec).states.map { it.state.data }
+        val sortAttribute = SortAttribute.Standard(Sort.VaultStateAttribute.RECORDED_TIME)
+        val sorter = Sort(setOf(Sort.SortColumn(sortAttribute, Sort.Direction.DESC)))
+        return rpc.client().vaultQueryBy<EventState>(criteria, pagingSpec, sorter).states.map { it.state.data }
     }
 
     fun startDataPullFlow(query: String, cordaName: CordaX500Name?): UUID {

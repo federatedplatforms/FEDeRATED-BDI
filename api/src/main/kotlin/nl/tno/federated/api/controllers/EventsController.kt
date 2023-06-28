@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.net.URI
 import java.util.*
@@ -62,9 +63,9 @@ class EventsController(
 
     @Operation(summary = "Return the event data in compacted JSONLD format.")
     @GetMapping(path = [""], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getEvents(): ResponseEntity<List<Map<String, Any>>> {
+    fun getEvents(@RequestParam("page", defaultValue = "1") page: Int, @RequestParam("size", defaultValue = "100") size: Int): ResponseEntity<List<Map<String, Any>>> {
         log.info("get all events")
-        return ResponseEntity.ok().body(eventService.findAll())
+        return ResponseEntity.ok().body(eventService.findAll(page, size))
     }
 
     @Operation(summary = "Submit a new event in application/json format. Need to specify the eventType and destination(s), the receivers of the event.")

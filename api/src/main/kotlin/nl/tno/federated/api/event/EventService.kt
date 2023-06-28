@@ -43,8 +43,8 @@ class EventService(
         return eventMapper.toCompactedJSONLD(rdf)
     }
 
-    fun findAll(): List<Map<String, Any>> {
-        val result = eventQueryService.findAll()
+    fun findAll(page: Int, size: Int): List<Map<String, Any>> {
+        val result = eventQueryService.findAll(page, size)
         return result.map { eventMapper.toCompactedJSONLD(it) }
     }
 

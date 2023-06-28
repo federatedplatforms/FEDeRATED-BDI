@@ -2,6 +2,7 @@ package nl.tno.federated.api.event.query.corda
 
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.Vault
+import net.corda.core.node.services.vault.PageSpecification
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.api.corda.CordaNodeService
 import nl.tno.federated.api.event.DUMMY_DATA_LOAD_EVENT
@@ -30,10 +31,13 @@ class CordaEventQueryService(
         return state.firstOrNull()?.event
     }
 
-    override fun findAll(): List<String> {
+    override fun findAll(): List<String> = findAll(1,100)
+
+    fun findAll(page: Int, size: Int): List<String> {
         if (environment.getProperty("demo.mode", Boolean::class.java) == true) return listOf(dummy)
         val criteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.ALL)
-        val state = cordaNodeService.startVaultQueryBy(criteria)
+        val pagingSpec = PageSpecification(pageNumber = page, pageSize = size)
+        val state = cordaNodeService.startVaultQueryBy(criteria, pagingSpec)
         return state.map { it.event }
     }
 
