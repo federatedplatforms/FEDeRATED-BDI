@@ -64,7 +64,8 @@ class EventsController(
     @Operation(summary = "Return the event data in compacted JSONLD format.")
     @GetMapping(path = [""], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getEvents(@RequestParam("page", defaultValue = "1") page: Int, @RequestParam("size", defaultValue = "100") size: Int): ResponseEntity<List<Map<String, Any>>> {
-        log.info("get all events")
+        log.info("Get all events, page: {}, size: {}", page, size)
+        if(page < 1) throw InvalidPageCriteria("Page size should be greater than 0.")
         return ResponseEntity.ok().body(eventService.findAll(page, size))
     }
 
