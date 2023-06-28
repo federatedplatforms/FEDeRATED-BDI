@@ -2,16 +2,15 @@ package nl.tno.federated.api.controllers
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import net.corda.core.contracts.StateAndRef
-import net.corda.core.contracts.TransactionState
 import net.corda.core.identity.CordaX500Name
-import net.corda.core.messaging.vaultQueryBy
-import net.corda.core.node.services.Vault
 import net.corda.core.node.services.vault.PageSpecification
-import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.utilities.NetworkHostAndPort
-import net.corda.nodeapi.internal.KeyOwningIdentity.UnmappedIdentity.uuid
 import nl.tno.federated.api.corda.NodeRPCConnection
+import nl.tno.federated.api.corda.vaultQueryPagedAndSortedByRecordedTime
+import nl.tno.federated.api.corda.SimpleDataPullState
+import nl.tno.federated.api.corda.SimpleEventState
+import nl.tno.federated.api.corda.toSimpleDataPullState
+import nl.tno.federated.api.corda.toSimpleEventState
 import nl.tno.federated.states.DataPullState
 import nl.tno.federated.states.EventState
 import org.springframework.http.MediaType
@@ -51,18 +50,15 @@ class CordaNodeController(val rpc: NodeRPCConnection) {
     @GetMapping(value = ["/flows"])
     fun flows() = rpc.client().registeredFlows()
 
-    @Operation(summary = "Return all the EventStates from the Vault. This endpoint supports paging.")
+    @Operation(summary = "Return all the EventStates from the Vault. This endpoint supports paging and sorts based on recorded time.")
     @GetMapping(value = ["/vault/EventState"])
-    fun vaultEventStates(@RequestParam("pageSize", defaultValue = "10") pageSize: Int = 10): List<EventState> {
-        val criteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.ALL)
-        val vaultQueryBy = rpc.client().vaultQueryBy<EventState>(criteria, PageSpecification(1, pageSize))
-        return vaultQueryBy.states.map { it.state.data }
+    fun vaultEventStates(@RequestParam("page", defaultValue = "1") page: Int = 10, @RequestParam("size", defaultValue = "10") size: Int = 10): List<SimpleEventState> {
+        return rpc.client().vaultQueryPagedAndSortedByRecordedTime<EventState>(PageSpecification(page, size)).map { it.toSimpleEventState() }
     }
 
-    @Operation(summary = "Return all the DataPullState from the Vault. This endpoint supports paging.")
+    @Operation(summary = "Return all the DataPullState from the Vault. This endpoint supports paging and sorts based on recorded time.")
     @GetMapping(value = ["/vault/DataPullState"])
-    fun vaultDataPullStates(@RequestParam("pageSize", defaultValue = "10") pageSize: Int = 10): List<DataPullState> {
-        val criteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.ALL)
-        return rpc.client().vaultQueryBy<DataPullState>(criteria, PageSpecification(1, pageSize)).states.map { it.state.data }
+    fun vaultDataPullStates(@RequestParam("page", defaultValue = "1") page: Int = 10, @RequestParam("size", defaultValue = "10") size: Int = 10): List<SimpleDataPullState> {
+        return rpc.client().vaultQueryPagedAndSortedByRecordedTime<DataPullState>(PageSpecification(page, size)).map { it.toSimpleDataPullState() }
     }
 }
