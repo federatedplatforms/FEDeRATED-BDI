@@ -1,9 +1,11 @@
 package nl.tno.federated.api.corda
 
 import net.corda.client.rpc.CordaRPCClient
+import net.corda.client.rpc.CordaRPCClientConfiguration
 import net.corda.client.rpc.CordaRPCConnection
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.utilities.NetworkHostAndPort
+import net.corda.core.utilities.seconds
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -13,6 +15,8 @@ import javax.annotation.PreDestroy
  * Wraps an RPC connection to a Corda node.
  *
  * The RPC connection is configured using command line arguments.
+ *
+ * Retries the connection every 30 secs.
  *
  * @param host The host of the node we are connecting to.
  * @param rpcPort The RPC port of the node we are connecting to.
@@ -33,7 +37,7 @@ class NodeRPCConnection(
     private val cordaRPCOps: CordaRPCOps by lazy {
         log.debug("Initializing CordaRPCConnection host: $host, port: $rpcPort, user: $username")
         val rpcAddress = NetworkHostAndPort(host, rpcPort)
-        val rpcClient = CordaRPCClient(rpcAddress)
+        val rpcClient = CordaRPCClient(rpcAddress, CordaRPCClientConfiguration(connectionMaxRetryInterval = 30.seconds))
         val rpcConnection = rpcClient.start(username, password)
         log.debug("Initializing CordaRPCConnection successful!!")
 
