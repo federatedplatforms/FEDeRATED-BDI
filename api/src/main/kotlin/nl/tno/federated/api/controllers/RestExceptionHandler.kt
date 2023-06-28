@@ -47,6 +47,12 @@ class RestExceptionHandler {
         return ResponseEntity(Problem(type = e.javaClass.name, title = "EventType that was supplied is not supported!", detail = e.message), HttpStatus.BAD_REQUEST)
     }
 
+    @ExceptionHandler(InvalidPageCriteria::class)
+    fun invalidPageCriteriaException(e: InvalidPageCriteria): ResponseEntity<Problem> {
+        log.debug("Unsupported Event type provided. Message: {}", e.message)
+        return ResponseEntity(Problem(type = e.javaClass.name, title = "Page size should be greater than zero.", detail = e.message), HttpStatus.BAD_REQUEST)
+    }
+
     @ExceptionHandler(ExecutionException::class)
     fun executionException(ee: ExecutionException): ResponseEntity<Problem> {
         return when (val e = ee.cause) {
