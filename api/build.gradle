@@ -21,6 +21,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'io.micrometer:micrometer-registry-prometheus'
 
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.1'
     implementation 'org.springdoc:springdoc-openapi-kotlin:1.6.1'
     implementation 'com.github.jsonld-java:jsonld-java:0.13.0'

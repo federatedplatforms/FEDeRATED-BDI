@@ -32,7 +32,7 @@ data class CordaNodeInfo(val names: List<CordaX500Name>, val addresses: List<Net
 @RestController
 @RequestMapping("/corda", produces = [MediaType.APPLICATION_JSON_VALUE])
 @Tag(name = "CordaNodeController", description = "Corda network and node details")
-class CordaNodeController(val rpc: NodeRPCConnection) {
+class CordaNodeController(private val rpc: NodeRPCConnection) {
 
     @Operation(summary = "How the node identifies itself to the network")
     @GetMapping(value = ["/identities"])

@@ -18,7 +18,7 @@ class Server {
      * Rules are ordered, the first rule to return true will be used.
      */
     @Bean
-    fun rules(cordaNodeService: CordaNodeService) = listOf(
+    fun rules(cordaNodeService: CordaNodeService) = setOf(
         // SparqlEventDistributionRule("ASK { <http://example.org/some/namespace> ?p ?o> }", listOf(CordaEventDestination(CordaX500Name("TNO", "Den Haag", "NL")))),
         // KeywordMatchEventDistributionRule("NL", listOf(CordaEventDestination(CordaX500Name("TNO", "Den Haag", "NL"))
         BroadcastToAllEventDistributionRule(cordaNodeService)
