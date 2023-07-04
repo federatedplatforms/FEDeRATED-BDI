@@ -13,7 +13,7 @@
         }
 
         .header {
-            height: 100px;
+            /*height: 100px;*/
             border-bottom: 1px solid #f0f0f0;
         }
 
@@ -27,10 +27,10 @@
         }
 
         .content {
-            margin-top: 25px;
+            margin: 35px;
             /* Styles for the centered div */
-            width: 75%;
-            height: 50vh; /* Adjust the height as needed */
+            width: 80%;
+            /* height: 50vh; !* Adjust the height as needed */
         }
 
         .content ul, li {
@@ -38,11 +38,11 @@
         }
 
         .footer {
-            color: #666;
+            color: #aaa;
         }
 
         .footer, .header {
-            padding: 25px;
+            padding: 35px;
         }
 
         thead tr th:first-child,
@@ -72,16 +72,12 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td>Swagger/Open API spec</td>
+                    <td>Version</td>
+                    <td th:text="${version}"></td>
+                </tr>
+                <tr>
+                    <td>Open API specification / Swagger UI</td>
                     <td><a href="./swagger-ui/index.html">/swagger-ui/index.html</a></td>
-                </tr>
-                <tr>
-                    <td>Configuration properties</td>
-                    <td><a href="./actuator/env">/actuator/env</a></td>
-                </tr>
-                <tr>
-                    <td>Prometheus Metrics</td>
-                    <td><a href="./actuator/prometheus">/actuator/prometheus</a></td>
                 </tr>
                 </tbody>
             </table>
@@ -100,7 +96,7 @@
                 </tr>
                 <tr>
                     <td>Source code</td>
-                    <td><a href="https://github.com/tno/FEDeRATED-BDI/">https://github.com/tno/FEDeRATED-BDI/</a></td>
+                    <td><a href="https://github.com/TNO/FEDeRATED-BDI/">https://github.com/TNO/FEDeRATED-BDI/</a></td>
                 </tr>
                 </tbody>
             </table>
@@ -115,17 +111,20 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td>Corda RPC URL</td>
-                    <td th:text="${cordaRpcUrl}"></td>
-                </tr>
-
-                <tr>
                     <td>GraphDB SPARQL URL</td>
                     <td th:text="${graphdbSparqlUrl}"></td>
                 </tr>
                 <tr>
                     <td>Event distribution rule(s)</td>
                     <td th:text="${eventDistributionRules}"></td>
+                </tr>
+                <tr>
+                    <td>Corda RPC URL</td>
+                    <td th:text="${cordaRpcUrl}"></td>
+                </tr>
+                <tr>
+                    <td>Corda Identities (this node)</td>
+                    <td th:text="${identities}"></td>
                 </tr>
                 <tr>
                     <td>Corda Notaries</td>
@@ -135,11 +134,23 @@
                     <td>Corda Peers</td>
                     <td th:text="${peers}"></td>
                 </tr>
+                <tr>
+                    <td>Corda Network Map Service (Cordite)</td>
+                    <td><a th:href="${cordaNmsUrl}" th:text="${cordaNmsUrl}"></a></td>
+                </tr>
+                <tr>
+                    <td>Runtime configuration properties</td>
+                    <td><a href="./actuator/env">/actuator/env</a></td>
+                </tr>
+                <tr>
+                    <td>Prometheus metrics</td>
+                    <td><a href="./actuator/prometheus">/actuator/prometheus</a></td>
+                </tr>
                 </tbody>
             </table>
         </div>
     </div>
-    <div class="footer"><p><i>Version: 0.3.1-dev</i></p></div>
+    <div class="footer"><p>BDI Node version: <i th:text="${version}"></i></p></div>
 </div>
 </body>
 </html>
