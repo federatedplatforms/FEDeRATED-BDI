@@ -5,55 +5,7 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
           integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
           crossorigin="anonymous">
-    <style>
-        body, a, div {
-            font-family: "Barlow Semi Condensed", "Arial", serif;
-            padding: 0;
-            margin: 0;
-        }
-
-        .header {
-            /*height: 100px;*/
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .content-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #fcfcfc;
-            border-bottom: 1px solid #f0f0f0;
-            /*height: 100vh; !* Adjust the height as needed *!*/
-        }
-
-        .content {
-            margin: 35px;
-            /* Styles for the centered div */
-            width: 80%;
-            /* height: 50vh; !* Adjust the height as needed */
-        }
-
-        .content ul, li {
-            padding-left: 15px;
-        }
-
-        .footer {
-            color: #aaa;
-        }
-
-        .footer, .header {
-            padding: 35px;
-        }
-
-        thead tr th:first-child,
-        tbody tr td:first-child {
-            width: 25em;
-            min-width: 25em;
-            max-width: 25em;
-            word-break: break-all;
-        }
-
-    </style>
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 <div>
@@ -63,6 +15,7 @@
     <div class="content-wrapper">
         <div class="content">
             <h3>BDI Node</h3>
+            <p>Welcome to this BDI Node! Please try out the API using the Swagger UI listed below.</p>
             <table class="table table-striped table-responsive-md">
                 <thead>
                 <tr>
@@ -81,7 +34,9 @@
                 </tr>
                 </tbody>
             </table>
+
             <h3>Documentation</h3>
+            <p>Documentation for the BDI node is available on github.com, please follow the links below for more details.</p>
             <table class="table table-striped table-responsive-md">
                 <thead>
                 <tr>
@@ -98,10 +53,21 @@
                     <td>Source code</td>
                     <td><a href="https://github.com/TNO/FEDeRATED-BDI/">https://github.com/TNO/FEDeRATED-BDI/</a></td>
                 </tr>
+                <tr>
+                    <td>Kubernetes installation / Helm charts</td>
+                    <td><a href="https://github.com/Federated-BDI/Kubernetes-BDI-Node">https://github.com/Federated-BDI/Kubernetes-BDI-Node</a></td>
+                </tr>
                 </tbody>
             </table>
 
-            <h3>Node Specific Configuration</h3>
+            <h3>Corda Network</h3>
+            <p>
+                This section describes the Corda network properties, but also the runtime information of the network.
+                A BDI node typically one uses one identity, but can have multiple. The identity uniquely identifies a node in the network.
+                An identity in a Corda network consist of a X509 name. Note that BDI nodes require at least one Notary to be
+                present in order to sign transactions on the network. The peers in the list are the other nodes on the network that are able to
+                receive events.
+            </p>
             <table class="table table-striped table-responsive-md">
                 <thead>
                 <tr>
@@ -110,14 +76,6 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td>GraphDB SPARQL URL</td>
-                    <td th:text="${graphdbSparqlUrl}"></td>
-                </tr>
-                <tr>
-                    <td>Event distribution rule(s)</td>
-                    <td th:text="${eventDistributionRules}"></td>
-                </tr>
                 <tr>
                     <td>Corda RPC URL</td>
                     <td th:text="${cordaRpcUrl}"></td>
@@ -138,8 +96,55 @@
                     <td>Corda Network Map Service (Cordite)</td>
                     <td><a th:href="${cordaNmsUrl}" th:text="${cordaNmsUrl}"></a></td>
                 </tr>
+                </tbody>
+            </table>
+
+            <h3>GraphDB</h3>
+            <p>The <a href="./swagger-ui/index.html#/sparql-controller/sparql">/sparql</a> endpoint allows for execution of SPARQL against the configured GraphDB SPARQL endpoint below.</p>
+            <table class="table table-striped table-responsive-md">
+                <thead>
                 <tr>
-                    <td>Runtime configuration properties</td>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>SPARQL URL</td>
+                    <td><a th:href="${graphdbSparqlUrl}" th:text="${graphdbSparqlUrl}"></a></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <h3>Event Distribution</h3>
+            <p>Event distribution rules are configurable. The default rule is to distribute events to all peers in the network. The following distribution rules are configured:</p>
+            <table class="table table-striped table-responsive-md">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Event distribution rule(s)</td>
+                    <td th:text="${eventDistributionRules}"></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <h3>Spring Boot Actuator Endpoints</h3>
+            <p>For more information regarding Spring Boot actuator endpoints please refer to the <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html">documentation</a>.</p>
+            <table class="table table-striped table-responsive-md">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Environment</td>
                     <td><a href="./actuator/env">/actuator/env</a></td>
                 </tr>
                 <tr>
