@@ -14,13 +14,11 @@ import java.util.Objects;
  */
 
 @Schema(name = "TransportMeans", description = "Specialized digital twin, mostly truck")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T09:40:23.742+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T10:20:12.669+02:00[Europe/Amsterdam]")
 public class TransportMeans {
 
-  @JsonProperty("digitalTwinType")
   private String digitalTwinType;
 
-  @JsonProperty("digitalTwinID")
   private String digitalTwinID;
 
   /**
@@ -70,7 +68,6 @@ public class TransportMeans {
     }
   }
 
-  @JsonProperty("transportMeansMode")
   private TransportMeansModeEnum transportMeansMode;
 
   /**
@@ -598,8 +595,24 @@ public class TransportMeans {
     }
   }
 
-  @JsonProperty("hasTransportmeansNationality")
   private HasTransportmeansNationalityEnum hasTransportmeansNationality;
+
+  /**
+   * Default constructor
+   * @deprecated Use {@link TransportMeans#TransportMeans(String, TransportMeansModeEnum)}
+   */
+  @Deprecated
+  public TransportMeans() {
+    super();
+  }
+
+  /**
+   * Constructor with only required parameters
+   */
+  public TransportMeans(String digitalTwinType, TransportMeansModeEnum transportMeansMode) {
+    this.digitalTwinType = digitalTwinType;
+    this.transportMeansMode = transportMeansMode;
+  }
 
   public TransportMeans digitalTwinType(String digitalTwinType) {
     this.digitalTwinType = digitalTwinType;
@@ -611,7 +624,8 @@ public class TransportMeans {
    * @return digitalTwinType
   */
   @NotNull 
-  @Schema(name = "digitalTwinType", required = true)
+  @Schema(name = "digitalTwinType", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("digitalTwinType")
   public String getDigitalTwinType() {
     return digitalTwinType;
   }
@@ -630,7 +644,8 @@ public class TransportMeans {
    * @return digitalTwinID
   */
   
-  @Schema(name = "digitalTwinID", required = false)
+  @Schema(name = "digitalTwinID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("digitalTwinID")
   public String getDigitalTwinID() {
     return digitalTwinID;
   }
@@ -649,7 +664,8 @@ public class TransportMeans {
    * @return transportMeansMode
   */
   @NotNull 
-  @Schema(name = "transportMeansMode", required = true)
+  @Schema(name = "transportMeansMode", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("transportMeansMode")
   public TransportMeansModeEnum getTransportMeansMode() {
     return transportMeansMode;
   }
@@ -668,7 +684,8 @@ public class TransportMeans {
    * @return hasTransportmeansNationality
   */
   
-  @Schema(name = "hasTransportmeansNationality", required = false)
+  @Schema(name = "hasTransportmeansNationality", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("hasTransportmeansNationality")
   public HasTransportmeansNationalityEnum getHasTransportmeansNationality() {
     return hasTransportmeansNationality;
   }

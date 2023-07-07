@@ -12,32 +12,46 @@ import java.util.Objects;
  */
 
 @Schema(name = "Goods", description = "Specialized cargo, goods")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T09:40:23.742+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T10:20:12.669+02:00[Europe/Amsterdam]")
 public class Goods implements LoadEventInvolvedDigitalTwinsInner {
 
-  @JsonProperty("digitalTwinType")
   private String digitalTwinType;
 
-  @JsonProperty("digitalTwinID")
   private String digitalTwinID;
 
-  @JsonProperty("grossMass")
   private String grossMass;
 
-  @JsonProperty("grossVolume")
   private String grossVolume;
 
-  @JsonProperty("goodsTypeCode")
   private String goodsTypeCode;
 
-  @JsonProperty("netMass")
   private Integer netMass;
 
-  @JsonProperty("numberOfUnits")
   private Integer numberOfUnits;
 
-  @JsonProperty("goodsDescription")
   private String goodsDescription;
+
+  /**
+   * Default constructor
+   * @deprecated Use {@link Goods#Goods(String, String, String, String, Integer, Integer, String)}
+   */
+  @Deprecated
+  public Goods() {
+    super();
+  }
+
+  /**
+   * Constructor with only required parameters
+   */
+  public Goods(String digitalTwinType, String grossMass, String grossVolume, String goodsTypeCode, Integer netMass, Integer numberOfUnits, String goodsDescription) {
+    this.digitalTwinType = digitalTwinType;
+    this.grossMass = grossMass;
+    this.grossVolume = grossVolume;
+    this.goodsTypeCode = goodsTypeCode;
+    this.netMass = netMass;
+    this.numberOfUnits = numberOfUnits;
+    this.goodsDescription = goodsDescription;
+  }
 
   public Goods digitalTwinType(String digitalTwinType) {
     this.digitalTwinType = digitalTwinType;
@@ -49,7 +63,8 @@ public class Goods implements LoadEventInvolvedDigitalTwinsInner {
    * @return digitalTwinType
   */
   @NotNull 
-  @Schema(name = "digitalTwinType", required = true)
+  @Schema(name = "digitalTwinType", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("digitalTwinType")
   public String getDigitalTwinType() {
     return digitalTwinType;
   }
@@ -68,7 +83,8 @@ public class Goods implements LoadEventInvolvedDigitalTwinsInner {
    * @return digitalTwinID
   */
   
-  @Schema(name = "digitalTwinID", required = false)
+  @Schema(name = "digitalTwinID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("digitalTwinID")
   public String getDigitalTwinID() {
     return digitalTwinID;
   }
@@ -87,7 +103,8 @@ public class Goods implements LoadEventInvolvedDigitalTwinsInner {
    * @return grossMass
   */
   @NotNull 
-  @Schema(name = "grossMass", required = true)
+  @Schema(name = "grossMass", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("grossMass")
   public String getGrossMass() {
     return grossMass;
   }
@@ -106,7 +123,8 @@ public class Goods implements LoadEventInvolvedDigitalTwinsInner {
    * @return grossVolume
   */
   @NotNull 
-  @Schema(name = "grossVolume", required = true)
+  @Schema(name = "grossVolume", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("grossVolume")
   public String getGrossVolume() {
     return grossVolume;
   }
@@ -125,7 +143,8 @@ public class Goods implements LoadEventInvolvedDigitalTwinsInner {
    * @return goodsTypeCode
   */
   @NotNull 
-  @Schema(name = "goodsTypeCode", required = true)
+  @Schema(name = "goodsTypeCode", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("goodsTypeCode")
   public String getGoodsTypeCode() {
     return goodsTypeCode;
   }
@@ -144,7 +163,8 @@ public class Goods implements LoadEventInvolvedDigitalTwinsInner {
    * @return netMass
   */
   @NotNull 
-  @Schema(name = "netMass", required = true)
+  @Schema(name = "netMass", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("netMass")
   public Integer getNetMass() {
     return netMass;
   }
@@ -163,7 +183,8 @@ public class Goods implements LoadEventInvolvedDigitalTwinsInner {
    * @return numberOfUnits
   */
   @NotNull 
-  @Schema(name = "numberOfUnits", required = true)
+  @Schema(name = "numberOfUnits", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("numberOfUnits")
   public Integer getNumberOfUnits() {
     return numberOfUnits;
   }
@@ -182,7 +203,8 @@ public class Goods implements LoadEventInvolvedDigitalTwinsInner {
    * @return goodsDescription
   */
   @NotNull 
-  @Schema(name = "goodsDescription", required = true)
+  @Schema(name = "goodsDescription", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("goodsDescription")
   public String getGoodsDescription() {
     return goodsDescription;
   }

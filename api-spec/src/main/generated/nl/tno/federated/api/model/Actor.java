@@ -18,12 +18,11 @@ import java.util.Objects;
  */
 
 @Schema(name = "Actor", description = "Actor has a role and is described by a legal person - relevant for us: consignor, consignee, carrier")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T09:40:23.742+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T10:20:12.669+02:00[Europe/Amsterdam]")
 public class Actor {
 
-  @JsonProperty("actorLegalPerson")
   @Valid
-  private List<ActorActorLegalPersonInner> actorLegalPerson = new ArrayList<>();
+  private List<@Valid ActorActorLegalPersonInner> actorLegalPerson = new ArrayList<>();
 
   /**
    * Gets or Sets actorLogisticsRole
@@ -62,16 +61,35 @@ public class Actor {
     }
   }
 
-  @JsonProperty("actorLogisticsRole")
   @Valid
   private List<ActorLogisticsRoleEnum> actorLogisticsRole = new ArrayList<>();
 
-  public Actor actorLegalPerson(List<ActorActorLegalPersonInner> actorLegalPerson) {
+  /**
+   * Default constructor
+   * @deprecated Use {@link Actor#Actor(List<@Valid ActorActorLegalPersonInner>, List<ActorLogisticsRoleEnum>)}
+   */
+  @Deprecated
+  public Actor() {
+    super();
+  }
+
+  /**
+   * Constructor with only required parameters
+   */
+  public Actor(List<@Valid ActorActorLegalPersonInner> actorLegalPerson, List<ActorLogisticsRoleEnum> actorLogisticsRole) {
+    this.actorLegalPerson = actorLegalPerson;
+    this.actorLogisticsRole = actorLogisticsRole;
+  }
+
+  public Actor actorLegalPerson(List<@Valid ActorActorLegalPersonInner> actorLegalPerson) {
     this.actorLegalPerson = actorLegalPerson;
     return this;
   }
 
   public Actor addActorLegalPersonItem(ActorActorLegalPersonInner actorLegalPersonItem) {
+    if (this.actorLegalPerson == null) {
+      this.actorLegalPerson = new ArrayList<>();
+    }
     this.actorLegalPerson.add(actorLegalPersonItem);
     return this;
   }
@@ -81,12 +99,13 @@ public class Actor {
    * @return actorLegalPerson
   */
   @NotNull @Valid @Size(min = 1) 
-  @Schema(name = "actorLegalPerson", required = true)
-  public List<ActorActorLegalPersonInner> getActorLegalPerson() {
+  @Schema(name = "actorLegalPerson", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("actorLegalPerson")
+  public List<@Valid ActorActorLegalPersonInner> getActorLegalPerson() {
     return actorLegalPerson;
   }
 
-  public void setActorLegalPerson(List<ActorActorLegalPersonInner> actorLegalPerson) {
+  public void setActorLegalPerson(List<@Valid ActorActorLegalPersonInner> actorLegalPerson) {
     this.actorLegalPerson = actorLegalPerson;
   }
 
@@ -96,6 +115,9 @@ public class Actor {
   }
 
   public Actor addActorLogisticsRoleItem(ActorLogisticsRoleEnum actorLogisticsRoleItem) {
+    if (this.actorLogisticsRole == null) {
+      this.actorLogisticsRole = new ArrayList<>();
+    }
     this.actorLogisticsRole.add(actorLogisticsRoleItem);
     return this;
   }
@@ -105,7 +127,8 @@ public class Actor {
    * @return actorLogisticsRole
   */
   @NotNull @Size(min = 1) 
-  @Schema(name = "actorLogisticsRole", required = true)
+  @Schema(name = "actorLogisticsRole", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("actorLogisticsRole")
   public List<ActorLogisticsRoleEnum> getActorLogisticsRole() {
     return actorLogisticsRole;
   }

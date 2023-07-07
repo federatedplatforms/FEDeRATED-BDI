@@ -17,12 +17,27 @@ import java.util.Objects;
  */
 
 @JsonTypeName("Actor_actorLegalPerson_inner_legalPersonAddress_inner_locatedInCity_inner")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T09:40:23.742+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T10:20:12.669+02:00[Europe/Amsterdam]")
 public class ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner {
 
-  @JsonProperty("cityName")
   @Valid
   private List<String> cityName = new ArrayList<>();
+
+  /**
+   * Default constructor
+   * @deprecated Use {@link ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner#ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner(List<String>)}
+   */
+  @Deprecated
+  public ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner() {
+    super();
+  }
+
+  /**
+   * Constructor with only required parameters
+   */
+  public ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner(List<String> cityName) {
+    this.cityName = cityName;
+  }
 
   public ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner cityName(List<String> cityName) {
     this.cityName = cityName;
@@ -30,6 +45,9 @@ public class ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner
   }
 
   public ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner addCityNameItem(String cityNameItem) {
+    if (this.cityName == null) {
+      this.cityName = new ArrayList<>();
+    }
     this.cityName.add(cityNameItem);
     return this;
   }
@@ -39,7 +57,8 @@ public class ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner
    * @return cityName
   */
   @NotNull @Size(min = 1) 
-  @Schema(name = "cityName", required = true)
+  @Schema(name = "cityName", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("cityName")
   public List<String> getCityName() {
     return cityName;
   }

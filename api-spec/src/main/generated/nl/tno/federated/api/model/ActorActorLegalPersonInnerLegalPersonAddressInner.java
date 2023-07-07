@@ -17,28 +17,43 @@ import java.util.Objects;
  */
 
 @JsonTypeName("Actor_actorLegalPerson_inner_legalPersonAddress_inner")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T09:40:23.742+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T10:20:12.669+02:00[Europe/Amsterdam]")
 public class ActorActorLegalPersonInnerLegalPersonAddressInner {
 
-  @JsonProperty("postalCode")
   @Valid
   private List<String> postalCode = new ArrayList<>();
 
-  @JsonProperty("locatedAtStreetName")
   @Valid
   private List<String> locatedAtStreetName = new ArrayList<>();
 
-  @JsonProperty("postalAddress")
   @Valid
   private List<String> postalAddress = new ArrayList<>();
 
-  @JsonProperty("locatedInCountry")
   @Valid
-  private List<ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryInner> locatedInCountry = new ArrayList<>();
+  private List<@Valid ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryInner> locatedInCountry = new ArrayList<>();
 
-  @JsonProperty("locatedInCity")
   @Valid
-  private List<ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner> locatedInCity = new ArrayList<>();
+  private List<@Valid ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner> locatedInCity = new ArrayList<>();
+
+  /**
+   * Default constructor
+   * @deprecated Use {@link ActorActorLegalPersonInnerLegalPersonAddressInner#ActorActorLegalPersonInnerLegalPersonAddressInner(List<String>, List<String>, List<String>, List<@Valid ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryInner>, List<@Valid ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner>)}
+   */
+  @Deprecated
+  public ActorActorLegalPersonInnerLegalPersonAddressInner() {
+    super();
+  }
+
+  /**
+   * Constructor with only required parameters
+   */
+  public ActorActorLegalPersonInnerLegalPersonAddressInner(List<String> postalCode, List<String> locatedAtStreetName, List<String> postalAddress, List<@Valid ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryInner> locatedInCountry, List<@Valid ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner> locatedInCity) {
+    this.postalCode = postalCode;
+    this.locatedAtStreetName = locatedAtStreetName;
+    this.postalAddress = postalAddress;
+    this.locatedInCountry = locatedInCountry;
+    this.locatedInCity = locatedInCity;
+  }
 
   public ActorActorLegalPersonInnerLegalPersonAddressInner postalCode(List<String> postalCode) {
     this.postalCode = postalCode;
@@ -46,6 +61,9 @@ public class ActorActorLegalPersonInnerLegalPersonAddressInner {
   }
 
   public ActorActorLegalPersonInnerLegalPersonAddressInner addPostalCodeItem(String postalCodeItem) {
+    if (this.postalCode == null) {
+      this.postalCode = new ArrayList<>();
+    }
     this.postalCode.add(postalCodeItem);
     return this;
   }
@@ -55,7 +73,8 @@ public class ActorActorLegalPersonInnerLegalPersonAddressInner {
    * @return postalCode
   */
   @NotNull @Size(min = 1) 
-  @Schema(name = "postalCode", required = true)
+  @Schema(name = "postalCode", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("postalCode")
   public List<String> getPostalCode() {
     return postalCode;
   }
@@ -70,6 +89,9 @@ public class ActorActorLegalPersonInnerLegalPersonAddressInner {
   }
 
   public ActorActorLegalPersonInnerLegalPersonAddressInner addLocatedAtStreetNameItem(String locatedAtStreetNameItem) {
+    if (this.locatedAtStreetName == null) {
+      this.locatedAtStreetName = new ArrayList<>();
+    }
     this.locatedAtStreetName.add(locatedAtStreetNameItem);
     return this;
   }
@@ -79,7 +101,8 @@ public class ActorActorLegalPersonInnerLegalPersonAddressInner {
    * @return locatedAtStreetName
   */
   @NotNull @Size(min = 1) 
-  @Schema(name = "locatedAtStreetName", required = true)
+  @Schema(name = "locatedAtStreetName", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("locatedAtStreetName")
   public List<String> getLocatedAtStreetName() {
     return locatedAtStreetName;
   }
@@ -94,6 +117,9 @@ public class ActorActorLegalPersonInnerLegalPersonAddressInner {
   }
 
   public ActorActorLegalPersonInnerLegalPersonAddressInner addPostalAddressItem(String postalAddressItem) {
+    if (this.postalAddress == null) {
+      this.postalAddress = new ArrayList<>();
+    }
     this.postalAddress.add(postalAddressItem);
     return this;
   }
@@ -103,7 +129,8 @@ public class ActorActorLegalPersonInnerLegalPersonAddressInner {
    * @return postalAddress
   */
   @NotNull @Size(min = 1) 
-  @Schema(name = "postalAddress", required = true)
+  @Schema(name = "postalAddress", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("postalAddress")
   public List<String> getPostalAddress() {
     return postalAddress;
   }
@@ -112,12 +139,15 @@ public class ActorActorLegalPersonInnerLegalPersonAddressInner {
     this.postalAddress = postalAddress;
   }
 
-  public ActorActorLegalPersonInnerLegalPersonAddressInner locatedInCountry(List<ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryInner> locatedInCountry) {
+  public ActorActorLegalPersonInnerLegalPersonAddressInner locatedInCountry(List<@Valid ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryInner> locatedInCountry) {
     this.locatedInCountry = locatedInCountry;
     return this;
   }
 
   public ActorActorLegalPersonInnerLegalPersonAddressInner addLocatedInCountryItem(ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryInner locatedInCountryItem) {
+    if (this.locatedInCountry == null) {
+      this.locatedInCountry = new ArrayList<>();
+    }
     this.locatedInCountry.add(locatedInCountryItem);
     return this;
   }
@@ -127,21 +157,25 @@ public class ActorActorLegalPersonInnerLegalPersonAddressInner {
    * @return locatedInCountry
   */
   @NotNull @Valid @Size(min = 1) 
-  @Schema(name = "locatedInCountry", required = true)
-  public List<ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryInner> getLocatedInCountry() {
+  @Schema(name = "locatedInCountry", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("locatedInCountry")
+  public List<@Valid ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryInner> getLocatedInCountry() {
     return locatedInCountry;
   }
 
-  public void setLocatedInCountry(List<ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryInner> locatedInCountry) {
+  public void setLocatedInCountry(List<@Valid ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryInner> locatedInCountry) {
     this.locatedInCountry = locatedInCountry;
   }
 
-  public ActorActorLegalPersonInnerLegalPersonAddressInner locatedInCity(List<ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner> locatedInCity) {
+  public ActorActorLegalPersonInnerLegalPersonAddressInner locatedInCity(List<@Valid ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner> locatedInCity) {
     this.locatedInCity = locatedInCity;
     return this;
   }
 
   public ActorActorLegalPersonInnerLegalPersonAddressInner addLocatedInCityItem(ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner locatedInCityItem) {
+    if (this.locatedInCity == null) {
+      this.locatedInCity = new ArrayList<>();
+    }
     this.locatedInCity.add(locatedInCityItem);
     return this;
   }
@@ -151,12 +185,13 @@ public class ActorActorLegalPersonInnerLegalPersonAddressInner {
    * @return locatedInCity
   */
   @NotNull @Valid @Size(min = 1) 
-  @Schema(name = "locatedInCity", required = true)
-  public List<ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner> getLocatedInCity() {
+  @Schema(name = "locatedInCity", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("locatedInCity")
+  public List<@Valid ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner> getLocatedInCity() {
     return locatedInCity;
   }
 
-  public void setLocatedInCity(List<ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner> locatedInCity) {
+  public void setLocatedInCity(List<@Valid ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCityInner> locatedInCity) {
     this.locatedInCity = locatedInCity;
   }
 

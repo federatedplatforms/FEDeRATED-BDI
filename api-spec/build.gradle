@@ -2,9 +2,8 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version "$spring_boot_version" apply true
     id 'org.jetbrains.kotlin.plugin.spring' version "$kotlin_version"
-    id "org.openapi.generator" version "6.0.0"
+    id "org.openapi.generator" version "6.6.0"
     id "com.rameshkp.openapi-merger-gradle-plugin" version "1.0.5"
-
 }
 
 //apply plugin: 'kotlin'
@@ -114,4 +113,4 @@ tasks.openApiGenerate {
 }
 
 // Uncomment line below to regenerate code on build, make sure to check the README.md on what to do
-compileJava.dependsOn tasks.mergeOpenApiFiles, tasks.openApiGenerate
+//compileJava.dependsOn tasks.mergeOpenApiFiles, tasks.openApiGenerate

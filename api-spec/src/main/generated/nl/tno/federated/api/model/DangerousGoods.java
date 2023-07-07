@@ -12,47 +12,61 @@ import java.util.Objects;
  */
 
 @Schema(name = "DangerousGoods", description = "Specialized cargo, dangerous goods")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T09:40:23.742+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T10:20:12.669+02:00[Europe/Amsterdam]")
 public class DangerousGoods implements LoadEventInvolvedDigitalTwinsInner {
 
-  @JsonProperty("digitalTwinType")
   private String digitalTwinType;
 
-  @JsonProperty("digitalTwinID")
   private String digitalTwinID;
 
-  @JsonProperty("grossMass")
   private String grossMass;
 
-  @JsonProperty("grossVolume")
   private String grossVolume;
 
-  @JsonProperty("UNDGCode")
   private String unDGCode;
 
-  @JsonProperty("dangerousGoodsRegulationCode")
   private String dangerousGoodsRegulationCode;
 
-  @JsonProperty("dangerousGoodsTechnicalName")
   private String dangerousGoodsTechnicalName;
 
-  @JsonProperty("dangerousGoodsEMSID")
   private String dangerousGoodsEMSID;
 
-  @JsonProperty("dangerousGoodsPackagingDangerLevelCode")
   private String dangerousGoodsPackagingDangerLevelCode;
 
-  @JsonProperty("dangerousGoodsHazardClassificationID")
   private String dangerousGoodsHazardClassificationID;
 
-  @JsonProperty("dangerousGoodsProperShippingName")
   private String dangerousGoodsProperShippingName;
 
-  @JsonProperty("dangerousGoodsSupplementaryInformation")
   private String dangerousGoodsSupplementaryInformation;
 
-  @JsonProperty("dangerousGoodsFlashpointTemperature")
   private String dangerousGoodsFlashpointTemperature;
+
+  /**
+   * Default constructor
+   * @deprecated Use {@link DangerousGoods#DangerousGoods(String, String, String, String, String, String, String, String, String, String, String, String)}
+   */
+  @Deprecated
+  public DangerousGoods() {
+    super();
+  }
+
+  /**
+   * Constructor with only required parameters
+   */
+  public DangerousGoods(String digitalTwinType, String grossMass, String grossVolume, String unDGCode, String dangerousGoodsRegulationCode, String dangerousGoodsTechnicalName, String dangerousGoodsEMSID, String dangerousGoodsPackagingDangerLevelCode, String dangerousGoodsHazardClassificationID, String dangerousGoodsProperShippingName, String dangerousGoodsSupplementaryInformation, String dangerousGoodsFlashpointTemperature) {
+    this.digitalTwinType = digitalTwinType;
+    this.grossMass = grossMass;
+    this.grossVolume = grossVolume;
+    this.unDGCode = unDGCode;
+    this.dangerousGoodsRegulationCode = dangerousGoodsRegulationCode;
+    this.dangerousGoodsTechnicalName = dangerousGoodsTechnicalName;
+    this.dangerousGoodsEMSID = dangerousGoodsEMSID;
+    this.dangerousGoodsPackagingDangerLevelCode = dangerousGoodsPackagingDangerLevelCode;
+    this.dangerousGoodsHazardClassificationID = dangerousGoodsHazardClassificationID;
+    this.dangerousGoodsProperShippingName = dangerousGoodsProperShippingName;
+    this.dangerousGoodsSupplementaryInformation = dangerousGoodsSupplementaryInformation;
+    this.dangerousGoodsFlashpointTemperature = dangerousGoodsFlashpointTemperature;
+  }
 
   public DangerousGoods digitalTwinType(String digitalTwinType) {
     this.digitalTwinType = digitalTwinType;
@@ -64,7 +78,8 @@ public class DangerousGoods implements LoadEventInvolvedDigitalTwinsInner {
    * @return digitalTwinType
   */
   @NotNull 
-  @Schema(name = "digitalTwinType", required = true)
+  @Schema(name = "digitalTwinType", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("digitalTwinType")
   public String getDigitalTwinType() {
     return digitalTwinType;
   }
@@ -83,7 +98,8 @@ public class DangerousGoods implements LoadEventInvolvedDigitalTwinsInner {
    * @return digitalTwinID
   */
   
-  @Schema(name = "digitalTwinID", required = false)
+  @Schema(name = "digitalTwinID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("digitalTwinID")
   public String getDigitalTwinID() {
     return digitalTwinID;
   }
@@ -102,7 +118,8 @@ public class DangerousGoods implements LoadEventInvolvedDigitalTwinsInner {
    * @return grossMass
   */
   @NotNull 
-  @Schema(name = "grossMass", required = true)
+  @Schema(name = "grossMass", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("grossMass")
   public String getGrossMass() {
     return grossMass;
   }
@@ -121,7 +138,8 @@ public class DangerousGoods implements LoadEventInvolvedDigitalTwinsInner {
    * @return grossVolume
   */
   @NotNull 
-  @Schema(name = "grossVolume", required = true)
+  @Schema(name = "grossVolume", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("grossVolume")
   public String getGrossVolume() {
     return grossVolume;
   }
@@ -140,7 +158,8 @@ public class DangerousGoods implements LoadEventInvolvedDigitalTwinsInner {
    * @return unDGCode
   */
   @NotNull 
-  @Schema(name = "UNDGCode", required = true)
+  @Schema(name = "UNDGCode", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("UNDGCode")
   public String getUnDGCode() {
     return unDGCode;
   }
@@ -159,7 +178,8 @@ public class DangerousGoods implements LoadEventInvolvedDigitalTwinsInner {
    * @return dangerousGoodsRegulationCode
   */
   @NotNull 
-  @Schema(name = "dangerousGoodsRegulationCode", required = true)
+  @Schema(name = "dangerousGoodsRegulationCode", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("dangerousGoodsRegulationCode")
   public String getDangerousGoodsRegulationCode() {
     return dangerousGoodsRegulationCode;
   }
@@ -178,7 +198,8 @@ public class DangerousGoods implements LoadEventInvolvedDigitalTwinsInner {
    * @return dangerousGoodsTechnicalName
   */
   @NotNull 
-  @Schema(name = "dangerousGoodsTechnicalName", required = true)
+  @Schema(name = "dangerousGoodsTechnicalName", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("dangerousGoodsTechnicalName")
   public String getDangerousGoodsTechnicalName() {
     return dangerousGoodsTechnicalName;
   }
@@ -197,7 +218,8 @@ public class DangerousGoods implements LoadEventInvolvedDigitalTwinsInner {
    * @return dangerousGoodsEMSID
   */
   @NotNull 
-  @Schema(name = "dangerousGoodsEMSID", required = true)
+  @Schema(name = "dangerousGoodsEMSID", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("dangerousGoodsEMSID")
   public String getDangerousGoodsEMSID() {
     return dangerousGoodsEMSID;
   }
@@ -216,7 +238,8 @@ public class DangerousGoods implements LoadEventInvolvedDigitalTwinsInner {
    * @return dangerousGoodsPackagingDangerLevelCode
   */
   @NotNull 
-  @Schema(name = "dangerousGoodsPackagingDangerLevelCode", required = true)
+  @Schema(name = "dangerousGoodsPackagingDangerLevelCode", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("dangerousGoodsPackagingDangerLevelCode")
   public String getDangerousGoodsPackagingDangerLevelCode() {
     return dangerousGoodsPackagingDangerLevelCode;
   }
@@ -235,7 +258,8 @@ public class DangerousGoods implements LoadEventInvolvedDigitalTwinsInner {
    * @return dangerousGoodsHazardClassificationID
   */
   @NotNull 
-  @Schema(name = "dangerousGoodsHazardClassificationID", required = true)
+  @Schema(name = "dangerousGoodsHazardClassificationID", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("dangerousGoodsHazardClassificationID")
   public String getDangerousGoodsHazardClassificationID() {
     return dangerousGoodsHazardClassificationID;
   }
@@ -254,7 +278,8 @@ public class DangerousGoods implements LoadEventInvolvedDigitalTwinsInner {
    * @return dangerousGoodsProperShippingName
   */
   @NotNull 
-  @Schema(name = "dangerousGoodsProperShippingName", required = true)
+  @Schema(name = "dangerousGoodsProperShippingName", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("dangerousGoodsProperShippingName")
   public String getDangerousGoodsProperShippingName() {
     return dangerousGoodsProperShippingName;
   }
@@ -273,7 +298,8 @@ public class DangerousGoods implements LoadEventInvolvedDigitalTwinsInner {
    * @return dangerousGoodsSupplementaryInformation
   */
   @NotNull 
-  @Schema(name = "dangerousGoodsSupplementaryInformation", required = true)
+  @Schema(name = "dangerousGoodsSupplementaryInformation", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("dangerousGoodsSupplementaryInformation")
   public String getDangerousGoodsSupplementaryInformation() {
     return dangerousGoodsSupplementaryInformation;
   }
@@ -292,7 +318,8 @@ public class DangerousGoods implements LoadEventInvolvedDigitalTwinsInner {
    * @return dangerousGoodsFlashpointTemperature
   */
   @NotNull 
-  @Schema(name = "dangerousGoodsFlashpointTemperature", required = true)
+  @Schema(name = "dangerousGoodsFlashpointTemperature", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("dangerousGoodsFlashpointTemperature")
   public String getDangerousGoodsFlashpointTemperature() {
     return dangerousGoodsFlashpointTemperature;
   }

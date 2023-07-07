@@ -12,14 +12,28 @@ import java.util.Objects;
  */
 
 @Schema(name = "DigitalTwin", description = "May represent a transport means, a transport equipment or cargo (goods / dangerous goods)")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T09:40:23.742+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T10:20:12.669+02:00[Europe/Amsterdam]")
 public class DigitalTwin {
 
-  @JsonProperty("digitalTwinType")
   private String digitalTwinType;
 
-  @JsonProperty("digitalTwinID")
   private String digitalTwinID;
+
+  /**
+   * Default constructor
+   * @deprecated Use {@link DigitalTwin#DigitalTwin(String)}
+   */
+  @Deprecated
+  public DigitalTwin() {
+    super();
+  }
+
+  /**
+   * Constructor with only required parameters
+   */
+  public DigitalTwin(String digitalTwinType) {
+    this.digitalTwinType = digitalTwinType;
+  }
 
   public DigitalTwin digitalTwinType(String digitalTwinType) {
     this.digitalTwinType = digitalTwinType;
@@ -31,7 +45,8 @@ public class DigitalTwin {
    * @return digitalTwinType
   */
   @NotNull 
-  @Schema(name = "digitalTwinType", required = true)
+  @Schema(name = "digitalTwinType", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("digitalTwinType")
   public String getDigitalTwinType() {
     return digitalTwinType;
   }
@@ -50,7 +65,8 @@ public class DigitalTwin {
    * @return digitalTwinID
   */
   
-  @Schema(name = "digitalTwinID", required = false)
+  @Schema(name = "digitalTwinID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("digitalTwinID")
   public String getDigitalTwinID() {
     return digitalTwinID;
   }

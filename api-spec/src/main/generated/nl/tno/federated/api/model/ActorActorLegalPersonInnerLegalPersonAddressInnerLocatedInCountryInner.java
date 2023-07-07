@@ -17,12 +17,27 @@ import java.util.Objects;
  */
 
 @JsonTypeName("Actor_actorLegalPerson_inner_legalPersonAddress_inner_locatedInCountry_inner")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T09:40:23.742+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T10:20:12.669+02:00[Europe/Amsterdam]")
 public class ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryInner {
 
-  @JsonProperty("countryISOCode")
   @Valid
   private List<Object> countryISOCode = new ArrayList<>();
+
+  /**
+   * Default constructor
+   * @deprecated Use {@link ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryInner#ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryInner(List<Object>)}
+   */
+  @Deprecated
+  public ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryInner() {
+    super();
+  }
+
+  /**
+   * Constructor with only required parameters
+   */
+  public ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryInner(List<Object> countryISOCode) {
+    this.countryISOCode = countryISOCode;
+  }
 
   public ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryInner countryISOCode(List<Object> countryISOCode) {
     this.countryISOCode = countryISOCode;
@@ -30,6 +45,9 @@ public class ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryIn
   }
 
   public ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryInner addCountryISOCodeItem(Object countryISOCodeItem) {
+    if (this.countryISOCode == null) {
+      this.countryISOCode = new ArrayList<>();
+    }
     this.countryISOCode.add(countryISOCodeItem);
     return this;
   }
@@ -39,7 +57,8 @@ public class ActorActorLegalPersonInnerLegalPersonAddressInnerLocatedInCountryIn
    * @return countryISOCode
   */
   @NotNull @Size(min = 1) 
-  @Schema(name = "countryISOCode", required = true)
+  @Schema(name = "countryISOCode", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("countryISOCode")
   public List<Object> getCountryISOCode() {
     return countryISOCode;
   }

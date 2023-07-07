@@ -17,27 +17,45 @@ import java.util.Objects;
  */
 
 @JsonTypeName("Actor_actorLegalPerson_inner")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T09:40:23.742+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T10:20:12.669+02:00[Europe/Amsterdam]")
 public class ActorActorLegalPersonInner {
 
-  @JsonProperty("legalPersonAddress")
   @Valid
-  private List<ActorActorLegalPersonInnerLegalPersonAddressInner> legalPersonAddress = new ArrayList<>();
+  private List<@Valid ActorActorLegalPersonInnerLegalPersonAddressInner> legalPersonAddress = new ArrayList<>();
 
-  @JsonProperty("legalPersonName")
   @Valid
   private List<String> legalPersonName = new ArrayList<>();
 
-  @JsonProperty("legalPersonID")
   @Valid
   private List<String> legalPersonID = new ArrayList<>();
 
-  public ActorActorLegalPersonInner legalPersonAddress(List<ActorActorLegalPersonInnerLegalPersonAddressInner> legalPersonAddress) {
+  /**
+   * Default constructor
+   * @deprecated Use {@link ActorActorLegalPersonInner#ActorActorLegalPersonInner(List<@Valid ActorActorLegalPersonInnerLegalPersonAddressInner>, List<String>, List<String>)}
+   */
+  @Deprecated
+  public ActorActorLegalPersonInner() {
+    super();
+  }
+
+  /**
+   * Constructor with only required parameters
+   */
+  public ActorActorLegalPersonInner(List<@Valid ActorActorLegalPersonInnerLegalPersonAddressInner> legalPersonAddress, List<String> legalPersonName, List<String> legalPersonID) {
+    this.legalPersonAddress = legalPersonAddress;
+    this.legalPersonName = legalPersonName;
+    this.legalPersonID = legalPersonID;
+  }
+
+  public ActorActorLegalPersonInner legalPersonAddress(List<@Valid ActorActorLegalPersonInnerLegalPersonAddressInner> legalPersonAddress) {
     this.legalPersonAddress = legalPersonAddress;
     return this;
   }
 
   public ActorActorLegalPersonInner addLegalPersonAddressItem(ActorActorLegalPersonInnerLegalPersonAddressInner legalPersonAddressItem) {
+    if (this.legalPersonAddress == null) {
+      this.legalPersonAddress = new ArrayList<>();
+    }
     this.legalPersonAddress.add(legalPersonAddressItem);
     return this;
   }
@@ -47,12 +65,13 @@ public class ActorActorLegalPersonInner {
    * @return legalPersonAddress
   */
   @NotNull @Valid @Size(min = 1) 
-  @Schema(name = "legalPersonAddress", required = true)
-  public List<ActorActorLegalPersonInnerLegalPersonAddressInner> getLegalPersonAddress() {
+  @Schema(name = "legalPersonAddress", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("legalPersonAddress")
+  public List<@Valid ActorActorLegalPersonInnerLegalPersonAddressInner> getLegalPersonAddress() {
     return legalPersonAddress;
   }
 
-  public void setLegalPersonAddress(List<ActorActorLegalPersonInnerLegalPersonAddressInner> legalPersonAddress) {
+  public void setLegalPersonAddress(List<@Valid ActorActorLegalPersonInnerLegalPersonAddressInner> legalPersonAddress) {
     this.legalPersonAddress = legalPersonAddress;
   }
 
@@ -62,6 +81,9 @@ public class ActorActorLegalPersonInner {
   }
 
   public ActorActorLegalPersonInner addLegalPersonNameItem(String legalPersonNameItem) {
+    if (this.legalPersonName == null) {
+      this.legalPersonName = new ArrayList<>();
+    }
     this.legalPersonName.add(legalPersonNameItem);
     return this;
   }
@@ -71,7 +93,8 @@ public class ActorActorLegalPersonInner {
    * @return legalPersonName
   */
   @NotNull @Size(min = 1) 
-  @Schema(name = "legalPersonName", required = true)
+  @Schema(name = "legalPersonName", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("legalPersonName")
   public List<String> getLegalPersonName() {
     return legalPersonName;
   }
@@ -86,6 +109,9 @@ public class ActorActorLegalPersonInner {
   }
 
   public ActorActorLegalPersonInner addLegalPersonIDItem(String legalPersonIDItem) {
+    if (this.legalPersonID == null) {
+      this.legalPersonID = new ArrayList<>();
+    }
     this.legalPersonID.add(legalPersonIDItem);
     return this;
   }
@@ -95,7 +121,8 @@ public class ActorActorLegalPersonInner {
    * @return legalPersonID
   */
   @NotNull @Size(min = 1) 
-  @Schema(name = "legalPersonID", required = true)
+  @Schema(name = "legalPersonID", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("legalPersonID")
   public List<String> getLegalPersonID() {
     return legalPersonID;
   }

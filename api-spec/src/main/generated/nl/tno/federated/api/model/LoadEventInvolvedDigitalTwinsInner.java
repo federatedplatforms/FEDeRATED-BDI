@@ -23,7 +23,7 @@ import javax.annotation.Generated;
   @JsonSubTypes.Type(value = TransportEquipment.class, name = "TransportEquipment")
 })
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T09:40:23.742+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T10:20:12.669+02:00[Europe/Amsterdam]")
 public interface LoadEventInvolvedDigitalTwinsInner {
     public String getDigitalTwinType();
 }

@@ -14,19 +14,15 @@ import java.util.Objects;
  */
 
 @Schema(name = "TransportEquipment", description = "Equipment to be used for transport of goods")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T09:40:23.742+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T10:20:12.669+02:00[Europe/Amsterdam]")
 public class TransportEquipment implements LoadEventInvolvedDigitalTwinsInner {
 
-  @JsonProperty("digitalTwinType")
   private String digitalTwinType;
 
-  @JsonProperty("digitalTwinID")
   private String digitalTwinID;
 
-  @JsonProperty("grossMass")
   private String grossMass;
 
-  @JsonProperty("grossVolume")
   private String grossVolume;
 
   /**
@@ -144,11 +140,29 @@ public class TransportEquipment implements LoadEventInvolvedDigitalTwinsInner {
     }
   }
 
-  @JsonProperty("transportEquipmentSizeType")
   private TransportEquipmentSizeTypeEnum transportEquipmentSizeType;
 
-  @JsonProperty("size")
   private String size;
+
+  /**
+   * Default constructor
+   * @deprecated Use {@link TransportEquipment#TransportEquipment(String, String, String, TransportEquipmentSizeTypeEnum, String)}
+   */
+  @Deprecated
+  public TransportEquipment() {
+    super();
+  }
+
+  /**
+   * Constructor with only required parameters
+   */
+  public TransportEquipment(String digitalTwinType, String grossMass, String grossVolume, TransportEquipmentSizeTypeEnum transportEquipmentSizeType, String size) {
+    this.digitalTwinType = digitalTwinType;
+    this.grossMass = grossMass;
+    this.grossVolume = grossVolume;
+    this.transportEquipmentSizeType = transportEquipmentSizeType;
+    this.size = size;
+  }
 
   public TransportEquipment digitalTwinType(String digitalTwinType) {
     this.digitalTwinType = digitalTwinType;
@@ -160,7 +174,8 @@ public class TransportEquipment implements LoadEventInvolvedDigitalTwinsInner {
    * @return digitalTwinType
   */
   @NotNull 
-  @Schema(name = "digitalTwinType", required = true)
+  @Schema(name = "digitalTwinType", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("digitalTwinType")
   public String getDigitalTwinType() {
     return digitalTwinType;
   }
@@ -179,7 +194,8 @@ public class TransportEquipment implements LoadEventInvolvedDigitalTwinsInner {
    * @return digitalTwinID
   */
   
-  @Schema(name = "digitalTwinID", required = false)
+  @Schema(name = "digitalTwinID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("digitalTwinID")
   public String getDigitalTwinID() {
     return digitalTwinID;
   }
@@ -198,7 +214,8 @@ public class TransportEquipment implements LoadEventInvolvedDigitalTwinsInner {
    * @return grossMass
   */
   @NotNull 
-  @Schema(name = "grossMass", required = true)
+  @Schema(name = "grossMass", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("grossMass")
   public String getGrossMass() {
     return grossMass;
   }
@@ -217,7 +234,8 @@ public class TransportEquipment implements LoadEventInvolvedDigitalTwinsInner {
    * @return grossVolume
   */
   @NotNull 
-  @Schema(name = "grossVolume", required = true)
+  @Schema(name = "grossVolume", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("grossVolume")
   public String getGrossVolume() {
     return grossVolume;
   }
@@ -236,7 +254,8 @@ public class TransportEquipment implements LoadEventInvolvedDigitalTwinsInner {
    * @return transportEquipmentSizeType
   */
   @NotNull 
-  @Schema(name = "transportEquipmentSizeType", required = true)
+  @Schema(name = "transportEquipmentSizeType", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("transportEquipmentSizeType")
   public TransportEquipmentSizeTypeEnum getTransportEquipmentSizeType() {
     return transportEquipmentSizeType;
   }
@@ -255,7 +274,8 @@ public class TransportEquipment implements LoadEventInvolvedDigitalTwinsInner {
    * @return size
   */
   @NotNull 
-  @Schema(name = "size", required = true)
+  @Schema(name = "size", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("size")
   public String getSize() {
     return size;
   }
