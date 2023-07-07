@@ -1,28 +1,5 @@
 package nl.tno.federated.api.event
 
-import com.apicatalog.jsonld.JsonLd
-import com.apicatalog.jsonld.document.JsonDocument
-import com.apicatalog.jsonld.document.RdfDocument
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.jsonldjava.core.JsonLdOptions
-import com.github.jsonldjava.core.JsonLdProcessor
-import com.github.jsonldjava.utils.JsonUtils
-import net.corda.serialization.internal.byteArrayOutput
-import nl.tno.federated.api.event.mapper.EventMapper
-import nl.tno.federated.api.model.LoadEvent
-import nl.tno.federated.api.model.LoadEventInvolvesDigitalTwin
-import nl.tno.federated.api.util.RDFUtils.convert
-import nl.tno.federated.api.util.compactJsonLD
-import nl.tno.federated.api.util.flattenJsonLD
-import org.eclipse.rdf4j.rio.RDFFormat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder.json
-import org.springframework.test.context.junit4.SpringRunner
-import java.time.OffsetDateTime
-
 
 //@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 //@RunWith(SpringRunner::class)

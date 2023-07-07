@@ -20,21 +20,27 @@
         rml:logicalSource [
           rml:source "data.json" ;
           rml:referenceFormulation ql:JSONPath ;
-          rml:iterator "$.involvesDigitalTwin[*]"
+          rml:iterator "$.involvedDigitalTwins"
         ] ;
         rr:subjectMap [
           rr:termType rr:BlankNode ;
           rr:class <https://ontology.tno.nl/logistics/federated/DigitalTwin#Equipment>
         ] ;
         rr:predicateObjectMap [
-          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#transportEquipmentSizeType> ;
-          rr:objectMap [ rml:reference "transportEquipmentSizeType" ]
+          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#height> ;
+          rr:objectMap [ rml:reference "height" ]
+        ], [
+          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#width> ;
+          rr:objectMap [ rml:reference "width" ]
+        ], [
+          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#length> ;
+          rr:objectMap [ rml:reference "length" ]
         ], [
           rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#digitalTwinID> ;
           rr:objectMap [ rml:reference "digitalTwinID" ]
         ], [
-          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#size> ;
-          rr:objectMap [ rml:reference "size" ]
+          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#transportEquipmentSizeType> ;
+          rr:objectMap [ rml:reference "transportEquipmentSizeType" ]
         ]
       ] ;
       rr:joinCondition [
@@ -43,13 +49,13 @@
       ]
     ]
   ], [
-    rr:predicate ns0:involvesDigitalTwin ;
+    rr:predicate ns0:involvedDigitalTwins ;
     rr:objectMap [
       rr:parentTriplesMap [
         rml:logicalSource [
           rml:source "data.json" ;
           rml:referenceFormulation ql:JSONPath ;
-          rml:iterator "$.involvesDigitalTwin[*]"
+          rml:iterator "$.involvedDigitalTwins"
         ] ;
         rr:subjectMap [
           rr:termType rr:BlankNode ;
@@ -96,163 +102,39 @@
       ]
     ]
   ], [
-    rr:predicate ns0:involvesActor ;
-    rr:objectMap [
-      rr:parentTriplesMap [
-        rml:logicalSource [
-          rml:source "data.json" ;
-          rml:referenceFormulation ql:JSONPath ;
-          rml:iterator "$.involvesActor[*]"
-        ] ;
-        rr:subjectMap [
-          rr:termType rr:BlankNode ;
-          rr:class <https://ontology.tno.nl/logistics/federated/BusinessService#Actor>
-        ] ;
-        rr:predicateObjectMap [
-          rr:predicate <https://ontology.tno.nl/logistics/federated/BusinessService#actorLogisticsRole> ;
-          rr:objectMap [ rml:reference "actorLogisticsRole" ]
-        ], [
-          rr:predicate <https://ontology.tno.nl/logistics/federated/BusinessService#actorLegalPerson> ;
-          rr:objectMap [
-            rr:parentTriplesMap [
-              rml:logicalSource [
-                rml:source "data.json" ;
-                rml:referenceFormulation ql:JSONPath ;
-                rml:iterator "$.involvesActor[*].actorLegalPerson[*]"
-              ] ;
-              rr:subjectMap [
-                rr:termType rr:BlankNode ;
-                rr:class <https://ontology.tno.nl/logistics/federated/BusinessService#LegalPerson>
-              ] ;
-              rr:predicateObjectMap [
-                rr:predicate <https://ontology.tno.nl/logistics/federated/BusinessService#legalPersonID> ;
-                rr:objectMap [ rml:reference "legalPersonID" ]
-              ], [
-                rr:predicate <https://ontology.tno.nl/logistics/federated/BusinessService#legalPersonAddress> ;
-                rr:objectMap [
-                  rr:parentTriplesMap [
-                    rml:logicalSource [
-                      rml:source "data.json" ;
-                      rml:referenceFormulation ql:JSONPath ;
-                      rml:iterator "$.involvesActor[*].actorLegalPerson[*].legalPersonAddress[*]"
-                    ] ;
-                    rr:subjectMap [
-                      rr:termType rr:BlankNode ;
-                      rr:class <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#Property>
-                    ] ;
-                    rr:predicateObjectMap [
-                      rr:predicate <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#locatedInCity> ;
-                      rr:objectMap [
-                        rr:parentTriplesMap [
-                          rml:logicalSource [
-                            rml:source "data.json" ;
-                            rml:referenceFormulation ql:JSONPath ;
-                            rml:iterator "$.involvesActor[*].actorLegalPerson[*].legalPersonAddress[*].locatedInCity[*]"
-                          ] ;
-                          rr:subjectMap [
-                            rr:termType rr:BlankNode ;
-                            rr:class <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#City>
-                          ] ;
-                          rr:predicateObjectMap [
-                            rr:predicate <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#cityName> ;
-                            rr:objectMap [ rml:reference "cityName" ]
-                          ]
-                        ] ;
-                        rr:joinCondition [
-                          rr:child "." ;
-                          rr:parent ".."
-                        ]
-                      ]
-                    ], [
-                      rr:predicate <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#postalAddress> ;
-                      rr:objectMap [ rml:reference "postalAddress" ]
-                    ], [
-                      rr:predicate <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#postalCode> ;
-                      rr:objectMap [ rml:reference "postalCode" ]
-                    ], [
-                      rr:predicate <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#locatedAtStreetName> ;
-                      rr:objectMap [ rml:reference "locatedAtStreetName" ]
-                    ], [
-                      rr:predicate <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#locatedInCountry> ;
-                      rr:objectMap [
-                        rr:parentTriplesMap [
-                          rml:logicalSource [
-                            rml:source "data.json" ;
-                            rml:referenceFormulation ql:JSONPath ;
-                            rml:iterator "$.involvesActor[*].actorLegalPerson[*].legalPersonAddress[*].locatedInCountry[*]"
-                          ] ;
-                          rr:subjectMap [
-                            rr:termType rr:BlankNode ;
-                            rr:class <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#Country>
-                          ] ;
-                          rr:predicateObjectMap [
-                            rr:predicate <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#countryISOCode> ;
-                            rr:objectMap [ rml:reference "countryISOCode" ]
-                          ]
-                        ] ;
-                        rr:joinCondition [
-                          rr:child "." ;
-                          rr:parent ".."
-                        ]
-                      ]
-                    ]
-                  ] ;
-                  rr:joinCondition [
-                    rr:child "." ;
-                    rr:parent ".."
-                  ]
-                ]
-              ], [
-                rr:predicate <https://ontology.tno.nl/logistics/federated/BusinessService#legalPersonName> ;
-                rr:objectMap [ rml:reference "legalPersonName" ]
-              ]
-            ] ;
-            rr:joinCondition [
-              rr:child "." ;
-              rr:parent ".."
-            ]
-          ]
-        ]
-      ] ;
-      rr:joinCondition [
-        rr:child "." ;
-        rr:parent ".."
-      ]
-    ]
-  ], [
     rr:predicate ns0:involvesBusinessIdentifier ;
     rr:objectMap [ rml:reference "involvesBusinessIdentifier" ]
   ], [
-    rr:predicate ns0:involvesDigitalTwin ;
+    rr:predicate ns0:involvedDigitalTwins ;
     rr:objectMap [
       rr:parentTriplesMap [
         rml:logicalSource [
           rml:source "data.json" ;
           rml:referenceFormulation ql:JSONPath ;
-          rml:iterator "$.involvesDigitalTwin[*]"
+          rml:iterator "$.involvedDigitalTwins"
         ] ;
         rr:subjectMap [
           rr:termType rr:BlankNode ;
           rr:class <https://ontology.tno.nl/logistics/federated/DigitalTwin#Goods>
         ] ;
         rr:predicateObjectMap [
-          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#grossMass> ;
-          rr:objectMap [ rml:reference "grossMass" ]
-        ], [
-          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#grossVolume> ;
-          rr:objectMap [ rml:reference "grossVolume" ]
-        ], [
           rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#goodsTypeCode> ;
           rr:objectMap [ rml:reference "goodsTypeCode" ]
         ], [
           rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#goodsDescription> ;
           rr:objectMap [ rml:reference "goodsDescription" ]
         ], [
+          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#grossMass> ;
+          rr:objectMap [ rml:reference "grossMass" ]
+        ], [
           rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#netMass> ;
           rr:objectMap [ rml:reference "netMass" ]
         ], [
           rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#numberOfUnits> ;
           rr:objectMap [ rml:reference "numberOfUnits" ]
+        ], [
+          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#grossVolume> ;
+          rr:objectMap [ rml:reference "grossVolume" ]
         ]
       ] ;
       rr:joinCondition [
@@ -261,13 +143,13 @@
       ]
     ]
   ], [
-    rr:predicate ns0:involvesDigitalTwin ;
+    rr:predicate ns0:involvedDigitalTwins ;
     rr:objectMap [
       rr:parentTriplesMap [
         rml:logicalSource [
           rml:source "data.json" ;
           rml:referenceFormulation ql:JSONPath ;
-          rml:iterator "$.involvesDigitalTwin[*]"
+          rml:iterator "$.involvedDigitalTwins"
         ] ;
         rr:subjectMap [
           rr:termType rr:BlankNode ;
@@ -293,13 +175,13 @@
     rr:predicate ns0:involvesTimestamp ;
     rr:objectMap [ rml:reference "involvesTimestamp" ]
   ], [
-    rr:predicate ns0:involvesActor ;
+    rr:predicate ns0:involvedActors ;
     rr:objectMap [
       rr:parentTriplesMap [
         rml:logicalSource [
           rml:source "data.json" ;
           rml:referenceFormulation ql:JSONPath ;
-          rml:iterator "$.involvesActor[*]"
+          rml:iterator "$.involvedActors"
         ] ;
         rr:subjectMap [
           rr:termType rr:BlankNode ;
@@ -312,7 +194,7 @@
               rml:logicalSource [
                 rml:source "data.json" ;
                 rml:referenceFormulation ql:JSONPath ;
-                rml:iterator "$.involvesActor[*].actorLegalPerson[*]"
+                rml:iterator "$.involvedActors.actorLegalPerson"
               ] ;
               rr:subjectMap [
                 rr:termType rr:BlankNode ;
@@ -331,7 +213,7 @@
                     rml:logicalSource [
                       rml:source "data.json" ;
                       rml:referenceFormulation ql:JSONPath ;
-                      rml:iterator "$.involvesActor[*].actorLegalPerson[*].legalPersonAddress[*]"
+                      rml:iterator "$.involvedActors.actorLegalPerson.legalPersonAddress"
                     ] ;
                     rr:subjectMap [
                       rr:termType rr:BlankNode ;
@@ -344,7 +226,7 @@
                           rml:logicalSource [
                             rml:source "data.json" ;
                             rml:referenceFormulation ql:JSONPath ;
-                            rml:iterator "$.involvesActor[*].actorLegalPerson[*].legalPersonAddress[*].locatedInCountry[*]"
+                            rml:iterator "$.involvedActors.actorLegalPerson.legalPersonAddress.locatedInCountry"
                           ] ;
                           rr:subjectMap [
                             rr:termType rr:BlankNode ;
@@ -367,7 +249,7 @@
                           rml:logicalSource [
                             rml:source "data.json" ;
                             rml:referenceFormulation ql:JSONPath ;
-                            rml:iterator "$.involvesActor[*].actorLegalPerson[*].legalPersonAddress[*].locatedInCity[*]"
+                            rml:iterator "$.involvedActors.actorLegalPerson.legalPersonAddress.locatedInCity"
                           ] ;
                           rr:subjectMap [
                             rr:termType rr:BlankNode ;
@@ -396,130 +278,6 @@
                     rr:parent ".."
                   ]
                 ]
-              ]
-            ] ;
-            rr:joinCondition [
-              rr:child "." ;
-              rr:parent ".."
-            ]
-          ]
-        ], [
-          rr:predicate <https://ontology.tno.nl/logistics/federated/BusinessService#actorLogisticsRole> ;
-          rr:objectMap [ rml:reference "actorLogisticsRole" ]
-        ]
-      ] ;
-      rr:joinCondition [
-        rr:child "." ;
-        rr:parent ".."
-      ]
-    ]
-  ], [
-    rr:predicate ns0:involvesActor ;
-    rr:objectMap [
-      rr:parentTriplesMap [
-        rml:logicalSource [
-          rml:source "data.json" ;
-          rml:referenceFormulation ql:JSONPath ;
-          rml:iterator "$.involvesActor[*]"
-        ] ;
-        rr:subjectMap [
-          rr:termType rr:BlankNode ;
-          rr:class <https://ontology.tno.nl/logistics/federated/BusinessService#Actor>
-        ] ;
-        rr:predicateObjectMap [
-          rr:predicate <https://ontology.tno.nl/logistics/federated/BusinessService#actorLegalPerson> ;
-          rr:objectMap [
-            rr:parentTriplesMap [
-              rml:logicalSource [
-                rml:source "data.json" ;
-                rml:referenceFormulation ql:JSONPath ;
-                rml:iterator "$.involvesActor[*].actorLegalPerson[*]"
-              ] ;
-              rr:subjectMap [
-                rr:termType rr:BlankNode ;
-                rr:class <https://ontology.tno.nl/logistics/federated/BusinessService#LegalPerson>
-              ] ;
-              rr:predicateObjectMap [
-                rr:predicate <https://ontology.tno.nl/logistics/federated/BusinessService#legalPersonAddress> ;
-                rr:objectMap [
-                  rr:parentTriplesMap [
-                    rml:logicalSource [
-                      rml:source "data.json" ;
-                      rml:referenceFormulation ql:JSONPath ;
-                      rml:iterator "$.involvesActor[*].actorLegalPerson[*].legalPersonAddress[*]"
-                    ] ;
-                    rr:subjectMap [
-                      rr:termType rr:BlankNode ;
-                      rr:class <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#Property>
-                    ] ;
-                    rr:predicateObjectMap [
-                      rr:predicate <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#postalCode> ;
-                      rr:objectMap [ rml:reference "postalCode" ]
-                    ], [
-                      rr:predicate <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#locatedAtStreetName> ;
-                      rr:objectMap [ rml:reference "locatedAtStreetName" ]
-                    ], [
-                      rr:predicate <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#postalAddress> ;
-                      rr:objectMap [ rml:reference "postalAddress" ]
-                    ], [
-                      rr:predicate <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#locatedInCountry> ;
-                      rr:objectMap [
-                        rr:parentTriplesMap [
-                          rml:logicalSource [
-                            rml:source "data.json" ;
-                            rml:referenceFormulation ql:JSONPath ;
-                            rml:iterator "$.involvesActor[*].actorLegalPerson[*].legalPersonAddress[*].locatedInCountry[*]"
-                          ] ;
-                          rr:subjectMap [
-                            rr:termType rr:BlankNode ;
-                            rr:class <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#Country>
-                          ] ;
-                          rr:predicateObjectMap [
-                            rr:predicate <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#countryISOCode> ;
-                            rr:objectMap [ rml:reference "countryISOCode" ]
-                          ]
-                        ] ;
-                        rr:joinCondition [
-                          rr:child "." ;
-                          rr:parent ".."
-                        ]
-                      ]
-                    ], [
-                      rr:predicate <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#locatedInCity> ;
-                      rr:objectMap [
-                        rr:parentTriplesMap [
-                          rml:logicalSource [
-                            rml:source "data.json" ;
-                            rml:referenceFormulation ql:JSONPath ;
-                            rml:iterator "$.involvesActor[*].actorLegalPerson[*].legalPersonAddress[*].locatedInCity[*]"
-                          ] ;
-                          rr:subjectMap [
-                            rr:termType rr:BlankNode ;
-                            rr:class <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#City>
-                          ] ;
-                          rr:predicateObjectMap [
-                            rr:predicate <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#cityName> ;
-                            rr:objectMap [ rml:reference "cityName" ]
-                          ]
-                        ] ;
-                        rr:joinCondition [
-                          rr:child "." ;
-                          rr:parent ".."
-                        ]
-                      ]
-                    ]
-                  ] ;
-                  rr:joinCondition [
-                    rr:child "." ;
-                    rr:parent ".."
-                  ]
-                ]
-              ], [
-                rr:predicate <https://ontology.tno.nl/logistics/federated/BusinessService#legalPersonName> ;
-                rr:objectMap [ rml:reference "legalPersonName" ]
-              ], [
-                rr:predicate <https://ontology.tno.nl/logistics/federated/BusinessService#legalPersonID> ;
-                rr:objectMap [ rml:reference "legalPersonID" ]
               ]
             ] ;
             rr:joinCondition [
