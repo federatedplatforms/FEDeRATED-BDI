@@ -13,13 +13,10 @@ apply plugin: 'org.openapi.generator'
 
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web"
-    implementation "io.springfox:springfox-swagger2"
-    implementation "io.springfox:springfox-swagger-ui"
     implementation "jakarta.validation:jakarta.validation-api:2.0.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
     implementation 'io.swagger.core.v3:swagger-annotations:2.2.14'
-    implementation 'io.swagger.core.v3:swagger-core:2.2.14'
 }
 
 sourceSets {

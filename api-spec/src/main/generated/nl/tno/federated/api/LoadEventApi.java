@@ -25,7 +25,7 @@ import javax.validation.Valid;
 
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T10:20:12.669+02:00[Europe/Amsterdam]")
 @Validated
-@Tag(name = "LoadEvent", description = "the LoadEvent API")
+//@Tag(name = "LoadEvent", description = "the LoadEvent API")
 public interface LoadEventApi {
 
     /**
