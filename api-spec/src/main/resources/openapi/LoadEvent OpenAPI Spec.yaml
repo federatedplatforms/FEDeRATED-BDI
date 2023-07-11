@@ -84,27 +84,62 @@ components:
             type: object
 
         Actor:
-            title: 'Actor in the business transaction '
-            description: 'Actor has a role and is described by a legal person - relevant for us: consignor, consignee, carrier'
+            title: "Actor in the business transaction "
+            description: "Actor has a role and is described by a legal person - relevant for us: consignor, consignee, carrier"
             required:
                 - actorLegalPerson
                 - actorLogisticsRole
             additionalProperties: false
             properties:
                 actorLegalPerson:
-                    items:
-                        required: [ legalPersonAddress, legalPersonName, legalPersonID ]
-                        additionalProperties: false
-                        properties: { legalPersonAddress: { items: { required: [ postalCode, locatedAtStreetName, postalAddress, locatedInCountry, locatedInCity ], additionalProperties: false, properties: { postalCode: { items: { type: string }, minItems: 1, type: array }, locatedAtStreetName: { items: { type: string }, minItems: 1, type: array }, postalAddress: { items: { type: string }, minItems: 1, type: array }, locatedInCountry: { items: { required: [ countryISOCode ], additionalProperties: false, properties: { countryISOCode: { items: { type: object }, minItems: 1, type: array } }, type: object }, minItems: 1, type: array }, locatedInCity: { items: { required: [ cityName ], additionalProperties: false, properties: { cityName: { items: { type: string }, minItems: 1, type: array } }, type: object }, minItems: 1, type: array } }, type: object }, minItems: 1, type: array }, legalPersonName: { items: { type: string }, minItems: 1, type: array }, legalPersonID: { items: { type: string }, minItems: 1, type: array } }
-                        type: object
-                    minItems: 1
-                    type: array
+                    required:
+                      [ legalPersonAddress, legalPersonName, legalPersonID ]
+                    additionalProperties: false
+                    type: object
+                    properties:
+                        legalPersonAddress:
+                            required:
+                              [
+                                  postalCode,
+                                  locatedAtStreetName,
+                                  postalAddress,
+                                  locatedInCountry,
+                                  locatedInCity,
+                              ]
+                            additionalProperties: false
+                            properties:
+                                postalCode:
+                                    type: string
+                                locatedAtStreetName:
+                                    type: string
+                                postalAddress:
+                                    type: string
+                                locatedInCountry:
+                                    required: [ countryISOCode ]
+                                    additionalProperties: false
+                                    properties:
+                                        countryISOCode:
+                                            type: string
+                                            enum:
+                                              [
+                                                  AD, AE, AF, AG, AI, AL, AM, AO, AQ, AR, AS, AT, AU, AW, AX, AZ, BA, BB, BD, BE, BF, BG, BH, BI, BJ, BL, BM, BN, BO, BQ, BR, BS, BT, BW, BY, BZ, CA, CC, CD, CF, CG, CH, CI, CK, CL, CM, CN, CO, CR, CU, CV, CW, CX, CY, CZ, DE, DJ, DK, DM, DO, DZ, EC, EE, EG, EH, ER, ES, ET, FI, FJ, FK, FM, FO, FR, GA, GB, GD, GE, GF, GG, GH, GI, GL, GM, GN, GP, GQ, GR, GS, GT, GU, GW, GY, HK, HM, HN, HR, HT, HU, ID, IE, IL, IM, IN, IO, IQ, IR, IS, IT, JE, JM, JO, JP, KE, KG, KH, KI, KM, KN, KP, KR, KW, KY, KZ, LA, LB, LC, LI, LK, LR, LS, LT, LU, LV, LY, MA, MC, MD, ME, MF, MG, MH, MK, ML, MM, MN, MO, MP, MQ, MR, MS, MT, MU, MV, MW, MX, MY, MZ, NC, NE, NF, NG, NI, NL, NO, NP, NR, NU, NZ, OM, PA, PE, PF, PG, PH, PK, PL, PM, PN, PR, PS, PT, PW, PY, QA, RE, RO, RS, RU, RW, SA, SB, SC, SD, SE, SG, SH, SI, SJ, SK, SL, SM, SN, SO, SR, SS, ST, SV, SX, SY, SZ, TC, TD, TF, TG, TH, TJ, TK, TL, TM, TN, TO, TR, TT, TV, TW, TZ, UA, UG, UM, US, UY, UZ, VA, VC, VE, VG, VI, VN, VU, WF, WS, XZ, YE, YT, ZA, ZM, ZW,
+                                              ]
+                                    type: object
+                                locatedInCity:
+                                    required: [ cityName ]
+                                    additionalProperties: false
+                                    properties:
+                                        cityName:
+                                            type: string
+                                    type: object
+                            type: object
+                        legalPersonName:
+                            type: string
+                        legalPersonID:
+                            type: string
                 actorLogisticsRole:
-                    items:
-                        type: string
-                        enum: [ Consignee, Consignor, Carrier ]
-                    minItems: 1
-                    type: array
+                    type: string
+                    enum: [ Consignee, Consignor, Carrier ]
             type: object
 
         DigitalTwin:
@@ -119,18 +154,278 @@ components:
                     type: string
 
         TransportMeans:
-            title: 'Transport means'
-            description: 'Specialized digital twin, mostly truck'
+            title: "Transport means"
+            description: "Specialized digital twin, mostly truck"
             allOf:
-                -   $ref: '#/components/schemas/DigitalTwin'
+                -   $ref: "#/components/schemas/DigitalTwin"
                 -   type: object
                     properties:
                         transportMeansMode:
                             type: string
-                            enum: [ Sea, Rail, Road, Air, Mail, Multimodal, Pipelines, InlandWaterways ]
+                            enum:
+                              [
+                                  Sea,
+                                  Rail,
+                                  Road,
+                                  Air,
+                                  Mail,
+                                  Multimodal,
+                                  Pipelines,
+                                  InlandWaterways,
+                              ]
                         hasTransportmeansNationality:
                             type: string
-                            enum: [ AD, AE, AF, AG, AI, AL, AM, AO, AQ, AR, AS, AT, AU, AW, AX, AZ, BA, BB, BD, BE, BF, BG, BH, BI, BJ, BL, BM, BN, BO, BQ, BR, BS, BT, BW, BY, BZ, CA, CC, CD, CF, CG, CH, CI, CK, CL, CM, CN, CO, CR, CU, CVCW, CX, CY, CZ, DE, DJ, DK, DM, DO, DZ, EC, EE, EG, EH, ER, ES, ET, FI, FJ, FK, FM, FO, FR, GA, GB, GD, GE, GF, GG, GH, GI, GL, GM, GN, GP, GQ, GR, GS, GT, GU, GW, GY, HK, HM, HN, HR, HT, HU, ID, IE, IL, IM, IN, IO, IQ, IR, IS, IT, JE, JM, JO, JP, KE, KG, KH, KI, KM, KN, KP, KR, KW, KY, KZ, LA, LB, LC, LI, LK, LR, LS, LT, LU, LV, LY, MA, MC, MD, ME, MF, MG, MH, MK, ML, MM, MN, MO, MP, MQ, MR, MS, MT, MU, MV, MW, MX, MY, MZ, NC, NE, NF, NG, NI, NL, NO, NP, NR, NU, NZ, OM, PA, PE, PF, PG, PH, PK, PL, PM, PN, PR, PS, PT, PW, PY, QA, RE, RO, RS, RU, RW, SA, SB, SC, SD, SE, SG, SH, SI, SJ, SK, SL, SM, SN, SO, SR, SS, ST, SV, SX, SY, SZ, TC, TD, TF, TG, TH, TJ, TK, TL, TM, TN, TO, TR, TT, TV, TW, TZ, UA, UG, UM, US, UY, UZ, VA, VC, VE, VG, VI, VN, VU, WF, WS, XZ, YE, YT, ZA, ZM, ZW ]
+                            enum:
+                              [
+                                  AD,
+                                  AE,
+                                  AF,
+                                  AG,
+                                  AI,
+                                  AL,
+                                  AM,
+                                  AO,
+                                  AQ,
+                                  AR,
+                                  AS,
+                                  AT,
+                                  AU,
+                                  AW,
+                                  AX,
+                                  AZ,
+                                  BA,
+                                  BB,
+                                  BD,
+                                  BE,
+                                  BF,
+                                  BG,
+                                  BH,
+                                  BI,
+                                  BJ,
+                                  BL,
+                                  BM,
+                                  BN,
+                                  BO,
+                                  BQ,
+                                  BR,
+                                  BS,
+                                  BT,
+                                  BW,
+                                  BY,
+                                  BZ,
+                                  CA,
+                                  CC,
+                                  CD,
+                                  CF,
+                                  CG,
+                                  CH,
+                                  CI,
+                                  CK,
+                                  CL,
+                                  CM,
+                                  CN,
+                                  CO,
+                                  CR,
+                                  CU,
+                                  CV,
+                                  CW,
+                                  CX,
+                                  CY,
+                                  CZ,
+                                  DE,
+                                  DJ,
+                                  DK,
+                                  DM,
+                                  DO,
+                                  DZ,
+                                  EC,
+                                  EE,
+                                  EG,
+                                  EH,
+                                  ER,
+                                  ES,
+                                  ET,
+                                  FI,
+                                  FJ,
+                                  FK,
+                                  FM,
+                                  FO,
+                                  FR,
+                                  GA,
+                                  GB,
+                                  GD,
+                                  GE,
+                                  GF,
+                                  GG,
+                                  GH,
+                                  GI,
+                                  GL,
+                                  GM,
+                                  GN,
+                                  GP,
+                                  GQ,
+                                  GR,
+                                  GS,
+                                  GT,
+                                  GU,
+                                  GW,
+                                  GY,
+                                  HK,
+                                  HM,
+                                  HN,
+                                  HR,
+                                  HT,
+                                  HU,
+                                  ID,
+                                  IE,
+                                  IL,
+                                  IM,
+                                  IN,
+                                  IO,
+                                  IQ,
+                                  IR,
+                                  IS,
+                                  IT,
+                                  JE,
+                                  JM,
+                                  JO,
+                                  JP,
+                                  KE,
+                                  KG,
+                                  KH,
+                                  KI,
+                                  KM,
+                                  KN,
+                                  KP,
+                                  KR,
+                                  KW,
+                                  KY,
+                                  KZ,
+                                  LA,
+                                  LB,
+                                  LC,
+                                  LI,
+                                  LK,
+                                  LR,
+                                  LS,
+                                  LT,
+                                  LU,
+                                  LV,
+                                  LY,
+                                  MA,
+                                  MC,
+                                  MD,
+                                  ME,
+                                  MF,
+                                  MG,
+                                  MH,
+                                  MK,
+                                  ML,
+                                  MM,
+                                  MN,
+                                  MO,
+                                  MP,
+                                  MQ,
+                                  MR,
+                                  MS,
+                                  MT,
+                                  MU,
+                                  MV,
+                                  MW,
+                                  MX,
+                                  MY,
+                                  MZ,
+                                  NC,
+                                  NE,
+                                  NF,
+                                  NG,
+                                  NI,
+                                  NL,
+                                  NO,
+                                  NP,
+                                  NR,
+                                  NU,
+                                  NZ,
+                                  OM,
+                                  PA,
+                                  PE,
+                                  PF,
+                                  PG,
+                                  PH,
+                                  PK,
+                                  PL,
+                                  PM,
+                                  PN,
+                                  PR,
+                                  PS,
+                                  PT,
+                                  PW,
+                                  PY,
+                                  QA,
+                                  RE,
+                                  RO,
+                                  RS,
+                                  RU,
+                                  RW,
+                                  SA,
+                                  SB,
+                                  SC,
+                                  SD,
+                                  SE,
+                                  SG,
+                                  SH,
+                                  SI,
+                                  SJ,
+                                  SK,
+                                  SL,
+                                  SM,
+                                  SN,
+                                  SO,
+                                  SR,
+                                  SS,
+                                  ST,
+                                  SV,
+                                  SX,
+                                  SY,
+                                  SZ,
+                                  TC,
+                                  TD,
+                                  TF,
+                                  TG,
+                                  TH,
+                                  TJ,
+                                  TK,
+                                  TL,
+                                  TM,
+                                  TN,
+                                  TO,
+                                  TR,
+                                  TT,
+                                  TV,
+                                  TW,
+                                  TZ,
+                                  UA,
+                                  UG,
+                                  UM,
+                                  US,
+                                  UY,
+                                  UZ,
+                                  VA,
+                                  VC,
+                                  VE,
+                                  VG,
+                                  VI,
+                                  VN,
+                                  VU,
+                                  WF,
+                                  WS,
+                                  XZ,
+                                  YE,
+                                  YT,
+                                  ZA,
+                                  ZM,
+                                  ZW,
+                              ]
             additionalProperties: false
             required:
                 - transportMeansMode
