@@ -9,7 +9,7 @@ import javax.annotation.Generated;
 
 // START: Manually added because the OpenAPI generator does not add the @Schema
 @Schema(
-    anyOf = {DangerousGoods.class, Goods.class, TransportEquipment.class }
+    oneOf = {DangerousGoods.class, Goods.class, TransportEquipment.class }
 )
 // END: Manually added
 @JsonIgnoreProperties(
@@ -23,7 +23,7 @@ import javax.annotation.Generated;
   @JsonSubTypes.Type(value = TransportEquipment.class, name = "TransportEquipment")
 })
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T10:20:12.669+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-13T16:38:33.391+02:00[Europe/Amsterdam]")
 public interface LoadEventInvolvedDigitalTwinsInner {
     public String getDigitalTwinType();
 }

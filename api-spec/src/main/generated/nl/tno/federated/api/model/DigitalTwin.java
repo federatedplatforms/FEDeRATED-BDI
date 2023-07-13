@@ -12,7 +12,7 @@ import java.util.Objects;
  */
 
 @Schema(name = "DigitalTwin", description = "May represent a transport means, a transport equipment or cargo (goods / dangerous goods)")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T10:20:12.669+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-13T16:38:33.391+02:00[Europe/Amsterdam]")
 public class DigitalTwin {
 
   private String digitalTwinType;

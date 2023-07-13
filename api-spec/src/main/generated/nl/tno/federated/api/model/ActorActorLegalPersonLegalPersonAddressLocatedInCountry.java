@@ -2,6 +2,7 @@ package nl.tno.federated.api.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -10,70 +11,17 @@ import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 /**
- * Specialized digital twin, mostly truck
+ * ActorActorLegalPersonLegalPersonAddressLocatedInCountry
  */
 
-@Schema(name = "TransportMeans", description = "Specialized digital twin, mostly truck")
+@JsonTypeName("Actor_actorLegalPerson_legalPersonAddress_locatedInCountry")
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-13T16:38:33.391+02:00[Europe/Amsterdam]")
-public class TransportMeans {
-
-  private String digitalTwinType;
-
-  private String digitalTwinID;
+public class ActorActorLegalPersonLegalPersonAddressLocatedInCountry {
 
   /**
-   * Gets or Sets transportMeansMode
+   * Gets or Sets countryISOCode
    */
-  public enum TransportMeansModeEnum {
-    SEA("Sea"),
-    
-    RAIL("Rail"),
-    
-    ROAD("Road"),
-    
-    AIR("Air"),
-    
-    MAIL("Mail"),
-    
-    MULTIMODAL("Multimodal"),
-    
-    PIPELINES("Pipelines"),
-    
-    INLANDWATERWAYS("InlandWaterways");
-
-    private String value;
-
-    TransportMeansModeEnum(String value) {
-      this.value = value;
-    }
-
-    @JsonValue
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static TransportMeansModeEnum fromValue(String value) {
-      for (TransportMeansModeEnum b : TransportMeansModeEnum.values()) {
-        if (b.value.equals(value)) {
-          return b;
-        }
-      }
-      throw new IllegalArgumentException("Unexpected value '" + value + "'");
-    }
-  }
-
-  private TransportMeansModeEnum transportMeansMode;
-
-  /**
-   * Gets or Sets hasTransportMeansNationality
-   */
-  public enum HasTransportMeansNationalityEnum {
+  public enum CountryISOCodeEnum {
     AD("AD"),
     
     AE("AE"),
@@ -572,7 +520,7 @@ public class TransportMeans {
 
     private String value;
 
-    HasTransportMeansNationalityEnum(String value) {
+    CountryISOCodeEnum(String value) {
       this.value = value;
     }
 
@@ -587,8 +535,8 @@ public class TransportMeans {
     }
 
     @JsonCreator
-    public static HasTransportMeansNationalityEnum fromValue(String value) {
-      for (HasTransportMeansNationalityEnum b : HasTransportMeansNationalityEnum.values()) {
+    public static CountryISOCodeEnum fromValue(String value) {
+      for (CountryISOCodeEnum b : CountryISOCodeEnum.values()) {
         if (b.value.equals(value)) {
           return b;
         }
@@ -597,103 +545,42 @@ public class TransportMeans {
     }
   }
 
-  private HasTransportMeansNationalityEnum hasTransportMeansNationality;
+  private CountryISOCodeEnum countryISOCode;
 
   /**
    * Default constructor
-   * @deprecated Use {@link TransportMeans#TransportMeans(String, TransportMeansModeEnum)}
+   * @deprecated Use {@link ActorActorLegalPersonLegalPersonAddressLocatedInCountry#ActorActorLegalPersonLegalPersonAddressLocatedInCountry(CountryISOCodeEnum)}
    */
   @Deprecated
-  public TransportMeans() {
+  public ActorActorLegalPersonLegalPersonAddressLocatedInCountry() {
     super();
   }
 
   /**
    * Constructor with only required parameters
    */
-  public TransportMeans(String digitalTwinType, TransportMeansModeEnum transportMeansMode) {
-    this.digitalTwinType = digitalTwinType;
-    this.transportMeansMode = transportMeansMode;
+  public ActorActorLegalPersonLegalPersonAddressLocatedInCountry(CountryISOCodeEnum countryISOCode) {
+    this.countryISOCode = countryISOCode;
   }
 
-  public TransportMeans digitalTwinType(String digitalTwinType) {
-    this.digitalTwinType = digitalTwinType;
+  public ActorActorLegalPersonLegalPersonAddressLocatedInCountry countryISOCode(CountryISOCodeEnum countryISOCode) {
+    this.countryISOCode = countryISOCode;
     return this;
   }
 
   /**
-   * Get digitalTwinType
-   * @return digitalTwinType
+   * Get countryISOCode
+   * @return countryISOCode
   */
   @NotNull 
-  @Schema(name = "digitalTwinType", requiredMode = Schema.RequiredMode.REQUIRED)
-  @JsonProperty("digitalTwinType")
-  public String getDigitalTwinType() {
-    return digitalTwinType;
+  @Schema(name = "countryISOCode", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("countryISOCode")
+  public CountryISOCodeEnum getCountryISOCode() {
+    return countryISOCode;
   }
 
-  public void setDigitalTwinType(String digitalTwinType) {
-    this.digitalTwinType = digitalTwinType;
-  }
-
-  public TransportMeans digitalTwinID(String digitalTwinID) {
-    this.digitalTwinID = digitalTwinID;
-    return this;
-  }
-
-  /**
-   * Get digitalTwinID
-   * @return digitalTwinID
-  */
-  
-  @Schema(name = "digitalTwinID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("digitalTwinID")
-  public String getDigitalTwinID() {
-    return digitalTwinID;
-  }
-
-  public void setDigitalTwinID(String digitalTwinID) {
-    this.digitalTwinID = digitalTwinID;
-  }
-
-  public TransportMeans transportMeansMode(TransportMeansModeEnum transportMeansMode) {
-    this.transportMeansMode = transportMeansMode;
-    return this;
-  }
-
-  /**
-   * Get transportMeansMode
-   * @return transportMeansMode
-  */
-  @NotNull 
-  @Schema(name = "transportMeansMode", requiredMode = Schema.RequiredMode.REQUIRED)
-  @JsonProperty("transportMeansMode")
-  public TransportMeansModeEnum getTransportMeansMode() {
-    return transportMeansMode;
-  }
-
-  public void setTransportMeansMode(TransportMeansModeEnum transportMeansMode) {
-    this.transportMeansMode = transportMeansMode;
-  }
-
-  public TransportMeans hasTransportMeansNationality(HasTransportMeansNationalityEnum hasTransportMeansNationality) {
-    this.hasTransportMeansNationality = hasTransportMeansNationality;
-    return this;
-  }
-
-  /**
-   * Get hasTransportMeansNationality
-   * @return hasTransportMeansNationality
-  */
-  
-  @Schema(name = "hasTransportMeansNationality", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("hasTransportMeansNationality")
-  public HasTransportMeansNationalityEnum getHasTransportMeansNationality() {
-    return hasTransportMeansNationality;
-  }
-
-  public void setHasTransportMeansNationality(HasTransportMeansNationalityEnum hasTransportMeansNationality) {
-    this.hasTransportMeansNationality = hasTransportMeansNationality;
+  public void setCountryISOCode(CountryISOCodeEnum countryISOCode) {
+    this.countryISOCode = countryISOCode;
   }
 
   @Override
@@ -704,26 +591,20 @@ public class TransportMeans {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    TransportMeans transportMeans = (TransportMeans) o;
-    return Objects.equals(this.digitalTwinType, transportMeans.digitalTwinType) &&
-        Objects.equals(this.digitalTwinID, transportMeans.digitalTwinID) &&
-        Objects.equals(this.transportMeansMode, transportMeans.transportMeansMode) &&
-        Objects.equals(this.hasTransportMeansNationality, transportMeans.hasTransportMeansNationality);
+    ActorActorLegalPersonLegalPersonAddressLocatedInCountry actorActorLegalPersonLegalPersonAddressLocatedInCountry = (ActorActorLegalPersonLegalPersonAddressLocatedInCountry) o;
+    return Objects.equals(this.countryISOCode, actorActorLegalPersonLegalPersonAddressLocatedInCountry.countryISOCode);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(digitalTwinType, digitalTwinID, transportMeansMode, hasTransportMeansNationality);
+    return Objects.hash(countryISOCode);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class TransportMeans {\n");
-    sb.append("    digitalTwinType: ").append(toIndentedString(digitalTwinType)).append("\n");
-    sb.append("    digitalTwinID: ").append(toIndentedString(digitalTwinID)).append("\n");
-    sb.append("    transportMeansMode: ").append(toIndentedString(transportMeansMode)).append("\n");
-    sb.append("    hasTransportMeansNationality: ").append(toIndentedString(hasTransportMeansNationality)).append("\n");
+    sb.append("class ActorActorLegalPersonLegalPersonAddressLocatedInCountry {\n");
+    sb.append("    countryISOCode: ").append(toIndentedString(countryISOCode)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -99,13 +99,7 @@ components:
                     properties:
                         legalPersonAddress:
                             required:
-                              [
-                                  postalCode,
-                                  locatedAtStreetName,
-                                  postalAddress,
-                                  locatedInCountry,
-                                  locatedInCity,
-                              ]
+                              [ postalCode, locatedAtStreetName, postalAddress, locatedInCountry, locatedInCity ]
                             additionalProperties: false
                             properties:
                                 postalCode:
@@ -120,10 +114,7 @@ components:
                                     properties:
                                         countryISOCode:
                                             type: string
-                                            enum:
-                                              [
-                                                  AD, AE, AF, AG, AI, AL, AM, AO, AQ, AR, AS, AT, AU, AW, AX, AZ, BA, BB, BD, BE, BF, BG, BH, BI, BJ, BL, BM, BN, BO, BQ, BR, BS, BT, BW, BY, BZ, CA, CC, CD, CF, CG, CH, CI, CK, CL, CM, CN, CO, CR, CU, CV, CW, CX, CY, CZ, DE, DJ, DK, DM, DO, DZ, EC, EE, EG, EH, ER, ES, ET, FI, FJ, FK, FM, FO, FR, GA, GB, GD, GE, GF, GG, GH, GI, GL, GM, GN, GP, GQ, GR, GS, GT, GU, GW, GY, HK, HM, HN, HR, HT, HU, ID, IE, IL, IM, IN, IO, IQ, IR, IS, IT, JE, JM, JO, JP, KE, KG, KH, KI, KM, KN, KP, KR, KW, KY, KZ, LA, LB, LC, LI, LK, LR, LS, LT, LU, LV, LY, MA, MC, MD, ME, MF, MG, MH, MK, ML, MM, MN, MO, MP, MQ, MR, MS, MT, MU, MV, MW, MX, MY, MZ, NC, NE, NF, NG, NI, NL, NO, NP, NR, NU, NZ, OM, PA, PE, PF, PG, PH, PK, PL, PM, PN, PR, PS, PT, PW, PY, QA, RE, RO, RS, RU, RW, SA, SB, SC, SD, SE, SG, SH, SI, SJ, SK, SL, SM, SN, SO, SR, SS, ST, SV, SX, SY, SZ, TC, TD, TF, TG, TH, TJ, TK, TL, TM, TN, TO, TR, TT, TV, TW, TZ, UA, UG, UM, US, UY, UZ, VA, VC, VE, VG, VI, VN, VU, WF, WS, XZ, YE, YT, ZA, ZM, ZW,
-                                              ]
+                                            enum: [ AD, AE, AF, AG, AI, AL, AM, AO, AQ, AR, AS, AT, AU, AW, AX, AZ, BA, BB, BD, BE, BF, BG, BH, BI, BJ, BL, BM, BN, BO, BQ, BR, BS, BT, BW, BY, BZ, CA, CC, CD, CF, CG, CH, CI, CK, CL, CM, CN, CO, CR, CU, CV, CW, CX, CY, CZ, DE, DJ, DK, DM, DO, DZ, EC, EE, EG, EH, ER, ES, ET, FI, FJ, FK, FM, FO, FR, GA, GB, GD, GE, GF, GG, GH, GI, GL, GM, GN, GP, GQ, GR, GS, GT, GU, GW, GY, HK, HM, HN, HR, HT, HU, ID, IE, IL, IM, IN, IO, IQ, IR, IS, IT, JE, JM, JO, JP, KE, KG, KH, KI, KM, KN, KP, KR, KW, KY, KZ, LA, LB, LC, LI, LK, LR, LS, LT, LU, LV, LY, MA, MC, MD, ME, MF, MG, MH, MK, ML, MM, MN, MO, MP, MQ, MR, MS, MT, MU, MV, MW, MX, MY, MZ, NC, NE, NF, NG, NI, NL, NO, NP, NR, NU, NZ, OM, PA, PE, PF, PG, PH, PK, PL, PM, PN, PR, PS, PT, PW, PY, QA, RE, RO, RS, RU, RW, SA, SB, SC, SD, SE, SG, SH, SI, SJ, SK, SL, SM, SN, SO, SR, SS, ST, SV, SX, SY, SZ, TC, TD, TF, TG, TH, TJ, TK, TL, TM, TN, TO, TR, TT, TV, TW, TZ, UA, UG, UM, US, UY, UZ, VA, VC, VE, VG, VI, VN, VU, WF, WS, XZ, YE, YT, ZA, ZM, ZW ]
                                     type: object
                                 locatedInCity:
                                     required: [ cityName ]
@@ -162,330 +153,83 @@ components:
                     properties:
                         transportMeansMode:
                             type: string
-                            enum:
-                              [
-                                  Sea,
-                                  Rail,
-                                  Road,
-                                  Air,
-                                  Mail,
-                                  Multimodal,
-                                  Pipelines,
-                                  InlandWaterways,
-                              ]
-                        hasTransportmeansNationality:
+                            enum: [ Sea, Rail, Road, Air, Mail, Multimodal, Pipelines, InlandWaterways ]
+                        hasTransportMeansNationality:
                             type: string
-                            enum:
-                              [
-                                  AD,
-                                  AE,
-                                  AF,
-                                  AG,
-                                  AI,
-                                  AL,
-                                  AM,
-                                  AO,
-                                  AQ,
-                                  AR,
-                                  AS,
-                                  AT,
-                                  AU,
-                                  AW,
-                                  AX,
-                                  AZ,
-                                  BA,
-                                  BB,
-                                  BD,
-                                  BE,
-                                  BF,
-                                  BG,
-                                  BH,
-                                  BI,
-                                  BJ,
-                                  BL,
-                                  BM,
-                                  BN,
-                                  BO,
-                                  BQ,
-                                  BR,
-                                  BS,
-                                  BT,
-                                  BW,
-                                  BY,
-                                  BZ,
-                                  CA,
-                                  CC,
-                                  CD,
-                                  CF,
-                                  CG,
-                                  CH,
-                                  CI,
-                                  CK,
-                                  CL,
-                                  CM,
-                                  CN,
-                                  CO,
-                                  CR,
-                                  CU,
-                                  CV,
-                                  CW,
-                                  CX,
-                                  CY,
-                                  CZ,
-                                  DE,
-                                  DJ,
-                                  DK,
-                                  DM,
-                                  DO,
-                                  DZ,
-                                  EC,
-                                  EE,
-                                  EG,
-                                  EH,
-                                  ER,
-                                  ES,
-                                  ET,
-                                  FI,
-                                  FJ,
-                                  FK,
-                                  FM,
-                                  FO,
-                                  FR,
-                                  GA,
-                                  GB,
-                                  GD,
-                                  GE,
-                                  GF,
-                                  GG,
-                                  GH,
-                                  GI,
-                                  GL,
-                                  GM,
-                                  GN,
-                                  GP,
-                                  GQ,
-                                  GR,
-                                  GS,
-                                  GT,
-                                  GU,
-                                  GW,
-                                  GY,
-                                  HK,
-                                  HM,
-                                  HN,
-                                  HR,
-                                  HT,
-                                  HU,
-                                  ID,
-                                  IE,
-                                  IL,
-                                  IM,
-                                  IN,
-                                  IO,
-                                  IQ,
-                                  IR,
-                                  IS,
-                                  IT,
-                                  JE,
-                                  JM,
-                                  JO,
-                                  JP,
-                                  KE,
-                                  KG,
-                                  KH,
-                                  KI,
-                                  KM,
-                                  KN,
-                                  KP,
-                                  KR,
-                                  KW,
-                                  KY,
-                                  KZ,
-                                  LA,
-                                  LB,
-                                  LC,
-                                  LI,
-                                  LK,
-                                  LR,
-                                  LS,
-                                  LT,
-                                  LU,
-                                  LV,
-                                  LY,
-                                  MA,
-                                  MC,
-                                  MD,
-                                  ME,
-                                  MF,
-                                  MG,
-                                  MH,
-                                  MK,
-                                  ML,
-                                  MM,
-                                  MN,
-                                  MO,
-                                  MP,
-                                  MQ,
-                                  MR,
-                                  MS,
-                                  MT,
-                                  MU,
-                                  MV,
-                                  MW,
-                                  MX,
-                                  MY,
-                                  MZ,
-                                  NC,
-                                  NE,
-                                  NF,
-                                  NG,
-                                  NI,
-                                  NL,
-                                  NO,
-                                  NP,
-                                  NR,
-                                  NU,
-                                  NZ,
-                                  OM,
-                                  PA,
-                                  PE,
-                                  PF,
-                                  PG,
-                                  PH,
-                                  PK,
-                                  PL,
-                                  PM,
-                                  PN,
-                                  PR,
-                                  PS,
-                                  PT,
-                                  PW,
-                                  PY,
-                                  QA,
-                                  RE,
-                                  RO,
-                                  RS,
-                                  RU,
-                                  RW,
-                                  SA,
-                                  SB,
-                                  SC,
-                                  SD,
-                                  SE,
-                                  SG,
-                                  SH,
-                                  SI,
-                                  SJ,
-                                  SK,
-                                  SL,
-                                  SM,
-                                  SN,
-                                  SO,
-                                  SR,
-                                  SS,
-                                  ST,
-                                  SV,
-                                  SX,
-                                  SY,
-                                  SZ,
-                                  TC,
-                                  TD,
-                                  TF,
-                                  TG,
-                                  TH,
-                                  TJ,
-                                  TK,
-                                  TL,
-                                  TM,
-                                  TN,
-                                  TO,
-                                  TR,
-                                  TT,
-                                  TV,
-                                  TW,
-                                  TZ,
-                                  UA,
-                                  UG,
-                                  UM,
-                                  US,
-                                  UY,
-                                  UZ,
-                                  VA,
-                                  VC,
-                                  VE,
-                                  VG,
-                                  VI,
-                                  VN,
-                                  VU,
-                                  WF,
-                                  WS,
-                                  XZ,
-                                  YE,
-                                  YT,
-                                  ZA,
-                                  ZM,
-                                  ZW,
-                              ]
+                            enum: [ AD, AE, AF, AG, AI, AL, AM, AO, AQ, AR, AS, AT, AU, AW, AX, AZ, BA, BB, BD, BE, BF, BG, BH, BI, BJ, BL, BM, BN, BO, BQ, BR, BS, BT, BW, BY, BZ, CA, CC, CD, CF, CG, CH, CI, CK, CL, CM, CN, CO, CR, CU, CV, CW, CX, CY, CZ, DE, DJ, DK, DM, DO, DZ, EC, EE, EG, EH, ER, ES, ET, FI, FJ, FK, FM, FO, FR, GA, GB, GD, GE, GF, GG, GH, GI, GL, GM, GN, GP, GQ, GR, GS, GT, GU, GW, GY, HK, HM, HN, HR, HT, HU, ID, IE, IL, IM, IN, IO, IQ, IR, IS, IT, JE, JM, JO, JP, KE, KG, KH, KI, KM, KN, KP, KR, KW, KY, KZ, LA, LB, LC, LI, LK, LR, LS, LT, LU, LV, LY, MA, MC, MD, ME, MF, MG, MH, MK, ML, MM, MN, MO, MP, MQ, MR, MS, MT, MU, MV, MW, MX, MY, MZ, NC, NE, NF, NG, NI, NL, NO, NP, NR, NU, NZ, OM, PA, PE, PF, PG, PH, PK, PL, PM, PN, PR, PS, PT, PW, PY, QA, RE, RO, RS, RU, RW, SA, SB, SC, SD, SE, SG, SH, SI, SJ, SK, SL, SM, SN, SO, SR, SS, ST, SV, SX, SY, SZ, TC, TD, TF, TG, TH, TJ, TK, TL, TM, TN, TO, TR, TT, TV, TW, TZ, UA, UG, UM, US, UY, UZ, VA, VC, VE, VG, VI, VN, VU, WF, WS, XZ, YE, YT, ZA, ZM, ZW ]
             additionalProperties: false
             required:
                 - transportMeansMode
                 - transportMeansNationality
 
         TransportEquipment: # seal quantity not yet fully defined
-            title: 'Transport equipment'
-            description: 'Equipment to be used for transport of goods'
+            title: "Transport equipment"
+            description: "Equipment to be used for transport of goods"
             allOf:
-                -   $ref: '#/components/schemas/DigitalTwin'
+                -   $ref: "#/components/schemas/DigitalTwin"
                 -   type: object
                     properties:
                         grossMass:
-                            type: string
+                            type: number
+                            format: double
                         grossVolume:
-                            type: string
+                            type: number
+                            format: double
                         transportEquipmentSizeType:
                             type: string
                             enum: [ AA, AB, AC, AD, AE, AF, AG, AH, AI, AJ, AK, AL, AM, AN, AO, AP, AQ, AR, AS, AT, AU, AV, AX, AY, AZ, BA, BB, BC, BD, BE, BF, BG, BH, BI, BJ, BK, BL, BM, BN, BO, BP, BR ]
                         size:
-                            type: string
+                            type: object
+                            required: [ height, length, width ]
+                            additionalProperties: false
+                            properties:
+                                height:
+                                    type: number
+                                    format: double
+                                length:
+                                    type: number
+                                    format: double
+                                width:
+                                    type: number
+                                    format: double
             additionalProperties: false
             required:
-                - grossMass
-                - grossVolume
+                - digitalTwinID
                 - transportEquipmentSizeType
                 - size
 
         Goods:
-            title: 'Goods'
-            description: 'Specialized cargo, goods'
+            title: "Goods"
+            description: "Specialized cargo, goods"
             required:
                 - grossMass
                 - grossVolume
                 - goodsTypeCode
-                - netMass
-                - numberOfUnits
                 - goodsDescription
             allOf:
-                -   $ref: '#/components/schemas/DigitalTwin'
+                -   $ref: "#/components/schemas/DigitalTwin"
                 -   type: object
-                    properties:
-                        grossMass:
-                            type: string
-                        grossVolume:
-                            type: string
-                        goodsTypeCode:
-                            type: string
-                        netMass:
-                            type: integer
-                        numberOfUnits:
-                            type: integer
-                        goodsDescription:
-                            type: string
+            properties:
+                grossMass:
+                    type: number
+                    format: double
+                grossVolume:
+                    type: number
+                    format: double
+                goodsTypeCode:
+                    type: string
+                netMass:
+                    type: integer
+                numberOfUnits:
+                    type: integer
+                goodsDescription:
+                    type: string
 
         DangerousGoods:
-            title: 'Dangerous goods'
-            description: 'Specialized cargo, dangerous goods'
+            title: "Dangerous goods"
+            description: "Specialized cargo, dangerous goods"
             allOf:
-                -   $ref: '#/components/schemas/DigitalTwin'
+                -   $ref: "#/components/schemas/DigitalTwin"
                 -   type: object
                     properties:
                         grossMass:

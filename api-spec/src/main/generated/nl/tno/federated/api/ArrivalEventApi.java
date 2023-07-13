@@ -23,9 +23,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import javax.annotation.Generated;
 import javax.validation.Valid;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T10:20:12.669+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-13T16:38:33.391+02:00[Europe/Amsterdam]")
 @Validated
-//@Tag(name = "ArrivalEvent", description = "the ArrivalEvent API")
+@Tag(name = "ArrivalEvent", description = "the ArrivalEvent API")
 public interface ArrivalEventApi {
 
     /**

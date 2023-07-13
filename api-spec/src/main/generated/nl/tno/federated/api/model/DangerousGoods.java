@@ -12,7 +12,7 @@ import java.util.Objects;
  */
 
 @Schema(name = "DangerousGoods", description = "Specialized cargo, dangerous goods")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T10:20:12.669+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-13T16:38:33.391+02:00[Europe/Amsterdam]")
 public class DangerousGoods implements LoadEventInvolvedDigitalTwinsInner {
 
   private String digitalTwinType;

@@ -8,9 +8,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import javax.annotation.Generated;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -18,11 +15,10 @@ import java.util.Objects;
  */
 
 @Schema(name = "Actor", description = "Actor has a role and is described by a legal person - relevant for us: consignor, consignee, carrier")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T10:20:12.669+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-13T16:38:33.391+02:00[Europe/Amsterdam]")
 public class Actor {
 
-  @Valid
-  private List<@Valid ActorActorLegalPersonInner> actorLegalPerson = new ArrayList<>();
+  private ActorActorLegalPerson actorLegalPerson;
 
   /**
    * Gets or Sets actorLogisticsRole
@@ -61,12 +57,11 @@ public class Actor {
     }
   }
 
-  @Valid
-  private List<ActorLogisticsRoleEnum> actorLogisticsRole = new ArrayList<>();
+  private ActorLogisticsRoleEnum actorLogisticsRole;
 
   /**
    * Default constructor
-   * @deprecated Use {@link Actor#Actor(List<@Valid ActorActorLegalPersonInner>, List<ActorLogisticsRoleEnum>)}
+   * @deprecated Use {@link Actor#Actor(ActorActorLegalPerson, ActorLogisticsRoleEnum)}
    */
   @Deprecated
   public Actor() {
@@ -76,21 +71,13 @@ public class Actor {
   /**
    * Constructor with only required parameters
    */
-  public Actor(List<@Valid ActorActorLegalPersonInner> actorLegalPerson, List<ActorLogisticsRoleEnum> actorLogisticsRole) {
+  public Actor(ActorActorLegalPerson actorLegalPerson, ActorLogisticsRoleEnum actorLogisticsRole) {
     this.actorLegalPerson = actorLegalPerson;
     this.actorLogisticsRole = actorLogisticsRole;
   }
 
-  public Actor actorLegalPerson(List<@Valid ActorActorLegalPersonInner> actorLegalPerson) {
+  public Actor actorLegalPerson(ActorActorLegalPerson actorLegalPerson) {
     this.actorLegalPerson = actorLegalPerson;
-    return this;
-  }
-
-  public Actor addActorLegalPersonItem(ActorActorLegalPersonInner actorLegalPersonItem) {
-    if (this.actorLegalPerson == null) {
-      this.actorLegalPerson = new ArrayList<>();
-    }
-    this.actorLegalPerson.add(actorLegalPersonItem);
     return this;
   }
 
@@ -98,27 +85,19 @@ public class Actor {
    * Get actorLegalPerson
    * @return actorLegalPerson
   */
-  @NotNull @Valid @Size(min = 1) 
+  @NotNull @Valid 
   @Schema(name = "actorLegalPerson", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("actorLegalPerson")
-  public List<@Valid ActorActorLegalPersonInner> getActorLegalPerson() {
+  public ActorActorLegalPerson getActorLegalPerson() {
     return actorLegalPerson;
   }
 
-  public void setActorLegalPerson(List<@Valid ActorActorLegalPersonInner> actorLegalPerson) {
+  public void setActorLegalPerson(ActorActorLegalPerson actorLegalPerson) {
     this.actorLegalPerson = actorLegalPerson;
   }
 
-  public Actor actorLogisticsRole(List<ActorLogisticsRoleEnum> actorLogisticsRole) {
+  public Actor actorLogisticsRole(ActorLogisticsRoleEnum actorLogisticsRole) {
     this.actorLogisticsRole = actorLogisticsRole;
-    return this;
-  }
-
-  public Actor addActorLogisticsRoleItem(ActorLogisticsRoleEnum actorLogisticsRoleItem) {
-    if (this.actorLogisticsRole == null) {
-      this.actorLogisticsRole = new ArrayList<>();
-    }
-    this.actorLogisticsRole.add(actorLogisticsRoleItem);
     return this;
   }
 
@@ -126,14 +105,14 @@ public class Actor {
    * Get actorLogisticsRole
    * @return actorLogisticsRole
   */
-  @NotNull @Size(min = 1) 
+  @NotNull 
   @Schema(name = "actorLogisticsRole", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("actorLogisticsRole")
-  public List<ActorLogisticsRoleEnum> getActorLogisticsRole() {
+  public ActorLogisticsRoleEnum getActorLogisticsRole() {
     return actorLogisticsRole;
   }
 
-  public void setActorLogisticsRole(List<ActorLogisticsRoleEnum> actorLogisticsRole) {
+  public void setActorLogisticsRole(ActorLogisticsRoleEnum actorLogisticsRole) {
     this.actorLogisticsRole = actorLogisticsRole;
   }
 

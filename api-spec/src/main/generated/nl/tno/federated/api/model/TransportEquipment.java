@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.annotation.Generated;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
@@ -14,16 +15,16 @@ import java.util.Objects;
  */
 
 @Schema(name = "TransportEquipment", description = "Equipment to be used for transport of goods")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-07T10:20:12.669+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-13T16:38:33.391+02:00[Europe/Amsterdam]")
 public class TransportEquipment implements LoadEventInvolvedDigitalTwinsInner {
 
   private String digitalTwinType;
 
   private String digitalTwinID;
 
-  private String grossMass;
+  private Double grossMass;
 
-  private String grossVolume;
+  private Double grossVolume;
 
   /**
    * Gets or Sets transportEquipmentSizeType
@@ -142,11 +143,11 @@ public class TransportEquipment implements LoadEventInvolvedDigitalTwinsInner {
 
   private TransportEquipmentSizeTypeEnum transportEquipmentSizeType;
 
-  private String size;
+  private TransportEquipmentAllOfSize size;
 
   /**
    * Default constructor
-   * @deprecated Use {@link TransportEquipment#TransportEquipment(String, String, String, TransportEquipmentSizeTypeEnum, String)}
+   * @deprecated Use {@link TransportEquipment#TransportEquipment(String, String, TransportEquipmentSizeTypeEnum, TransportEquipmentAllOfSize)}
    */
   @Deprecated
   public TransportEquipment() {
@@ -156,10 +157,9 @@ public class TransportEquipment implements LoadEventInvolvedDigitalTwinsInner {
   /**
    * Constructor with only required parameters
    */
-  public TransportEquipment(String digitalTwinType, String grossMass, String grossVolume, TransportEquipmentSizeTypeEnum transportEquipmentSizeType, String size) {
+  public TransportEquipment(String digitalTwinType, String digitalTwinID, TransportEquipmentSizeTypeEnum transportEquipmentSizeType, TransportEquipmentAllOfSize size) {
     this.digitalTwinType = digitalTwinType;
-    this.grossMass = grossMass;
-    this.grossVolume = grossVolume;
+    this.digitalTwinID = digitalTwinID;
     this.transportEquipmentSizeType = transportEquipmentSizeType;
     this.size = size;
   }
@@ -193,8 +193,8 @@ public class TransportEquipment implements LoadEventInvolvedDigitalTwinsInner {
    * Get digitalTwinID
    * @return digitalTwinID
   */
-  
-  @Schema(name = "digitalTwinID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @NotNull 
+  @Schema(name = "digitalTwinID", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("digitalTwinID")
   public String getDigitalTwinID() {
     return digitalTwinID;
@@ -204,7 +204,7 @@ public class TransportEquipment implements LoadEventInvolvedDigitalTwinsInner {
     this.digitalTwinID = digitalTwinID;
   }
 
-  public TransportEquipment grossMass(String grossMass) {
+  public TransportEquipment grossMass(Double grossMass) {
     this.grossMass = grossMass;
     return this;
   }
@@ -213,18 +213,18 @@ public class TransportEquipment implements LoadEventInvolvedDigitalTwinsInner {
    * Get grossMass
    * @return grossMass
   */
-  @NotNull 
-  @Schema(name = "grossMass", requiredMode = Schema.RequiredMode.REQUIRED)
+  
+  @Schema(name = "grossMass", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("grossMass")
-  public String getGrossMass() {
+  public Double getGrossMass() {
     return grossMass;
   }
 
-  public void setGrossMass(String grossMass) {
+  public void setGrossMass(Double grossMass) {
     this.grossMass = grossMass;
   }
 
-  public TransportEquipment grossVolume(String grossVolume) {
+  public TransportEquipment grossVolume(Double grossVolume) {
     this.grossVolume = grossVolume;
     return this;
   }
@@ -233,14 +233,14 @@ public class TransportEquipment implements LoadEventInvolvedDigitalTwinsInner {
    * Get grossVolume
    * @return grossVolume
   */
-  @NotNull 
-  @Schema(name = "grossVolume", requiredMode = Schema.RequiredMode.REQUIRED)
+  
+  @Schema(name = "grossVolume", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("grossVolume")
-  public String getGrossVolume() {
+  public Double getGrossVolume() {
     return grossVolume;
   }
 
-  public void setGrossVolume(String grossVolume) {
+  public void setGrossVolume(Double grossVolume) {
     this.grossVolume = grossVolume;
   }
 
@@ -264,7 +264,7 @@ public class TransportEquipment implements LoadEventInvolvedDigitalTwinsInner {
     this.transportEquipmentSizeType = transportEquipmentSizeType;
   }
 
-  public TransportEquipment size(String size) {
+  public TransportEquipment size(TransportEquipmentAllOfSize size) {
     this.size = size;
     return this;
   }
@@ -273,14 +273,14 @@ public class TransportEquipment implements LoadEventInvolvedDigitalTwinsInner {
    * Get size
    * @return size
   */
-  @NotNull 
+  @NotNull @Valid 
   @Schema(name = "size", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("size")
-  public String getSize() {
+  public TransportEquipmentAllOfSize getSize() {
     return size;
   }
 
-  public void setSize(String size) {
+  public void setSize(TransportEquipmentAllOfSize size) {
     this.size = size;
   }
 
