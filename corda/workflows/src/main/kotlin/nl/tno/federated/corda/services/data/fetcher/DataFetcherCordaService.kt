@@ -1,6 +1,7 @@
 package nl.tno.federated.corda.services.data.fetcher
 
 import net.corda.core.flows.FlowLogic
+import net.corda.core.flows.HospitalizeFlowException
 import net.corda.core.node.AppServiceHub
 import net.corda.core.node.services.CordaService
 import net.corda.core.serialization.SingletonSerializeAsToken
@@ -9,7 +10,7 @@ import net.corda.core.serialization.SingletonSerializeAsToken
 class DataFetcherCordaService(serviceHub: AppServiceHub) : SingletonSerializeAsToken() {
 
     init {
-        serviceHub.cordappProvider.getAppContext().config
+        val config = serviceHub.cordappProvider.getAppContext().config
     }
 
     // Since we cant mock @CordaService classes, we need to have some way of overriding the internals.
@@ -21,7 +22,13 @@ class DataFetcherCordaService(serviceHub: AppServiceHub) : SingletonSerializeAsT
     }
 
     // Delegate all calls to the non Corda object.
-    fun fetch(input: String) = dataFetcher.fetch(input)
+    fun fetch(deduplicationId: String, input: String): String {
+        try {
+            return dataFetcher.fetch(input)
+        } catch (e: Exception) {
+            throw HospitalizeFlowException("External API call failed", e)
+        }
+    }
 }
 
-fun FlowLogic<*>.dataFetcher() = serviceHub.cordaService(DataFetcherCordaService::class.java)
+fun FlowLogic<*>.dataFetcher(): DataFetcherCordaService = serviceHub.cordaService(DataFetcherCordaService::class.java)

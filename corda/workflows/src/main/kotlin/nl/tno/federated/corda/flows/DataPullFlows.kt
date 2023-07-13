@@ -13,6 +13,7 @@ import net.corda.core.transactions.WireTransaction
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.DataPullContract
+import nl.tno.federated.corda.services.data.fetcher.DataFetcherCordaService
 import nl.tno.federated.corda.services.data.fetcher.dataFetcher
 import nl.tno.federated.states.DataPullState
 import org.slf4j.LoggerFactory
@@ -222,7 +223,11 @@ class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTran
         /////////////
         progressTracker.currentStep = RUN_SPARQL_QUERY
 
-        val result = dataFetcher().fetch(input = inputStateWithQuery.sparql)
+        // Call [FlowLogic.await] to execute an external operation
+        // The result of the operation is returned to the flow
+        val result: String = await(
+            RetrieveDataFromExternalSystem(dataFetcher(), input = inputStateWithQuery.sparql)
+        )
 
         /////////////
         // progressTracker.currentStep = GENERATING_TRANSACTION
@@ -265,6 +270,20 @@ class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTran
                 FINALISATION_RESULT_TRANSACTION.childProgressTracker()
             )
         )
+    }
+
+    /**
+     * We need to wrap the call in a FlowExternalOperation (https://docs.r3.com/en/platform/corda/4.9/enterprise/cordapps/api-flows.html)
+     */
+    class RetrieveDataFromExternalSystem(
+        private val dataFetcher: DataFetcherCordaService,
+        private val input: String
+    ) : FlowExternalOperation<String> {
+
+        // Implement [execute] which will be run on a thread outside of the flow's context
+        override fun execute(deduplicationId: String): String {
+            return dataFetcher.fetch(deduplicationId, input)
+        }
     }
 }
 

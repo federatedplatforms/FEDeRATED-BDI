@@ -16,11 +16,11 @@ class SPARQLDataFetcher : DataFetcher {
     private val log = LoggerFactory.getLogger(SPARQLDataFetcher::class.java)
     private val propertiesFileName = "database.properties"
 
-    override fun fetch(input: String): String? {
+    override fun fetch(input: String): String {
         return executeSPARQL(input)
     }
 
-    private fun executeSPARQL(sparql: String): String? {
+    private fun executeSPARQL(sparql: String): String {
         return repository.connection.use {
             val query: TupleQuery = it.prepareTupleQuery(sparql)
             val sw = StringWriter()
