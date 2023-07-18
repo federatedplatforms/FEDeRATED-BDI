@@ -14,7 +14,7 @@
     rr:class ns0:Event
   ] ;
   rr:predicateObjectMap [
-    rr:predicate ns0:involvesDigitalTwin ;
+    rr:predicate ns0:involvedDigitalTwins ;
     rr:objectMap [
       rr:parentTriplesMap [
         rml:logicalSource [
@@ -27,21 +27,41 @@
           rr:class <https://ontology.tno.nl/logistics/federated/DigitalTwin#Equipment>
         ] ;
         rr:predicateObjectMap [
-          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#height> ;
-          rr:objectMap [ rml:reference "height" ]
-        ], [
-          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#width> ;
-          rr:objectMap [ rml:reference "width" ]
-        ], [
-          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#length> ;
-          rr:objectMap [ rml:reference "length" ]
-        ], [
-          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#digitalTwinID> ;
-          rr:objectMap [ rml:reference "digitalTwinID" ]
-        ], [
-          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#transportEquipmentSizeType> ;
-          rr:objectMap [ rml:reference "transportEquipmentSizeType" ]
-        ]
+          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#hasSize> ;
+          rr:objectMap [
+            rr:parentTriplesMap [
+                rml:logicalSource [
+                    rml:source "data.json" ;
+                    rml:referenceFormulation ql:JSONPath ;
+                    rml:iterator "$.involvedDigitalTwins.hasSize"
+                ] ;
+                rr:subjectMap [
+                 rr:termType rr:BlankNode ;
+                 rr:class <https://ontology.tno.nl/logistics/federated/DigitalTwin#Size>
+                ] ;
+                rr:predicateObjectMap [
+                 rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#length> ;
+                 rr:objectMap [ rml:reference "length" ]
+                ], [
+                 rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#width> ;
+                 rr:objectMap [ rml:reference "width" ]
+                ], [
+                 rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#height> ;
+                 rr:objectMap [ rml:reference "height" ]
+                ]
+                ] ;
+                rr:joinCondition [
+                         rr:child "." ;
+                         rr:parent ".."
+                     ]
+                ]
+          ], [
+              rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#digitalTwinID> ;
+              rr:objectMap [ rml:reference "digitalTwinID" ]
+          ], [
+              rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#transportEquipmentSizeType> ;
+              rr:objectMap [ rml:reference "transportEquipmentSizeType" ]
+          ]
       ] ;
       rr:joinCondition [
         rr:child "." ;
@@ -295,4 +315,7 @@
         rr:parent ".."
       ]
     ]
-  ] .
+], [
+    rr:predicate ns0:uniqueIdentifier ;
+    rr:objectMap [ rml:reference "uniqueIdentifier" ]
+] .
