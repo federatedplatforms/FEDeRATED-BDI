@@ -1,5 +1,6 @@
 package nl.tno.federated.api.util
 
+import org.eclipse.rdf4j.model.Model
 import org.eclipse.rdf4j.rio.RDFFormat
 import org.eclipse.rdf4j.rio.Rio
 import org.slf4j.LoggerFactory
@@ -16,7 +17,24 @@ object RDFUtils {
     val log = LoggerFactory.getLogger(RDFUtils::class.java)
 
     fun isValidRDF(input: String, format: RDFFormat): Boolean {
-        return isValidRDF(input.byteInputStream(), format)
+        return try {
+            parse(input.byteInputStream(), format)
+            true
+        } catch (e: Exception) {
+            throw InvalidRDFException(e.message, e)
+        }
+    }
+
+    fun parse(input: String, format: RDFFormat): Model = parse(input.byteInputStream(), format)
+
+    fun parse(input: InputStream, format: RDFFormat): Model {
+        return input.use {
+            val model = Rio.parse(input, format)
+            // assert a certain event here?
+            log.debug("Valid RDF data: {}", model.toString())
+
+            model
+        }
     }
 
     fun isValidRDF(input: InputStream, format: RDFFormat): Boolean {

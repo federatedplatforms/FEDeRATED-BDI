@@ -1,0 +1,87 @@
+{
+    "involvedActors":[
+        {
+            "actorLegalPerson": {
+                "legalPersonAddress":{
+                    "postalCode": "5656AE",
+                    "locatedAtStreetName": "High Tech Campus",
+                    "postalAddress": "HTC 25, 5656 AE Eindhoven",
+                    "locatedInCountry": {
+                        "countryISOCode": "NL"
+                    },
+                    "locatedInCity": {
+                        "cityName": "Eindhoven"
+                    }
+                },
+                "legalPersonName": "TNO",
+                "legalPersonID": "NL-00001"
+            },
+            "actorLogisticsRole": "Consignor"
+        },
+        {
+            "actorLegalPerson": {
+                "legalPersonAddress":{
+                    "postalCode": "37137",
+                    "locatedAtStreetName": "Via Sommacampagna 32",
+                    "postalAddress": "Via Sommacampagna 32",
+                    "locatedInCountry": {
+                        "countryISOCode": "IT"
+                    },
+                    "locatedInCity": {
+                        "cityName": "Verona"
+                    }
+                },
+                "legalPersonName": "Verona Quadrante Europa TVR",
+                "legalPersonID": ""
+            },
+            "actorLogisticsRole": "Consignee"
+        },
+        {
+            "actorLegalPerson": {
+                "legalPersonAddress":{
+                    "postalCode": "8660",
+                    "locatedAtStreetName": "Godthåbsvej 19",
+                    "postalAddress": "Godthåbsvej 19",
+                    "locatedInCountry": {
+                        "countryISOCode": "DK"
+                    },
+                    "locatedInCity": {
+                        "cityName": "Skanderborg"
+                    }
+                },
+                "legalPersonName": "WAYS Logistics A/S",
+                "legalPersonID": "349358"
+            },
+            "actorLogisticsRole": "Carrier"
+        }
+    ],
+    "transportMeans": {
+        "digitalTwinType": "TransportMeans",
+        "digitalTwinID": "X-040-TNO",
+        "transportMeansMode": "Road",
+        "hasTransportmeansNationality": "NL"
+    },
+    "involvedDigitalTwins": [
+        {
+            "digitalTwinID": "NLX040XNL",
+            "grossMass": 100,
+            "grossVolume": 0.5,
+            "netMass": 98,
+            "numberOfUnits": 5,
+            "goodsDescription": "5 BDI Nodes",
+            "digitalTwinType": "Goods"
+        },
+        {
+            "digitalTwinID": "NLZ040ZNL",
+            "grossMass": 140,
+            "grossVolume": 0.7,
+            "transportEquipmentSizeType": "AE",
+            "size": {
+                "height": 0.35,
+                "length": 2,
+                "width": 1
+            },
+            "digitalTwinType": "TransportEquipment"
+        }
+    ]
+}

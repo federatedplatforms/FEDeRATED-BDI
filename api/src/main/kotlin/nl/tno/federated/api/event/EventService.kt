@@ -6,8 +6,7 @@ import nl.tno.federated.api.event.mapper.EventMapper
 import nl.tno.federated.api.event.mapper.UnsupportedEventTypeException
 import nl.tno.federated.api.event.query.EventQuery
 import nl.tno.federated.api.event.query.corda.CordaEventQueryService
-import nl.tno.federated.api.util.RDFUtils.isValidRDF
-import org.eclipse.rdf4j.rio.RDFFormat
+import org.eclipse.rdf4j.model.Model
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -33,9 +32,15 @@ class EventService(
     }
 
     fun publishRDFEvent(event: String, eventType: String, destinations: Set<String>? = null): UUID {
-        if (!isValidRDF(event, RDFFormat.TURTLE)) throw InvalidEventDataException("Expected RDF turtle event data.")
         val dest = destinations?.map { CordaEventDestination.parse(it) }?.toSet()
         return eventDistributionService.distributeEvent(event = event, eventType = eventType, destinations = dest)
+    }
+
+    private fun addUniqueIdentifier(model: Model): String {
+        val uuid = UUID.randomUUID().toString()
+        // TODO add unique ID
+        // val uuidIri = Values.iri("https://ontology.tno.nl/logistics/federated/Event#", uuid);
+        return uuid
     }
 
     fun findEventById(id: String): Map<String, Any>? {

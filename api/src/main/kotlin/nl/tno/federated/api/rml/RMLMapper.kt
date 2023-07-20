@@ -78,9 +78,8 @@ class RMLMapper {
                 val executor = Executor(rmlStore, factory, outputStore, Utils.getBaseDirectiveTurtle(it), functionAgent)
 
                 // Execute the mapping
-                executor.execute(null).get(NamedNode("rmlmapper://default.store"))
+                val targets = executor.execute(null)
 
-                val targets = executor.targets
                 if (targets != null) {
                     val result = targets[NamedNode("rmlmapper://default.store")]!!
                     result.copyNameSpaces(rmlStore)

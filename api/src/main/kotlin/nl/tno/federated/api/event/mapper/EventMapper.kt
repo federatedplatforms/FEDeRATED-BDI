@@ -10,7 +10,6 @@ import nl.tno.federated.api.util.toJsonString
 import org.eclipse.rdf4j.rio.RDFFormat
 import org.springframework.stereotype.Service
 
-
 open class EventMapperException(msg: String, throwable: Throwable? = null) : Exception(msg, throwable)
 class UnsupportedEventTypeException(msg: String) : EventMapperException(msg)
 

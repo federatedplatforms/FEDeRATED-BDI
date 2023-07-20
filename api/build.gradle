@@ -26,15 +26,14 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.1'
     implementation 'org.springdoc:springdoc-openapi-kotlin:1.6.1'
     implementation 'com.github.jsonld-java:jsonld-java:0.13.0'
-    implementation group: 'org.glassfish', name: 'jakarta.json', version: '2.0.1'
+    implementation 'org.glassfish:jakarta.json:2.0.1'
 
     implementation("be.ugent.rml:rmlmapper") {
         exclude group: "org.apache.jena"
     }
 
-    implementation "org.eclipse.rdf4j:rdf4j-rio-api:$rdf4j_version"
-    implementation "org.eclipse.rdf4j:rdf4j-rio-turtle:$rdf4j_version"
-    implementation "org.eclipse.rdf4j:rdf4j-runtime:$rdf4j_version"
+    implementation "org.apache.jena:jena-core:3.13.1"
+    implementation "org.apache.jena:jena-arq:3.13.1"
 
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.jetbrains.kotlin:kotlin-test"

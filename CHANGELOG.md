@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [0.3] - 2022-12-20
+
+### Added
+
+- 
+
+### Changed
+
+-
+
+## [Released]
+
+## [0.2] - 2022-12-20
+
 ### Added
 
 - ishare specific corda flows
@@ -15,8 +29,6 @@ All notable changes to this project will be documented in this file. The format 
 - Cleaned up all unused code.
 - Rewrote gradle build scripts.
 - Moved all graphdb related calls to corda flows.
-
-## [Released]
 
 ## [0.1] - 2022-11-05
 
