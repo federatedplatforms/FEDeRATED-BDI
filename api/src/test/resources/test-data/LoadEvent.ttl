@@ -1,0 +1,95 @@
+@prefix ns0: <https://ontology.tno.nl/logistics/federated/Event#> .
+@prefix ql:  <http://semweb.mmlab.be/ns/ql#> .
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix rr:  <http://www.w3.org/ns/r2rml#> .
+
+_:0
+    a                                                                                        <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#Property> ;
+    <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#locatedAtStreetName> "High Tech Campus" ;
+    <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#locatedInCity>       _:4, _:5, _:6 ;
+    <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#locatedInCountry>    _:1, _:2, _:3 ;
+    <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#postalAddress>       "HTC 25, 5656 AE Eindhoven" .
+
+_:1
+    a                                                                                   <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#Country> ;
+    <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#countryISOCode> "NL" .
+
+_:10
+    a                        ns0:Event ;
+    ns0:involvedActors       _:15 ;
+    ns0:involvedDigitalTwins _:11, _:12, _:13, _:14 .
+
+_:11
+    a <https://ontology.tno.nl/logistics/federated/DigitalTwin#DangerousGoods> .
+
+_:12
+    a                                                              <https://ontology.tno.nl/logistics/federated/DigitalTwin#Equipment> ;
+    <https://ontology.tno.nl/logistics/federated/DigitalTwin#Size> _:9 .
+
+_:13
+    a <https://ontology.tno.nl/logistics/federated/DigitalTwin#Goods> .
+
+_:14
+    a <https://ontology.tno.nl/logistics/federated/DigitalTwin#TransportMeans> .
+
+_:15
+    a                                                                              <https://ontology.tno.nl/logistics/federated/BusinessService#Actor> ;
+    <https://ontology.tno.nl/logistics/federated/BusinessService#actorLegalPerson> _:16, _:17, _:18 .
+
+_:16
+    a                                                                                <https://ontology.tno.nl/logistics/federated/BusinessService#LegalPerson> ;
+    <https://ontology.tno.nl/logistics/federated/BusinessService#legalPersonAddress> _:0, _:7, _:8 ;
+    <https://ontology.tno.nl/logistics/federated/BusinessService#legalPersonID>      "NL-00001" ;
+    <https://ontology.tno.nl/logistics/federated/BusinessService#legalPersonName>    "TNO" .
+
+_:17
+    a                                                                                <https://ontology.tno.nl/logistics/federated/BusinessService#LegalPerson> ;
+    <https://ontology.tno.nl/logistics/federated/BusinessService#legalPersonAddress> _:0, _:7, _:8 ;
+    <https://ontology.tno.nl/logistics/federated/BusinessService#legalPersonID>      "" ;
+    <https://ontology.tno.nl/logistics/federated/BusinessService#legalPersonName>    "Verona Quadrante Europa TVR" .
+
+_:18
+    a                                                                                <https://ontology.tno.nl/logistics/federated/BusinessService#LegalPerson> ;
+    <https://ontology.tno.nl/logistics/federated/BusinessService#legalPersonAddress> _:0, _:7, _:8 ;
+    <https://ontology.tno.nl/logistics/federated/BusinessService#legalPersonID>      "349358" ;
+    <https://ontology.tno.nl/logistics/federated/BusinessService#legalPersonName>    "WAYS Logistics A/S" .
+
+_:2
+    a                                                                                   <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#Country> ;
+    <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#countryISOCode> "IT" .
+
+_:3
+    a                                                                                   <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#Country> ;
+    <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#countryISOCode> "DK" .
+
+_:4
+    a                                                                             <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#City> ;
+    <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#cityName> "Eindhoven" .
+
+_:5
+    a                                                                             <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#City> ;
+    <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#cityName> "Verona" .
+
+_:6
+    a                                                                             <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#City> ;
+    <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#cityName> "Skanderborg" .
+
+_:7
+    a                                                                                        <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#Property> ;
+    <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#locatedAtStreetName> "Via Sommacampagna 32" ;
+    <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#locatedInCity>       _:4, _:5, _:6 ;
+    <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#locatedInCountry>    _:1, _:2, _:3 ;
+    <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#postalAddress>       "Via Sommacampagna 32" .
+
+_:8
+    a                                                                                        <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#Property> ;
+    <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#locatedAtStreetName> "Godthåbsvej 19" ;
+    <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#locatedInCity>       _:4, _:5, _:6 ;
+    <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#locatedInCountry>    _:1, _:2, _:3 ;
+    <https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#postalAddress>       "Godthåbsvej 19" .
+
+_:9
+    a                                                                <https://ontology.tno.nl/logistics/federated/DigitalTwin#Size> ;
+    <https://ontology.tno.nl/logistics/federated/DigitalTwin#height> "0.35" ;
+    <https://ontology.tno.nl/logistics/federated/DigitalTwin#length> "2.0" ;
+    <https://ontology.tno.nl/logistics/federated/DigitalTwin#width>  "1.0" .

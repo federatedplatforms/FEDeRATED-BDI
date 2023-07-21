@@ -5,9 +5,9 @@ import nl.tno.federated.api.model.ArrivalEvent
 import nl.tno.federated.api.model.LoadEvent
 import nl.tno.federated.api.rml.RMLMapper
 import nl.tno.federated.api.util.RDFUtils.convert
-import nl.tno.federated.api.util.compactJsonLD
 import nl.tno.federated.api.util.toJsonString
 import org.eclipse.rdf4j.rio.RDFFormat
+import org.eclipse.rdf4j.rio.helpers.JSONLDMode
 import org.springframework.stereotype.Service
 
 open class EventMapperException(msg: String, throwable: Throwable? = null) : Exception(msg, throwable)
@@ -25,9 +25,12 @@ class EventMapper(
         return tripleService.createTriples(json, rmlFile) ?: throw EventMapperException("Unable to map event to RDF, no output from mapping.")
     }
 
-    fun toCompactedJSONLD(rdf: String): Map<String, Any> {
-        val jsonLd = convert(rdf, RDFFormat.TURTLE, RDFFormat.JSONLD)
-        return compactJsonLD(jsonLd)
+    fun toCompactedJSONLD(rdf: String): String {
+        return convert(rdf, RDFFormat.TURTLE, RDFFormat.JSONLD, JSONLDMode.COMPACT)
+    }
+
+    fun toFlattenedJSONLD(rdf: String): String {
+        return convert(rdf, RDFFormat.TURTLE, RDFFormat.JSONLD, JSONLDMode.FLATTEN)
     }
 
     private fun <T : Any> getRMLFileLocation(event: T): String = when (event) {

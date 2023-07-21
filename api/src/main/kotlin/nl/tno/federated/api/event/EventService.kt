@@ -43,17 +43,17 @@ class EventService(
         return uuid
     }
 
-    fun findEventById(id: String): Map<String, Any>? {
+    fun findEventById(id: String): String? {
         val rdf = eventQueryService.findById(id) ?: return null
         return eventMapper.toCompactedJSONLD(rdf)
     }
 
-    fun findAll(page: Int, size: Int): List<Map<String, Any>> {
+    fun findAll(page: Int, size: Int): List<String> {
         val result = eventQueryService.findAll(page, size)
         return result.map { eventMapper.toCompactedJSONLD(it) }
     }
 
-    fun query(eventQuery: EventQuery): Map<String, Any>? {
+    fun query(eventQuery: EventQuery): String? {
         val rdf = eventQueryService.executeQuery(eventQuery) ?: return null
         return eventMapper.toCompactedJSONLD(rdf)
     }
