@@ -25,7 +25,7 @@ class BroadcastToAllEventDistributionRuleTest {
     @Test
     fun getDestinations() {
         every { nodeInfo.legalIdentities }.returns(listOf(Party(destination, owningKey)))
-        every { cordaNodeService.getNetworkMapSnapshot() } returns listOf(nodeInfo)
+        every { cordaNodeService.getPeersExcludingSelfAndNotary() } returns listOf(nodeInfo.legalIdentities.first())
         val destination1 = destinations.first().destination
         val destination2 = rule.getDestinations().first()
         kotlin.test.assertEquals(destination1.commonName, destination2.destination.commonName)

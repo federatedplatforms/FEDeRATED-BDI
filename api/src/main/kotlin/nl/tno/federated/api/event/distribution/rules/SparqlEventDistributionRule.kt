@@ -16,6 +16,7 @@ class SparqlEventDistributionRule(
 
     override fun appliesTo(ttl: String): Boolean {
         val db: Repository = SailRepository(MemoryStore())
+        db.init()
 
         try {
             db.connection.use { conn ->
