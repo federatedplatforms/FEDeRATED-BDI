@@ -77,7 +77,7 @@ components:
                 transportMeans:
                     $ref: '#/components/schemas/TransportMeans'
                     type: array
-                involvedDigitalTwins:
+                involvedCargo:
                     items:
                         oneOf:
                             -   $ref: '#/components/schemas/TransportEquipment'
@@ -103,25 +103,21 @@ components:
             properties:
                 actorLegalPerson:
                     required:
-                      [ legalPersonAddress, legalPersonName, legalPersonID ]
+                      [ legalPersonAddress, legalPersonName, legalPersonID, postalCode, locatedAtStreetName, postalAddress, locatedInCountry, locatedInCity ]
                     additionalProperties: false
                     type: object
                     properties:
-                        required:
-                          [ postalCode, locatedAtStreetName, postalAddress, locatedInCountry, locatedInCity ]
-                        additionalProperties: false
-                        properties:
-                            postalCode:
-                                type: string
-                            locatedAtStreetName:
-                                type: string
-                            postalAddress:
-                                type: string
-                            locatedInCountry:
-                                type: string
-                                enum: [ AD, AE, AF, AG, AI, AL, AM, AO, AQ, AR, AS, AT, AU, AW, AX, AZ, BA, BB, BD, BE, BF, BG, BH, BI, BJ, BL, BM, BN, BO, BQ, BR, BS, BT, BW, BY, BZ, CA, CC, CD, CF, CG, CH, CI, CK, CL, CM, CN, CO, CR, CU, CV, CW, CX, CY, CZ, DE, DJ, DK, DM, DO, DZ, EC, EE, EG, EH, ER, ES, ET, FI, FJ, FK, FM, FO, FR, GA, GB, GD, GE, GF, GG, GH, GI, GL, GM, GN, GP, GQ, GR, GS, GT, GU, GW, GY, HK, HM, HN, HR, HT, HU, ID, IE, IL, IM, IN, IO, IQ, IR, IS, IT, JE, JM, JO, JP, KE, KG, KH, KI, KM, KN, KP, KR, KW, KY, KZ, LA, LB, LC, LI, LK, LR, LS, LT, LU, LV, LY, MA, MC, MD, ME, MF, MG, MH, MK, ML, MM, MN, MO, MP, MQ, MR, MS, MT, MU, MV, MW, MX, MY, MZ, NC, NE, NF, NG, NI, NL, NO, NP, NR, NU, NZ, OM, PA, PE, PF, PG, PH, PK, PL, PM, PN, PR, PS, PT, PW, PY, QA, RE, RO, RS, RU, RW, SA, SB, SC, SD, SE, SG, SH, SI, SJ, SK, SL, SM, SN, SO, SR, SS, ST, SV, SX, SY, SZ, TC, TD, TF, TG, TH, TJ, TK, TL, TM, TN, TO, TR, TT, TV, TW, TZ, UA, UG, UM, US, UY, UZ, VA, VC, VE, VG, VI, VN, VU, WF, WS, XZ, YE, YT, ZA, ZM, ZW ]
-                            locatedInCity:
-                                type: string
+                        postalCode:
+                            type: string
+                        locatedAtStreetName:
+                            type: string
+                        postalAddress:
+                            type: string
+                        locatedInCountry:
+                            type: string
+                            enum: [ AD, AE, AF, AG, AI, AL, AM, AO, AQ, AR, AS, AT, AU, AW, AX, AZ, BA, BB, BD, BE, BF, BG, BH, BI, BJ, BL, BM, BN, BO, BQ, BR, BS, BT, BW, BY, BZ, CA, CC, CD, CF, CG, CH, CI, CK, CL, CM, CN, CO, CR, CU, CV, CW, CX, CY, CZ, DE, DJ, DK, DM, DO, DZ, EC, EE, EG, EH, ER, ES, ET, FI, FJ, FK, FM, FO, FR, GA, GB, GD, GE, GF, GG, GH, GI, GL, GM, GN, GP, GQ, GR, GS, GT, GU, GW, GY, HK, HM, HN, HR, HT, HU, ID, IE, IL, IM, IN, IO, IQ, IR, IS, IT, JE, JM, JO, JP, KE, KG, KH, KI, KM, KN, KP, KR, KW, KY, KZ, LA, LB, LC, LI, LK, LR, LS, LT, LU, LV, LY, MA, MC, MD, ME, MF, MG, MH, MK, ML, MM, MN, MO, MP, MQ, MR, MS, MT, MU, MV, MW, MX, MY, MZ, NC, NE, NF, NG, NI, NL, NO, NP, NR, NU, NZ, OM, PA, PE, PF, PG, PH, PK, PL, PM, PN, PR, PS, PT, PW, PY, QA, RE, RO, RS, RU, RW, SA, SB, SC, SD, SE, SG, SH, SI, SJ, SK, SL, SM, SN, SO, SR, SS, ST, SV, SX, SY, SZ, TC, TD, TF, TG, TH, TJ, TK, TL, TM, TN, TO, TR, TT, TV, TW, TZ, UA, UG, UM, US, UY, UZ, VA, VC, VE, VG, VI, VN, VU, WF, WS, XZ, YE, YT, ZA, ZM, ZW ]
+                        locatedInCity:
+                            type: string
                         legalPersonName:
                             type: string
                         legalPersonID:
@@ -131,9 +127,9 @@ components:
                     enum: [ Consignee, Consignor, Carrier ]
             type: object
 
-        DigitalTwin:
-            title: "A digital twin"
-            description: "May represent a transport means, a transport equipment or cargo (goods / dangerous goods)"
+        Cargo:
+            title: "A digital twin of a cargo entity"
+            description: "May represent a transport equipment, goods or dangerous goods"
             required:
                 - digitalTwinType
             properties:
@@ -144,11 +140,13 @@ components:
 
         TransportMeans:
             title: "Transport means"
-            description: "Specialized digital twin, mostly truck"
+            description: "Specialized digital twin, mostly truck, can also be airplane or train"
             allOf:
                 -   $ref: "#/components/schemas/DigitalTwin"
                 -   type: object
                     properties:
+                        digitalTwinID:
+                            type: string
                         transportMeansMode:
                             type: string
                             enum: [ Sea, Rail, Road, Air, Mail, Multimodal, Pipelines, InlandWaterways ]
@@ -164,7 +162,7 @@ components:
             title: "Transport equipment"
             description: "Equipment to be used for transport of goods"
             allOf:
-                -   $ref: "#/components/schemas/DigitalTwin"
+                -   $ref: "#/components/schemas/Cargo"
                 -   type: object
                     properties:
                         grossMass:
@@ -205,7 +203,7 @@ components:
                 - goodsTypeCode
                 - goodsDescription
             allOf:
-                -   $ref: "#/components/schemas/DigitalTwin"
+                -   $ref: "#/components/schemas/Cargo"
                 -   type: object
             properties:
                 grossMass:
@@ -227,7 +225,7 @@ components:
             title: "Dangerous goods"
             description: "Specialized cargo, dangerous goods"
             allOf:
-                -   $ref: "#/components/schemas/DigitalTwin"
+                -   $ref: "#/components/schemas/Cargo"
                 -   type: object
                     properties:
                         grossMass:
