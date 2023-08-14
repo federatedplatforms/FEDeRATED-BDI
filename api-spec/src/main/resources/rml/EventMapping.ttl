@@ -129,7 +129,7 @@ map:om_023 rml:reference "transportEquipmentSizeType" ;
 	rr:termType rr:Literal .
 
 map:om_024 rdf:type rr:ObjectMap ;
-	rr:template "https://ontology.tno.nl/logistics/federated/DigitalTwin#{digitalTwinType}" ;
+	rr:constant "https://ontology.tno.nl/logistics/federated/DigitalTwin#TransportMeans" ;
 	rr:termType rr:IRI .
 
 map:om_025 rml:reference "digitalTwinID" ;
