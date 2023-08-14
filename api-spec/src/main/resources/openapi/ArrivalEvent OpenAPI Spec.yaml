@@ -72,7 +72,8 @@ components:
                         $ref: "#/components/schemas/Actor"
                     type: array # multiple actors in 1 event
                 transportMeans:
-                    $ref: "#/components/schemas/TransportMeans" # still need to discuss how conveyance number can be accommodated
+                    items:
+                        $ref: "#/components/schemas/TransportMeans" # still need to discuss how conveyance number can be accommodated
                     type: array
                 timestamp:
                     type: string
@@ -115,134 +116,20 @@ components:
                     enum: [ Consignee, Consignor, Carrier ]
             type: object
 
-        DigitalTwin:
-            title: "A digital twin"
-            description: "May represent a transport means, a transport equipment or cargo (goods / dangerous goods)"
-            required:
-                - digitalTwinType
-            properties:
-                digitalTwinID:
-                    type: string
-
         TransportMeans:
             title: "Transport means"
             description: "Specialized digital twin, mostly truck"
-            allOf:
-                -   $ref: "#/components/schemas/DigitalTwin"
-                -   type: object
-                    properties:
-                        transportMeansMode:
-                            type: string
-                            enum: [ Sea, Rail, Road, Air, Mail, Multimodal, Pipelines, InlandWaterways ]
-                        hasTransportMeansNationality:
-                            type: string
-                            enum: [ AD, AE, AF, AG, AI, AL, AM, AO, AQ, AR, AS, AT, AU, AW, AX, AZ, BA, BB, BD, BE, BF, BG, BH, BI, BJ, BL, BM, BN, BO, BQ, BR, BS, BT, BW, BY, BZ, CA, CC, CD, CF, CG, CH, CI, CK, CL, CM, CN, CO, CR, CU, CV, CW, CX, CY, CZ, DE, DJ, DK, DM, DO, DZ, EC, EE, EG, EH, ER, ES, ET, FI, FJ, FK, FM, FO, FR, GA, GB, GD, GE, GF, GG, GH, GI, GL, GM, GN, GP, GQ, GR, GS, GT, GU, GW, GY, HK, HM, HN, HR, HT, HU, ID, IE, IL, IM, IN, IO, IQ, IR, IS, IT, JE, JM, JO, JP, KE, KG, KH, KI, KM, KN, KP, KR, KW, KY, KZ, LA, LB, LC, LI, LK, LR, LS, LT, LU, LV, LY, MA, MC, MD, ME, MF, MG, MH, MK, ML, MM, MN, MO, MP, MQ, MR, MS, MT, MU, MV, MW, MX, MY, MZ, NC, NE, NF, NG, NI, NL, NO, NP, NR, NU, NZ, OM, PA, PE, PF, PG, PH, PK, PL, PM, PN, PR, PS, PT, PW, PY, QA, RE, RO, RS, RU, RW, SA, SB, SC, SD, SE, SG, SH, SI, SJ, SK, SL, SM, SN, SO, SR, SS, ST, SV, SX, SY, SZ, TC, TD, TF, TG, TH, TJ, TK, TL, TM, TN, TO, TR, TT, TV, TW, TZ, UA, UG, UM, US, UY, UZ, VA, VC, VE, VG, VI, VN, VU, WF, WS, XZ, YE, YT, ZA, ZM, ZW ]
+            type: object
+            properties:
+                digitalTwinID:
+                    type: string
+                transportMeansMode:
+                    type: string
+                    enum: [ Sea, Rail, Road, Air, Mail, Multimodal, Pipelines, InlandWaterways ]
+                hasTransportMeansNationality:
+                    type: string
+                    enum: [ AD, AE, AF, AG, AI, AL, AM, AO, AQ, AR, AS, AT, AU, AW, AX, AZ, BA, BB, BD, BE, BF, BG, BH, BI, BJ, BL, BM, BN, BO, BQ, BR, BS, BT, BW, BY, BZ, CA, CC, CD, CF, CG, CH, CI, CK, CL, CM, CN, CO, CR, CU, CV, CW, CX, CY, CZ, DE, DJ, DK, DM, DO, DZ, EC, EE, EG, EH, ER, ES, ET, FI, FJ, FK, FM, FO, FR, GA, GB, GD, GE, GF, GG, GH, GI, GL, GM, GN, GP, GQ, GR, GS, GT, GU, GW, GY, HK, HM, HN, HR, HT, HU, ID, IE, IL, IM, IN, IO, IQ, IR, IS, IT, JE, JM, JO, JP, KE, KG, KH, KI, KM, KN, KP, KR, KW, KY, KZ, LA, LB, LC, LI, LK, LR, LS, LT, LU, LV, LY, MA, MC, MD, ME, MF, MG, MH, MK, ML, MM, MN, MO, MP, MQ, MR, MS, MT, MU, MV, MW, MX, MY, MZ, NC, NE, NF, NG, NI, NL, NO, NP, NR, NU, NZ, OM, PA, PE, PF, PG, PH, PK, PL, PM, PN, PR, PS, PT, PW, PY, QA, RE, RO, RS, RU, RW, SA, SB, SC, SD, SE, SG, SH, SI, SJ, SK, SL, SM, SN, SO, SR, SS, ST, SV, SX, SY, SZ, TC, TD, TF, TG, TH, TJ, TK, TL, TM, TN, TO, TR, TT, TV, TW, TZ, UA, UG, UM, US, UY, UZ, VA, VC, VE, VG, VI, VN, VU, WF, WS, XZ, YE, YT, ZA, ZM, ZW ]
             additionalProperties: false
             required:
                 - transportMeansMode
                 - transportMeansNationality
-
-        TransportEquipment: # seal quantity not yet fully defined
-            title: "Transport equipment"
-            description: "Equipment to be used for transport of goods"
-            allOf:
-                -   $ref: "#/components/schemas/DigitalTwin"
-                -   type: object
-                    properties:
-                        grossMass:
-                            type: number
-                            format: double
-                        grossVolume:
-                            type: number
-                            format: double
-                        transportEquipmentSizeType:
-                            type: string
-                            enum: [ AA, AB, AC, AD, AE, AF, AG, AH, AI, AJ, AK, AL, AM, AN, AO, AP, AQ, AR, AS, AT, AU, AV, AX, AY, AZ, BA, BB, BC, BD, BE, BF, BG, BH, BI, BJ, BK, BL, BM, BN, BO, BP, BR ]
-                        size:
-                            type: object
-                            required: [ height, length, width ]
-                            additionalProperties: false
-                            properties:
-                                height:
-                                    type: number
-                                    format: double
-                                length:
-                                    type: number
-                                    format: double
-                                width:
-                                    type: number
-                                    format: double
-            additionalProperties: false
-            required:
-                - digitalTwinID
-                - transportEquipmentSizeType
-                - size
-
-        Goods:
-            title: "Goods"
-            description: "Specialized cargo, goods"
-            required:
-                - grossMass
-                - grossVolume
-                - goodsTypeCode
-                - goodsDescription
-            allOf:
-                -   $ref: "#/components/schemas/DigitalTwin"
-                -   type: object
-            properties:
-                grossMass:
-                    type: number
-                    format: double
-                grossVolume:
-                    type: number
-                    format: double
-                goodsTypeCode:
-                    type: string
-                netMass:
-                    type: integer
-                numberOfUnits:
-                    type: integer
-                goodsDescription:
-                    type: string
-
-        DangerousGoods:
-            title: "Dangerous goods"
-            description: "Specialized cargo, dangerous goods"
-            allOf:
-                -   $ref: "#/components/schemas/DigitalTwin"
-                -   type: object
-                    properties:
-                        grossMass:
-                            type: string
-                        grossVolume:
-                            type: string
-                        UNDGCode:
-                            type: string
-                        dangerousGoodsRegulationCode:
-                            type: string
-                        dangerousGoodsTechnicalName:
-                            type: string
-                        dangerousGoodsEMSID:
-                            type: string
-                        dangerousGoodsPackagingDangerLevelCode:
-                            type: string
-                        dangerousGoodsHazardClassificationID:
-                            type: string
-                        dangerousGoodsProperShippingName:
-                            type: string
-                        dangerousGoodsSupplementaryInformation:
-                            type: string
-                        dangerousGoodsFlashpointTemperature:
-                            type: string
-            required:
-                - grossMass
-                - grossVolume
-                - UNDGCode
-                - dangerousGoodsRegulationCode
-                - dangerousGoodsTechnicalName
-                - dangerousGoodsEMSID
-                - dangerousGoodsPackagingDangerLevelCode
-                - dangerousGoodsHazardClassificationID
-                - dangerousGoodsProperShippingName
-                - dangerousGoodsSupplementaryInformation
-                - dangerousGoodsFlashpointTemperature
