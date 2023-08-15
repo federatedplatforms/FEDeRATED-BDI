@@ -1,8 +1,8 @@
 ### Known issues
 
-Since SpringDoc does not pick up the JsonSubTypes, @Schema has to be added to the generated LoadEventInvolvesDigitalTwin:
+Since SpringDoc does not pick up the JsonSubTypes, @Schema has to be added to the generated LoadEventInvolvedCargoInner:
 
-nl.tno.federated.api.model.LoadEventInvolvedDigitalTwinsInner:
+nl.tno.federated.api.model.LoadEventInvolvedCargoInner:
 
 ```
 package nl.tno.federated.api.model;

@@ -136,7 +136,7 @@ components:
             properties:
                 digitalTwinType:
                     type: string
-                    enum: [ Goods, TransportEquipment, DangerousGoods ]
+                    #enum: [ Goods, TransportEquipment, DangerousGoods ]
                 digitalTwinID:
                     type: string
 

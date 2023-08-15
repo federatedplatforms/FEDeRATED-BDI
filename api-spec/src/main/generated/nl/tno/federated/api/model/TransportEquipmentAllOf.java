@@ -4,12 +4,9 @@ import java.net.URI;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import nl.tno.federated.api.model.TransportEquipmentAllOfSize;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.openapitools.jackson.nullable.JsonNullable;
 import java.time.OffsetDateTime;
 import javax.validation.Valid;
@@ -21,16 +18,12 @@ import java.util.*;
 import javax.annotation.Generated;
 
 /**
- * Equipment to be used for transport of goods
+ * TransportEquipmentAllOf
  */
 
-@Schema(name = "TransportEquipment", description = "Equipment to be used for transport of goods")
+@JsonTypeName("TransportEquipment_allOf")
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-14T16:15:39.185+02:00[Europe/Amsterdam]")
-public class TransportEquipment implements LoadEventInvolvedCargoInner {
-
-  private String digitalTwinType;
-
-  private String digitalTwinID;
+public class TransportEquipmentAllOf {
 
   private Double grossMass;
 
@@ -155,66 +148,7 @@ public class TransportEquipment implements LoadEventInvolvedCargoInner {
 
   private TransportEquipmentAllOfSize size;
 
-  /**
-   * Default constructor
-   * @deprecated Use {@link TransportEquipment#TransportEquipment(String, String, TransportEquipmentSizeTypeEnum, TransportEquipmentAllOfSize)}
-   */
-  @Deprecated
-  public TransportEquipment() {
-    super();
-  }
-
-  /**
-   * Constructor with only required parameters
-   */
-  public TransportEquipment(String digitalTwinType, String digitalTwinID, TransportEquipmentSizeTypeEnum transportEquipmentSizeType, TransportEquipmentAllOfSize size) {
-    this.digitalTwinType = digitalTwinType;
-    this.digitalTwinID = digitalTwinID;
-    this.transportEquipmentSizeType = transportEquipmentSizeType;
-    this.size = size;
-  }
-
-  public TransportEquipment digitalTwinType(String digitalTwinType) {
-    this.digitalTwinType = digitalTwinType;
-    return this;
-  }
-
-  /**
-   * Get digitalTwinType
-   * @return digitalTwinType
-  */
-  @NotNull 
-  @Schema(name = "digitalTwinType", requiredMode = Schema.RequiredMode.REQUIRED)
-  @JsonProperty("digitalTwinType")
-  public String getDigitalTwinType() {
-    return digitalTwinType;
-  }
-
-  public void setDigitalTwinType(String digitalTwinType) {
-    this.digitalTwinType = digitalTwinType;
-  }
-
-  public TransportEquipment digitalTwinID(String digitalTwinID) {
-    this.digitalTwinID = digitalTwinID;
-    return this;
-  }
-
-  /**
-   * Get digitalTwinID
-   * @return digitalTwinID
-  */
-  @NotNull 
-  @Schema(name = "digitalTwinID", requiredMode = Schema.RequiredMode.REQUIRED)
-  @JsonProperty("digitalTwinID")
-  public String getDigitalTwinID() {
-    return digitalTwinID;
-  }
-
-  public void setDigitalTwinID(String digitalTwinID) {
-    this.digitalTwinID = digitalTwinID;
-  }
-
-  public TransportEquipment grossMass(Double grossMass) {
+  public TransportEquipmentAllOf grossMass(Double grossMass) {
     this.grossMass = grossMass;
     return this;
   }
@@ -234,7 +168,7 @@ public class TransportEquipment implements LoadEventInvolvedCargoInner {
     this.grossMass = grossMass;
   }
 
-  public TransportEquipment grossVolume(Double grossVolume) {
+  public TransportEquipmentAllOf grossVolume(Double grossVolume) {
     this.grossVolume = grossVolume;
     return this;
   }
@@ -254,7 +188,7 @@ public class TransportEquipment implements LoadEventInvolvedCargoInner {
     this.grossVolume = grossVolume;
   }
 
-  public TransportEquipment transportEquipmentSizeType(TransportEquipmentSizeTypeEnum transportEquipmentSizeType) {
+  public TransportEquipmentAllOf transportEquipmentSizeType(TransportEquipmentSizeTypeEnum transportEquipmentSizeType) {
     this.transportEquipmentSizeType = transportEquipmentSizeType;
     return this;
   }
@@ -263,8 +197,8 @@ public class TransportEquipment implements LoadEventInvolvedCargoInner {
    * Get transportEquipmentSizeType
    * @return transportEquipmentSizeType
   */
-  @NotNull 
-  @Schema(name = "transportEquipmentSizeType", requiredMode = Schema.RequiredMode.REQUIRED)
+  
+  @Schema(name = "transportEquipmentSizeType", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("transportEquipmentSizeType")
   public TransportEquipmentSizeTypeEnum getTransportEquipmentSizeType() {
     return transportEquipmentSizeType;
@@ -274,7 +208,7 @@ public class TransportEquipment implements LoadEventInvolvedCargoInner {
     this.transportEquipmentSizeType = transportEquipmentSizeType;
   }
 
-  public TransportEquipment size(TransportEquipmentAllOfSize size) {
+  public TransportEquipmentAllOf size(TransportEquipmentAllOfSize size) {
     this.size = size;
     return this;
   }
@@ -283,8 +217,8 @@ public class TransportEquipment implements LoadEventInvolvedCargoInner {
    * Get size
    * @return size
   */
-  @NotNull @Valid 
-  @Schema(name = "size", requiredMode = Schema.RequiredMode.REQUIRED)
+  @Valid 
+  @Schema(name = "size", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("size")
   public TransportEquipmentAllOfSize getSize() {
     return size;
@@ -302,26 +236,22 @@ public class TransportEquipment implements LoadEventInvolvedCargoInner {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    TransportEquipment transportEquipment = (TransportEquipment) o;
-    return Objects.equals(this.digitalTwinType, transportEquipment.digitalTwinType) &&
-        Objects.equals(this.digitalTwinID, transportEquipment.digitalTwinID) &&
-        Objects.equals(this.grossMass, transportEquipment.grossMass) &&
-        Objects.equals(this.grossVolume, transportEquipment.grossVolume) &&
-        Objects.equals(this.transportEquipmentSizeType, transportEquipment.transportEquipmentSizeType) &&
-        Objects.equals(this.size, transportEquipment.size);
+    TransportEquipmentAllOf transportEquipmentAllOf = (TransportEquipmentAllOf) o;
+    return Objects.equals(this.grossMass, transportEquipmentAllOf.grossMass) &&
+        Objects.equals(this.grossVolume, transportEquipmentAllOf.grossVolume) &&
+        Objects.equals(this.transportEquipmentSizeType, transportEquipmentAllOf.transportEquipmentSizeType) &&
+        Objects.equals(this.size, transportEquipmentAllOf.size);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(digitalTwinType, digitalTwinID, grossMass, grossVolume, transportEquipmentSizeType, size);
+    return Objects.hash(grossMass, grossVolume, transportEquipmentSizeType, size);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class TransportEquipment {\n");
-    sb.append("    digitalTwinType: ").append(toIndentedString(digitalTwinType)).append("\n");
-    sb.append("    digitalTwinID: ").append(toIndentedString(digitalTwinID)).append("\n");
+    sb.append("class TransportEquipmentAllOf {\n");
     sb.append("    grossMass: ").append(toIndentedString(grossMass)).append("\n");
     sb.append("    grossVolume: ").append(toIndentedString(grossVolume)).append("\n");
     sb.append("    transportEquipmentSizeType: ").append(toIndentedString(transportEquipmentSizeType)).append("\n");

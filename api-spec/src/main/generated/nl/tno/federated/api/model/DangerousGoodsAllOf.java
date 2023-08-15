@@ -4,11 +4,7 @@ import java.net.URI;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.annotation.JsonValue;
 import org.openapitools.jackson.nullable.JsonNullable;
 import java.time.OffsetDateTime;
 import javax.validation.Valid;
@@ -20,16 +16,12 @@ import java.util.*;
 import javax.annotation.Generated;
 
 /**
- * Specialized cargo, dangerous goods
+ * DangerousGoodsAllOf
  */
 
-@Schema(name = "DangerousGoods", description = "Specialized cargo, dangerous goods")
+@JsonTypeName("DangerousGoods_allOf")
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-14T16:15:39.185+02:00[Europe/Amsterdam]")
-public class DangerousGoods implements LoadEventInvolvedCargoInner {
-
-  private String digitalTwinType;
-
-  private String digitalTwinID;
+public class DangerousGoodsAllOf {
 
   private String grossMass;
 
@@ -53,74 +45,7 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
 
   private String dangerousGoodsFlashpointTemperature;
 
-  /**
-   * Default constructor
-   * @deprecated Use {@link DangerousGoods#DangerousGoods(String, String, String, String, String, String, String, String, String, String, String, String)}
-   */
-  @Deprecated
-  public DangerousGoods() {
-    super();
-  }
-
-  /**
-   * Constructor with only required parameters
-   */
-  public DangerousGoods(String digitalTwinType, String grossMass, String grossVolume, String unDGCode, String dangerousGoodsRegulationCode, String dangerousGoodsTechnicalName, String dangerousGoodsEMSID, String dangerousGoodsPackagingDangerLevelCode, String dangerousGoodsHazardClassificationID, String dangerousGoodsProperShippingName, String dangerousGoodsSupplementaryInformation, String dangerousGoodsFlashpointTemperature) {
-    this.digitalTwinType = digitalTwinType;
-    this.grossMass = grossMass;
-    this.grossVolume = grossVolume;
-    this.unDGCode = unDGCode;
-    this.dangerousGoodsRegulationCode = dangerousGoodsRegulationCode;
-    this.dangerousGoodsTechnicalName = dangerousGoodsTechnicalName;
-    this.dangerousGoodsEMSID = dangerousGoodsEMSID;
-    this.dangerousGoodsPackagingDangerLevelCode = dangerousGoodsPackagingDangerLevelCode;
-    this.dangerousGoodsHazardClassificationID = dangerousGoodsHazardClassificationID;
-    this.dangerousGoodsProperShippingName = dangerousGoodsProperShippingName;
-    this.dangerousGoodsSupplementaryInformation = dangerousGoodsSupplementaryInformation;
-    this.dangerousGoodsFlashpointTemperature = dangerousGoodsFlashpointTemperature;
-  }
-
-  public DangerousGoods digitalTwinType(String digitalTwinType) {
-    this.digitalTwinType = digitalTwinType;
-    return this;
-  }
-
-  /**
-   * Get digitalTwinType
-   * @return digitalTwinType
-  */
-  @NotNull 
-  @Schema(name = "digitalTwinType", requiredMode = Schema.RequiredMode.REQUIRED)
-  @JsonProperty("digitalTwinType")
-  public String getDigitalTwinType() {
-    return digitalTwinType;
-  }
-
-  public void setDigitalTwinType(String digitalTwinType) {
-    this.digitalTwinType = digitalTwinType;
-  }
-
-  public DangerousGoods digitalTwinID(String digitalTwinID) {
-    this.digitalTwinID = digitalTwinID;
-    return this;
-  }
-
-  /**
-   * Get digitalTwinID
-   * @return digitalTwinID
-  */
-  
-  @Schema(name = "digitalTwinID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("digitalTwinID")
-  public String getDigitalTwinID() {
-    return digitalTwinID;
-  }
-
-  public void setDigitalTwinID(String digitalTwinID) {
-    this.digitalTwinID = digitalTwinID;
-  }
-
-  public DangerousGoods grossMass(String grossMass) {
+  public DangerousGoodsAllOf grossMass(String grossMass) {
     this.grossMass = grossMass;
     return this;
   }
@@ -129,8 +54,8 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
    * Get grossMass
    * @return grossMass
   */
-  @NotNull 
-  @Schema(name = "grossMass", requiredMode = Schema.RequiredMode.REQUIRED)
+  
+  @Schema(name = "grossMass", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("grossMass")
   public String getGrossMass() {
     return grossMass;
@@ -140,7 +65,7 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
     this.grossMass = grossMass;
   }
 
-  public DangerousGoods grossVolume(String grossVolume) {
+  public DangerousGoodsAllOf grossVolume(String grossVolume) {
     this.grossVolume = grossVolume;
     return this;
   }
@@ -149,8 +74,8 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
    * Get grossVolume
    * @return grossVolume
   */
-  @NotNull 
-  @Schema(name = "grossVolume", requiredMode = Schema.RequiredMode.REQUIRED)
+  
+  @Schema(name = "grossVolume", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("grossVolume")
   public String getGrossVolume() {
     return grossVolume;
@@ -160,7 +85,7 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
     this.grossVolume = grossVolume;
   }
 
-  public DangerousGoods unDGCode(String unDGCode) {
+  public DangerousGoodsAllOf unDGCode(String unDGCode) {
     this.unDGCode = unDGCode;
     return this;
   }
@@ -169,8 +94,8 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
    * Get unDGCode
    * @return unDGCode
   */
-  @NotNull 
-  @Schema(name = "UNDGCode", requiredMode = Schema.RequiredMode.REQUIRED)
+  
+  @Schema(name = "UNDGCode", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("UNDGCode")
   public String getUnDGCode() {
     return unDGCode;
@@ -180,7 +105,7 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
     this.unDGCode = unDGCode;
   }
 
-  public DangerousGoods dangerousGoodsRegulationCode(String dangerousGoodsRegulationCode) {
+  public DangerousGoodsAllOf dangerousGoodsRegulationCode(String dangerousGoodsRegulationCode) {
     this.dangerousGoodsRegulationCode = dangerousGoodsRegulationCode;
     return this;
   }
@@ -189,8 +114,8 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
    * Get dangerousGoodsRegulationCode
    * @return dangerousGoodsRegulationCode
   */
-  @NotNull 
-  @Schema(name = "dangerousGoodsRegulationCode", requiredMode = Schema.RequiredMode.REQUIRED)
+  
+  @Schema(name = "dangerousGoodsRegulationCode", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("dangerousGoodsRegulationCode")
   public String getDangerousGoodsRegulationCode() {
     return dangerousGoodsRegulationCode;
@@ -200,7 +125,7 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
     this.dangerousGoodsRegulationCode = dangerousGoodsRegulationCode;
   }
 
-  public DangerousGoods dangerousGoodsTechnicalName(String dangerousGoodsTechnicalName) {
+  public DangerousGoodsAllOf dangerousGoodsTechnicalName(String dangerousGoodsTechnicalName) {
     this.dangerousGoodsTechnicalName = dangerousGoodsTechnicalName;
     return this;
   }
@@ -209,8 +134,8 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
    * Get dangerousGoodsTechnicalName
    * @return dangerousGoodsTechnicalName
   */
-  @NotNull 
-  @Schema(name = "dangerousGoodsTechnicalName", requiredMode = Schema.RequiredMode.REQUIRED)
+  
+  @Schema(name = "dangerousGoodsTechnicalName", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("dangerousGoodsTechnicalName")
   public String getDangerousGoodsTechnicalName() {
     return dangerousGoodsTechnicalName;
@@ -220,7 +145,7 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
     this.dangerousGoodsTechnicalName = dangerousGoodsTechnicalName;
   }
 
-  public DangerousGoods dangerousGoodsEMSID(String dangerousGoodsEMSID) {
+  public DangerousGoodsAllOf dangerousGoodsEMSID(String dangerousGoodsEMSID) {
     this.dangerousGoodsEMSID = dangerousGoodsEMSID;
     return this;
   }
@@ -229,8 +154,8 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
    * Get dangerousGoodsEMSID
    * @return dangerousGoodsEMSID
   */
-  @NotNull 
-  @Schema(name = "dangerousGoodsEMSID", requiredMode = Schema.RequiredMode.REQUIRED)
+  
+  @Schema(name = "dangerousGoodsEMSID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("dangerousGoodsEMSID")
   public String getDangerousGoodsEMSID() {
     return dangerousGoodsEMSID;
@@ -240,7 +165,7 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
     this.dangerousGoodsEMSID = dangerousGoodsEMSID;
   }
 
-  public DangerousGoods dangerousGoodsPackagingDangerLevelCode(String dangerousGoodsPackagingDangerLevelCode) {
+  public DangerousGoodsAllOf dangerousGoodsPackagingDangerLevelCode(String dangerousGoodsPackagingDangerLevelCode) {
     this.dangerousGoodsPackagingDangerLevelCode = dangerousGoodsPackagingDangerLevelCode;
     return this;
   }
@@ -249,8 +174,8 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
    * Get dangerousGoodsPackagingDangerLevelCode
    * @return dangerousGoodsPackagingDangerLevelCode
   */
-  @NotNull 
-  @Schema(name = "dangerousGoodsPackagingDangerLevelCode", requiredMode = Schema.RequiredMode.REQUIRED)
+  
+  @Schema(name = "dangerousGoodsPackagingDangerLevelCode", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("dangerousGoodsPackagingDangerLevelCode")
   public String getDangerousGoodsPackagingDangerLevelCode() {
     return dangerousGoodsPackagingDangerLevelCode;
@@ -260,7 +185,7 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
     this.dangerousGoodsPackagingDangerLevelCode = dangerousGoodsPackagingDangerLevelCode;
   }
 
-  public DangerousGoods dangerousGoodsHazardClassificationID(String dangerousGoodsHazardClassificationID) {
+  public DangerousGoodsAllOf dangerousGoodsHazardClassificationID(String dangerousGoodsHazardClassificationID) {
     this.dangerousGoodsHazardClassificationID = dangerousGoodsHazardClassificationID;
     return this;
   }
@@ -269,8 +194,8 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
    * Get dangerousGoodsHazardClassificationID
    * @return dangerousGoodsHazardClassificationID
   */
-  @NotNull 
-  @Schema(name = "dangerousGoodsHazardClassificationID", requiredMode = Schema.RequiredMode.REQUIRED)
+  
+  @Schema(name = "dangerousGoodsHazardClassificationID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("dangerousGoodsHazardClassificationID")
   public String getDangerousGoodsHazardClassificationID() {
     return dangerousGoodsHazardClassificationID;
@@ -280,7 +205,7 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
     this.dangerousGoodsHazardClassificationID = dangerousGoodsHazardClassificationID;
   }
 
-  public DangerousGoods dangerousGoodsProperShippingName(String dangerousGoodsProperShippingName) {
+  public DangerousGoodsAllOf dangerousGoodsProperShippingName(String dangerousGoodsProperShippingName) {
     this.dangerousGoodsProperShippingName = dangerousGoodsProperShippingName;
     return this;
   }
@@ -289,8 +214,8 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
    * Get dangerousGoodsProperShippingName
    * @return dangerousGoodsProperShippingName
   */
-  @NotNull 
-  @Schema(name = "dangerousGoodsProperShippingName", requiredMode = Schema.RequiredMode.REQUIRED)
+  
+  @Schema(name = "dangerousGoodsProperShippingName", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("dangerousGoodsProperShippingName")
   public String getDangerousGoodsProperShippingName() {
     return dangerousGoodsProperShippingName;
@@ -300,7 +225,7 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
     this.dangerousGoodsProperShippingName = dangerousGoodsProperShippingName;
   }
 
-  public DangerousGoods dangerousGoodsSupplementaryInformation(String dangerousGoodsSupplementaryInformation) {
+  public DangerousGoodsAllOf dangerousGoodsSupplementaryInformation(String dangerousGoodsSupplementaryInformation) {
     this.dangerousGoodsSupplementaryInformation = dangerousGoodsSupplementaryInformation;
     return this;
   }
@@ -309,8 +234,8 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
    * Get dangerousGoodsSupplementaryInformation
    * @return dangerousGoodsSupplementaryInformation
   */
-  @NotNull 
-  @Schema(name = "dangerousGoodsSupplementaryInformation", requiredMode = Schema.RequiredMode.REQUIRED)
+  
+  @Schema(name = "dangerousGoodsSupplementaryInformation", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("dangerousGoodsSupplementaryInformation")
   public String getDangerousGoodsSupplementaryInformation() {
     return dangerousGoodsSupplementaryInformation;
@@ -320,7 +245,7 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
     this.dangerousGoodsSupplementaryInformation = dangerousGoodsSupplementaryInformation;
   }
 
-  public DangerousGoods dangerousGoodsFlashpointTemperature(String dangerousGoodsFlashpointTemperature) {
+  public DangerousGoodsAllOf dangerousGoodsFlashpointTemperature(String dangerousGoodsFlashpointTemperature) {
     this.dangerousGoodsFlashpointTemperature = dangerousGoodsFlashpointTemperature;
     return this;
   }
@@ -329,8 +254,8 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
    * Get dangerousGoodsFlashpointTemperature
    * @return dangerousGoodsFlashpointTemperature
   */
-  @NotNull 
-  @Schema(name = "dangerousGoodsFlashpointTemperature", requiredMode = Schema.RequiredMode.REQUIRED)
+  
+  @Schema(name = "dangerousGoodsFlashpointTemperature", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("dangerousGoodsFlashpointTemperature")
   public String getDangerousGoodsFlashpointTemperature() {
     return dangerousGoodsFlashpointTemperature;
@@ -348,33 +273,29 @@ public class DangerousGoods implements LoadEventInvolvedCargoInner {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    DangerousGoods dangerousGoods = (DangerousGoods) o;
-    return Objects.equals(this.digitalTwinType, dangerousGoods.digitalTwinType) &&
-        Objects.equals(this.digitalTwinID, dangerousGoods.digitalTwinID) &&
-        Objects.equals(this.grossMass, dangerousGoods.grossMass) &&
-        Objects.equals(this.grossVolume, dangerousGoods.grossVolume) &&
-        Objects.equals(this.unDGCode, dangerousGoods.unDGCode) &&
-        Objects.equals(this.dangerousGoodsRegulationCode, dangerousGoods.dangerousGoodsRegulationCode) &&
-        Objects.equals(this.dangerousGoodsTechnicalName, dangerousGoods.dangerousGoodsTechnicalName) &&
-        Objects.equals(this.dangerousGoodsEMSID, dangerousGoods.dangerousGoodsEMSID) &&
-        Objects.equals(this.dangerousGoodsPackagingDangerLevelCode, dangerousGoods.dangerousGoodsPackagingDangerLevelCode) &&
-        Objects.equals(this.dangerousGoodsHazardClassificationID, dangerousGoods.dangerousGoodsHazardClassificationID) &&
-        Objects.equals(this.dangerousGoodsProperShippingName, dangerousGoods.dangerousGoodsProperShippingName) &&
-        Objects.equals(this.dangerousGoodsSupplementaryInformation, dangerousGoods.dangerousGoodsSupplementaryInformation) &&
-        Objects.equals(this.dangerousGoodsFlashpointTemperature, dangerousGoods.dangerousGoodsFlashpointTemperature);
+    DangerousGoodsAllOf dangerousGoodsAllOf = (DangerousGoodsAllOf) o;
+    return Objects.equals(this.grossMass, dangerousGoodsAllOf.grossMass) &&
+        Objects.equals(this.grossVolume, dangerousGoodsAllOf.grossVolume) &&
+        Objects.equals(this.unDGCode, dangerousGoodsAllOf.unDGCode) &&
+        Objects.equals(this.dangerousGoodsRegulationCode, dangerousGoodsAllOf.dangerousGoodsRegulationCode) &&
+        Objects.equals(this.dangerousGoodsTechnicalName, dangerousGoodsAllOf.dangerousGoodsTechnicalName) &&
+        Objects.equals(this.dangerousGoodsEMSID, dangerousGoodsAllOf.dangerousGoodsEMSID) &&
+        Objects.equals(this.dangerousGoodsPackagingDangerLevelCode, dangerousGoodsAllOf.dangerousGoodsPackagingDangerLevelCode) &&
+        Objects.equals(this.dangerousGoodsHazardClassificationID, dangerousGoodsAllOf.dangerousGoodsHazardClassificationID) &&
+        Objects.equals(this.dangerousGoodsProperShippingName, dangerousGoodsAllOf.dangerousGoodsProperShippingName) &&
+        Objects.equals(this.dangerousGoodsSupplementaryInformation, dangerousGoodsAllOf.dangerousGoodsSupplementaryInformation) &&
+        Objects.equals(this.dangerousGoodsFlashpointTemperature, dangerousGoodsAllOf.dangerousGoodsFlashpointTemperature);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(digitalTwinType, digitalTwinID, grossMass, grossVolume, unDGCode, dangerousGoodsRegulationCode, dangerousGoodsTechnicalName, dangerousGoodsEMSID, dangerousGoodsPackagingDangerLevelCode, dangerousGoodsHazardClassificationID, dangerousGoodsProperShippingName, dangerousGoodsSupplementaryInformation, dangerousGoodsFlashpointTemperature);
+    return Objects.hash(grossMass, grossVolume, unDGCode, dangerousGoodsRegulationCode, dangerousGoodsTechnicalName, dangerousGoodsEMSID, dangerousGoodsPackagingDangerLevelCode, dangerousGoodsHazardClassificationID, dangerousGoodsProperShippingName, dangerousGoodsSupplementaryInformation, dangerousGoodsFlashpointTemperature);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class DangerousGoods {\n");
-    sb.append("    digitalTwinType: ").append(toIndentedString(digitalTwinType)).append("\n");
-    sb.append("    digitalTwinID: ").append(toIndentedString(digitalTwinID)).append("\n");
+    sb.append("class DangerousGoodsAllOf {\n");
     sb.append("    grossMass: ").append(toIndentedString(grossMass)).append("\n");
     sb.append("    grossVolume: ").append(toIndentedString(grossVolume)).append("\n");
     sb.append("    unDGCode: ").append(toIndentedString(unDGCode)).append("\n");

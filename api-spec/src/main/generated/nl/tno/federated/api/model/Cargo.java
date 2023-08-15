@@ -1,19 +1,26 @@
 package nl.tno.federated.api.model;
 
+import java.net.URI;
+import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import org.openapitools.jackson.nullable.JsonNullable;
+import java.time.OffsetDateTime;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+
+import java.util.*;
 import javax.annotation.Generated;
-import javax.validation.constraints.NotNull;
-import java.util.Objects;
 
 /**
- * May represent a transport means, a transport equipment or cargo (goods / dangerous goods)
+ * May represent a transport equipment, goods or dangerous goods
  */
 
-@Schema(name = "DigitalTwin", description = "May represent a transport means, a transport equipment or cargo (goods / dangerous goods)")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-13T16:38:33.391+02:00[Europe/Amsterdam]")
-public class DigitalTwin {
+@Schema(name = "Cargo", description = "May represent a transport equipment, goods or dangerous goods")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-14T16:15:39.185+02:00[Europe/Amsterdam]")
+public class Cargo {
 
   private String digitalTwinType;
 
@@ -21,21 +28,21 @@ public class DigitalTwin {
 
   /**
    * Default constructor
-   * @deprecated Use {@link DigitalTwin#DigitalTwin(String)}
+   * @deprecated Use {@link Cargo#Cargo(String)}
    */
   @Deprecated
-  public DigitalTwin() {
+  public Cargo() {
     super();
   }
 
   /**
    * Constructor with only required parameters
    */
-  public DigitalTwin(String digitalTwinType) {
+  public Cargo(String digitalTwinType) {
     this.digitalTwinType = digitalTwinType;
   }
 
-  public DigitalTwin digitalTwinType(String digitalTwinType) {
+  public Cargo digitalTwinType(String digitalTwinType) {
     this.digitalTwinType = digitalTwinType;
     return this;
   }
@@ -55,7 +62,7 @@ public class DigitalTwin {
     this.digitalTwinType = digitalTwinType;
   }
 
-  public DigitalTwin digitalTwinID(String digitalTwinID) {
+  public Cargo digitalTwinID(String digitalTwinID) {
     this.digitalTwinID = digitalTwinID;
     return this;
   }
@@ -83,9 +90,9 @@ public class DigitalTwin {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    DigitalTwin digitalTwin = (DigitalTwin) o;
-    return Objects.equals(this.digitalTwinType, digitalTwin.digitalTwinType) &&
-        Objects.equals(this.digitalTwinID, digitalTwin.digitalTwinID);
+    Cargo cargo = (Cargo) o;
+    return Objects.equals(this.digitalTwinType, cargo.digitalTwinType) &&
+        Objects.equals(this.digitalTwinID, cargo.digitalTwinID);
   }
 
   @Override
@@ -96,7 +103,7 @@ public class DigitalTwin {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class DigitalTwin {\n");
+    sb.append("class Cargo {\n");
     sb.append("    digitalTwinType: ").append(toIndentedString(digitalTwinType)).append("\n");
     sb.append("    digitalTwinID: ").append(toIndentedString(digitalTwinID)).append("\n");
     sb.append("}");

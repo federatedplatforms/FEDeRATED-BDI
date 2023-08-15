@@ -1,23 +1,27 @@
 package nl.tno.federated.api.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
+import java.net.URI;
+import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import org.openapitools.jackson.nullable.JsonNullable;
+import java.time.OffsetDateTime;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+
+import java.util.*;
 import javax.annotation.Generated;
-import javax.validation.constraints.NotNull;
-import java.util.Objects;
 
 /**
  * Specialized digital twin, mostly truck
  */
 
 @Schema(name = "TransportMeans", description = "Specialized digital twin, mostly truck")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-07-13T16:38:33.391+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-14T16:15:39.185+02:00[Europe/Amsterdam]")
 public class TransportMeans {
-
-  private String digitalTwinType;
 
   private String digitalTwinID;
 
@@ -601,7 +605,7 @@ public class TransportMeans {
 
   /**
    * Default constructor
-   * @deprecated Use {@link TransportMeans#TransportMeans(String, TransportMeansModeEnum)}
+   * @deprecated Use {@link TransportMeans#TransportMeans(TransportMeansModeEnum)}
    */
   @Deprecated
   public TransportMeans() {
@@ -611,29 +615,8 @@ public class TransportMeans {
   /**
    * Constructor with only required parameters
    */
-  public TransportMeans(String digitalTwinType, TransportMeansModeEnum transportMeansMode) {
-    this.digitalTwinType = digitalTwinType;
+  public TransportMeans(TransportMeansModeEnum transportMeansMode) {
     this.transportMeansMode = transportMeansMode;
-  }
-
-  public TransportMeans digitalTwinType(String digitalTwinType) {
-    this.digitalTwinType = digitalTwinType;
-    return this;
-  }
-
-  /**
-   * Get digitalTwinType
-   * @return digitalTwinType
-  */
-  @NotNull 
-  @Schema(name = "digitalTwinType", requiredMode = Schema.RequiredMode.REQUIRED)
-  @JsonProperty("digitalTwinType")
-  public String getDigitalTwinType() {
-    return digitalTwinType;
-  }
-
-  public void setDigitalTwinType(String digitalTwinType) {
-    this.digitalTwinType = digitalTwinType;
   }
 
   public TransportMeans digitalTwinID(String digitalTwinID) {
@@ -705,22 +688,20 @@ public class TransportMeans {
       return false;
     }
     TransportMeans transportMeans = (TransportMeans) o;
-    return Objects.equals(this.digitalTwinType, transportMeans.digitalTwinType) &&
-        Objects.equals(this.digitalTwinID, transportMeans.digitalTwinID) &&
+    return Objects.equals(this.digitalTwinID, transportMeans.digitalTwinID) &&
         Objects.equals(this.transportMeansMode, transportMeans.transportMeansMode) &&
         Objects.equals(this.hasTransportMeansNationality, transportMeans.hasTransportMeansNationality);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(digitalTwinType, digitalTwinID, transportMeansMode, hasTransportMeansNationality);
+    return Objects.hash(digitalTwinID, transportMeansMode, hasTransportMeansNationality);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class TransportMeans {\n");
-    sb.append("    digitalTwinType: ").append(toIndentedString(digitalTwinType)).append("\n");
     sb.append("    digitalTwinID: ").append(toIndentedString(digitalTwinID)).append("\n");
     sb.append("    transportMeansMode: ").append(toIndentedString(transportMeansMode)).append("\n");
     sb.append("    hasTransportMeansNationality: ").append(toIndentedString(hasTransportMeansNationality)).append("\n");
