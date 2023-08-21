@@ -93,7 +93,7 @@ components:
             properties:
                 actorLegalPerson:
                     required:
-                      [ legalPersonAddress, legalPersonName, legalPersonID, postalCode, locatedAtStreetName, postalAddress, locatedInCountry, locatedInCity ]
+                      [ legalPersonName, legalPersonID, postalCode, locatedAtStreetName, postalAddress, locatedInCountry, locatedInCity ]
                     additionalProperties: false
                     type: object
                     properties:
