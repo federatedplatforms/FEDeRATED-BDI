@@ -1,5 +1,6 @@
 {
-    "UUID": null,
+    "eventType": "ArrivalEvent",
+    "UUID": "AAA",
     "Timestamp": "2023-07-27Z",
     "TimeClassification": "Planned",
     "involvedActors": [
