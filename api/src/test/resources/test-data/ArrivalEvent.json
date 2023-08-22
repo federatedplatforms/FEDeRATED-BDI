@@ -2,68 +2,57 @@
     "UUID": null,
     "Timestamp": "2023-07-27Z",
     "TimeClassification": "Planned",
-    "involvedActors": [{
-        "actorLegalPerson": {
-            "postalCode": "64990",
-            "locatedAtStreetName": "CEF De Mouguerre-BP 50004",
-            "postalAddress": "CEF De Mouguerre-BP 50004",
-            "locatedInCountry": "FR",
-            "locatedInCity": "MOUGUERRE",
-            "legalPersonName": "KUEHNE&NAGEL ROAD - AGENCE 64- BAYONNE -",
-            "legalPersonID": "306076"
+    "involvedActors": [
+        {
+            "actorLegalPerson": {
+                "postalCode": "5656AE",
+                "locatedAtStreetName": "High Tech Campus",
+                "postalAddress": "HTC 25, 5656 AE Eindhoven",
+                "locatedInCountry": "NL",
+                "locatedInCity": "Eindhoven",
+                "legalPersonName": "TNO",
+                "legalPersonID": "TNO-NL"
+            },
+            "actorLogisticsRole": "Consignor"
         },
-        "actorLogisticsRole": "Consignor"
-    }, {
-        "actorLegalPerson": {
-            "postalCode": "37137",
-            "locatedAtStreetName": "Via Sommacampagna 32",
-            "postalAddress": "Via Sommacampagna 32",
-            "locatedInCountry": "IT",
-            "locatedInCity": "Verona",
-            "legalPersonName": "Verona Quadrante Europa TVR",
-            "legalPersonID": null
+        {
+            "actorLegalPerson": {
+                "postalCode": "37137",
+                "locatedAtStreetName": "Via Sommacampagna 32",
+                "postalAddress": "Via Sommacampagna 32",
+                "locatedInCountry": "IT",
+                "locatedInCity": "Verona",
+                "legalPersonName": "Verona Quadrante Europa TVR",
+                "legalPersonID": "VQETVR-IT"
+            },
+            "actorLogisticsRole": "Consignee"
         },
-        "actorLogisticsRole": "Consignee"
-    }, {
-        "actorLegalPerson": {
-            "postalCode": "64990",
-            "locatedAtStreetName": "CEF De Mouguerre-BP 50004",
-            "postalAddress": "CEF De Mouguerre-BP 50004",
-            "locatedInCountry": "FR",
-            "locatedInCity": "MOUGUERRE",
-            "legalPersonName": "KUEHNE&NAGEL ROAD - AGENCE 64- BAYONNE -",
-            "legalPersonID": null
-        },
-        "actorLogisticsRole": "Carrier"
-    }],
-    "transportMeans": [{
-        "digitalTwinID": "F",
-        "transportMeansMode": "Sea",
-        "hasTransportmeansNationality": null
-    }],
-    "involvedDigitalTwins": [{
-        "digitalTwinID": null,
-        "grossMass": 24.700,
-        "grossVolume": 13.600,
-        "netMass": 0,
-        "numberOfUnits": 0,
-        "goodsDescription": "Miscellaneous Goods",
-        "digitalTwinType": "Goods",
-        "transportEquipmentSizeType": null,
-        "size": null
-    }, {
-        "digitalTwinID": "",
-        "grossMass": 0.0,
-        "grossVolume": 0.0,
-        "netMass": 0,
-        "numberOfUnits": 0,
-        "goodsDescription": null,
-        "digitalTwinType": "TransportEquipment",
-        "transportEquipmentSizeType": "AA",
-        "size": {
-            "height": 0.0,
-            "length": 0.0,
-            "width": 0.0
+        {
+            "actorLegalPerson": {
+                "postalCode": "8660",
+                "locatedAtStreetName": "Godthåbsvej 19",
+                "postalAddress": "Godthåbsvej 19",
+                "locatedInCountry": "DK",
+                "locatedInCity": "Skanderborg",
+                "legalPersonName": "WAYS Logistics A/S",
+                "legalPersonID": "WLAS-DK"
+            },
+            "actorLogisticsRole": "Carrier"
         }
-    }]
+    ],
+    "transportMeans": [
+        {
+            "digitalTwinID": "X-040-TNO",
+            "transportMeansMode": "Road",
+            "hasTransportmeansNationality": "NL"
+        }
+    ],
+    "involvedLocation": {
+        "locationRole": "PlaceOfArrival",
+        "postalCode": "37137",
+        "locatedAtStreetName": "Via Sommacampagna 32",
+        "postalAddress": "Via Sommacampagna 32",
+        "locatedInCountry": "IT",
+        "locatedInCity": "Verona"
+    }
 }

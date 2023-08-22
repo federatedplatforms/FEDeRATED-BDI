@@ -29,6 +29,12 @@ map:map_eventMapping_000 rml:logicalSource map:source_000 ;
 	rr:predicateObjectMap map:pom_000, map:pom_001, map:pom_002, map:pom_003, map:pom_004, map:pom_005, map:pom_006 ;
 	rr:subjectMap map:s_000 .
 
+map:map_locationMapping_000 rml:logicalSource map:source_004 ;
+	rdf:type rr:TriplesMap ;
+	rdfs:label "locationMapping" ;
+	rr:predicateObjectMap map:pom_030, map:pom_031, map:pom_032, map:pom_033, map:pom_034, map:pom_035, map:pom_036 ;
+	rr:subjectMap map:s_004 .
+
 map:map_transportMeansMapping_000 rml:logicalSource map:source_002 ;
 	rdf:type rr:TriplesMap ;
 	rdfs:label "transportMeansMapping" ;
@@ -152,6 +158,34 @@ map:om_029 rml:reference "hasTransportmeansNationality" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
+map:om_030 rdf:type rr:ObjectMap ;
+	rr:constant "https://ontology.tno.nl/logistics/federated/PhysicalInfrastructure#Location" ;
+	rr:termType rr:IRI .
+
+map:om_031 rdf:type rr:ObjectMap ;
+	rr:template "LogisticRoles:{locationRole}" ;
+	rr:termType rr:Literal .
+
+map:om_032 rml:reference "postalCode" ;
+	rdf:type rr:ObjectMap ;
+	rr:termType rr:Literal .
+
+map:om_033 rml:reference "locatedInCity" ;
+	rdf:type rr:ObjectMap ;
+	rr:termType rr:Literal .
+
+map:om_034 rml:reference "postalAddress" ;
+	rdf:type rr:ObjectMap ;
+	rr:termType rr:Literal .
+
+map:om_035 rml:reference "locatedInCountry" ;
+	rdf:type rr:ObjectMap ;
+	rr:termType rr:Literal .
+
+map:om_036 rml:reference "locatedInCity" ;
+	rdf:type rr:ObjectMap ;
+	rr:termType rr:Literal .
+
 map:pm_000 rdf:type rr:PredicateMap ;
 	rr:constant rdf:type .
 
@@ -241,6 +275,27 @@ map:pm_028 rdf:type rr:PredicateMap ;
 
 map:pm_029 rdf:type rr:PredicateMap ;
 	rr:constant DigitalTwin:transportMeansNationality .
+
+map:pm_030 rdf:type rr:PredicateMap ;
+	rr:constant rdf:type .
+
+map:pm_031 rdf:type rr:PredicateMap ;
+	rr:constant pi:businessLocationInvolvesRole .
+
+map:pm_032 rdf:type rr:PredicateMap ;
+	rr:constant pi:postalCode .
+
+map:pm_033 rdf:type rr:PredicateMap ;
+	rr:constant pi:locatedAtStreetName .
+
+map:pm_034 rdf:type rr:PredicateMap ;
+	rr:constant pi:postalAddress .
+
+map:pm_035 rdf:type rr:PredicateMap ;
+	rr:constant pi:locatedInCountry .
+
+map:pm_036 rdf:type rr:PredicateMap ;
+	rr:constant pi:locatedInCity .
 
 map:pom_000 rdf:type rr:PredicateObjectMap ;
 	rr:objectMap map:om_000 ;
@@ -362,6 +417,34 @@ map:pom_029 rdf:type rr:PredicateObjectMap ;
 	rr:objectMap map:om_029 ;
 	rr:predicateMap map:pm_029 .
 
+map:pom_030 rdf:type rr:PredicateObjectMap ;
+	rr:objectMap map:om_030 ;
+	rr:predicateMap map:pm_030 .
+
+map:pom_031 rdf:type rr:PredicateObjectMap ;
+	rr:objectMap map:om_031 ;
+	rr:predicateMap map:pm_031 .
+
+map:pom_032 rdf:type rr:PredicateObjectMap ;
+	rr:objectMap map:om_032 ;
+	rr:predicateMap map:pm_032 .
+
+map:pom_033 rdf:type rr:PredicateObjectMap ;
+	rr:objectMap map:om_033 ;
+	rr:predicateMap map:pm_033 .
+
+map:pom_034 rdf:type rr:PredicateObjectMap ;
+	rr:objectMap map:om_034 ;
+	rr:predicateMap map:pm_034 .
+
+map:pom_035 rdf:type rr:PredicateObjectMap ;
+	rr:objectMap map:om_035 ;
+	rr:predicateMap map:pm_035 .
+
+map:pom_036 rdf:type rr:PredicateObjectMap ;
+	rr:objectMap map:om_036 ;
+	rr:predicateMap map:pm_036 .
+
 map:s_000 rdf:type rr:SubjectMap ;
 	rr:template "http://example.com/codognotto#{UUID}" .
 
@@ -373,6 +456,9 @@ map:s_002 rdf:type rr:SubjectMap ;
 
 map:s_003 rdf:type rr:SubjectMap ;
 	rr:template "http://example.com/codognotto#{digitalTwinID}" .
+
+map:s_004 rdf:type rr:SubjectMap ;
+	rr:template "http://example.com/codognotto#{locationRole}" .
 
 map:source_000 rml:iterator "$" ;
 	rml:referenceFormulation ql:JSONPath ;
@@ -398,6 +484,12 @@ map:source_003 rml:iterator "$.involvedCargo[*]" ;
 	rdf:type rml:LogicalSource ;
 	rdfs:label "cargo" .
 
-<http://mapping.example.com/rules_000> <http://rdfs.org/ns/void#exampleResource> map:map_actorsMapping_000, map:map_cargoMapping_000, map:map_eventMapping_000, map:map_transportMeansMapping_000 ;
+map:source_004 rml:iterator "$.involvedLocation" ;
+	rml:referenceFormulation ql:JSONPath ;
+	rml:source "data.json" ;
+	rdf:type rml:LogicalSource ;
+	rdfs:label "location" .
+
+<http://mapping.example.com/rules_000> <http://rdfs.org/ns/void#exampleResource> map:map_actorsMapping_000, map:map_cargoMapping_000, map:map_eventMapping_000, map:map_locationMapping_000, map:map_transportMeansMapping_000 ;
 	rdf:type <http://rdfs.org/ns/void#Dataset> .
 
