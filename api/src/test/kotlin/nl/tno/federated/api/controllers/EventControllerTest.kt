@@ -39,9 +39,6 @@ class EventControllerTest {
      */
     @Test
     fun testLoadEvent() {
-        val uuid = UUID.randomUUID()
-        whenever(eventDistributionService.distributeEvent(any(), any(), anyOrNull())).thenReturn(uuid)
-
         val jsonString = String(ClassPathResource("test-data/LoadEvent.json").inputStream.readBytes())
         val response = testRestTemplate.postForEntity("/events/LoadEvent", HttpEntity(jsonString, HttpHeaders().apply { set(ACCEPT, APPLICATION_JSON_VALUE); set(CONTENT_TYPE, APPLICATION_JSON_VALUE) }), String::class.java)
 
@@ -55,9 +52,6 @@ class EventControllerTest {
      */
     @Test
     fun testArrivalEvent() {
-        val uuid = UUID.randomUUID()
-        whenever(eventDistributionService.distributeEvent(any(), any(), anyOrNull())).thenReturn(uuid)
-
         val jsonString = String(ClassPathResource("test-data/ArrivalEvent.json").inputStream.readBytes())
         val response = testRestTemplate.postForEntity("/events/ArrivalEvent", HttpEntity(jsonString, HttpHeaders().apply { set(ACCEPT, APPLICATION_JSON_VALUE); set(CONTENT_TYPE, APPLICATION_JSON_VALUE) }), String::class.java)
 

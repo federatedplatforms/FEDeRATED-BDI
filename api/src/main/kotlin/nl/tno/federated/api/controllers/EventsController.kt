@@ -66,21 +66,22 @@ class EventsController(
         return ResponseEntity.ok().body(eventService.findAll(page, size))
     }
 
-    @Operation(summary = "Submit a new event. Need to specify RDF event, the eventType and destination(s), the receivers of the event.")
-    @PostMapping(path = [""], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        content = [Content(
-            examples = [
-                ExampleObject(name = "Event without specific destination(s)", description = "Event destinations should match any of the identities listed in the '/corda/peers' endpoint. Format for the destination is: <organisation>/<locality>/<country>, for example: TNO/Soesterberg/NL", value = """{ "event" : "text/turtle", "eventType" : "EventType" }"""),
-                ExampleObject(name = "Event with single destination", description = "Event destinations should match any of the identities listed in the '/corda/peers' endpoint. Format for the destination is: <organisation>/<locality>/<country>, for example: TNO/Soesterberg/NL", value = """{ "event" : "text/turtle", "eventType" : "EventType", "eventDestinations" : ["TNO/Soesterberg/NL"] }"""),
-                ExampleObject(name = "Event with multiple destinations", description = "Event destinations should match any of the identities listed in the '/corda/peers' endpoint. Format for the destination is: <organisation>/<locality>/<country>, for example: TNO/Soesterberg/NL", value = """{ "event" : "text/turtle", "eventType" : "EventType", "eventDestinations" : ["TNO/Soesterberg/NL", "TNO/Utrecht/NL", "TNO/Groningen/NL"] }""")
-            ]
-        )]
-    )
-    fun postEvent(@RequestBody event: NewEvent): ResponseEntity<UUID> {
-        log.info("Received EventWithDestinations: {}", event)
-        return ResponseEntity.ok().body(eventService.publishRDFEvent(event))
-    }
+//    @Operation(summary = "Submit a new event. Need to specify RDF event, the eventType and destination(s), the receivers of the event.")
+//    @PostMapping(path = [""], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+//    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+//        content = [Content(
+//            examples = [
+//                ExampleObject(name = "Event without specific destination(s)", description = "Event destinations should match any of the identities listed in the '/corda/peers' endpoint. Format for the destination is: <organisation>/<locality>/<country>, for example: TNO/Soesterberg/NL", value = """{ "event" : "text/turtle", "eventType" : "EventType" }"""),
+//                ExampleObject(name = "Event with single destination", description = "Event destinations should match any of the identities listed in the '/corda/peers' endpoint. Format for the destination is: <organisation>/<locality>/<country>, for example: TNO/Soesterberg/NL", value = """{ "event" : "text/turtle", "eventType" : "EventType", "eventDestinations" : ["TNO/Soesterberg/NL"] }"""),
+//                ExampleObject(name = "Event with multiple destinations", description = "Event destinations should match any of the identities listed in the '/corda/peers' endpoint. Format for the destination is: <organisation>/<locality>/<country>, for example: TNO/Soesterberg/NL", value = """{ "event" : "text/turtle", "eventType" : "EventType", "eventDestinations" : ["TNO/Soesterberg/NL", "TNO/Utrecht/NL", "TNO/Groningen/NL"] }""")
+//            ]
+//        )]
+//    )
+//    fun postEvent(@RequestBody event: NewEvent): ResponseEntity<UUID> {
+//        log.info("Received EventWithDestinations: {}", event)
+//        // TODO need to generate a UUID and alter the incoming event RDF.
+//        return ResponseEntity.ok().body(eventService.publishRDFEvent(event))
+//    }
 
     @PostMapping(path = ["/query"], produces = [MediaType.APPLICATION_JSON_VALUE])
     @io.swagger.v3.oas.annotations.parameters.RequestBody(

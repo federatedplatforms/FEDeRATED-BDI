@@ -23,13 +23,14 @@ import java.util.*
 @Service
 class CordaNodeService(private val rpc: NodeRPCConnection) {
 
-    fun startNewEventFlow(event: String, eventType: String, cordaNames: Set<CordaX500Name>): UUID {
+    fun startNewEventFlow(eventUUID: String, event: String, eventType: String, cordaNames: Set<CordaX500Name>): UUID {
         if (cordaNames.isEmpty()) throw NoEventDestinationsAvailableException("No event destinations found to send the event to.")
         val newEventTx = rpc.client().startFlowDynamic(
             NewEventFlow::class.java,
             cordaNames,
             event,
-            eventType
+            eventType,
+            eventUUID
         ).returnValue.get()
 
         return (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id

@@ -8,9 +8,6 @@ import nl.tno.federated.api.event.mapper.EventType
 import nl.tno.federated.api.event.mapper.UnsupportedEventTypeException
 import nl.tno.federated.api.event.query.EventQuery
 import nl.tno.federated.api.event.query.corda.CordaEventQueryService
-import nl.tno.federated.api.model.LoadEvent
-import nl.tno.federated.api.util.toJsonNode
-import org.eclipse.rdf4j.model.Model
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -48,14 +45,7 @@ class EventService(
 
     fun publishRDFEvent(eventUUID: UUID, event: String, eventType: String, destinations: Set<String>? = null): UUID {
         val dest = destinations?.map { CordaEventDestination.parse(it) }?.toSet()
-        return eventDistributionService.distributeEvent(event = event, eventType = eventType, destinations = dest)
-    }
-
-    private fun addUniqueIdentifier(model: Model): String {
-        val uuid = UUID.randomUUID().toString()
-        // TODO add unique ID
-        // val uuidIri = Values.iri("https://ontology.tno.nl/logistics/federated/Event#", uuid);
-        return uuid
+        return eventDistributionService.distributeEvent(eventUUID = eventUUID, event = event, eventType = eventType, destinations = dest)
     }
 
     fun findEventById(id: String): String? {

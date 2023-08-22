@@ -7,7 +7,7 @@ interface EventDistributionService<T : EventDestination<*>> {
     /**
      * Distribute event to the specified EventDestinations
      */
-    fun distributeEvent(event: String, eventType: String, destinations: Set<T>?): UUID
+    fun distributeEvent(eventUUID: UUID,event: String, eventType: String, destinations: Set<T>?): UUID
 }
 
 

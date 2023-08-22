@@ -22,7 +22,8 @@ import kotlin.NoSuchElementException
 class NewEventFlow(
     private val destinations: Collection<CordaX500Name>,
     private val event: String,
-    private val eventType: String
+    private val eventType: String,
+    private val eventUUID: String
 ) : FlowLogic<SignedTransaction>() {
 
     private val log = LoggerFactory.getLogger(NewEventFlow::class.java)
@@ -75,7 +76,7 @@ class NewEventFlow(
             event = event,
             eventType = eventType,
             participants = listOf(me) + counterParties,
-            linearId = UniqueIdentifier()
+            linearId = UniqueIdentifier(externalId = eventUUID)
         )
 
         val txBuilder = TransactionBuilder(notary = notary)
@@ -134,7 +135,9 @@ class NewEventFlow(
         return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
     }
 
+    @Suspendable
     private fun storeEventInLocalTripleStore(newEventState: EventState, me: Party) {
+        log.info("Inserting event data into the triple store... {}", me.name)
         val await = await(GraphDBInsert(graphdb(), newEventState.event, false))
         require(await) {
             "Unable to insert event data into the triple store at ${me.name}."
