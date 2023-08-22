@@ -75,7 +75,8 @@ components:
                         $ref: '#/components/schemas/Actor'
                     type: array # multiple actors in 1 event
                 transportMeans:
-                    $ref: '#/components/schemas/TransportMeans'
+                    items:
+                        $ref: '#/components/schemas/TransportMeans'
                     type: array
                 involvedCargo:
                     items:

@@ -27,7 +27,7 @@ class EventService(
         return eventMapper.toRDFTurtle(event)
     }
 
-    fun publishRDFEvent(event: EventWithDestinations): UUID {
+    fun publishRDFEvent(event: NewEvent): UUID {
         return publishRDFEvent(event.event, event.eventType, event.eventDestinations)
     }
 
