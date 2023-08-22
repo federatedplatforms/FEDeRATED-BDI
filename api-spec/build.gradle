@@ -110,4 +110,4 @@ tasks.openApiGenerate {
 }
 
 // Uncomment line below to regenerate code on build, make sure to check the README.md on what to do
-compileJava.dependsOn tasks.mergeOpenApiFiles, tasks.openApiGenerate
+//compileJava.dependsOn tasks.mergeOpenApiFiles, tasks.openApiGenerate
