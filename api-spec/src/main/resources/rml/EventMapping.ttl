@@ -14,13 +14,13 @@
 map:map_actorsMapping_000 rml:logicalSource map:source_001 ;
 	rdf:type rr:TriplesMap ;
 	rdfs:label "actorsMapping" ;
-	rr:predicateObjectMap map:pom_007, map:pom_008, map:pom_009, map:pom_010, map:pom_011, map:pom_012 ;
+	rr:predicateObjectMap map:pom_007, map:pom_008, map:pom_009, map:pom_010, map:pom_011, map:pom_012, map:pom_013, map:pom_014 ;
 	rr:subjectMap map:s_001 .
 
 map:map_cargoMapping_000 rml:logicalSource map:source_003 ;
 	rdf:type rr:TriplesMap ;
 	rdfs:label "cargoMapping" ;
-	rr:predicateObjectMap map:pom_013, map:pom_014, map:pom_015, map:pom_016, map:pom_017, map:pom_018, map:pom_019, map:pom_020, map:pom_021, map:pom_022, map:pom_023 ;
+	rr:predicateObjectMap map:pom_015, map:pom_016, map:pom_017, map:pom_018, map:pom_019, map:pom_020, map:pom_021, map:pom_022, map:pom_023, map:pom_024, map:pom_025 ;
 	rr:subjectMap map:s_002 .
 
 map:map_eventMapping_000 rml:logicalSource map:source_000 ;
@@ -32,7 +32,7 @@ map:map_eventMapping_000 rml:logicalSource map:source_000 ;
 map:map_transportMeansMapping_000 rml:logicalSource map:source_002 ;
 	rdf:type rr:TriplesMap ;
 	rdfs:label "transportMeansMapping" ;
-	rr:predicateObjectMap map:pom_024, map:pom_025, map:pom_026, map:pom_027 ;
+	rr:predicateObjectMap map:pom_026, map:pom_027, map:pom_028, map:pom_029 ;
 	rr:subjectMap map:s_003 .
 
 map:om_000 rdf:type rr:ObjectMap ;
@@ -64,83 +64,91 @@ map:om_007 rdf:type rr:ObjectMap ;
 	rr:template "https://ontology.tno.nl/logistics/federated/BusinessService#{actorLogisticsRole}" ;
 	rr:termType rr:IRI .
 
-map:om_008 rml:reference "actorLegalPerson.legalPersonAddress.postalCode" ;
+map:om_008 rml:reference "actorLegalPerson.legalPersonID" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
-map:om_009 rml:reference "actorLegalPerson.legalPersonAddress.locatedInCity" ;
+map:om_009 rml:reference "actorLegalPerson.legalPersonName" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
-map:om_010 rml:reference "actorLegalPerson.legalPersonAddress.postalAddress" ;
+map:om_010 rml:reference "actorLegalPerson.postalCode" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
-map:om_011 rml:reference "actorLegalPerson.legalPersonAddress.locatedInCountry" ;
+map:om_011 rml:reference "actorLegalPerson.locatedInCity" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
-map:om_012 rml:reference "actorLegalPerson.legalPersonAddress.locatedInCity" ;
+map:om_012 rml:reference "actorLegalPerson.postalAddress" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
-map:om_013 rdf:type rr:ObjectMap ;
+map:om_013 rml:reference "actorLegalPerson.locatedInCountry" ;
+	rdf:type rr:ObjectMap ;
+	rr:termType rr:Literal .
+
+map:om_014 rml:reference "actorLegalPerson.locatedInCity" ;
+	rdf:type rr:ObjectMap ;
+	rr:termType rr:Literal .
+
+map:om_015 rdf:type rr:ObjectMap ;
 	rr:template "https://ontology.tno.nl/logistics/federated/DigitalTwin#{digitalTwinType}" ;
 	rr:termType rr:IRI .
 
-map:om_014 rml:reference "digitalTwinID" ;
+map:om_016 rml:reference "digitalTwinID" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
-map:om_015 rml:reference "grossMass" ;
+map:om_017 rml:reference "grossMass" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
-map:om_016 rml:reference "grossVolume" ;
+map:om_018 rml:reference "grossVolume" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
-map:om_017 rml:reference "netMass" ;
+map:om_019 rml:reference "netMass" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
-map:om_018 rml:reference "numberOfUnits" ;
+map:om_020 rml:reference "numberOfUnits" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
-map:om_019 rml:reference "goodsDescription" ;
+map:om_021 rml:reference "goodsDescription" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
-map:om_020 rml:reference "size.length" ;
+map:om_022 rml:reference "size.length" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
-map:om_021 rml:reference "size.height" ;
+map:om_023 rml:reference "size.height" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
-map:om_022 rml:reference "size.width" ;
+map:om_024 rml:reference "size.width" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
-map:om_023 rml:reference "transportEquipmentSizeType" ;
+map:om_025 rml:reference "transportEquipmentSizeType" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
-map:om_024 rdf:type rr:ObjectMap ;
+map:om_026 rdf:type rr:ObjectMap ;
 	rr:constant "https://ontology.tno.nl/logistics/federated/DigitalTwin#TransportMeans" ;
 	rr:termType rr:IRI .
 
-map:om_025 rml:reference "digitalTwinID" ;
+map:om_027 rml:reference "digitalTwinID" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
-map:om_026 rml:reference "transportMeansMode" ;
+map:om_028 rml:reference "transportMeansMode" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
-map:om_027 rml:reference "hasTransportmeansNationality" ;
+map:om_029 rml:reference "hasTransportmeansNationality" ;
 	rdf:type rr:ObjectMap ;
 	rr:termType rr:Literal .
 
@@ -169,63 +177,69 @@ map:pm_007 rdf:type rr:PredicateMap ;
 	rr:constant rdf:type .
 
 map:pm_008 rdf:type rr:PredicateMap ;
-	rr:constant pi:postalCode .
+	rr:constant BusinessService:legalPersonID .
 
 map:pm_009 rdf:type rr:PredicateMap ;
-	rr:constant pi:locatedAtStreetName .
+	rr:constant BusinessService:legalPersonName .
 
 map:pm_010 rdf:type rr:PredicateMap ;
-	rr:constant pi:postalAddress .
+	rr:constant pi:postalCode .
 
 map:pm_011 rdf:type rr:PredicateMap ;
-	rr:constant pi:locatedInCountry .
+	rr:constant pi:locatedAtStreetName .
 
 map:pm_012 rdf:type rr:PredicateMap ;
-	rr:constant pi:locatedInCity .
+	rr:constant pi:postalAddress .
 
 map:pm_013 rdf:type rr:PredicateMap ;
-	rr:constant rdf:type .
+	rr:constant pi:locatedInCountry .
 
 map:pm_014 rdf:type rr:PredicateMap ;
-	rr:constant DigitalTwin:DigitalTwinID .
+	rr:constant pi:locatedInCity .
 
 map:pm_015 rdf:type rr:PredicateMap ;
-	rr:constant DigitalTwin:grossMass .
-
-map:pm_016 rdf:type rr:PredicateMap ;
-	rr:constant DigitalTwin:grossVolume .
-
-map:pm_017 rdf:type rr:PredicateMap ;
-	rr:constant DigitalTwin:netMass .
-
-map:pm_018 rdf:type rr:PredicateMap ;
-	rr:constant DigitalTwin:numberOfUnits .
-
-map:pm_019 rdf:type rr:PredicateMap ;
-	rr:constant DigitalTwin:goodsDescription .
-
-map:pm_020 rdf:type rr:PredicateMap ;
-	rr:constant DigitalTwin:length .
-
-map:pm_021 rdf:type rr:PredicateMap ;
-	rr:constant DigitalTwin:height .
-
-map:pm_022 rdf:type rr:PredicateMap ;
-	rr:constant DigitalTwin:width .
-
-map:pm_023 rdf:type rr:PredicateMap ;
-	rr:constant DigitalTwin:transportEquipmentSizeType .
-
-map:pm_024 rdf:type rr:PredicateMap ;
 	rr:constant rdf:type .
 
-map:pm_025 rdf:type rr:PredicateMap ;
+map:pm_016 rdf:type rr:PredicateMap ;
 	rr:constant DigitalTwin:DigitalTwinID .
 
+map:pm_017 rdf:type rr:PredicateMap ;
+	rr:constant DigitalTwin:grossMass .
+
+map:pm_018 rdf:type rr:PredicateMap ;
+	rr:constant DigitalTwin:grossVolume .
+
+map:pm_019 rdf:type rr:PredicateMap ;
+	rr:constant DigitalTwin:netMass .
+
+map:pm_020 rdf:type rr:PredicateMap ;
+	rr:constant DigitalTwin:numberOfUnits .
+
+map:pm_021 rdf:type rr:PredicateMap ;
+	rr:constant DigitalTwin:goodsDescription .
+
+map:pm_022 rdf:type rr:PredicateMap ;
+	rr:constant DigitalTwin:length .
+
+map:pm_023 rdf:type rr:PredicateMap ;
+	rr:constant DigitalTwin:height .
+
+map:pm_024 rdf:type rr:PredicateMap ;
+	rr:constant DigitalTwin:width .
+
+map:pm_025 rdf:type rr:PredicateMap ;
+	rr:constant DigitalTwin:transportEquipmentSizeType .
+
 map:pm_026 rdf:type rr:PredicateMap ;
-	rr:constant DigitalTwin:transportMeansMode .
+	rr:constant rdf:type .
 
 map:pm_027 rdf:type rr:PredicateMap ;
+	rr:constant DigitalTwin:DigitalTwinID .
+
+map:pm_028 rdf:type rr:PredicateMap ;
+	rr:constant DigitalTwin:transportMeansMode .
+
+map:pm_029 rdf:type rr:PredicateMap ;
 	rr:constant DigitalTwin:transportMeansNationality .
 
 map:pom_000 rdf:type rr:PredicateObjectMap ;
@@ -339,6 +353,14 @@ map:pom_026 rdf:type rr:PredicateObjectMap ;
 map:pom_027 rdf:type rr:PredicateObjectMap ;
 	rr:objectMap map:om_027 ;
 	rr:predicateMap map:pm_027 .
+
+map:pom_028 rdf:type rr:PredicateObjectMap ;
+	rr:objectMap map:om_028 ;
+	rr:predicateMap map:pm_028 .
+
+map:pom_029 rdf:type rr:PredicateObjectMap ;
+	rr:objectMap map:om_029 ;
+	rr:predicateMap map:pm_029 .
 
 map:s_000 rdf:type rr:SubjectMap ;
 	rr:template "http://example.com/codognotto#{UUID}" .
