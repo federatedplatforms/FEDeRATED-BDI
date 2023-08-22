@@ -19,10 +19,15 @@ import nl.tno.federated.states.DataPullState
 import nl.tno.federated.states.EventState
 import org.springframework.stereotype.Service
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 @Service
 class CordaNodeService(private val rpc: NodeRPCConnection) {
 
+    /**
+     * Returns the Corda transaction linearId.
+     * @throws TimeoutException if the transaction takes more than 15 seconds (due to some counterparty being offline).
+     */
     fun startNewEventFlow(eventUUID: String, event: String, eventType: String, cordaNames: Set<CordaX500Name>): UUID {
         if (cordaNames.isEmpty()) throw NoEventDestinationsAvailableException("No event destinations found to send the event to.")
         val newEventTx = rpc.client().startFlowDynamic(
@@ -31,9 +36,9 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
             event,
             eventType,
             eventUUID
-        ).returnValue.get()
+        ).returnValue
 
-        return (newEventTx.coreTransaction.getOutput(0) as EventState).linearId.id
+        return (newEventTx.get(15, TimeUnit.SECONDS).coreTransaction.getOutput(0) as EventState).linearId.id
     }
 
     fun startVaultQueryBy(criteria: QueryCriteria? = null, pagingSpec: PageSpecification = PageSpecification(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE)): List<SimpleEventState> {
@@ -45,9 +50,9 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
             DataPullQueryFlow::class.java,
             cordaName,
             query
-        ).returnValue.get()
+        ).returnValue
 
-        return (dataPull.coreTransaction.getOutput(0) as DataPullState).linearId.id
+        return (dataPull.get(15, TimeUnit.SECONDS).coreTransaction.getOutput(0) as DataPullState).linearId.id
     }
 
     fun getDataPullResults(uuid: UUID): String? {
@@ -91,10 +96,3 @@ inline fun <reified T : ContractState> CordaRPCOps.vaultQueryPagedAndSortedByRec
     val criteria = queryCriteria ?: QueryCriteria.VaultQueryCriteria(Vault.StateStatus.ALL)
     return this.vaultQueryBy<T>(criteria, pageSpec, sorter).states.map { it.state.data }
 }
-//
-//inline fun <reified T : ContractState> CordaRPCOps.vaultQueryPagedAndSortedByRecordedTime(pageSpec: PageSpecification): List<T> {
-//    val sortAttribute = SortAttribute.Standard(Sort.VaultStateAttribute.RECORDED_TIME)
-//    val sorter = Sort(setOf(Sort.SortColumn(sortAttribute, Sort.Direction.DESC)))
-//    val criteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.ALL)
-//    return this.vaultQueryBy<T>(criteria, pageSpec, sorter).states.map { it.state.data }
-//}

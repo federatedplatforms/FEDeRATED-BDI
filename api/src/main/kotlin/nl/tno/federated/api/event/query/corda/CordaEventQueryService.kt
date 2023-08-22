@@ -1,6 +1,5 @@
 package nl.tno.federated.api.event.query.corda
 
-import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.Vault
 import net.corda.core.node.services.vault.PageSpecification
@@ -11,8 +10,6 @@ import nl.tno.federated.api.event.query.EventQuery
 import nl.tno.federated.api.event.query.EventQueryService
 import org.springframework.core.env.Environment
 import org.springframework.stereotype.Service
-import java.lang.Exception
-import java.util.*
 
 @Service
 class CordaEventQueryService(
@@ -29,12 +26,12 @@ class CordaEventQueryService(
     override fun findById(id: String): String? {
         if (environment.getProperty("demo.mode", Boolean::class.java) == true) return dummy
         // TODO when we add a UUID to the Event, this needs to change
-        val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(UUID.fromString(id)))
+        val criteria = QueryCriteria.LinearStateQueryCriteria(externalId = listOf(id))
         val state = cordaNodeService.startVaultQueryBy(criteria)
         return state.firstOrNull()?.event
     }
 
-    override fun findAll(): List<String> = findAll(1,100)
+    override fun findAll(): List<String> = findAll(1, 100)
 
     fun findAll(page: Int, size: Int): List<String> {
         if (environment.getProperty("demo.mode", Boolean::class.java) == true) return listOf(dummy)

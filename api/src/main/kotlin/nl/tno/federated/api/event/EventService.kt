@@ -38,11 +38,6 @@ class EventService(
         return uuid
     }
 
-    fun publishRDFEvent(event: NewEvent): UUID {
-        val uuid = UUID.randomUUID()
-        return publishRDFEvent(eventUUID = uuid, event = event.event, eventType = event.eventType, destinations = event.eventDestinations)
-    }
-
     fun publishRDFEvent(eventUUID: UUID, event: String, eventType: String, destinations: Set<String>? = null): UUID {
         val dest = destinations?.map { CordaEventDestination.parse(it) }?.toSet()
         return eventDistributionService.distributeEvent(eventUUID = eventUUID, event = event, eventType = eventType, destinations = dest)
