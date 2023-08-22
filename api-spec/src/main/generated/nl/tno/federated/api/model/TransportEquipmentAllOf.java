@@ -22,7 +22,7 @@ import javax.annotation.Generated;
  */
 
 @JsonTypeName("TransportEquipment_allOf")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-22T11:21:14.673+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-22T11:42:29.708+02:00[Europe/Amsterdam]")
 public class TransportEquipmentAllOf {
 
   private Double grossMass;

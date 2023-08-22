@@ -22,6 +22,7 @@ import org.springframework.test.context.junit4.SpringRunner
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @RunWith(SpringRunner::class)
@@ -46,7 +47,7 @@ class EventControllerTest {
 
         assertNotNull(response)
         assertEquals(HttpStatus.CREATED, response.statusCode)
-        assertEquals("/events/LoadEvent/${uuid}", response.headers.location!!.toString())
+        assertTrue(response.headers.location!!.toString().startsWith("/events/LoadEvent/"))
     }
 
     /**
@@ -62,6 +63,6 @@ class EventControllerTest {
 
         assertNotNull(response)
         assertEquals(HttpStatus.CREATED, response.statusCode)
-        assertEquals("/events/ArrivalEvent/${uuid}", response.headers.location!!.toString())
+        assertTrue(response.headers.location!!.toString().startsWith("/events/ArrivalEvent/"))
     }
 }

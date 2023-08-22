@@ -7,7 +7,6 @@ import be.ugent.rml.records.RecordsFactory
 import be.ugent.rml.store.QuadStore
 import be.ugent.rml.store.RDF4JStore
 import be.ugent.rml.term.NamedNode
-import be.ugent.rml.term.Term
 import org.eclipse.rdf4j.rio.RDFFormat
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ClassPathResource
@@ -29,21 +28,10 @@ class RMLMapper {
         return result
     }
 
-    fun createTriples(data: String, rules: ClassPathResource, baseUri: String? = null): String? {
-        // Replace namespace in rules file if one is provided.
-        val ttl = replaceNamespaceUrl(rules, baseUri)
-
-        // Map the data with the provided rules
-        val result = mapRml(data, ttl)
-        log.trace("Result: $result")
-        return result
-    }
-
     /**
      * Run rml mapper for the given json data and provided ttl mapping.
      */
     private fun mapRml(jsonData: String, mappingTtl: String): String? {
-
         // RmlMapper requires an unique folder per request, it read the data from data.json
         val tempDir = Files.createTempDirectory("semantic-adapter")
         log.debug("Created temp dir: ${tempDir.absolutePathString()}")
@@ -58,7 +46,7 @@ class RMLMapper {
         Files.write(ttlFile, mappingTtl.toByteArray(StandardCharsets.UTF_8))
 
         // Get the mapping string stream
-        return try {
+        try {
             ttlFile.inputStream().use {
 
                 // Load the mapping in a QuadStore
@@ -72,8 +60,6 @@ class RMLMapper {
                 // Set up the outputstore (needed when you want to output something else than nquads
                 val outputStore = RDF4JStore()
 
-                val functionAgent = AgentFactory.createFromFnO("fno/functions_idlab.ttl", "fno/functions_idlab_classes_java_mapping.ttl", "functions_grel.ttl", "grel_java_mapping.ttl");
-
                 // Create the Executor
                 val executor = Executor(rmlStore, factory, outputStore, Utils.getBaseDirectiveTurtle(it), functionAgent)
 
@@ -81,12 +67,13 @@ class RMLMapper {
                 val targets = executor.execute(null)
 
                 if (targets != null) {
-                    val result = targets[NamedNode("rmlmapper://default.store")]!!
-                    result.copyNameSpaces(rmlStore)
-                    return writeOutputTargets(targets)
-                } else {
-                    return null
+                    val result = targets[NamedNode("rmlmapper://default.store")]
+                    if (result != null) {
+                        result.copyNameSpaces(rmlStore)
+                        return writeToString(result)
+                    }
                 }
+                return null
             }
         } finally {
             // Cleanup
@@ -136,40 +123,27 @@ class RMLMapper {
     }
 
     @Throws(Exception::class)
-    private fun writeOutputTargets(targets: HashMap<Term, QuadStore>): String? {
-        var hasNoResults = true
-        log.debug("Writing to Targets: {}", targets.keys)
+    private fun writeToString(store: QuadStore, format: String = "turtle"): String {
+        // Default target is exported separately for backwards compatibility reasons
+        log.debug("Exporting to default Target")
 
-        // Go over each term and export to the Target if needed
-        for ((term, store) in targets) {
-            if (store.size() > 0) {
-                hasNoResults = false
-                log.info("Target: {} has {} results", term, store.size())
-            }
-
-            // Default target is exported separately for backwards compatibility reasons
-            if (term.value == "rmlmapper://default.store") {
-                log.debug("Exporting to default Target")
-
-                if (store.size() > 1) {
-                    log.info("{} quads were generated for default Target", store.size())
-                } else {
-                    log.info("{} quad was generated for default Target", store.size())
-                }
-
-                //if output file provided, write to triples output file
-                val str = StringWriter()
-
-                BufferedWriter(str).use {
-                    store.write(it, "turtle")
-                }
-
-                return str.toString()
-            }
+        if (store.size() > 1) {
+            log.info("{} quads were generated for default Target", store.size())
+        } else {
+            log.info("{} quad was generated for default Target", store.size())
         }
-        if (hasNoResults) {
-            log.info("No results!")
+
+        //if output file provided, write to triples output file
+        val str = StringWriter()
+
+        BufferedWriter(str).use {
+            store.write(it, format)
         }
-        return null
+
+        return str.toString()
+    }
+
+    companion object {
+        val functionAgent = AgentFactory.createFromFnO("fno/functions_idlab.ttl", "fno/functions_idlab_classes_java_mapping.ttl", "functions_grel.ttl", "grel_java_mapping.ttl");
     }
 }

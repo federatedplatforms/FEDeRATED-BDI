@@ -1,10 +1,12 @@
 package nl.tno.federated.api.event.mapper
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import nl.tno.federated.api.model.ArrivalEvent
 import nl.tno.federated.api.model.LoadEvent
 import nl.tno.federated.api.rml.RMLMapper
 import nl.tno.federated.api.util.RDFUtils.convert
+import nl.tno.federated.api.util.toJsonNode
 import nl.tno.federated.api.util.toJsonString
 import org.eclipse.rdf4j.rio.RDFFormat
 import org.eclipse.rdf4j.rio.helpers.JSONLDMode
@@ -19,9 +21,13 @@ class EventMapper(
 ) {
     private val tripleService = RMLMapper()
 
-    fun <T : Any> toRDFTurtle(event: T): String {
-        val json = event.toJsonString(objectMapper)
-        val rmlFile = getRMLFileLocation(event)
+    fun <T : Any> toJsonNode(event: T): JsonNode {
+        return event.toJsonNode(objectMapper)
+    }
+
+    fun toRDFTurtle(jsonNode: JsonNode, eventType: EventType): String {
+        val json = objectMapper.writeValueAsString(jsonNode)
+        val rmlFile = eventType.rmlFile
         return tripleService.createTriples(json, rmlFile) ?: throw EventMapperException("Unable to map event to RDF, no output from mapping.")
     }
 

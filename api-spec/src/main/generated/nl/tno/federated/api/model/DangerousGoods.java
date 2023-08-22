@@ -24,7 +24,7 @@ import javax.annotation.Generated;
  */
 
 @Schema(name = "DangerousGoods", description = "Specialized cargo, dangerous goods")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-22T11:21:14.673+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-22T11:42:29.708+02:00[Europe/Amsterdam]")
 public class DangerousGoods implements LoadEventInvolvedCargoInner {
 
   private String digitalTwinType;

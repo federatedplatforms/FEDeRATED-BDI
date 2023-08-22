@@ -21,7 +21,7 @@ import javax.annotation.Generated;
  */
 
 @Schema(name = "Actor", description = "Actor has a role and is described by a legal person - relevant for us: consignor, consignee, carrier")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-22T11:21:14.673+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-22T11:42:29.708+02:00[Europe/Amsterdam]")
 public class Actor {
 
   private ActorActorLegalPerson actorLegalPerson;

@@ -1,5 +1,6 @@
 package nl.tno.federated.api.util
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.jsonldjava.core.JsonLdOptions
 import com.github.jsonldjava.core.JsonLdProcessor
@@ -10,6 +11,10 @@ fun Any.toJsonString(objectMapper: ObjectMapper): String {
     val sw = StringWriter()
     objectMapper.writeValue(sw, this)
     return sw.toString()
+}
+
+fun Any.toJsonNode(objectMapper: ObjectMapper): JsonNode {
+    return objectMapper.valueToTree(this)
 }
 
 fun compactJsonLD(jsonLd: String): Map<String, Any> {

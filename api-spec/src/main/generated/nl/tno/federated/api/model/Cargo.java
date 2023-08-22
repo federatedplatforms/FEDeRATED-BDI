@@ -19,7 +19,7 @@ import javax.annotation.Generated;
  */
 
 @Schema(name = "Cargo", description = "May represent a transport equipment, goods or dangerous goods")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-22T11:21:14.673+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-22T11:42:29.708+02:00[Europe/Amsterdam]")
 public class Cargo {
 
   private String digitalTwinType;

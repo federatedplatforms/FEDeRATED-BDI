@@ -35,8 +35,7 @@ class EventsController(
     }
 
     override fun arrivalEventPost(arrivalEvent: ArrivalEvent): ResponseEntity<ArrivalEvent> {
-        val rdf = eventService.convertEventToRDF(arrivalEvent)
-        val uuid = eventService.publishRDFEvent(rdf, ArrivalEvent::class.java.simpleName)
+        val uuid = eventService.newJsonEvent(arrivalEvent)
         log.info("ArrivalEvent published with UUID: {}", uuid)
         return ResponseEntity
             .created(URI("/events/ArrivalEvent/${uuid}"))
@@ -48,8 +47,7 @@ class EventsController(
     }
 
     override fun loadEventPost(loadEvent: LoadEvent): ResponseEntity<LoadEvent> {
-        val rdf = eventService.convertEventToRDF(loadEvent)
-        val uuid = eventService.publishRDFEvent(rdf, LoadEvent::class.java.simpleName)
+        val uuid = eventService.newJsonEvent(loadEvent)
         log.info("LoadEvent published with UUID: {}", uuid)
         return ResponseEntity
             .created(URI("/events/LoadEvent/${uuid}"))

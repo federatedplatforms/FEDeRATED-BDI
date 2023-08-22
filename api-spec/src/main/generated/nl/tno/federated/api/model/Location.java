@@ -16,38 +16,50 @@ import java.util.*;
 import javax.annotation.Generated;
 
 /**
- * Specialized digital twin, mostly truck
+ * Location
  */
 
-@Schema(name = "TransportMeans", description = "Specialized digital twin, mostly truck")
+@Schema(name = "Location", description = "Location")
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-22T11:42:29.708+02:00[Europe/Amsterdam]")
-public class TransportMeans {
-
-  private String digitalTwinID;
+public class Location {
 
   /**
-   * Gets or Sets transportMeansMode
+   * Gets or Sets locationRole
    */
-  public enum TransportMeansModeEnum {
-    SEA("Sea"),
+  public enum LocationRoleEnum {
+    PLACEOFACCEPTANCE("PlaceOfAcceptance"),
     
-    RAIL("Rail"),
+    PLACEOFARRIVAL("PlaceOfArrival"),
     
-    ROAD("Road"),
+    PLACEOFBORDERCROSSING("PlaceOfBorderCrossing"),
     
-    AIR("Air"),
+    PLACEOFCALL("PlaceOfCall"),
     
-    MAIL("Mail"),
+    PLACEOFDELIVERY("PlaceOfDelivery"),
     
-    MULTIMODAL("Multimodal"),
+    PLACEOFDEPARTURE("PlaceOfDeparture"),
     
-    PIPELINES("Pipelines"),
+    PLACEOFDISCHARGE("PlaceOfDischarge"),
     
-    INLANDWATERWAYS("InlandWaterways");
+    PLACEOFLOADING("PlaceOfLoading"),
+    
+    PLACEOFRECEIPT("PlaceOfReceipt"),
+    
+    PLACEOFSTRIPPING("PlaceOfStripping"),
+    
+    PLACEOFSTUFFING("PlaceOfStuffing"),
+    
+    PLACEOFUNLOADING("PlaceOfUnloading"),
+    
+    PORTOFCALL("PortOfCall"),
+    
+    PORTOFDISCHARGE("PortOfDischarge"),
+    
+    PORTOFLOADING("PortOfLoading");
 
     private String value;
 
-    TransportMeansModeEnum(String value) {
+    LocationRoleEnum(String value) {
       this.value = value;
     }
 
@@ -62,8 +74,8 @@ public class TransportMeans {
     }
 
     @JsonCreator
-    public static TransportMeansModeEnum fromValue(String value) {
-      for (TransportMeansModeEnum b : TransportMeansModeEnum.values()) {
+    public static LocationRoleEnum fromValue(String value) {
+      for (LocationRoleEnum b : LocationRoleEnum.values()) {
         if (b.value.equals(value)) {
           return b;
         }
@@ -72,12 +84,20 @@ public class TransportMeans {
     }
   }
 
-  private TransportMeansModeEnum transportMeansMode;
+  private LocationRoleEnum locationRole;
+
+  private Boolean businessLocationIntermediaryRole;
+
+  private String postalCode;
+
+  private String locatedAtStreetName;
+
+  private String postalAddress;
 
   /**
-   * Gets or Sets hasTransportMeansNationality
+   * Gets or Sets locatedInCountry
    */
-  public enum HasTransportMeansNationalityEnum {
+  public enum LocatedInCountryEnum {
     AD("AD"),
     
     AE("AE"),
@@ -576,7 +596,7 @@ public class TransportMeans {
 
     private String value;
 
-    HasTransportMeansNationalityEnum(String value) {
+    LocatedInCountryEnum(String value) {
       this.value = value;
     }
 
@@ -591,8 +611,8 @@ public class TransportMeans {
     }
 
     @JsonCreator
-    public static HasTransportMeansNationalityEnum fromValue(String value) {
-      for (HasTransportMeansNationalityEnum b : HasTransportMeansNationalityEnum.values()) {
+    public static LocatedInCountryEnum fromValue(String value) {
+      for (LocatedInCountryEnum b : LocatedInCountryEnum.values()) {
         if (b.value.equals(value)) {
           return b;
         }
@@ -601,82 +621,169 @@ public class TransportMeans {
     }
   }
 
-  private HasTransportMeansNationalityEnum hasTransportMeansNationality;
+  private LocatedInCountryEnum locatedInCountry;
+
+  private String locatedInCity;
 
   /**
    * Default constructor
-   * @deprecated Use {@link TransportMeans#TransportMeans(TransportMeansModeEnum)}
+   * @deprecated Use {@link Location#Location(LocationRoleEnum, String, String, String, LocatedInCountryEnum, String)}
    */
   @Deprecated
-  public TransportMeans() {
+  public Location() {
     super();
   }
 
   /**
    * Constructor with only required parameters
    */
-  public TransportMeans(TransportMeansModeEnum transportMeansMode) {
-    this.transportMeansMode = transportMeansMode;
+  public Location(LocationRoleEnum locationRole, String postalCode, String locatedAtStreetName, String postalAddress, LocatedInCountryEnum locatedInCountry, String locatedInCity) {
+    this.locationRole = locationRole;
+    this.postalCode = postalCode;
+    this.locatedAtStreetName = locatedAtStreetName;
+    this.postalAddress = postalAddress;
+    this.locatedInCountry = locatedInCountry;
+    this.locatedInCity = locatedInCity;
   }
 
-  public TransportMeans digitalTwinID(String digitalTwinID) {
-    this.digitalTwinID = digitalTwinID;
+  public Location locationRole(LocationRoleEnum locationRole) {
+    this.locationRole = locationRole;
     return this;
   }
 
   /**
-   * Get digitalTwinID
-   * @return digitalTwinID
-  */
-  
-  @Schema(name = "digitalTwinID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("digitalTwinID")
-  public String getDigitalTwinID() {
-    return digitalTwinID;
-  }
-
-  public void setDigitalTwinID(String digitalTwinID) {
-    this.digitalTwinID = digitalTwinID;
-  }
-
-  public TransportMeans transportMeansMode(TransportMeansModeEnum transportMeansMode) {
-    this.transportMeansMode = transportMeansMode;
-    return this;
-  }
-
-  /**
-   * Get transportMeansMode
-   * @return transportMeansMode
+   * Get locationRole
+   * @return locationRole
   */
   @NotNull 
-  @Schema(name = "transportMeansMode", requiredMode = Schema.RequiredMode.REQUIRED)
-  @JsonProperty("transportMeansMode")
-  public TransportMeansModeEnum getTransportMeansMode() {
-    return transportMeansMode;
+  @Schema(name = "locationRole", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("locationRole")
+  public LocationRoleEnum getLocationRole() {
+    return locationRole;
   }
 
-  public void setTransportMeansMode(TransportMeansModeEnum transportMeansMode) {
-    this.transportMeansMode = transportMeansMode;
+  public void setLocationRole(LocationRoleEnum locationRole) {
+    this.locationRole = locationRole;
   }
 
-  public TransportMeans hasTransportMeansNationality(HasTransportMeansNationalityEnum hasTransportMeansNationality) {
-    this.hasTransportMeansNationality = hasTransportMeansNationality;
+  public Location businessLocationIntermediaryRole(Boolean businessLocationIntermediaryRole) {
+    this.businessLocationIntermediaryRole = businessLocationIntermediaryRole;
     return this;
   }
 
   /**
-   * Get hasTransportMeansNationality
-   * @return hasTransportMeansNationality
+   * Get businessLocationIntermediaryRole
+   * @return businessLocationIntermediaryRole
   */
   
-  @Schema(name = "hasTransportMeansNationality", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-  @JsonProperty("hasTransportMeansNationality")
-  public HasTransportMeansNationalityEnum getHasTransportMeansNationality() {
-    return hasTransportMeansNationality;
+  @Schema(name = "businessLocationIntermediaryRole", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("businessLocationIntermediaryRole")
+  public Boolean getBusinessLocationIntermediaryRole() {
+    return businessLocationIntermediaryRole;
   }
 
-  public void setHasTransportMeansNationality(HasTransportMeansNationalityEnum hasTransportMeansNationality) {
-    this.hasTransportMeansNationality = hasTransportMeansNationality;
+  public void setBusinessLocationIntermediaryRole(Boolean businessLocationIntermediaryRole) {
+    this.businessLocationIntermediaryRole = businessLocationIntermediaryRole;
+  }
+
+  public Location postalCode(String postalCode) {
+    this.postalCode = postalCode;
+    return this;
+  }
+
+  /**
+   * Get postalCode
+   * @return postalCode
+  */
+  @NotNull 
+  @Schema(name = "postalCode", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("postalCode")
+  public String getPostalCode() {
+    return postalCode;
+  }
+
+  public void setPostalCode(String postalCode) {
+    this.postalCode = postalCode;
+  }
+
+  public Location locatedAtStreetName(String locatedAtStreetName) {
+    this.locatedAtStreetName = locatedAtStreetName;
+    return this;
+  }
+
+  /**
+   * Get locatedAtStreetName
+   * @return locatedAtStreetName
+  */
+  @NotNull 
+  @Schema(name = "locatedAtStreetName", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("locatedAtStreetName")
+  public String getLocatedAtStreetName() {
+    return locatedAtStreetName;
+  }
+
+  public void setLocatedAtStreetName(String locatedAtStreetName) {
+    this.locatedAtStreetName = locatedAtStreetName;
+  }
+
+  public Location postalAddress(String postalAddress) {
+    this.postalAddress = postalAddress;
+    return this;
+  }
+
+  /**
+   * Get postalAddress
+   * @return postalAddress
+  */
+  @NotNull 
+  @Schema(name = "postalAddress", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("postalAddress")
+  public String getPostalAddress() {
+    return postalAddress;
+  }
+
+  public void setPostalAddress(String postalAddress) {
+    this.postalAddress = postalAddress;
+  }
+
+  public Location locatedInCountry(LocatedInCountryEnum locatedInCountry) {
+    this.locatedInCountry = locatedInCountry;
+    return this;
+  }
+
+  /**
+   * Get locatedInCountry
+   * @return locatedInCountry
+  */
+  @NotNull 
+  @Schema(name = "locatedInCountry", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("locatedInCountry")
+  public LocatedInCountryEnum getLocatedInCountry() {
+    return locatedInCountry;
+  }
+
+  public void setLocatedInCountry(LocatedInCountryEnum locatedInCountry) {
+    this.locatedInCountry = locatedInCountry;
+  }
+
+  public Location locatedInCity(String locatedInCity) {
+    this.locatedInCity = locatedInCity;
+    return this;
+  }
+
+  /**
+   * Get locatedInCity
+   * @return locatedInCity
+  */
+  @NotNull 
+  @Schema(name = "locatedInCity", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("locatedInCity")
+  public String getLocatedInCity() {
+    return locatedInCity;
+  }
+
+  public void setLocatedInCity(String locatedInCity) {
+    this.locatedInCity = locatedInCity;
   }
 
   @Override
@@ -687,24 +794,32 @@ public class TransportMeans {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    TransportMeans transportMeans = (TransportMeans) o;
-    return Objects.equals(this.digitalTwinID, transportMeans.digitalTwinID) &&
-        Objects.equals(this.transportMeansMode, transportMeans.transportMeansMode) &&
-        Objects.equals(this.hasTransportMeansNationality, transportMeans.hasTransportMeansNationality);
+    Location location = (Location) o;
+    return Objects.equals(this.locationRole, location.locationRole) &&
+        Objects.equals(this.businessLocationIntermediaryRole, location.businessLocationIntermediaryRole) &&
+        Objects.equals(this.postalCode, location.postalCode) &&
+        Objects.equals(this.locatedAtStreetName, location.locatedAtStreetName) &&
+        Objects.equals(this.postalAddress, location.postalAddress) &&
+        Objects.equals(this.locatedInCountry, location.locatedInCountry) &&
+        Objects.equals(this.locatedInCity, location.locatedInCity);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(digitalTwinID, transportMeansMode, hasTransportMeansNationality);
+    return Objects.hash(locationRole, businessLocationIntermediaryRole, postalCode, locatedAtStreetName, postalAddress, locatedInCountry, locatedInCity);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class TransportMeans {\n");
-    sb.append("    digitalTwinID: ").append(toIndentedString(digitalTwinID)).append("\n");
-    sb.append("    transportMeansMode: ").append(toIndentedString(transportMeansMode)).append("\n");
-    sb.append("    hasTransportMeansNationality: ").append(toIndentedString(hasTransportMeansNationality)).append("\n");
+    sb.append("class Location {\n");
+    sb.append("    locationRole: ").append(toIndentedString(locationRole)).append("\n");
+    sb.append("    businessLocationIntermediaryRole: ").append(toIndentedString(businessLocationIntermediaryRole)).append("\n");
+    sb.append("    postalCode: ").append(toIndentedString(postalCode)).append("\n");
+    sb.append("    locatedAtStreetName: ").append(toIndentedString(locatedAtStreetName)).append("\n");
+    sb.append("    postalAddress: ").append(toIndentedString(postalAddress)).append("\n");
+    sb.append("    locatedInCountry: ").append(toIndentedString(locatedInCountry)).append("\n");
+    sb.append("    locatedInCity: ").append(toIndentedString(locatedInCity)).append("\n");
     sb.append("}");
     return sb.toString();
   }

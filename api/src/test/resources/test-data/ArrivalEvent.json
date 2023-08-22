@@ -1,7 +1,6 @@
 {
-    "UUID": null,
-    "Timestamp": "2023-07-27Z",
-    "TimeClassification": "Planned",
+    "timestamp": "2023-07-27T01:30:00.000+02:00",
+    "timeClassification": "Planned",
     "involvedActors": [
         {
             "actorLegalPerson": {
