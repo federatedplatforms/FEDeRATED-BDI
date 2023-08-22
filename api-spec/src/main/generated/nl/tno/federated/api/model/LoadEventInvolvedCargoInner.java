@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.annotation.Generated;
 
+
 @Schema(
     oneOf = {DangerousGoods.class, Goods.class, TransportEquipment.class }
 )
@@ -21,7 +22,7 @@ import javax.annotation.Generated;
   @JsonSubTypes.Type(value = TransportEquipment.class, name = "TransportEquipment")
 })
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-14T16:15:39.185+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-22T10:58:21.998+02:00[Europe/Amsterdam]")
 public interface LoadEventInvolvedCargoInner {
     public String getDigitalTwinType();
 }

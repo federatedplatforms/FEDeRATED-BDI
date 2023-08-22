@@ -49,7 +49,6 @@ class EventControllerTest {
         assertEquals("/events/LoadEvent/${uuid}", response.headers.location!!.toString())
     }
 
-
     /**
      * When adding a LoadEvent we expect a created response with the location header to be set.
      */

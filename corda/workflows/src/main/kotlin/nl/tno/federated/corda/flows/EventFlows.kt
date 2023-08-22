@@ -6,14 +6,11 @@ import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
-import net.corda.core.node.services.vault.QueryCriteria
-import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.EventContract
-import nl.tno.federated.corda.services.graphdb.GraphDBEventConverter
 import nl.tno.federated.corda.services.ishare.ISHARECordaService
 import nl.tno.federated.states.EventState
 import org.slf4j.LoggerFactory
@@ -124,20 +121,26 @@ class NewEventFlow(
         // Send the state to the counterparty, and receive it back with their signature.
         log.info("Sending new Event to counterparties")
 
-        val otherPartySessions = counterParties.map { initiateFlow(it) }
+        val otherPartySessions = counterParties.map {
+            log.info("Initiating flow for party: {}", it.name)
+            initiateFlow(it)
+        }
         val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, otherPartySessions, GATHERING_SIGS.childProgressTracker()))
 
         // Stage 5.
         progressTracker.currentStep = FINALISING_TRANSACTION
         // Notarise and record the transaction in both parties' vaults.
+        storeEventInLocalTripleStore(newEventState, me)
+        return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
+    }
 
+    private fun storeEventInLocalTripleStore(newEventState: EventState, me: Party) {
         val await = await(GraphDBInsert(graphdb(), newEventState.event, false))
         require(await) {
             "Unable to insert event data into the triple store at ${me.name}."
         }.also {
             log.info("Inserted event data into the triple store: {} at: {}", await, me.name)
         }
-        return subFlow(FinalityFlow(fullySignedTx, otherPartySessions, FINALISING_TRANSACTION.childProgressTracker()))
     }
 
     private fun findParties(): List<Party> = destinations.map { destination ->

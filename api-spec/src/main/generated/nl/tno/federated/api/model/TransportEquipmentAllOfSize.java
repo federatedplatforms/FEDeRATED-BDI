@@ -13,7 +13,7 @@ import java.util.Objects;
  */
 
 @JsonTypeName("TransportEquipment_allOf_size")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-14T16:15:39.185+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-22T10:58:21.998+02:00[Europe/Amsterdam]")
 public class TransportEquipmentAllOfSize {
 
   private Double height;

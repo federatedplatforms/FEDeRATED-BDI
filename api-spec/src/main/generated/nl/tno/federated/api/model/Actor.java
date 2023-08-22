@@ -15,7 +15,7 @@ import java.util.Objects;
  */
 
 @Schema(name = "Actor", description = "Actor has a role and is described by a legal person - relevant for us: consignor, consignee, carrier")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-14T16:15:39.185+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-22T10:58:21.998+02:00[Europe/Amsterdam]")
 public class Actor {
 
   private ActorActorLegalPerson actorLegalPerson;

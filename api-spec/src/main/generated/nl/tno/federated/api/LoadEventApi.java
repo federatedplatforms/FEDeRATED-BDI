@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import javax.annotation.Generated;
 import javax.validation.Valid;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-14T16:15:39.185+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-22T10:58:21.998+02:00[Europe/Amsterdam]")
 @Validated
 @Tag(name = "LoadEvent", description = "the LoadEvent API")
 public interface LoadEventApi {

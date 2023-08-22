@@ -14,7 +14,7 @@ import java.util.Objects;
  */
 
 @Schema(name = "TransportMeans", description = "Specialized digital twin, mostly truck")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-14T16:15:39.185+02:00[Europe/Amsterdam]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-08-22T10:58:21.998+02:00[Europe/Amsterdam]")
 public class TransportMeans {
 
   private String digitalTwinID;
