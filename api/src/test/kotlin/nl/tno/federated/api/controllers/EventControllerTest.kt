@@ -53,7 +53,6 @@ class EventControllerTest {
      * When adding a LoadEvent we expect a created response with the location header to be set.
      */
     @Test
-    @Ignore("TODO: Need a sample ArrivalEvent")
     fun testArrivalEvent() {
         val uuid = UUID.randomUUID()
         whenever(eventDistributionService.distributeEvent(any(), any(), anyOrNull())).thenReturn(uuid)

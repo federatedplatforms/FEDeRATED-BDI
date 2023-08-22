@@ -1,87 +1,69 @@
 {
-    "involvedActors":[
-        {
-            "actorLegalPerson": {
-                "legalPersonAddress":{
-                    "postalCode": "5656AE",
-                    "locatedAtStreetName": "High Tech Campus",
-                    "postalAddress": "HTC 25, 5656 AE Eindhoven",
-                    "locatedInCountry": {
-                        "countryISOCode": "NL"
-                    },
-                    "locatedInCity": {
-                        "cityName": "Eindhoven"
-                    }
-                },
-                "legalPersonName": "TNO",
-                "legalPersonID": "NL-00001"
-            },
-            "actorLogisticsRole": "Consignor"
+    "UUID": null,
+    "Timestamp": "2023-07-27Z",
+    "TimeClassification": "Planned",
+    "involvedActors": [{
+        "actorLegalPerson": {
+            "postalCode": "64990",
+            "locatedAtStreetName": "CEF De Mouguerre-BP 50004",
+            "postalAddress": "CEF De Mouguerre-BP 50004",
+            "locatedInCountry": "FR",
+            "locatedInCity": "MOUGUERRE",
+            "legalPersonName": "KUEHNE&NAGEL ROAD - AGENCE 64- BAYONNE -",
+            "legalPersonID": "306076"
         },
-        {
-            "actorLegalPerson": {
-                "legalPersonAddress":{
-                    "postalCode": "37137",
-                    "locatedAtStreetName": "Via Sommacampagna 32",
-                    "postalAddress": "Via Sommacampagna 32",
-                    "locatedInCountry": {
-                        "countryISOCode": "IT"
-                    },
-                    "locatedInCity": {
-                        "cityName": "Verona"
-                    }
-                },
-                "legalPersonName": "Verona Quadrante Europa TVR",
-                "legalPersonID": ""
-            },
-            "actorLogisticsRole": "Consignee"
+        "actorLogisticsRole": "Consignor"
+    }, {
+        "actorLegalPerson": {
+            "postalCode": "37137",
+            "locatedAtStreetName": "Via Sommacampagna 32",
+            "postalAddress": "Via Sommacampagna 32",
+            "locatedInCountry": "IT",
+            "locatedInCity": "Verona",
+            "legalPersonName": "Verona Quadrante Europa TVR",
+            "legalPersonID": null
         },
-        {
-            "actorLegalPerson": {
-                "legalPersonAddress":{
-                    "postalCode": "8660",
-                    "locatedAtStreetName": "Godthåbsvej 19",
-                    "postalAddress": "Godthåbsvej 19",
-                    "locatedInCountry": {
-                        "countryISOCode": "DK"
-                    },
-                    "locatedInCity": {
-                        "cityName": "Skanderborg"
-                    }
-                },
-                "legalPersonName": "WAYS Logistics A/S",
-                "legalPersonID": "349358"
-            },
-            "actorLogisticsRole": "Carrier"
+        "actorLogisticsRole": "Consignee"
+    }, {
+        "actorLegalPerson": {
+            "postalCode": "64990",
+            "locatedAtStreetName": "CEF De Mouguerre-BP 50004",
+            "postalAddress": "CEF De Mouguerre-BP 50004",
+            "locatedInCountry": "FR",
+            "locatedInCity": "MOUGUERRE",
+            "legalPersonName": "KUEHNE&NAGEL ROAD - AGENCE 64- BAYONNE -",
+            "legalPersonID": null
+        },
+        "actorLogisticsRole": "Carrier"
+    }],
+    "transportMeans": [{
+        "digitalTwinID": "F",
+        "transportMeansMode": "Sea",
+        "hasTransportmeansNationality": null
+    }],
+    "involvedDigitalTwins": [{
+        "digitalTwinID": null,
+        "grossMass": 24.700,
+        "grossVolume": 13.600,
+        "netMass": 0,
+        "numberOfUnits": 0,
+        "goodsDescription": "Miscellaneous Goods",
+        "digitalTwinType": "Goods",
+        "transportEquipmentSizeType": null,
+        "size": null
+    }, {
+        "digitalTwinID": "",
+        "grossMass": 0.0,
+        "grossVolume": 0.0,
+        "netMass": 0,
+        "numberOfUnits": 0,
+        "goodsDescription": null,
+        "digitalTwinType": "TransportEquipment",
+        "transportEquipmentSizeType": "AA",
+        "size": {
+            "height": 0.0,
+            "length": 0.0,
+            "width": 0.0
         }
-    ],
-    "transportMeans": {
-        "digitalTwinType": "TransportMeans",
-        "digitalTwinID": "X-040-TNO",
-        "transportMeansMode": "Road",
-        "hasTransportmeansNationality": "NL"
-    },
-    "involvedDigitalTwins": [
-        {
-            "digitalTwinID": "NLX040XNL",
-            "grossMass": 100,
-            "grossVolume": 0.5,
-            "netMass": 98,
-            "numberOfUnits": 5,
-            "goodsDescription": "5 BDI Nodes",
-            "digitalTwinType": "Goods"
-        },
-        {
-            "digitalTwinID": "NLZ040ZNL",
-            "grossMass": 140,
-            "grossVolume": 0.7,
-            "transportEquipmentSizeType": "AE",
-            "size": {
-                "height": 0.35,
-                "length": 2,
-                "width": 1
-            },
-            "digitalTwinType": "TransportEquipment"
-        }
-    ]
+    }]
 }
