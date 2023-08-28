@@ -11,7 +11,7 @@ import org.junit.Test
 
 import java.security.PublicKey
 
-class BroadcastToAllEventDistributionRuleTest {
+class BroadcastEventDistributionRuleTest {
 
     private val destination = CordaX500Name("TNO", "Den Haag", "NL")
     private val destinations = listOf(CordaEventDestination(destination))
@@ -20,7 +20,7 @@ class BroadcastToAllEventDistributionRuleTest {
     private val nodeInfo = mockk<NodeInfo>()
     private val owningKey = mockk<PublicKey>()
 
-    private val rule = BroadcastToAllEventDistributionRule(cordaNodeService = cordaNodeService)
+    private val rule = BroadcastEventDistributionRule(cordaNodeService = cordaNodeService)
 
     @Test
     fun getDestinations() {

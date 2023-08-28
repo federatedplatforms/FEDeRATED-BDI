@@ -30,4 +30,8 @@ class SparqlEventDistributionRule(
             db.shutDown()
         }
     }
+
+    override fun toString(): String {
+        return "SparqlEventDistributionRule(destinations='${getDestinations().joinToString(",") { "[organisation=${it.destination.organisation},locality=${it.destination.locality},country=${it.destination.country}]" }}',sparql='$sparql')"
+    }
 }

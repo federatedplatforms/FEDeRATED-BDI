@@ -2,7 +2,7 @@ package nl.tno.federated.api.event.distribution
 
 import nl.tno.federated.api.corda.CordaNodeService
 import nl.tno.federated.api.event.distribution.corda.CordaEventDestination
-import nl.tno.federated.api.event.distribution.rules.BroadcastToAllEventDistributionRule
+import nl.tno.federated.api.event.distribution.rules.BroadcastEventDistributionRule
 import nl.tno.federated.api.event.distribution.rules.EventDistributionRule
 import nl.tno.federated.api.event.distribution.rules.SparqlEventDistributionRule
 import nl.tno.federated.api.event.distribution.rules.StaticDestinationEventDistributionRule
@@ -22,12 +22,12 @@ class EventDistributionRuleConfiguration(
 
     private fun setupRules(): List<EventDistributionRule<CordaEventDestination>> {
         val userDefinedRulesList = environment.getProperty("bdi.event.distribution.rules.list")?.trim()?.split(",")
-        return if (userDefinedRulesList.isNullOrEmpty()) listOf(broadcastToAllEventDistributionRule())
+        return if (userDefinedRulesList.isNullOrEmpty()) listOf(broadcastEventDistributionRule())
         else mutableListOf<EventDistributionRule<CordaEventDestination>>().apply {
             userDefinedRulesList.forEach {
                 when (it.toLowerCase()) {
                     "static" -> add(staticDestinationEventDistributionRule())
-                    "broadcast" -> add(broadcastToAllEventDistributionRule())
+                    "broadcast" -> add(broadcastEventDistributionRule())
                     "sparql" -> add(sparqlEventDistributionRule())
                     else -> throw UnsupportedEventDistributionRuleType("$it is not a supported rule type")
                 }
@@ -35,8 +35,8 @@ class EventDistributionRuleConfiguration(
         }
     }
 
-    private fun broadcastToAllEventDistributionRule(): BroadcastToAllEventDistributionRule {
-        return BroadcastToAllEventDistributionRule(cordaNodeService)
+    private fun broadcastEventDistributionRule(): BroadcastEventDistributionRule {
+        return BroadcastEventDistributionRule(cordaNodeService)
     }
 
     private fun sparqlEventDistributionRule(): SparqlEventDistributionRule {
