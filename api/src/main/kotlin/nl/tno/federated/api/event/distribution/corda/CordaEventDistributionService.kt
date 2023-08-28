@@ -1,10 +1,8 @@
 package nl.tno.federated.api.event.distribution.corda
 
 import nl.tno.federated.api.corda.CordaNodeService
+import nl.tno.federated.api.event.distribution.EventDistributionRuleConfiguration
 import nl.tno.federated.api.event.distribution.EventDistributionService
-import nl.tno.federated.api.event.distribution.rules.EventDistributionRule
-import nl.tno.federated.api.event.distribution.rules.SparqlEventDistributionRule
-import nl.tno.federated.corda.services.graphdb.GraphDBEventConverter
 import org.springframework.core.env.Environment
 import org.springframework.stereotype.Service
 import java.util.*
@@ -12,7 +10,7 @@ import java.util.*
 @Service
 class CordaEventDistributionService(
     private val cordaNodeService: CordaNodeService,
-    private val rules: Set<EventDistributionRule<CordaEventDestination>>,
+    private val ruleConfiguration: EventDistributionRuleConfiguration,
     private val environment: Environment
 ) : EventDistributionService<CordaEventDestination> {
 
@@ -22,5 +20,5 @@ class CordaEventDistributionService(
         return cordaNodeService.startNewEventFlow(eventUUID = eventUUID.toString(), event = event, eventType = eventType, cordaNames = destinationSet.map { it.destination }.toSet())
     }
 
-    private fun runEventDistributionRules(eventRdf: String): Set<CordaEventDestination> = rules.first { it.appliesTo(eventRdf) }.getDestinations()
+    private fun runEventDistributionRules(eventRdf: String): Set<CordaEventDestination> = ruleConfiguration.rules.first { it.appliesTo(eventRdf) }.getDestinations().toSet()
 }

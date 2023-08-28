@@ -7,6 +7,9 @@ import nl.tno.federated.api.event.distribution.InvalidEventDestinationFormat
 class CordaEventDestination(destination: CordaX500Name) : EventDestination<CordaX500Name>(destination) {
 
     companion object {
+        /**
+         * EventDestination format: ORGANISATION/LOCALITY/COUNTRY for example: "DCA/Schiphol/NL"
+         */
         fun parse(eventDestination: String): CordaEventDestination {
             val result = eventDestination.split("/")
             return when (result.size) {

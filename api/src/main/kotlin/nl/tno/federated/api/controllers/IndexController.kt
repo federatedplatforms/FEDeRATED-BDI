@@ -1,8 +1,7 @@
 package nl.tno.federated.api.controllers
 
 import nl.tno.federated.api.corda.NodeRPCConnection
-import nl.tno.federated.api.event.distribution.corda.CordaEventDestination
-import nl.tno.federated.api.event.distribution.rules.EventDistributionRule
+import nl.tno.federated.api.event.distribution.EventDistributionRuleConfiguration
 import org.slf4j.LoggerFactory
 import org.springframework.core.env.Environment
 import org.springframework.stereotype.Controller
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 @Controller
 class IndexController(
     private val environment: Environment,
-    private val rules: Set<EventDistributionRule<CordaEventDestination>>,
+    private val rules: EventDistributionRuleConfiguration,
     private val rpc: NodeRPCConnection
 ) {
 
@@ -33,7 +32,7 @@ class IndexController(
         return "index"
     }
 
-    private fun getDistributionRules() = rules.jts { it.javaClass.simpleName }
+    private fun getDistributionRules() = rules.rules
 
     private fun getIdentities() : String {
         return try {
