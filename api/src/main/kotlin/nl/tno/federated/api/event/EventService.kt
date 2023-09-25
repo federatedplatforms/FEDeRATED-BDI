@@ -9,6 +9,7 @@ import nl.tno.federated.api.event.mapper.EventType
 import nl.tno.federated.api.event.mapper.UnsupportedEventTypeException
 import nl.tno.federated.api.event.query.EventQuery
 import nl.tno.federated.api.event.query.corda.CordaEventQueryService
+import nl.tno.federated.api.event.validation.ShaclValidator
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -34,8 +35,13 @@ class EventService(
         node.put("eventType", eventType.name)
 
         val rdf = eventMapper.toRDFTurtle(jsonNode = node, eventType = eventType)
+        validateWithShacl(rdf = rdf, eventType = eventType)
         publishRDFEvent(eventUUID = uuid, event = rdf, eventType = eventType)
         return uuid
+    }
+
+    fun validateWithShacl(rdf: String, eventType: EventType) {
+        ShaclValidator().validate(rdf, eventType)
     }
 
     fun publishRDFEvent(eventUUID: UUID, event: String, eventType: EventType, destinations: Set<String>? = null): UUID {
