@@ -31,17 +31,18 @@ class EventControllerTest {
     lateinit var eventDistributionService: CordaEventDistributionService
 
     /**
-     * When adding a LoadEvent we expect a created response with the location header to be set.
+     * When creating a LoadEvent we expect a 201 created response code with the location header pointing to the correct resource URI.
      */
     @Test
     fun testCreateLoadEvent() {
-        val jsonString = String(ClassPathResource("test-data/LoadEvent.json").inputStream.readBytes())
         val eventContentType = "application/vnd.federated.events.load-event.v1+json"
 
         val headers = HttpHeaders().apply {
             set(ACCEPT, APPLICATION_JSON_VALUE);
             set(CONTENT_TYPE, eventContentType)
         }
+
+        val jsonString = String(ClassPathResource("test-data/LoadEvent.json").inputStream.readBytes())
         val response = testRestTemplate.postForEntity("/events", HttpEntity(jsonString, headers), String::class.java)
 
         assertNotNull(response)
@@ -54,13 +55,14 @@ class EventControllerTest {
      */
     @Test
     fun testCreateArrivalEvent() {
-        val jsonString = String(ClassPathResource("test-data/ArrivalEvent.json").inputStream.readBytes())
         val eventContentType = "application/vnd.federated.events.arrival-event.v1+json"
 
         val headers = HttpHeaders().apply {
             set(ACCEPT, APPLICATION_JSON_VALUE);
             set(CONTENT_TYPE, eventContentType)
         }
+
+        val jsonString = String(ClassPathResource("test-data/ArrivalEvent.json").inputStream.readBytes())
         val response = testRestTemplate.postForEntity("/events", HttpEntity(jsonString, headers), String::class.java)
 
         assertNotNull(response)

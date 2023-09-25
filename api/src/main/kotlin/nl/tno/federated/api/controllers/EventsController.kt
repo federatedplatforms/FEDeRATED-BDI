@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.tags.Tag
+import nl.tno.federated.api.event.ContentTypeToEventType
 import nl.tno.federated.api.event.EventService
 import nl.tno.federated.api.event.mapper.EventType
 import nl.tno.federated.api.event.mapper.UnsupportedEventTypeException
@@ -24,16 +25,11 @@ import java.util.*
 
 @RestController
 @RequestMapping("/events")
-@Tag(name = "EventsController")
+@Tag(name = "EventsController", description = "Allows for creation, distribution and retrieval of events. See the /event-types endpoint for all supported event types by this node.")
 class EventsController(
-    private val eventService: EventService
+    private val eventService: EventService,
+    private val contentTypeToEventType: ContentTypeToEventType
 ) {
-
-    // TODO make this configurable.
-    private val contentTypeToEventTypeMap = mapOf(
-        "application/vnd.federated.events.load-event.v1+json" to EventType("LoadEvent", "rml/EventMapping.ttl", "shacl/EventValidation.shacl"),
-        "application/vnd.federated.events.arrival-event.v1+json" to EventType("ArrivalEvent", "rml/EventMapping.ttl", "shacl/EventValidation.shacl")
-    )
 
     companion object {
         private val log = LoggerFactory.getLogger(EventsController::class.java)
@@ -50,11 +46,11 @@ class EventsController(
     @GetMapping(path = [""], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getEvents(@RequestParam("page", defaultValue = "1") page: Int, @RequestParam("size", defaultValue = "100") size: Int): ResponseEntity<List<String>> {
         log.info("Get all events, page: {}, size: {}", page, size)
-        if(page < 1) throw InvalidPageCriteria("Page size should be greater than 0.")
+        if (page < 1) throw InvalidPageCriteria("Page size should be greater than 0.")
         return ResponseEntity.ok().body(eventService.findAll(page, size))
     }
 
-    @Operation(summary = "Create a new event, the Content-Type header specifies the Event type e.g: application/vnd.federated.events.load-event.v1+json")
+    @Operation(summary = "Create a new event and distribute to peers according to the distribution rules. The Content-Type header specifies the Event type e.g: application/vnd.federated.events.load-event.v1+json. See the /event-types endpoint for all supported event types by this node.")
     @PostMapping(path = [""], consumes = ["application/*+json"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun postEvent(@RequestBody event: String, @RequestHeader("Content-Type") contentType: String): ResponseEntity<Void> {
         log.info("Received new event: {}", event)
@@ -68,7 +64,11 @@ class EventsController(
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         content = [Content(
             examples = [
-                ExampleObject(name = "Query additional information from the node related to specified event UUID.", description = "eventUUID should exit in the Corda Vault.", value = """{ "sparql" : "select * where { ?s ?p ?o . } limit 100", "eventUUID" : "asasd-asas234cda-sasw233ds" }""")
+                ExampleObject(
+                    name = "Query additional information from the node related to specified event UUID.",
+                    description = "eventUUID should exit in the Corda Vault.",
+                    value = """{ "sparql" : "select * where { ?s ?p ?o . } limit 100", "eventUUID" : "asasd-asas234cda-sasw233ds" }"""
+                )
             ]
         )]
     )
@@ -78,8 +78,6 @@ class EventsController(
     }
 
     fun contentTypeToEventType(contentType: String): EventType {
-        return contentTypeToEventTypeMap.getOrElse(contentType) {
-            throw UnsupportedEventTypeException(contentType)
-        }
+        return contentTypeToEventType.getEventType(contentType) ?: throw UnsupportedEventTypeException(contentType)
     }
 }

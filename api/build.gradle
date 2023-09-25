@@ -8,6 +8,8 @@ apply plugin: 'kotlin-allopen'
 apply plugin: 'io.spring.dependency-management'
 
 dependencies {
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
     // CorDapp dependencies.
     implementation project(":corda:contracts")
     implementation project(":corda:workflows")

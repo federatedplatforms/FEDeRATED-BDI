@@ -2,6 +2,7 @@ package nl.tno.federated.api
 
 import nl.tno.federated.api.graphdb.GraphDBSPARQLClient
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.core.env.Environment
@@ -9,6 +10,7 @@ import org.springframework.core.env.Environment
 /**
  * BDI API Spring Boot application.
  */
+@EnableConfigurationProperties
 @SpringBootApplication(scanBasePackages = ["nl.tno.federated.api"])
 class Server {
 
