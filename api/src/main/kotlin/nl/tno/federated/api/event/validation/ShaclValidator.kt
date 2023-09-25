@@ -1,7 +1,6 @@
 package nl.tno.federated.api.event.validation
 
 import nl.tno.federated.api.event.mapper.EventType
-import nl.tno.federated.api.util.RDFUtils
 import org.eclipse.rdf4j.exceptions.ValidationException
 import org.eclipse.rdf4j.model.Model
 import org.eclipse.rdf4j.model.vocabulary.RDF4J
@@ -15,7 +14,11 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore
 import org.eclipse.rdf4j.sail.shacl.ShaclSail
 import java.io.StringReader
 
-// TODO write test for ShaclValidator
+/**
+ * https://rdf4j.org/documentation/programming/shacl/
+ *
+ * TODO write test for ShaclValidator
+ */
 class ShaclValidator {
 
     fun validate(rdf: String, eventType: EventType) {
