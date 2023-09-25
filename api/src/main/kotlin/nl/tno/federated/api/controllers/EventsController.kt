@@ -4,19 +4,18 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.tags.Tag
-import nl.tno.federated.api.ArrivalEventApi
-import nl.tno.federated.api.LoadEventApi
 import nl.tno.federated.api.event.EventService
-import nl.tno.federated.api.event.NewEvent
+import nl.tno.federated.api.event.mapper.EventType
+import nl.tno.federated.api.event.mapper.UnsupportedEventTypeException
 import nl.tno.federated.api.event.query.EventQuery
-import nl.tno.federated.api.model.ArrivalEvent
-import nl.tno.federated.api.model.LoadEvent
 import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -28,34 +27,23 @@ import java.util.*
 @Tag(name = "EventsController")
 class EventsController(
     private val eventService: EventService
-) : ArrivalEventApi, LoadEventApi {
+) {
+
+    // TODO make this configurable.
+    private val contentTypeToEventTypeMap = mapOf(
+        "application/vnd.federated.events.load-event.v1+json" to EventType("LoadEvent", "rml/EventMapping.ttl", "shacl/EventValidation.shacl"),
+        "application/vnd.federated.events.arrival-event.v1+json" to EventType("ArrivalEvent", "rml/EventMapping.ttl", "shacl/EventValidation.shacl")
+    )
 
     companion object {
         private val log = LoggerFactory.getLogger(EventsController::class.java)
     }
 
-    override fun arrivalEventPost(arrivalEvent: ArrivalEvent): ResponseEntity<ArrivalEvent> {
-        val uuid = eventService.newJsonEvent(arrivalEvent)
-        log.info("ArrivalEvent published with UUID: {}", uuid)
-        return ResponseEntity
-            .created(URI("/events/ArrivalEvent/${uuid}"))
-            .body(arrivalEvent)
-    }
-
-    override fun arrivalEventResourceIdGet(resourceId: String): ResponseEntity<String> {
-        return ResponseEntity.ok(eventService.findEventById(resourceId))
-    }
-
-    override fun loadEventPost(loadEvent: LoadEvent): ResponseEntity<LoadEvent> {
-        val uuid = eventService.newJsonEvent(loadEvent)
-        log.info("LoadEvent published with UUID: {}", uuid)
-        return ResponseEntity
-            .created(URI("/events/LoadEvent/${uuid}"))
-            .body(loadEvent)
-    }
-
-    override fun loadEventResourceIdGet(resourceId: String): ResponseEntity<String> {
-        return ResponseEntity.ok(eventService.findEventById(resourceId))
+    @Operation(summary = "Return the event data in compacted JSONLD format.")
+    @GetMapping(path = ["/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun getEventById(@PathVariable("id") id: String): ResponseEntity<String> {
+        log.info("Get event by ID: {}", id)
+        return ResponseEntity.ok(eventService.findEventById(id))
     }
 
     @Operation(summary = "Return the event data in compacted JSONLD format.")
@@ -66,22 +54,15 @@ class EventsController(
         return ResponseEntity.ok().body(eventService.findAll(page, size))
     }
 
-//    @Operation(summary = "Submit a new event. Need to specify RDF event, the eventType and destination(s), the receivers of the event.")
-//    @PostMapping(path = [""], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-//    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-//        content = [Content(
-//            examples = [
-//                ExampleObject(name = "Event without specific destination(s)", description = "Event destinations should match any of the identities listed in the '/corda/peers' endpoint. Format for the destination is: <organisation>/<locality>/<country>, for example: TNO/Soesterberg/NL", value = """{ "event" : "text/turtle", "eventType" : "EventType" }"""),
-//                ExampleObject(name = "Event with single destination", description = "Event destinations should match any of the identities listed in the '/corda/peers' endpoint. Format for the destination is: <organisation>/<locality>/<country>, for example: TNO/Soesterberg/NL", value = """{ "event" : "text/turtle", "eventType" : "EventType", "eventDestinations" : ["TNO/Soesterberg/NL"] }"""),
-//                ExampleObject(name = "Event with multiple destinations", description = "Event destinations should match any of the identities listed in the '/corda/peers' endpoint. Format for the destination is: <organisation>/<locality>/<country>, for example: TNO/Soesterberg/NL", value = """{ "event" : "text/turtle", "eventType" : "EventType", "eventDestinations" : ["TNO/Soesterberg/NL", "TNO/Utrecht/NL", "TNO/Groningen/NL"] }""")
-//            ]
-//        )]
-//    )
-//    fun postEvent(@RequestBody event: NewEvent): ResponseEntity<UUID> {
-//        log.info("Received EventWithDestinations: {}", event)
-//        // TODO need to generate a UUID and alter the incoming event RDF.
-//        return ResponseEntity.ok().body(eventService.publishRDFEvent(event))
-//    }
+    @Operation(summary = "Create a new event, the Content-Type header specifies the Event type e.g: application/vnd.federated.events.load-event.v1+json")
+    @PostMapping(path = [""], consumes = ["application/*+json"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun postEvent(@RequestBody event: String, @RequestHeader("Content-Type") contentType: String): ResponseEntity<Void> {
+        log.info("Received new event: {}", event)
+        val type = contentTypeToEventType(contentType)
+        val uuid = eventService.newJsonEvent(event, type)
+        log.info("New event created with UUID: {}", uuid)
+        return ResponseEntity.created(URI("/events/${uuid}")).build()
+    }
 
     @PostMapping(path = ["/query"], produces = [MediaType.APPLICATION_JSON_VALUE])
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -94,5 +75,11 @@ class EventsController(
     fun query(@RequestBody eventQuery: EventQuery): ResponseEntity<String> {
         log.info("Executing event query: {}", eventQuery)
         return ResponseEntity.ok(eventService.query(eventQuery))
+    }
+
+    fun contentTypeToEventType(contentType: String): EventType {
+        return contentTypeToEventTypeMap.getOrElse(contentType) {
+            throw UnsupportedEventTypeException(contentType)
+        }
     }
 }

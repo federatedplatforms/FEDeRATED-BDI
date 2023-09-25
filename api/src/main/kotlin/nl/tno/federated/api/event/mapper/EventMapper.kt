@@ -21,13 +21,13 @@ class EventMapper(
 ) {
     private val tripleService = RMLMapper()
 
-    fun <T : Any> toJsonNode(event: T): JsonNode {
+    fun toJsonNode(event: String): JsonNode {
         return event.toJsonNode(objectMapper)
     }
 
     fun toRDFTurtle(jsonNode: JsonNode, eventType: EventType): String {
         val json = objectMapper.writeValueAsString(jsonNode)
-        val rmlFile = eventType.rmlFile
+        val rmlFile = eventType.rml
         return tripleService.createTriples(json, rmlFile) ?: throw EventMapperException("Unable to map event to RDF, no output from mapping.")
     }
 
@@ -37,19 +37,5 @@ class EventMapper(
 
     fun toFlattenedJSONLD(rdf: String): String {
         return convert(rdf, RDFFormat.TURTLE, RDFFormat.JSONLD, JSONLDMode.FLATTEN)
-    }
-
-    private fun <T : Any> getRMLFileLocation(event: T): String = when (event) {
-        is ArrivalEvent -> EventType.ArrivalEvent.rmlFile
-        is LoadEvent -> EventType.LoadEvent.rmlFile
-        else -> throw UnsupportedEventTypeException(event.javaClass.simpleName)
-    }
-
-    fun <T> isEventTypeSupported(event: T): Boolean {
-        return when (event) {
-            is ArrivalEvent -> true
-            is LoadEvent -> true
-            else -> false
-        }
     }
 }

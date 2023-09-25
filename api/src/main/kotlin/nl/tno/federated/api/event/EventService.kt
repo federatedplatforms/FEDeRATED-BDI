@@ -1,5 +1,6 @@
 package nl.tno.federated.api.event
 
+import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.fasterxml.jackson.databind.node.ObjectNode
 import nl.tno.federated.api.event.distribution.corda.CordaEventDestination
 import nl.tno.federated.api.event.distribution.corda.CordaEventDistributionService
@@ -23,22 +24,21 @@ class EventService(
      *
      * @throws UnsupportedEventTypeException is an unsupported Event type is encountered.
      */
-    fun <T : Any> newJsonEvent(event: T): UUID {
-        if(!eventMapper.isEventTypeSupported(event)) throw UnsupportedEventTypeException("Event type not supported: ${event.javaClass.simpleName}")
+    fun newJsonEvent(event: String, eventType: EventType): UUID {
+        val node = eventMapper.toJsonNode(event)
+        if(node.nodeType != JsonNodeType.OBJECT) throw UnsupportedEventTypeException("Unexpected Event content, not parsable as JSON!")
 
+        node as ObjectNode
         val uuid = UUID.randomUUID()
-        val eventType = event.javaClass.simpleName.toString()
-
-        val node = eventMapper.toJsonNode(event) as ObjectNode
         node.put("UUID", uuid.toString())
-        node.put("eventType", eventType)
+        node.put("eventType", eventType.name)
 
-        val rdf = eventMapper.toRDFTurtle(jsonNode = node, eventType = EventType.valueOf(eventType))
+        val rdf = eventMapper.toRDFTurtle(jsonNode = node, eventType = eventType)
         publishRDFEvent(eventUUID = uuid, event = rdf, eventType = eventType)
         return uuid
     }
 
-    fun publishRDFEvent(eventUUID: UUID, event: String, eventType: String, destinations: Set<String>? = null): UUID {
+    fun publishRDFEvent(eventUUID: UUID, event: String, eventType: EventType, destinations: Set<String>? = null): UUID {
         val dest = destinations?.map { CordaEventDestination.parse(it) }?.toSet()
         return eventDistributionService.distributeEvent(eventUUID = eventUUID, event = event, eventType = eventType, destinations = dest)
     }

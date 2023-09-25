@@ -1,12 +1,8 @@
 package nl.tno.federated.api.controllers
 
 import nl.tno.federated.api.event.distribution.corda.CordaEventDistributionService
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.anyOrNull
-import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -38,25 +34,37 @@ class EventControllerTest {
      * When adding a LoadEvent we expect a created response with the location header to be set.
      */
     @Test
-    fun testLoadEvent() {
+    fun testCreateLoadEvent() {
         val jsonString = String(ClassPathResource("test-data/LoadEvent.json").inputStream.readBytes())
-        val response = testRestTemplate.postForEntity("/events/LoadEvent", HttpEntity(jsonString, HttpHeaders().apply { set(ACCEPT, APPLICATION_JSON_VALUE); set(CONTENT_TYPE, APPLICATION_JSON_VALUE) }), String::class.java)
+        val eventContentType = "application/vnd.federated.events.load-event.v1+json"
+
+        val headers = HttpHeaders().apply {
+            set(ACCEPT, APPLICATION_JSON_VALUE);
+            set(CONTENT_TYPE, eventContentType)
+        }
+        val response = testRestTemplate.postForEntity("/events", HttpEntity(jsonString, headers), String::class.java)
 
         assertNotNull(response)
         assertEquals(HttpStatus.CREATED, response.statusCode)
-        assertTrue(response.headers.location!!.toString().startsWith("/events/LoadEvent/"))
+        assertTrue(response.headers.location!!.toString().startsWith("/events/"))
     }
 
     /**
      * When adding a LoadEvent we expect a created response with the location header to be set.
      */
     @Test
-    fun testArrivalEvent() {
+    fun testCreateArrivalEvent() {
         val jsonString = String(ClassPathResource("test-data/ArrivalEvent.json").inputStream.readBytes())
-        val response = testRestTemplate.postForEntity("/events/ArrivalEvent", HttpEntity(jsonString, HttpHeaders().apply { set(ACCEPT, APPLICATION_JSON_VALUE); set(CONTENT_TYPE, APPLICATION_JSON_VALUE) }), String::class.java)
+        val eventContentType = "application/vnd.federated.events.arrival-event.v1+json"
+
+        val headers = HttpHeaders().apply {
+            set(ACCEPT, APPLICATION_JSON_VALUE);
+            set(CONTENT_TYPE, eventContentType)
+        }
+        val response = testRestTemplate.postForEntity("/events", HttpEntity(jsonString, headers), String::class.java)
 
         assertNotNull(response)
         assertEquals(HttpStatus.CREATED, response.statusCode)
-        assertTrue(response.headers.location!!.toString().startsWith("/events/ArrivalEvent/"))
+        assertTrue(response.headers.location!!.toString().startsWith("/events/"))
     }
 }

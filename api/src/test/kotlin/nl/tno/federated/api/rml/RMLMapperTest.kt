@@ -13,14 +13,14 @@ class RMLMapperTest {
 
     @Test
     fun test() {
-        val result = rmlMapper.createTriples(loadEventJson, EventType.LoadEvent.rmlFile)
+        val result = rmlMapper.createTriples(loadEventJson, "rml/EventMapping.ttl")
         assertNotNull(result)
         // TODO more assertions here
     }
 
     @Test
     fun testArrival() {
-        val result = rmlMapper.createTriples(arrivalEventJson, EventType.ArrivalEvent.rmlFile)
+        val result = rmlMapper.createTriples(arrivalEventJson, "rml/EventMapping.ttl")
         assertNotNull(result)
         // TODO more assertions here
     }

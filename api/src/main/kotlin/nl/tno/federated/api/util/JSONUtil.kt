@@ -13,6 +13,11 @@ fun Any.toJsonString(objectMapper: ObjectMapper): String {
     return sw.toString()
 }
 
+
+fun String.toJsonNode(objectMapper: ObjectMapper): JsonNode {
+   return objectMapper.readTree(this)
+}
+
 fun Any.toJsonNode(objectMapper: ObjectMapper): JsonNode {
     return objectMapper.valueToTree(this)
 }
