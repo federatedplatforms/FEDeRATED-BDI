@@ -32,7 +32,7 @@ class IndexController(
         return "index"
     }
 
-    private fun getDistributionRules() = rules.rules
+    private fun getDistributionRules() = rules.getDistributionRules()
 
     private fun getIdentities() : String {
         return try {

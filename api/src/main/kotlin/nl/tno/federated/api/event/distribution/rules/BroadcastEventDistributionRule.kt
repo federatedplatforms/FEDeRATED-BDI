@@ -3,6 +3,9 @@ package nl.tno.federated.api.event.distribution.rules
 import nl.tno.federated.api.corda.CordaNodeService
 import nl.tno.federated.api.event.distribution.corda.CordaEventDestination
 
+/**
+ * This rule refreshes its destinations list based on the latest networkMapSnapshot.
+ */
 class BroadcastEventDistributionRule(val cordaNodeService: CordaNodeService) : EventDistributionRule<CordaEventDestination> {
 
     override fun getDestinations() = cordaNodeService.getPeersExcludingSelfAndNotary().map { CordaEventDestination(it.name) }.toSet()

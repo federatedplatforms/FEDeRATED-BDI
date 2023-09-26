@@ -4,8 +4,10 @@ import nl.tno.federated.api.corda.CordaNodeService
 import nl.tno.federated.api.event.distribution.corda.CordaEventDestination
 import nl.tno.federated.api.event.distribution.rules.BroadcastEventDistributionRule
 import nl.tno.federated.api.event.distribution.rules.EventDistributionRule
+import nl.tno.federated.api.event.distribution.rules.FailedEventDistributionRule
 import nl.tno.federated.api.event.distribution.rules.SparqlEventDistributionRule
 import nl.tno.federated.api.event.distribution.rules.StaticDestinationEventDistributionRule
+import org.slf4j.LoggerFactory
 import org.springframework.core.env.Environment
 import org.springframework.stereotype.Component
 
@@ -18,7 +20,12 @@ class EventDistributionRuleConfiguration(
     private val cordaNodeService: CordaNodeService
 ) {
 
-    val rules: List<EventDistributionRule<CordaEventDestination>> = setupRules()
+    private val log = LoggerFactory.getLogger(EventDistributionRuleConfiguration::class.java)
+    private val rules: List<EventDistributionRule<CordaEventDestination>>
+
+    init {
+        rules = setupRules()
+    }
 
     private fun setupRules(): List<EventDistributionRule<CordaEventDestination>> {
         val userDefinedRulesList = environment.getProperty("bdi.event.distribution.rules.list")?.trim()?.split(",")
@@ -35,8 +42,13 @@ class EventDistributionRuleConfiguration(
         }
     }
 
-    private fun broadcastEventDistributionRule(): BroadcastEventDistributionRule {
-        return BroadcastEventDistributionRule(cordaNodeService)
+    private fun broadcastEventDistributionRule(): EventDistributionRule<CordaEventDestination> {
+        return try {
+            BroadcastEventDistributionRule(cordaNodeService)
+        } catch (e: Exception) {
+            log.error("Failed to add distribution rule: BroadcastEventDistributionRule, error: ${e.message}", e)
+            FailedEventDistributionRule(e.message)
+        }
     }
 
     private fun sparqlEventDistributionRule(): SparqlEventDistributionRule {
@@ -44,8 +56,13 @@ class EventDistributionRuleConfiguration(
     }
 
     private fun staticDestinationEventDistributionRule(): StaticDestinationEventDistributionRule {
-        val destinations = environment.getProperty("bdi.event.distribution.rules.static.destinations")?.trim()?.split(",") ?: throw EventDistributionRuleConfigurationException("No static destinations defined for static destination rule")
+        val destinations =
+            environment.getProperty("bdi.event.distribution.rules.static.destinations")?.trim()?.split(",") ?: throw EventDistributionRuleConfigurationException("No static destinations defined for static destination rule")
         val cordaEventDestinations = destinations.map { CordaEventDestination.parse(it) }.toSet()
         return StaticDestinationEventDistributionRule(cordaEventDestinations)
+    }
+
+    fun getDistributionRules(): List<EventDistributionRule<CordaEventDestination>> {
+        return rules
     }
 }

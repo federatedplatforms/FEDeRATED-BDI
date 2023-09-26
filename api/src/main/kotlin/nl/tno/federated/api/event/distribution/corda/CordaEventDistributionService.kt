@@ -21,5 +21,5 @@ class CordaEventDistributionService(
         return cordaNodeService.startNewEventFlow(eventUUID = eventUUID.toString(), event = event, eventType = eventType.name, cordaNames = destinationSet.map { it.destination }.toSet())
     }
 
-    private fun runEventDistributionRules(eventRdf: String): Set<CordaEventDestination> = ruleConfiguration.rules.first { it.appliesTo(eventRdf) }.getDestinations().toSet()
+    private fun runEventDistributionRules(eventRdf: String): Set<CordaEventDestination> = ruleConfiguration.getDistributionRules().first { it.appliesTo(eventRdf) }.getDestinations().toSet()
 }
