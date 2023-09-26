@@ -16,7 +16,7 @@ dependencies {
 
     // Corda dependency we need for the rpc connection.
     implementation "net.corda:corda-rpc"
-    implementation project(":api-spec")
+//    implementation project(":api-spec")
 
     implementation 'com.apicatalog:titanium-json-ld-jre8:1.3.2' // JSON LD parser
     implementation "org.springframework.boot:spring-boot-starter-web"

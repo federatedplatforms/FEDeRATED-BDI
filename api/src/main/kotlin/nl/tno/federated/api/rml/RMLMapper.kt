@@ -10,6 +10,9 @@ import be.ugent.rml.term.NamedNode
 import org.eclipse.rdf4j.rio.RDFFormat
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ClassPathResource
+import org.springframework.core.io.DefaultResourceLoader
+import org.springframework.core.io.Resource
+import org.springframework.core.io.ResourceLoader
 import java.io.*
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -17,10 +20,12 @@ import java.nio.file.Files
 class RMLMapper {
 
     private val log = LoggerFactory.getLogger(RMLMapper::class.java)
+    private val resourceLoader: ResourceLoader = DefaultResourceLoader()
+
 
     fun createTriples(data: String, ruleFileLocation: String, baseUri: String? = null): String? {
         // Replace namespace in rules file if one is provided.
-        val ttl = replaceNamespaceUrl(ClassPathResource(ruleFileLocation), baseUri)
+        val ttl = replaceNamespaceUrl(resourceLoader.getResource(ruleFileLocation), baseUri)
 
         // Map the data with the provided rules
         val result = mapRml(data, ttl)
@@ -90,7 +95,7 @@ class RMLMapper {
      * Replaces the namespace url ("https://ontology.tno.nl/logistics/federated/tradelens") in the provided file
      * with the provided baseUri. Skips if baseUri is null or blank.
      */
-    private fun replaceNamespaceUrl(file: ClassPathResource, baseUri: String?): String {
+    private fun replaceNamespaceUrl(file: Resource, baseUri: String?): String {
         val readAllLines = file.inputStream.use {
             val reader = BufferedReader(InputStreamReader(it))
             val lines = mutableListOf<String>()

@@ -2,12 +2,9 @@ package nl.tno.federated.api.event.mapper
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import nl.tno.federated.api.model.ArrivalEvent
-import nl.tno.federated.api.model.LoadEvent
 import nl.tno.federated.api.rml.RMLMapper
 import nl.tno.federated.api.util.RDFUtils.convert
 import nl.tno.federated.api.util.toJsonNode
-import nl.tno.federated.api.util.toJsonString
 import org.eclipse.rdf4j.rio.RDFFormat
 import org.eclipse.rdf4j.rio.helpers.JSONLDMode
 import org.springframework.stereotype.Service

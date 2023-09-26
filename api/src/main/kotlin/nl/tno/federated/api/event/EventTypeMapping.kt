@@ -1,12 +1,16 @@
 package nl.tno.federated.api.event
 
 import nl.tno.federated.api.event.mapper.EventType
+import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ClassPathResource
+import org.springframework.core.io.DefaultResourceLoader
+import org.springframework.core.io.ResourceLoader
 import org.springframework.stereotype.Component
 import org.springframework.util.FileCopyUtils
 import java.io.InputStreamReader
+import java.lang.Exception
 import java.nio.charset.StandardCharsets.UTF_8
 
 @Configuration
@@ -25,6 +29,9 @@ class TypeMappingConfig(val types: List<Type>) {
 @Component
 class EventTypeMapping(val config: TypeMappingConfig) {
 
+    private val resourceLoader: ResourceLoader = DefaultResourceLoader()
+    private val log = LoggerFactory.getLogger(EventTypeMapping::class.java)
+
     fun getEventType(contentType: String): EventType? {
         return config.types.find { it.contentType == contentType }?.toEventType()
     }
@@ -39,7 +46,11 @@ class EventTypeMapping(val config: TypeMappingConfig) {
         return config.types.filter {
             it.shacl != null
         }.map {
-            InputStreamReader(ClassPathResource(it.shacl!!).inputStream, UTF_8).use {
+            if(!resourceLoader.getResource(it.shacl!!).exists()) {
+                log.warn("SHACL file cannot be read: {}", it.shacl)
+                throw Exception("SHACL file cannot be read: ${it.shacl}")
+            }
+            InputStreamReader(resourceLoader.getResource(it.shacl!!).inputStream, UTF_8).use {
                 FileCopyUtils.copyToString(it);
             }
         }.toList()
