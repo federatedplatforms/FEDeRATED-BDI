@@ -17,8 +17,11 @@ import java.util.*
 class EventService(
     private val eventMapper: EventMapper,
     private val eventDistributionService: CordaEventDistributionService,
-    private val eventQueryService: CordaEventQueryService
+    private val eventQueryService: CordaEventQueryService,
+    private val eventTypeMapping: EventTypeMapping
 ) {
+
+    private val shaclValidator = ShaclValidator(eventTypeMapping.getShaclShapes())
 
     /**
      * Convert the given event to RDF.
@@ -41,7 +44,7 @@ class EventService(
     }
 
     fun validateWithShacl(rdf: String, eventType: EventType) {
-        ShaclValidator().validate(rdf, eventType)
+        if(eventType.shacl != null) shaclValidator.validate(rdf)
     }
 
     fun publishRDFEvent(eventUUID: UUID, event: String, eventType: EventType, destinations: Set<String>? = null): UUID {

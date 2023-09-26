@@ -1,6 +1,6 @@
 package nl.tno.federated.api.event.validation
 
-import nl.tno.federated.api.event.mapper.EventType
+import net.corda.core.internal.rootCause
 import org.eclipse.rdf4j.exceptions.ValidationException
 import org.eclipse.rdf4j.model.Model
 import org.eclipse.rdf4j.model.vocabulary.RDF4J
@@ -12,44 +12,65 @@ import org.eclipse.rdf4j.rio.WriterConfig
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings
 import org.eclipse.rdf4j.sail.memory.MemoryStore
 import org.eclipse.rdf4j.sail.shacl.ShaclSail
+import org.eclipse.rdf4j.sail.shacl.ShaclSailValidationException
+import org.slf4j.LoggerFactory
+
 import java.io.StringReader
+import java.io.StringWriter
+
+
+class ShaclValidationException(msg: String?): Exception(msg)
 
 /**
  * https://rdf4j.org/documentation/programming/shacl/
- *
- * TODO write test for ShaclValidator
  */
-class ShaclValidator {
+class ShaclValidator(private val shapes: List<String>) {
 
-    fun validate(rdf: String, eventType: EventType) {
-        if(eventType.shacl == null) return
+    private val log = LoggerFactory.getLogger(ShaclValidator::class.java)
+    private val shaclSail = ShaclSail(MemoryStore())
+    private val sailRepository = SailRepository(shaclSail)
 
-        val shaclSail = ShaclSail(MemoryStore())
-        val sailRepository = SailRepository(shaclSail)
+    init {
         sailRepository.init()
+        addShapes()
+    }
+
+    /**
+     * Add all the shapes to the SailRepository.
+     * Do this only once, not per validate action.
+     */
+    private fun addShapes() {
+        shapes.forEach {
+            sailRepository.connection.use { connection ->
+                connection.begin()
+                connection.add(StringReader(it), "", RDFFormat.TURTLE, RDF4J.SHACL_SHAPE_GRAPH)
+                connection.commit()
+            }
+        }
+    }
+
+    fun validate(rdf: String) {
         sailRepository.connection.use { connection ->
             connection.begin()
-            connection.add(shaclRulesForEventType(eventType), "", RDFFormat.TURTLE, RDF4J.SHACL_SHAPE_GRAPH)
-            connection.commit()
-
-            connection.begin()
+            // TODO need to verify if this causes the repository to grow indefinitely and eats up all memory
             connection.add(StringReader(rdf), "", RDFFormat.TURTLE)
             try {
                 connection.commit()
             } catch (exception: RepositoryException) {
-                val cause: Throwable = exception
-                if (cause is ValidationException) {
-                    val validationReportModel: Model = (cause as ValidationException).validationReportAsModel()
+                val cause: Throwable = exception.rootCause
+                if (cause is ShaclSailValidationException) {
+                    val validationReportModel: Model = cause.validationReportAsModel()
                     val writerConfig: WriterConfig = WriterConfig()
                         .set(BasicWriterSettings.INLINE_BLANK_NODES, true)
                         .set(BasicWriterSettings.XSD_STRING_TO_PLAIN_LITERAL, true)
                         .set(BasicWriterSettings.PRETTY_PRINT, true)
-                    Rio.write(validationReportModel, System.out, RDFFormat.TURTLE, writerConfig)
+                    val sw = StringWriter()
+                    Rio.write(validationReportModel, sw, RDFFormat.TURTLE, writerConfig)
+                    log.debug("SHACL validation failed, validation report:\n {}", sw.toString())
+                    throw ShaclValidationException(cause.message)
                 }
                 throw exception
             }
         }
     }
-
-    fun shaclRulesForEventType(eventType: EventType) = eventType.shacl!!.reader()
 }

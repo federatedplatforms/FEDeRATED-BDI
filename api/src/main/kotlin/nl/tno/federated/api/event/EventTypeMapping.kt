@@ -19,7 +19,7 @@ class TypeMappingConfig(val types: List<Type>) {
 }
 
 @Component
-class ContentTypeToEventType(val config: TypeMappingConfig) {
+class EventTypeMapping(val config: TypeMappingConfig) {
 
     fun getEventType(contentType: String): EventType? {
         return config.types.find { it.contentType == contentType }?.toEventType()
@@ -30,4 +30,7 @@ class ContentTypeToEventType(val config: TypeMappingConfig) {
             it.contentType to it.toEventType()
         }
     }
+
+    // TODO read shapes
+    fun getShaclShapes(): List<String> = arrayListOf()
 }

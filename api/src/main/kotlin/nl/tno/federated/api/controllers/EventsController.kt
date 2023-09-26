@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.tags.Tag
-import nl.tno.federated.api.event.ContentTypeToEventType
+import nl.tno.federated.api.event.EventTypeMapping
 import nl.tno.federated.api.event.EventService
 import nl.tno.federated.api.event.mapper.EventType
 import nl.tno.federated.api.event.mapper.UnsupportedEventTypeException
@@ -28,7 +28,7 @@ import java.util.*
 @Tag(name = "EventsController", description = "Allows for creation, distribution and retrieval of events. See the /event-types endpoint for all supported event types by this node.")
 class EventsController(
     private val eventService: EventService,
-    private val contentTypeToEventType: ContentTypeToEventType
+    private val eventTypeMapping: EventTypeMapping
 ) {
 
     companion object {
@@ -78,6 +78,6 @@ class EventsController(
     }
 
     fun contentTypeToEventType(contentType: String): EventType {
-        return contentTypeToEventType.getEventType(contentType) ?: throw UnsupportedEventTypeException(contentType)
+        return eventTypeMapping.getEventType(contentType) ?: throw UnsupportedEventTypeException(contentType)
     }
 }
