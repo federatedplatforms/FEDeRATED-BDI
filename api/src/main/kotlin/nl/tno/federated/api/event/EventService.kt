@@ -43,6 +43,20 @@ class EventService(
         return uuid
     }
 
+    fun validateNewJsonEvent(event: String, eventType: EventType): String {
+        val node = eventMapper.toJsonNode(event)
+        if(node.nodeType != JsonNodeType.OBJECT) throw UnsupportedEventTypeException("Unexpected Event content, not parsable as JSON!")
+
+        node as ObjectNode
+        val uuid = UUID.randomUUID()
+        node.put("UUID", uuid.toString())
+        node.put("eventType", eventType.name)
+
+        val rdf = eventMapper.toRDFTurtle(jsonNode = node, eventType = eventType)
+        validateWithShacl(rdf = rdf, eventType = eventType)
+        return rdf
+    }
+
     fun validateWithShacl(rdf: String, eventType: EventType) {
         if(eventType.shacl != null) shaclValidator.validate(rdf)
     }

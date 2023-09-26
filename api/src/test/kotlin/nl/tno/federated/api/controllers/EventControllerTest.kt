@@ -35,11 +35,12 @@ class EventControllerTest {
      */
     @Test
     fun testCreateLoadEvent() {
-        val eventContentType = "application/vnd.federated.events.load-event.v1+json"
+        val eventContentType = "federated.events.load-event.v1"
 
         val headers = HttpHeaders().apply {
             set(ACCEPT, APPLICATION_JSON_VALUE);
-            set(CONTENT_TYPE, eventContentType)
+            set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
+            set(EVENT_TYPE_HEADER, eventContentType)
         }
 
         val jsonString = String(ClassPathResource("test-data/LoadEvent.json").inputStream.readBytes())
@@ -55,11 +56,12 @@ class EventControllerTest {
      */
     @Test
     fun testCreateArrivalEvent() {
-        val eventContentType = "application/vnd.federated.events.arrival-event.v1+json"
+        val eventContentType = "federated.events.arrival-event.v1"
 
         val headers = HttpHeaders().apply {
             set(ACCEPT, APPLICATION_JSON_VALUE);
-            set(CONTENT_TYPE, eventContentType)
+            set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
+            set(EVENT_TYPE_HEADER, eventContentType)
         }
 
         val jsonString = String(ClassPathResource("test-data/ArrivalEvent.json").inputStream.readBytes())
@@ -68,5 +70,27 @@ class EventControllerTest {
         assertNotNull(response)
         assertEquals(HttpStatus.CREATED, response.statusCode)
         assertTrue(response.headers.location!!.toString().startsWith("/events/"))
+    }
+
+
+    /**
+     * When adding a LoadEvent we expect a created response with the location header to be set.
+     */
+    @Test
+    fun testValidateArrivalEvent() {
+        val eventContentType = "application/vnd.federated.events.arrival-event.v1+json"
+
+        val headers = HttpHeaders().apply { ;
+            set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
+            set(EVENT_TYPE_HEADER, eventContentType)
+        }
+
+        val jsonString = String(ClassPathResource("test-data/ArrivalEvent.json").inputStream.readBytes())
+        val response = testRestTemplate.postForEntity("/events/validate", HttpEntity(jsonString, headers), String::class.java)
+
+        println(response.body)
+
+        assertNotNull(response.body)
+        assertEquals(HttpStatus.OK, response.statusCode)
     }
 }

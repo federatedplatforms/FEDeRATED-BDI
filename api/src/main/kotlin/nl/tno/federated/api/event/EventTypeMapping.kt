@@ -4,7 +4,6 @@ import nl.tno.federated.api.event.mapper.EventType
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
-import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.DefaultResourceLoader
 import org.springframework.core.io.ResourceLoader
 import org.springframework.stereotype.Component
@@ -15,9 +14,9 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 @Configuration
 @ConfigurationProperties(prefix = "bdi.federated.event")
-class TypeMappingConfig(val types: List<Type>) {
+class EventTypeMappingConfig(val types: List<Type>) {
     class Type {
-        lateinit var contentType: String
+        lateinit var eventType: String
         lateinit var name: String
         lateinit var rml: String
         var shacl: String? = null
@@ -27,18 +26,18 @@ class TypeMappingConfig(val types: List<Type>) {
 }
 
 @Component
-class EventTypeMapping(val config: TypeMappingConfig) {
+class EventTypeMapping(val config: EventTypeMappingConfig) {
 
     private val resourceLoader: ResourceLoader = DefaultResourceLoader()
     private val log = LoggerFactory.getLogger(EventTypeMapping::class.java)
 
     fun getEventType(contentType: String): EventType? {
-        return config.types.find { it.contentType == contentType }?.toEventType()
+        return config.types.find { it.eventType == contentType }?.toEventType()
     }
 
     fun getEventTypes(): Map<String, EventType> {
         return config.types.associate {
-            it.contentType to it.toEventType()
+            it.eventType to it.toEventType()
         }
     }
 
