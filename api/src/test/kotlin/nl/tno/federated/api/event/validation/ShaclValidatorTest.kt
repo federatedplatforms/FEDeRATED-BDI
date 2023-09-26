@@ -1,6 +1,5 @@
 package nl.tno.federated.api.event.validation
 
-import org.eclipse.rdf4j.sail.shacl.ShaclSailValidationException
 import org.junit.Test
 
 class ShaclValidatorTest {
@@ -40,7 +39,7 @@ class ShaclValidatorTest {
         validator.validate(rdf)
     }
 
-    @Test(expected = ShaclSailValidationException::class)
+    @Test(expected = ShaclValidationException::class)
     fun validateExceptionThrown() {
         val shape = """
             @prefix ex: <http://example.org#> .

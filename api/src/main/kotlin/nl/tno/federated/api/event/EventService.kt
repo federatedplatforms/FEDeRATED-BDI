@@ -21,7 +21,7 @@ class EventService(
     private val eventTypeMapping: EventTypeMapping
 ) {
 
-    private val shaclValidator = ShaclValidator(eventTypeMapping.getShaclShapes())
+    private val shaclValidator = ShaclValidator(eventTypeMapping.readShaclShapes())
 
     /**
      * Convert the given event to RDF.

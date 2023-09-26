@@ -19,7 +19,7 @@ import java.io.StringReader
 import java.io.StringWriter
 
 
-class ShaclValidationException(msg: String?): Exception(msg)
+class ShaclValidationException(msg: String?) : Exception(msg)
 
 /**
  * https://rdf4j.org/documentation/programming/shacl/
@@ -27,19 +27,12 @@ class ShaclValidationException(msg: String?): Exception(msg)
 class ShaclValidator(private val shapes: List<String>) {
 
     private val log = LoggerFactory.getLogger(ShaclValidator::class.java)
-    private val shaclSail = ShaclSail(MemoryStore())
-    private val sailRepository = SailRepository(shaclSail)
-
-    init {
-        sailRepository.init()
-        addShapes()
-    }
 
     /**
      * Add all the shapes to the SailRepository.
      * Do this only once, not per validate action.
      */
-    private fun addShapes() {
+    private fun addShapes(sailRepository: SailRepository) {
         shapes.forEach {
             sailRepository.connection.use { connection ->
                 connection.begin()
@@ -49,28 +42,41 @@ class ShaclValidator(private val shapes: List<String>) {
         }
     }
 
+    private fun initRepository(): SailRepository {
+        val shaclSail = ShaclSail(MemoryStore())
+        val sailRepository = SailRepository(shaclSail)
+        sailRepository.init()
+        addShapes(sailRepository)
+        return sailRepository
+    }
+
     fun validate(rdf: String) {
-        sailRepository.connection.use { connection ->
-            connection.begin()
-            // TODO need to verify if this causes the repository to grow indefinitely and eats up all memory
-            connection.add(StringReader(rdf), "", RDFFormat.TURTLE)
-            try {
-                connection.commit()
-            } catch (exception: RepositoryException) {
-                val cause: Throwable = exception.rootCause
-                if (cause is ShaclSailValidationException) {
-                    val validationReportModel: Model = cause.validationReportAsModel()
-                    val writerConfig: WriterConfig = WriterConfig()
-                        .set(BasicWriterSettings.INLINE_BLANK_NODES, true)
-                        .set(BasicWriterSettings.XSD_STRING_TO_PLAIN_LITERAL, true)
-                        .set(BasicWriterSettings.PRETTY_PRINT, true)
-                    val sw = StringWriter()
-                    Rio.write(validationReportModel, sw, RDFFormat.TURTLE, writerConfig)
-                    log.debug("SHACL validation failed, validation report:\n {}", sw.toString())
-                    throw ShaclValidationException(cause.message)
+        val sailRepository = initRepository()
+
+        try {
+            sailRepository.connection.use { connection ->
+                connection.begin()
+                connection.add(StringReader(rdf), "", RDFFormat.TURTLE)
+                try {
+                    connection.commit()
+                } catch (exception: RepositoryException) {
+                    val cause: Throwable = exception.rootCause
+                    if (cause is ShaclSailValidationException) {
+                        val validationReportModel: Model = cause.validationReportAsModel()
+                        val writerConfig: WriterConfig = WriterConfig()
+                            .set(BasicWriterSettings.INLINE_BLANK_NODES, true)
+                            .set(BasicWriterSettings.XSD_STRING_TO_PLAIN_LITERAL, true)
+                            .set(BasicWriterSettings.PRETTY_PRINT, true)
+                        val sw = StringWriter()
+                        Rio.write(validationReportModel, sw, RDFFormat.TURTLE, writerConfig)
+                        log.debug("SHACL validation failed, validation report:\n {}", sw.toString())
+                        throw ShaclValidationException(cause.message)
+                    }
+                    throw exception
                 }
-                throw exception
             }
+        } finally {
+            sailRepository.shutDown()
         }
     }
 }
