@@ -78,7 +78,7 @@ class EventControllerTest {
      */
     @Test
     fun testValidateArrivalEvent() {
-        val eventContentType = "application/vnd.federated.events.arrival-event.v1+json"
+        val eventContentType = "federated.events.arrival-event.v1"
 
         val headers = HttpHeaders().apply { ;
             set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
