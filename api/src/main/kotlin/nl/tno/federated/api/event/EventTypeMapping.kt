@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.DefaultResourceLoader
+import org.springframework.core.io.Resource
 import org.springframework.core.io.ResourceLoader
 import org.springframework.stereotype.Component
 import org.springframework.util.FileCopyUtils
@@ -41,17 +42,27 @@ class EventTypeMapping(val config: EventTypeMappingConfig) {
         }
     }
 
+    fun readShacl(eventType: EventType) = if (eventType.shacl != null) {
+        resourceToString(eventType.shacl)
+    } else null
+
+    fun readRml(eventType: EventType) = resourceToString(eventType.rml)
+
     fun readShaclShapes(): List<String> {
         return config.types.filter {
             it.shacl != null
         }.map {
-            if(!resourceLoader.getResource(it.shacl!!).exists()) {
+            if (!resourceLoader.getResource(it.shacl!!).exists()) {
                 log.warn("SHACL file cannot be read: {}", it.shacl)
                 throw Exception("SHACL file cannot be read: ${it.shacl}")
             }
-            InputStreamReader(resourceLoader.getResource(it.shacl!!).inputStream, UTF_8).use {
-                FileCopyUtils.copyToString(it);
-            }
+            resourceToString(it.shacl!!)
         }.toList()
+    }
+
+    private fun resourceToString(resource: String): String {
+        return InputStreamReader(resourceLoader.getResource(resource).inputStream, UTF_8).use {
+            FileCopyUtils.copyToString(it)
+        }
     }
 }
