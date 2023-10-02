@@ -1,4 +1,4 @@
-include 'api-spec'
+include 'api-generator'
 include 'api'
 include 'ishare'
 include 'corda:contracts'
