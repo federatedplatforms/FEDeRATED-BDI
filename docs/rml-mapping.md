@@ -1,20 +1,29 @@
 # RMLMapper
 
-Semantic Adapter uses the RMLMapper library: https://github.com/RMLio/rmlmapper-java The RMLMapper executes RML rules to generate Linked Data. It is a Java library, which is available via the command line but can also be integrated into a JVM based application.
+The API project uses the RMLMapper library from RML.io: https://github.com/RMLio/rmlmapper-java which is a Java library that can convert JSON to RDF format.
 
 ## YARRRML
 
 The resources folder contains both ttl and yml files. The yml files or a more concise way of defining the mapping files and can be used to generate the ttl files with: https://rml.io/yarrrml/matey/
 
-# RML Mapping
+# RML Mapping and validation process
 
-The architecture is described in the flowchart below. The BDI node receives JSON data from the API, which is passed to the RML Mapper. It is first converted to a different JSON format (premapping) and then passed to the RML Mapper, which generates linked data in Turtle format. This linked data forms the response to the request from the BDI node.
+Incoming events are converted to RDF using RML mapping. For each event type a mapping file needs to be specified. 
+Optionally a SHACL can be specified to verify incoming events. 
 
-```mermaid
-flowchart TB
-    API[External Party]-- JSON -->BDI[BDI API]-- JSON -->Premapper
-    RML-- Linked data -->BDI
-    subgraph sa [RML Mapper]
-    Premapper-- Premapped JSON -->RML[RML Mapper]
-    end
+The configuration of the events, their RMl and optional SHACL can be found in the application.properties of the API project. An example configuration below:
+
+```properties
+bdi.federated.event.types[0].eventType=federated.events.arrival-event.v1
+bdi.federated.event.types[0].name=ArrivalEvent
+bdi.federated.event.types[0].rml=classpath:rml/EventMapping.ttl
+# SHACL is optional and not specified for this event
+# bdi.federated.event.types[0].shacl=classpath:shacl/ArrivalEvent.ttl
+
+bdi.federated.event.types[1].eventType=federated.events.load-event.v1
+bdi.federated.event.types[1].name=LoadEvent
+bdi.federated.event.types[1].rml=classpath:rml/EventMapping.ttl
+bdi.federated.event.types[1].shacl=classpath:shacl/LoadEvent.ttl
 ```
+
+The rml and shacl properties follow the Spring Resource definition syntax (see: https://docs.spring.io/spring-framework/reference/core/resources.html).
