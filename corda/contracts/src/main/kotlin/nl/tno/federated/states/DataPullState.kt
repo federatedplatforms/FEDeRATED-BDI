@@ -11,8 +11,8 @@ import nl.tno.federated.contracts.DataPullContract
 // *********
 @BelongsToContract(DataPullContract::class)
 data class DataPullState(
-    val sparqlQuery: String,
-    val result: List<String>,
+    val sparql: String,
+    val results: String?, // Contains the results of the SPARQL in RDF Turtle format
     override val participants: List<AbstractParty> = listOf(),
     override val linearId: UniqueIdentifier = UniqueIdentifier()
 ) : LinearState

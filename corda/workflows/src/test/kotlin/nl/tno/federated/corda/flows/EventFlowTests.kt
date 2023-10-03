@@ -22,6 +22,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
+import java.util.UUID
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
@@ -73,7 +74,7 @@ class EventFlowTests {
 
     @Test
     fun `Start event with goods and transport`() {
-        val flow = NewEventFlow(countriesInvolved, "unused event")
+        val flow = NewEventFlow(countriesInvolved, "UNKNOWN","unused event", UUID.randomUUID().toString())
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -83,7 +84,7 @@ class EventFlowTests {
 
     @Test
     fun `Start event with other DTs`() {
-        val flow = NewEventFlow(countriesInvolved, "unused event")
+        val flow = NewEventFlow(countriesInvolved, "UNKNOWN","unused event", UUID.randomUUID().toString())
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -94,7 +95,7 @@ class EventFlowTests {
     @Ignore
     @Test
     fun `fail Start event with invalid rdf`() {
-        val flow = NewEventFlow(countriesInvolved, "invalid data")
+        val flow = NewEventFlow(countriesInvolved, "UNKNOWN","invalid data", UUID.randomUUID().toString())
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -103,7 +104,7 @@ class EventFlowTests {
 
     @Test
     fun `fail Start event with unknown country`() {
-        val flow = NewEventFlow(unknownNames, "invalid data")
+        val flow = NewEventFlow(unknownNames, "UNKNOWN","invalid data", UUID.randomUUID().toString())
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -112,7 +113,7 @@ class EventFlowTests {
 
     @Test
     fun `Start event with transport and location`() {
-        val flow = NewEventFlow(countriesInvolved, "unused event")
+        val flow = NewEventFlow(countriesInvolved, "UNKNOWN","unused event", UUID.randomUUID().toString())
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -122,7 +123,7 @@ class EventFlowTests {
 
     @Test
     fun `Start and stop event`() {
-        val flowStart = NewEventFlow(countriesInvolved, "unused event")
+        val flowStart = NewEventFlow(countriesInvolved, "UNKNOWN","unused event", UUID.randomUUID().toString())
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
@@ -131,7 +132,7 @@ class EventFlowTests {
 
         every { GraphDBEventConverter.parseRDFToEventIDs(any()) }.returns(listOf(UniqueIdentifier().id.toString()))
 
-        val flowStop = NewEventFlow(countriesInvolved, "unused event")
+        val flowStop = NewEventFlow(countriesInvolved, "UNKNOWN","unused event", UUID.randomUUID().toString())
         val futureStop = a.startFlow(flowStop)
         network.runNetwork()
 
@@ -141,7 +142,7 @@ class EventFlowTests {
 
     @Test
     fun `Simple flow start and update event`() {
-        val flowStart = NewEventFlow(countriesInvolved, "unused event")
+        val flowStart = NewEventFlow(countriesInvolved, "UNKNOWN","unused event", UUID.randomUUID().toString())
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
@@ -150,7 +151,7 @@ class EventFlowTests {
 
         every { GraphDBEventConverter.parseRDFToEventIDs(any()) }.returns(listOf(UniqueIdentifier().id.toString()))
 
-        val flowUpdated = NewEventFlow(countriesInvolved, "unused event")
+        val flowUpdated = NewEventFlow(countriesInvolved, "UNKNOWN","unused event", UUID.randomUUID().toString())
         val futureUpdated = a.startFlow(flowUpdated)
         network.runNetwork()
 
@@ -161,7 +162,7 @@ class EventFlowTests {
     @Test
     fun `Simple flow start and update and execute event`() {
 
-        val flowStart = NewEventFlow(countriesInvolved, "unused event")
+        val flowStart = NewEventFlow(countriesInvolved, "UNKNOWN","unused event", UUID.randomUUID().toString())
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
@@ -170,7 +171,7 @@ class EventFlowTests {
 
         every { GraphDBEventConverter.parseRDFToEventIDs(any()) }.returns(listOf(UniqueIdentifier().id.toString()))
 
-        val flowUpdated = NewEventFlow(countriesInvolved, "unused event")
+        val flowUpdated = NewEventFlow(countriesInvolved, "UNKNOWN","unused event", UUID.randomUUID().toString())
         val futureUpdated = a.startFlow(flowUpdated)
         network.runNetwork()
 
@@ -179,7 +180,7 @@ class EventFlowTests {
 
         every { GraphDBEventConverter.parseRDFToEventIDs(any()) }.returns(listOf(UniqueIdentifier().id.toString()))
 
-        val flowExecuted = NewEventFlow(countriesInvolved, "unused event")
+        val flowExecuted = NewEventFlow(countriesInvolved, "UNKNOWN","unused event", UUID.randomUUID().toString())
         val futureExecuted = a.startFlow(flowExecuted)
         network.runNetwork()
 
@@ -189,7 +190,7 @@ class EventFlowTests {
 
     @Test
     fun `Simple flow start and execution of stop event`() {
-        val flowStart = NewEventFlow(countriesInvolved, "unused event")
+        val flowStart = NewEventFlow(countriesInvolved, "UNKNOWN","unused event", UUID.randomUUID().toString())
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 
@@ -197,7 +198,7 @@ class EventFlowTests {
 
         val signedTxStart = futureStart.getOrThrow()
         signedTxStart.verifySignaturesExcept(a.info.singleIdentity().owningKey)
-        val flowStopped = NewEventFlow(countriesInvolved, "unused event")
+        val flowStopped = NewEventFlow(countriesInvolved, "UNKNOWN","unused event", UUID.randomUUID().toString())
         val futureUpdated = a.startFlow(flowStopped)
         network.runNetwork()
 
@@ -206,7 +207,7 @@ class EventFlowTests {
 
         every { GraphDBEventConverter.parseRDFToEventIDs(any()) }.returns(listOf(UniqueIdentifier().id.toString()))
 
-        val flowStartExecuted = NewEventFlow(countriesInvolved, "unused event")
+        val flowStartExecuted = NewEventFlow(countriesInvolved, "UNKNOWN","unused event", UUID.randomUUID().toString())
         val futureStartExecuted = a.startFlow(flowStartExecuted)
         network.runNetwork()
 
@@ -215,7 +216,7 @@ class EventFlowTests {
 
         every { GraphDBEventConverter.parseRDFToEventIDs(any()) }.returns(listOf(UniqueIdentifier().id.toString()))
 
-        val flowExecuted = NewEventFlow(countriesInvolved, "unused event")
+        val flowExecuted = NewEventFlow(countriesInvolved, "UNKNOWN","unused event", UUID.randomUUID().toString())
         val futureExecuted = a.startFlow(flowExecuted)
         network.runNetwork()
 
@@ -225,7 +226,7 @@ class EventFlowTests {
 
     @Test
     fun `Data is distributed only to countries included in countriesInvolved`() {
-        val flowStart = NewEventFlow(setOf(cName), "")
+        val flowStart = NewEventFlow(setOf(cName), "UNKNOWN","", UUID.randomUUID().toString())
 
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
@@ -242,7 +243,7 @@ class EventFlowTests {
 
     @Test
     fun `Data is distributed only to countries included in countriesInvolved - 2`() {
-        val flowStart = NewEventFlow(setOf(cName, dName), "unused event")
+        val flowStart = NewEventFlow(setOf(cName, dName), "UNKNOWN","unused event", UUID.randomUUID().toString())
         val futureStart = a.startFlow(flowStart)
         network.runNetwork()
 

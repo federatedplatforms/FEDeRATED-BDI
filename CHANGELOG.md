@@ -3,9 +3,19 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [0.3] - 2022-12-20
+
+### Added
+
+- 
+
+### Changed
+
+-
+
 ## [Released]
 
-## [0.2] - 2022-12-21
+## [0.2] - 2022-12-20
 
 ### Added
 
@@ -19,7 +29,6 @@ All notable changes to this project will be documented in this file. The format 
 - Cleaned up all unused code.
 - Rewrote gradle build scripts.
 - Moved all graphdb related calls to corda flows.
-
 
 ## [0.1] - 2022-11-05
 

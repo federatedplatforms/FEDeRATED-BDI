@@ -40,7 +40,7 @@ task deploySingleNode(type: Cordform, dependsOn: ['jar']) {
         runSchemaMigration = false
     }
     node {
-        name "O=SingleNode,L=TestCity,C=NL,OU=SN"
+        name "O=SingleNode,L=Utrecht,C=NL,OU=SN"
         p2pAddress "localhost:10005"
         rpcSettings {
             address("localhost:10006")
@@ -52,6 +52,7 @@ task deploySingleNode(type: Cordform, dependsOn: ['jar']) {
     doLast {
         copy {
             from '../workflows/src/main/resources/database.properties'
+            from '../workflows/src/main/resources/datafetcher.properties'
             from '../workflows/src/main/resources/ishare.properties'
             into "build/nodes/SingleNode_SN"
         }
@@ -116,16 +117,19 @@ task deployNodes(type: Cordform, dependsOn: ['jar']) {
     doLast {
         copy {
             from 'config/Grenswacht/database.properties'
+            from '../workflows/src/main/resources/datafetcher.properties'
             from '../workflows/src/main/resources/ishare.properties'
             into "build/nodes/Grenswacht_MS"
         }
         copy {
             from 'config/Tradeviewer/database.properties'
+            from '../workflows/src/main/resources/datafetcher.properties'
             from '../workflows/src/main/resources/ishare.properties'
             into "build/nodes/Tradeviewer_LSP"
         }
         copy {
             from 'config/Cargobase/database.properties'
+            from '../workflows/src/main/resources/datafetcher.properties'
             from '../workflows/src/main/resources/ishare.properties'
             into "build/nodes/Cargobase_LSP"
         }

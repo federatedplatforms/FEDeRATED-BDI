@@ -30,3 +30,4 @@ ex:Event-1d59ee2c-eb75-4556-89ff-6c01c4962e4a a Event:LoadEvent, owl:NamedIndivi
                                               Event:hasSubmissionTimestamp "2022-12-21T09:01:09Z"^^xsd:dateTime;
                                               Event:involvesPhysicalInfrastructure ex:PhysicalInfrastructure-TVODL;
                                               Event:involvesDigitalTwin ex:dt-5c92dc09-535c-4060-af77-58422000a7b3, ex:dt-42f17294-712e-460d-818e-7a01866055f8.
+

@@ -11,8 +11,8 @@ import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
-import nl.tno.federated.corda.services.graphdb.GraphDBCordaService
-import nl.tno.federated.corda.services.graphdb.IGraphDBService
+import nl.tno.federated.corda.services.data.fetcher.DataFetcherCordaService
+import nl.tno.federated.corda.services.data.fetcher.SPARQLDataFetcher
 import nl.tno.federated.states.DataPullState
 import org.junit.After
 import org.junit.Before
@@ -23,19 +23,16 @@ class DataPullFlowTests {
     private lateinit var network: MockNetwork
     private lateinit var a: StartedMockNode
     private lateinit var b: StartedMockNode
+    private lateinit var dataFetcher: SPARQLDataFetcher
+
     private val aName = CordaX500Name("PartyA", "Reykjavik", "IS")
     private val bName = CordaX500Name("PartyB", "Rotterdam", "NL")
-
-    private lateinit var graphDBService: IGraphDBService
-
     private val fakeResult = "Very nice result, the best result ever, I've never seen such a good result. Let's make results great again."
-
-
 
     @Before
     fun setup() {
-        graphDBService = mockk()
-        every { graphDBService.generalSPARQLquery(any(), any()) } returns fakeResult
+        dataFetcher = mockk()
+        every { dataFetcher.fetch(any()) } returns fakeResult
 
         network = MockNetwork(
             listOf("nl.tno.federated"),
@@ -50,7 +47,8 @@ class DataPullFlowTests {
 
         // For real nodes this happens automatically, but we have to manually register the flow for tests
         startedNodes.forEach {
-            it.services.cordaService(GraphDBCordaService::class.java).setGraphDBService(graphDBService)
+            it.services.cordaService(DataFetcherCordaService::class.java).init(dataFetcher)
+
             it.registerInitiatedFlow(DataPullQueryResponderFlow::class.java)
             it.registerInitiatedFlow(DataPullResultResponderFlow::class.java)
         }
@@ -78,7 +76,7 @@ class DataPullFlowTests {
 
         // The following assertion verifies that the state eventually saved in the vault actually contains the result of the query
         val resultOfTheQueryInRequesterVault = a.services.vaultService.queryBy<DataPullState>().states.single().state.data
-        assertEquals(fakeResult, resultOfTheQueryInRequesterVault.result.single(), "The result of the query must be in the state at the end of the flows")
+        assertEquals(fakeResult, resultOfTheQueryInRequesterVault.results, "The result of the query must be in the state at the end of the flows")
 
         // "Proxy" test for L1
         // The following assertion verifies that when you use the info you get returned from the flow (a SignedTransaction) you
@@ -87,6 +85,6 @@ class DataPullFlowTests {
         val resultOfTheQueryInRequesterVaultFromUUID = a.services.vaultService.queryBy<DataPullState>().states
             .filter { it.state.data.linearId.id == uuidOfStateWithResult }
         assertEquals(1, resultOfTheQueryInRequesterVaultFromUUID.size, "Exactly 1 state should be retrieved by the search in the vault via UUID")
-        assertEquals(fakeResult, resultOfTheQueryInRequesterVaultFromUUID.single().state.data.result.single(), "The result of the query must be in the state with UUID retrieved from the SignedTransaction")
+        assertEquals(fakeResult, resultOfTheQueryInRequesterVaultFromUUID.single().state.data.results, "The result of the query must be in the state with UUID retrieved from the SignedTransaction")
     }
 }

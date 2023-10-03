@@ -10,12 +10,20 @@ version: '3.9'
 # Note: remove the graphdb-data/<repo>/init.lock if you want to reinitialize the graphdb repository.
 #
 services:
+    graphdb:
+        volumes:
+            - './graphdb/repositories:/repository.init'
+        ports:
+            - '7200:7200'
+        image: 'khaller/graphdb-free:10.2.1'
+        container_name: graphdb
+
     graphdb_nl:
         volumes:
             - './graphdb/repositories:/repository.init'
         ports:
             - '7201:7200'
-        image: 'khaller/graphdb-free:10.0.0'
+        image: 'khaller/graphdb-free:10.2.1'
         container_name: graphdb_nl
 
     graphdb_de:
@@ -23,7 +31,7 @@ services:
             - './graphdb/repositories:/repository.init'
         ports:
             - '7202:7200'
-        image: 'khaller/graphdb-free:10.0.0'
+        image: 'khaller/graphdb-free:10.2.1'
         container_name: graphdb_de
 
     graphdb_gb:
@@ -31,5 +39,5 @@ services:
             - './graphdb/repositories:/repository.init'
         ports:
             - '7203:7200'
-        image: 'khaller/graphdb-free:10.0.0'
+        image: 'khaller/graphdb-free:10.2.1'
         container_name: graphdb_gb

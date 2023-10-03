@@ -1,0 +1,113 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version "$spring_boot_version" apply true
+    id 'org.jetbrains.kotlin.plugin.spring' version "$kotlin_version"
+    id "org.openapi.generator" version "6.6.0"
+    id "com.rameshkp.openapi-merger-gradle-plugin" version "1.0.5"
+}
+
+//apply plugin: 'kotlin'
+//apply plugin: 'kotlin-allopen'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.openapi.generator'
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "jakarta.validation:jakarta.validation-api:2.0.1"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+    implementation 'io.swagger.core.v3:swagger-annotations:2.2.14'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ["src/main/generated"]
+        }
+    }
+}
+
+//tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+//    kotlinOptions {
+//        languageVersion = "1.3"
+//        apiVersion = "1.3"
+//        jvmTarget = "1.8"
+//        javaParameters = true   // Useful for reflection.
+//    }
+//}
+
+// https://github.com/kpramesh2212/openapi-merger-plugin/tree/main/openapi-merger-gradle-plugin
+openApiMerger {
+    inputDirectory.set(file("$projectDir/src/main/resources/openapi"))
+    output {
+        directory.set(file("$buildDir/resources/main"))
+        fileName.set("openapi")
+        fileExtension.set("yaml")
+    }
+
+    openApi {
+        openApiVersion.set("3.0.0")
+        info {
+            title = "Open API Merger"
+            description = "All files merged by open api merger"
+            version = "1.0.0-SNAPSHOT"
+            license {
+                name.set("Apache License v2.0")
+                url.set("https://apache.org/v2")
+            }
+        }
+    }
+}
+
+springBoot {
+    bootJar {
+        enabled = false
+    }
+}
+
+jar {
+    enabled = true
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/spring.md
+openApiGenerate {
+    generatorName = "spring"
+    inputSpec = "$buildDir/resources/main/openapi.yaml".toString()
+    outputDir = "$projectDir/src/main/generated".toString()
+    packageName = "nl.tno.federated.api"
+    apiPackage = "nl.tno.federated.api"
+    modelPackage = "nl.tno.federated.api.model"
+    groupId = "nl.tno.federated.api"
+    configOptions.set([
+        "basePackage"         : "nl.tno.federated.api",
+        "useOptional"         : "false",
+        "useResponseEntity"   : "true",
+        "sourceFolder"        : "",
+        "skipDefaultInterface": "true",
+        "interfaceOnly"       : "true",
+        "useOneOfInterfaces"  : "true",
+        "serviceImplementation": "false",
+        "gradleBuildFile"     : "false"
+    ])
+}
+
+// cleanup some stuff from the openapi-generator
+tasks.openApiGenerate {
+    doLast {
+        delete(
+            "$projectDir/src/main/generated/.openapi-generator",
+            "$projectDir/src/main/generated/pom.xml",
+            "$projectDir/src/main/generated/README.md",
+            "$projectDir/src/main/generated/nl/tno/federated/api/SpringDocConfiguration.kt",
+            "$projectDir/src/main/generated/nl/tno/federated/api/model/*AllOf.java",
+            "$projectDir/src/main/generated/.openapi-generator-ignore"
+        )
+    }
+}
+
+// Uncomment line below to regenerate code on build, make sure to check the README.md on what to do
+//compileJava.dependsOn tasks.mergeOpenApiFiles, tasks.openApiGenerate

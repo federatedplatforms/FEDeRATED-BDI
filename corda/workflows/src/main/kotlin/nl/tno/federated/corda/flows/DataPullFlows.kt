@@ -13,6 +13,8 @@ import net.corda.core.transactions.WireTransaction
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.contracts.DataPullContract
+import nl.tno.federated.corda.services.data.fetcher.DataFetcherCordaService
+import nl.tno.federated.corda.services.data.fetcher.dataFetcher
 import nl.tno.federated.states.DataPullState
 import org.slf4j.LoggerFactory
 
@@ -20,7 +22,7 @@ import org.slf4j.LoggerFactory
 @StartableByRPC
 class DataPullQueryFlow(
     val destination: CordaX500Name,
-    val sPARQLquery: String
+    val sparql: String
 ) : FlowLogic<SignedTransaction>() {
 
     private val log = LoggerFactory.getLogger(DataPullQueryFlow::class.java)
@@ -72,7 +74,7 @@ class DataPullQueryFlow(
         progressTracker.currentStep = RETRIEVING_COUNTERPARTY_INFO
         val counterParty = findParty()
 
-        val queryState = DataPullState(sPARQLquery, emptyList(), participants = listOf(counterParty, me!!))
+        val queryState = DataPullState(sparql, null, participants = listOf(counterParty, me!!))
 
         /////////////
         progressTracker.currentStep = GENERATING_TRANSACTION
@@ -217,13 +219,19 @@ class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTran
         }
         assert(meList.size == 1 && otherPartyList.size == 1) { "Too many or too few parties found to send a response to a data pull query." }
         val otherParty = otherPartyList.single()
+
         /////////////
         progressTracker.currentStep = RUN_SPARQL_QUERY
-        val result = graphdb().generalSPARQLquery(inputStateWithQuery.sparqlQuery, privateRepo = true)
+
+        // Call [FlowLogic.await] to execute an external operation
+        // The result of the operation is returned to the flow
+        val result: String = await(
+            RetrieveDataFromExternalSystem(dataFetcher(), input = inputStateWithQuery.sparql)
+        )
 
         /////////////
         // progressTracker.currentStep = GENERATING_TRANSACTION
-        val outputStateWithResult = inputStateWithQuery.copy(result = listOf(result))
+        val outputStateWithResult = inputStateWithQuery.copy(results = result)
 
         val txBuilder = TransactionBuilder(notary)
             .addInputState(inputStateWithQueryAndRef)
@@ -262,6 +270,20 @@ class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTran
                 FINALISATION_RESULT_TRANSACTION.childProgressTracker()
             )
         )
+    }
+
+    /**
+     * We need to wrap the call in a FlowExternalOperation (https://docs.r3.com/en/platform/corda/4.9/enterprise/cordapps/api-flows.html)
+     */
+    class RetrieveDataFromExternalSystem(
+        private val dataFetcher: DataFetcherCordaService,
+        private val input: String
+    ) : FlowExternalOperation<String> {
+
+        // Implement [execute] which will be run on a thread outside of the flow's context
+        override fun execute(deduplicationId: String): String {
+            return dataFetcher.fetch(deduplicationId, input)
+        }
     }
 }
 

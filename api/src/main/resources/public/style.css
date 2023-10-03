@@ -1,0 +1,46 @@
+body, a, div {
+    font-family: "Barlow Semi Condensed", "Arial", serif;
+    padding: 0;
+    margin: 0;
+}
+
+.header {
+    /*height: 100px;*/
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.content-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fcfcfc;
+    border-bottom: 1px solid #f0f0f0;
+    /*height: 100vh; !* Adjust the height as needed *!*/
+}
+
+.content {
+    margin: 35px;
+    /* Styles for the centered div */
+    width: 80%;
+    /* height: 50vh; !* Adjust the height as needed */
+}
+
+.content ul, li {
+    padding-left: 15px;
+}
+
+.footer {
+    color: #aaa;
+}
+
+.footer, .header {
+    padding: 35px;
+}
+
+thead tr th:first-child,
+tbody tr td:first-child {
+    width: 25em;
+    min-width: 25em;
+    max-width: 25em;
+    word-break: break-all;
+}
