@@ -2,6 +2,42 @@
 
 This repository contains the FEDeRATED Node prototype implementation.
 
+## Logical flow
+
+In the following diagram the logical steps are described how the FEDeRATED Node processes incoming events. 
+An ontology for the FEDeRATED node is maintained using Semantic Treehouse (https://www.semantic-treehouse.nl/).
+The RML and SHACL are based on the ontology as defined in Semantic Threehouse.
+
+
+```mermaid
+flowchart TD 
+ 
+     Client -- "new event (json)" --> API
+     
+     subgraph node[Logical steps]
+        API --> Convert[Convert incoming JSON to RDF]
+        Convert --> Validate[Perform SHACL validation]
+        Validate --> Distribute[Distribution of the event]
+        Distribute --> Storage[Insert into triple store]
+    end
+    
+    STH(Semantic Treehouse) -- RML --> Convert
+    STH -- SHACL --> Validate
+    Storage --> Triple(Triple Store)
+```
+
+The following diagram describes how each node's local triple store can be SPARQL-ed:
+
+```mermaid
+flowchart TD 
+ 
+     Client -- "SPARQL" --> API
+     
+     subgraph node[Logical steps]
+        API -- execute --> Triple(Triple Store)
+    end
+```
+
 ## Components
 
 A FEDeRATED Node is composed by the following components:
@@ -116,7 +152,7 @@ Both the rml and shacl follow the Spring resource syntax, please refer to the Sp
 
 When creating new events a JSON payload has to be POST-ed to the `/events` endpoint. The JSON payload will be converted to RDF by reading the `Event-Type` header and looking up the RML file matching the provided `Event-Type` value. After converting the JSON payload to RDF an optional SHACL validation is triggered.
 In case of any validation errors a HTTP BAD_REQUEST (400) response will be generated. If the validation is successful then the event will be distributed to the configured destinations and a HTTP CREATED (201) will be returned. The
-`Location` header in the response will contain a reference to the URI where the event can be accessed that was just created.
+`Location` header in the response will contain a reference to the URI where the event can be accessed that was just created. An example:
 
 ```bash
 curl -X 'POST' \
@@ -128,6 +164,18 @@ curl -X 'POST' \
 ```
 
 For more info also refer to the OpenAPI specification which is available via the SwaggerUI page: http://node:port/swagger-ui/index.html
+
+### Executing a SPARQL query
+
+Clients can perform SPARQL queries on the nodes local triple store using the `/sparql` endpoint. An example:
+
+```bash
+curl -X 'POST' \
+  'http://localhost:10050/sparql' \
+  -H 'accept: application/sparql-results+json' \
+  -H 'Content-Type: text/plain' \
+  -d 'select * where { ?s ?p ?o . } limit 100'
+```
 
 ## Overriding the default properties
 
