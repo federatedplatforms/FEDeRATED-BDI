@@ -1,17 +1,22 @@
 # Changelog
+
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [0.3] - 2022-12-20
+## [0.3] - 2023-10-04
 
 ### Added
 
-- 
+- Add introspection endpoints like `/event-types` and `/distribution-rules`
+- Made distribution rules configurable
+- Made event types and rml + shacl configurable for a node
+- Added SHACL validation for events
+- Added a generic `/events` endpoint instead of specific APIs for individual event types
 
 ### Changed
 
--
+- Removed all specific APIs
 
 ## [Released]
 
