@@ -2,15 +2,49 @@
 
 ## API security consideration
 
-The FEDeRATED Node API endpoints are not secured by default, however we highly recommend to properly secure the API endpoints
-using for example an API gateway or Ingress. Primary reason to not integrate an authentication mechanism is because most parties already have existing authentication 
-mechanisms in place (like an (external) OAUTH provider). 
+The FEDeRATED Node API endpoints are out of the box not secured, however we strongly recommend to secure the API endpoints
+using transport layer security and an authentication and/or authorisation mechanism for the API. 
+
+Reason for not embedding an authentication and/or authorisation mechanism for the API is because most parties already 
+have existing authentication mechanisms in place like a secure proxy or API gateway.
+
+```mermaid
+graph LR
+    
+    Client -- HTTPS POST /events --> Proxy
+    
+    subgraph Secure 
+        Proxy[Secure Proxy] --> Auth[Authentication Provider]      
+    end
+        
+    subgraph Unsecure
+        Proxy -- HTTP /POST events --> API
+        API --> Corda
+        Corda --> GraphDB
+    end
+```
 
 ## TLS
 
-For production like environment it's highly recommended to use transport layer security (HTTPS) for the API endpoints. For example
-using https://letsencrypt.org/ or any other certificate authority.
+### API endpoints
+
+For production environment it's highly recommended to use transport layer security (HTTPS) for accessing the API endpoints. One could use https://letsencrypt.org/ or any other certificate authority for generating certificates.
+
+### Corda nodes
+
+Corda nodes communicate peer-to-peer. Communication using AMQP over TLS can be configured when needed. Please refer to the Corda documentation for more information: https://docs.r3.com/en/platform/corda/4.9/enterprise/node/component-topology.html#node-communication-protocols 
+
+```mermaid
+graph TD
+    subgraph Cora Node 
+        CORDA(Cora Node) -- events --> GRAPHDB(GraphDB)
+    end
+    subgraph Cora Node
+        CORDA -- AMQP/TLS --> OTHER
+        OTHER(Corda Node) -- events --> OTHERGRAPHDB(GraphDB)
+    end
+```
 
 ## iSHARE
 
-For node to node authentication an iSHARE integration is provided. This is disabled by default but can be enabled through configuration, please refer to the [iSHARE documentation](ishare.md).
+This prototype contains an implementation for iSHARE to secure the node to node communication. This is disabled by default but can be enabled through configuration, please refer to the [iSHARE documentation](ishare.md).
