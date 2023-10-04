@@ -32,7 +32,7 @@ For production environment it's highly recommended to use transport layer securi
 
 ### Corda nodes
 
-Corda nodes communicate peer-to-peer. Communication using AMQP over TLS can be configured when needed. Please refer to the Corda documentation for more information: https://docs.r3.com/en/platform/corda/4.9/enterprise/node/component-topology.html#node-communication-protocols 
+Corda nodes communicate peer-to-peer. Communication using AMQP over TLS can be configured when needed. Please refer to the Corda documentation for more information: https://docs.r3.com/en/platform/corda/4.9/enterprise/node/component-topology.html#node-communication-protocols
 
 ```mermaid
 graph TD
@@ -44,6 +44,16 @@ graph TD
         OTHER(Corda Node) -- events --> OTHERGRAPHDB(GraphDB)
     end
 ```
+
+
+## Corda Network admission
+
+Corda nodes follow a specific protocol for the onboarding and admission to a Corda 'network'. In short, nodes need to follow a (one-time) registration
+process before they are allowed to join a 'network', this can be customized for specific use-cases. For more in depth information please refer to the Corda documentation for more details:
+
+* https://docs.r3.com/en/platform/corda/4.10/community/compatibility-zones.html
+* https://docs.r3.com/en/platform/corda/4.10/community/setting-up-a-dynamic-compatibility-zone.html
+* https://docs.r3.com/en/platform/corda/4.10/community/business-network-membership.html
 
 ## iSHARE
 
