@@ -68,14 +68,15 @@ graph TD
     end
 ```
 
-A FEDeRATED Node can distribute events to other nodes in the network, the Corda Node takes care of the distribution. Corda Nodes communicate peer-to-peer using AMQP.
+A FEDeRATED Node can distribute events to other nodes in the network, the Corda Node takes care of the distribution. Corda Nodes communicate peer-to-peer using AMQP. 
+Important to note that when deploying nodes that they should be able to access each other on their p2p address. 
 
 ```mermaid
 graph TD
-    subgraph Cora Node 
-        CORDA(Cora Node) -- events --> GRAPHDB(GraphDB)
+    subgraph Corda Node 
+        CORDA(Corda Node) -- events --> GRAPHDB(GraphDB)
     end
-    subgraph Cora Node
+    subgraph Corda Node
         CORDA -- amqp --> OTHER
         OTHER(Corda Node) -- events --> OTHERGRAPHDB(GraphDB)
     end
