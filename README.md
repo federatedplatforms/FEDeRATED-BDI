@@ -12,15 +12,17 @@ The RML and SHACL are based on the ontology as defined in Semantic Threehouse.
 ```mermaid
 flowchart TD 
  
-     Client -- "new event (json)" --> API
+     Client(Client) -- "new event json" --> API[API receives new event]
      
-     subgraph node[Logical steps]
-        API --> Convert[Convert incoming JSON to RDF]
-        Convert --> Validate[Perform SHACL validation]
-        Validate --> Distribute[Distribution of the event]
-        Distribute --> Storage[Insert into triple store]
+     subgraph node[Create new event flow]
+        API --> Enrich[Add an UUID to the new event]
+        Enrich --> Convert[Convert event from JSON to RDF]
+        Convert --> Validate[Perform SHACL validation on RDF]
+        Validate --> Distribute[Distribution event RDF to other nodes]
+        Distribute --> Storage[Store triples into triple store]
     end
     
+    Distribute --> Other(Other Nodes)
     STH(Semantic Treehouse) -- RML --> Convert
     STH -- SHACL --> Validate
     Storage --> Triple(Triple Store)
@@ -33,7 +35,7 @@ flowchart TD
  
      Client -- "SPARQL" --> API
      
-     subgraph node[Logical steps]
+     subgraph node[SPARQL flow]
         API -- execute --> Triple(Triple Store)
     end
 ```
