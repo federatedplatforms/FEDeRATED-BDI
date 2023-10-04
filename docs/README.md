@@ -7,7 +7,7 @@ This document contains the technical documentation for the FEDeRATED BDI prototy
 ```mermaid
 graph TD
     DataPull[Data Pull] -- SPARQL/HTTP --> API
-    PublishEvent[New Event] -- JSON or RDF/HTTP --> API
+    PublishEvent[New Event] -- JSON --> API
         subgraph BDI Node
             subgraph api[BDI API]
             API(Spring Boot) -- contains --> RMLMapper
@@ -24,7 +24,6 @@ graph TD
             subgraph GraphDB
                 subgraph Repositories
                     GRAPHDB -- HTTP --> BDI(bdi)
-                    GRAPHDB -- HTTP --> PRIVATE(private)
                     BDI -- uses --> SHACL(SHACL)
                 end
             end
