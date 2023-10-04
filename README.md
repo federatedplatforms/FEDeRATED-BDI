@@ -6,7 +6,7 @@ This repository contains the FEDeRATED Node prototype implementation.
 
 A FEDeRATED Node is composed by the following components:
 
-- FEDeRATED API
+- API
 - Corda node
 - GraphDB
 
@@ -20,11 +20,12 @@ As illustrated in the diagram below:
 ```mermaid
 graph TD
     subgraph FEDeRATED Node 
-        API(FEDeRATED API) -- events --> CORDA(Corda Node)
+        API -- events --> CORDA(Corda Node)
         CORDA -- events --> GRAPHDB(GraphDB)
     end
     subgraph Corda Network
-        API(FEDeRATED API) -- sparql --> GRAPHDB
+        API --> NMS
+        API -- sparql --> GRAPHDB
         CORDA --> NOTARY
         CORDA --> NMS
         NOTARY(Corda Notary) --> NMS(Network Map Service)   
