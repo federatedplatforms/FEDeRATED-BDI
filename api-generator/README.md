@@ -1,3 +1,7 @@
+## API generator
+
+This module allows for generation of code based on OpenAPI spec files.
+
 ### Known issues
 
 Since SpringDoc does not pick up the JsonSubTypes, @Schema has to be added to the generated LoadEventInvolvedCargoInner:
