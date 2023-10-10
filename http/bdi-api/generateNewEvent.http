@@ -1,4 +1,0 @@
-
-POST http://{{api_url}}/events/random/?start-flow=false&number-events=1&country-code=DE
-Accept: text/plain
-

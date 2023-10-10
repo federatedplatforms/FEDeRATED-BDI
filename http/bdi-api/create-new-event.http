@@ -1,0 +1,61 @@
+POST http://{{api_url}}/events
+Content-Type: application/json
+Event-Type: federated.events.arrival-event.v1
+
+{
+    "timestamp": "2023-09-27T08:50:00.000+02:00",
+    "timeClassification": "Planned",
+    "involvedActors": [
+        {
+            "actorLegalPerson": {
+                "postalCode": "5656AE",
+                "locatedAtStreetName": "High Tech Campus",
+                "postalAddress": "HTC 25, 5656 AE Eindhoven",
+                "locatedInCountry": "NL",
+                "locatedInCity": "Eindhoven",
+                "legalPersonName": "TNO",
+                "legalPersonID": "TNO-NL"
+            },
+            "actorLogisticsRole": "Consignor"
+        },
+        {
+            "actorLegalPerson": {
+                "postalCode": "37137",
+                "locatedAtStreetName": "Via Sommacampagna 32",
+                "postalAddress": "Via Sommacampagna 32",
+                "locatedInCountry": "IT",
+                "locatedInCity": "Verona",
+                "legalPersonName": "Verona Quadrante Europa TVR",
+                "legalPersonID": "VQETVR-IT"
+            },
+            "actorLogisticsRole": "Consignee"
+        },
+        {
+            "actorLegalPerson": {
+                "postalCode": "8660",
+                "locatedAtStreetName": "Godthåbsvej 19",
+                "postalAddress": "Godthåbsvej 19",
+                "locatedInCountry": "DK",
+                "locatedInCity": "Skanderborg",
+                "legalPersonName": "WAYS Logistics A/S",
+                "legalPersonID": "WLAS-DK"
+            },
+            "actorLogisticsRole": "Carrier"
+        }
+    ],
+    "transportMeans": [
+        {
+            "digitalTwinID": "X-040-TNO",
+            "transportMeansMode": "Road",
+            "hasTransportmeansNationality": "NL"
+        }
+    ],
+    "involvedLocation": {
+        "locationRole": "PlaceOfArrival",
+        "postalCode": "37137",
+        "locatedAtStreetName": "Via Sommacampagna 32",
+        "postalAddress": "Via Sommacampagna 32",
+        "locatedInCountry": "IT",
+        "locatedInCity": "Verona"
+    }
+}
