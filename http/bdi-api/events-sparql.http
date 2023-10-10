@@ -1,4 +1,4 @@
-POST http://{{api_url}}/events/gdbsparql/
+POST http://{{api_url}}/sparql
 Accept: */*
 Content-Type: text/plain
 
@@ -8,5 +8,3 @@ select ?s where {
     ?s Event:involvesDigitalTwin ?o .
     FILTER regex (str(?o), "42f17294-712e-460d-818e-7a01866055f8")
 }
-
-###
