@@ -13,6 +13,9 @@ import nl.tno.federated.api.event.validation.ShaclValidator
 import org.springframework.stereotype.Service
 import java.util.*
 
+const val EVENT_UUID_FIELD = "UUID"
+const val EVENT_TYPE_FIELD = "eventType"
+
 @Service
 class EventService(
     private val eventMapper: EventMapper,
@@ -28,42 +31,17 @@ class EventService(
      *
      * @throws UnsupportedEventTypeException is an unsupported Event type is encountered.
      */
-    fun newJsonEvent(event: String, eventType: EventType): UUID {
-        val node = eventMapper.toJsonNode(event)
-        if(node.nodeType != JsonNodeType.OBJECT) throw UnsupportedEventTypeException("Unexpected Event content, not parsable as JSON!")
-
-        node as ObjectNode
-        val uuid = UUID.randomUUID()
-        node.put("UUID", uuid.toString())
-        node.put("eventType", eventType.name)
-
-        val rdf = eventMapper.toRDFTurtle(jsonNode = node, eventType = eventType)
-        validateWithShacl(rdf = rdf, eventType = eventType)
-        publishRDFEvent(eventUUID = uuid, event = rdf, eventType = eventType)
-        return uuid
+    fun newJsonEvent(event: String, eventType: EventType, eventDestinations: Set<String>? = null): EnrichedEvent {
+        val enrichedEvent = enrichJsonEvent(event, eventType)
+        validateWithShacl(enrichedEvent)
+        publishRDFEvent(enrichedEvent, eventDestinations)
+        return enrichedEvent
     }
 
-    fun validateNewJsonEvent(event: String, eventType: EventType): String {
-        val node = eventMapper.toJsonNode(event)
-        if(node.nodeType != JsonNodeType.OBJECT) throw UnsupportedEventTypeException("Unexpected Event content, not parsable as JSON!")
-
-        node as ObjectNode
-        val uuid = UUID.randomUUID()
-        node.put("UUID", uuid.toString())
-        node.put("eventType", eventType.name)
-
-        val rdf = eventMapper.toRDFTurtle(jsonNode = node, eventType = eventType)
-        validateWithShacl(rdf = rdf, eventType = eventType)
-        return rdf
-    }
-
-    fun validateWithShacl(rdf: String, eventType: EventType) {
-        if(eventType.shacl != null) shaclValidator.validate(rdf)
-    }
-
-    fun publishRDFEvent(eventUUID: UUID, event: String, eventType: EventType, destinations: Set<String>? = null): UUID {
-        val dest = destinations?.map { CordaEventDestination.parse(it) }?.toSet()
-        return eventDistributionService.distributeEvent(eventUUID = eventUUID, event = event, eventType = eventType, destinations = dest)
+    fun validateNewJsonEvent(event: String, eventType: EventType): EnrichedEvent {
+        val enrichedEvent = enrichJsonEvent(event, eventType)
+        validateWithShacl(enrichedEvent)
+        return enrichedEvent
     }
 
     fun findEventById(id: String): String? {
@@ -79,5 +57,27 @@ class EventService(
     fun query(eventQuery: EventQuery): String? {
         val rdf = eventQueryService.executeQuery(eventQuery) ?: return null
         return eventMapper.toCompactedJSONLD(rdf)
+    }
+
+    private fun enrichJsonEvent(jsonEvent: String, eventType: EventType) : EnrichedEvent {
+        val node = eventMapper.toJsonNode(jsonEvent)
+        if(node.nodeType != JsonNodeType.OBJECT) throw UnsupportedEventTypeException("Unexpected Event content, not parsable as JSON!")
+
+        node as ObjectNode
+        val uuid = UUID.randomUUID()
+        node.put(EVENT_UUID_FIELD, uuid.toString())
+        node.put(EVENT_TYPE_FIELD, eventType.name)
+
+        val rdf = eventMapper.toRDFTurtle(jsonNode = node, eventType = eventType)
+        return EnrichedEvent(jsonEvent, eventType, uuid, rdf)
+    }
+
+    private fun validateWithShacl(enrichedEvent: EnrichedEvent) {
+        if(enrichedEvent.eventType.shacl != null) shaclValidator.validate(enrichedEvent.eventRDF)
+    }
+
+    private fun publishRDFEvent(enrichedEvent: EnrichedEvent, destinations: Set<String>? = null): UUID {
+        val dest = destinations?.map { CordaEventDestination.parse(it) }?.toSet()
+        return eventDistributionService.distributeEvent(enrichedEvent = enrichedEvent, destinations = dest)
     }
 }

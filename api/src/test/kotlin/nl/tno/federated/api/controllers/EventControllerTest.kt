@@ -1,6 +1,6 @@
 package nl.tno.federated.api.controllers
 
-import nl.tno.federated.api.event.distribution.corda.CordaEventDistributionService
+import nl.tno.federated.api.corda.CordaNodeService
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,7 +28,7 @@ class EventControllerTest {
     lateinit var testRestTemplate: TestRestTemplate
 
     @MockBean
-    lateinit var eventDistributionService: CordaEventDistributionService
+    lateinit var cordaNodeService: CordaNodeService
 
     /**
      * When creating a LoadEvent we expect a 201 created response code with the location header pointing to the correct resource URI.
@@ -50,6 +50,30 @@ class EventControllerTest {
         assertEquals(HttpStatus.CREATED, response.statusCode)
         assertTrue(response.headers.location!!.toString().startsWith("/events/"))
     }
+
+    /**
+     * When creating a LoadEvent we expect a 201 created response code with the location header pointing to the correct resource URI.
+     */
+    @Test
+    fun testEventEventWithProvidedDestinations() {
+        val eventContentType = "federated.events.load-event.v1"
+        val eventDestinations = "DCA/Apeldoorn/NL,DCA/Utrecht/NL"
+
+        val headers = HttpHeaders().apply {
+            set(ACCEPT, APPLICATION_JSON_VALUE);
+            set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
+            set(EVENT_TYPE_HEADER, eventContentType)
+            set(EVENT_DESTINATION_HEADER, eventDestinations)
+        }
+
+        val jsonString = String(ClassPathResource("test-data/LoadEvent.json").inputStream.readBytes())
+        val response = testRestTemplate.postForEntity("/events", HttpEntity(jsonString, headers), String::class.java)
+
+        assertNotNull(response)
+        assertEquals(HttpStatus.CREATED, response.statusCode)
+        assertTrue(response.headers.location!!.toString().startsWith("/events/"))
+    }
+
 
     /**
      * When adding a LoadEvent we expect a created response with the location header to be set.

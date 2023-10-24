@@ -101,7 +101,7 @@ An example configuration of static distribution:
 # Comma separated list of rules, rules defined here are executed in the order specified
 bdi.event.distribution.rules.list=static
 
-# Comma separated list of static destinations, all events will be sent to the locations specified here.
+# Comma separated list of static destinations, all events will be sent to the locations specified here (format: ORGANISATION/LOCALITY/COUNTRY).
 bdi.event.distribution.rules.static.destinations=DCA/Schiphol/NL
 ```
 
@@ -154,7 +154,7 @@ Both the rml and shacl follow the Spring resource syntax, please refer to the Sp
 ### Creating an event
 
 When creating new events a JSON payload has to be POST-ed to the `/events` endpoint. The JSON payload will be converted to RDF by reading the `Event-Type` header and looking up the RML file matching the provided `Event-Type` value. After converting the JSON payload to RDF an optional SHACL validation is triggered.
-In case of any validation errors a HTTP BAD_REQUEST (400) response will be generated. If the validation is successful then the event will be distributed to the configured destinations and a HTTP CREATED (201) will be returned. The
+In case of any validation errors a HTTP BAD_REQUEST (400) response will be generated. If the validation is successful then the event will be distributed to the configured destinations and HTTP CREATED (201) response will be returned. The
 `Location` header in the response will contain a reference to the URI where the event can be accessed that was just created. An example:
 
 ```bash
@@ -162,6 +162,21 @@ curl -X 'POST' \
   'http://localhost:10050/events' \
   -H 'accept: */*' \
   -H 'Event-Type: federated.events.load-event.v1' \
+  -H 'Content-Type: application/json' \
+  -d '{ "event" : "data" }'
+```
+
+### Creating an event and distribute to specific destination(s)
+
+When creating new events the event will be distributed according to the distribution rules and configured destinations. There is a way to override the destinations to which an event is sent by setting the 
+`Event-Destinations` header. One could specify a comma separated list of destinations to which the event has to be sent (format: ORGANISATION/LOCALITY/COUNTRY). And example:
+
+```bash
+curl -X 'POST' \
+  'http://localhost:10050/events' \
+  -H 'accept: */*' \
+  -H 'Event-Type: federated.events.load-event.v1' \
+  -H 'Event-Destinations: ORGANISATION/LOCALITY/COUNTRY' \
   -H 'Content-Type: application/json' \
   -d '{ "event" : "data" }'
 ```
