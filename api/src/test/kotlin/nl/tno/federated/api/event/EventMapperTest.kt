@@ -18,6 +18,12 @@ class EventMapperTest {
     }
 
     @Test
+    fun rdfToJsonLDCompactedMap() {
+        val json = eventMapper.toCompactedJSONLDMap(String(event.inputStream.readBytes()))
+        assertNotNull(json)
+    }
+
+    @Test
     fun rdfToJsonLDFlattened() {
         val json = eventMapper.toFlattenedJSONLD(String(event.inputStream.readBytes()))
         assertNotNull(json)

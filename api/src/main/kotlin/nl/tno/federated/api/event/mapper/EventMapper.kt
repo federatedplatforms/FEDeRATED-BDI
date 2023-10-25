@@ -32,6 +32,11 @@ class EventMapper(
         return convert(rdf, RDFFormat.TURTLE, RDFFormat.JSONLD, JSONLDMode.COMPACT)
     }
 
+    fun toCompactedJSONLDMap(rdf: String): JsonNode {
+        val bla = convert(rdf, RDFFormat.TURTLE, RDFFormat.JSONLD, JSONLDMode.COMPACT)
+        return objectMapper.readTree(bla)
+    }
+
     fun toFlattenedJSONLD(rdf: String): String {
         return convert(rdf, RDFFormat.TURTLE, RDFFormat.JSONLD, JSONLDMode.FLATTEN)
     }

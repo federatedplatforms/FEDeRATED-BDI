@@ -1,5 +1,6 @@
 package nl.tno.federated.api.controllers
 
+import com.fasterxml.jackson.databind.JsonNode
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
@@ -41,14 +42,14 @@ class EventsController(
 
     @Operation(summary = "Return the event data in compacted JSONLD format.")
     @GetMapping(path = ["/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getEventById(@PathVariable("id") id: String): ResponseEntity<String> {
+    fun getEventById(@PathVariable("id") id: String): ResponseEntity<JsonNode> {
         log.info("Get event by ID: {}", id)
         return ResponseEntity.ok(eventService.findEventById(id))
     }
 
     @Operation(summary = "Return the event data in compacted JSONLD format.")
     @GetMapping(path = [""], produces = [APPLICATION_JSON_VALUE])
-    fun getEvents(@RequestParam("page", defaultValue = "1") page: Int, @RequestParam("size", defaultValue = "100") size: Int): ResponseEntity<List<String>> {
+    fun getEvents(@RequestParam("page", defaultValue = "1") page: Int, @RequestParam("size", defaultValue = "100") size: Int): ResponseEntity<List<JsonNode>> {
         log.info("Get all events, page: {}, size: {}", page, size)
         if (page < 1) throw InvalidPageCriteria("Page size should be greater than 0.")
         return ResponseEntity.ok().body(eventService.findAll(page, size))
@@ -77,7 +78,7 @@ class EventsController(
             ]
         )]
     )
-    fun query(@RequestBody eventQuery: EventQuery): ResponseEntity<String> {
+    fun query(@RequestBody eventQuery: EventQuery): ResponseEntity<JsonNode> {
         log.info("Executing event query: {}", eventQuery)
         return ResponseEntity.ok(eventService.query(eventQuery))
     }

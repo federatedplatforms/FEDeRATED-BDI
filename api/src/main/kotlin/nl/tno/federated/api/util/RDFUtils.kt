@@ -53,7 +53,8 @@ object RDFUtils {
             val sw = StringWriter()
 
             val writer = Rio.createWriter(outputFormat, sw)
-                .setWriterConfig(WriterConfig().set(JSONLDSettings.JSONLD_MODE, mode))
+                .setWriterConfig(WriterConfig()
+                    .set(JSONLDSettings.JSONLD_MODE, mode))
             Rio.write(model, writer)
 
             return sw.toString()

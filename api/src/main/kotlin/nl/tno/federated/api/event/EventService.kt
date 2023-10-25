@@ -1,5 +1,6 @@
 package nl.tno.federated.api.event
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.fasterxml.jackson.databind.node.ObjectNode
 import nl.tno.federated.api.event.distribution.corda.CordaEventDestination
@@ -44,19 +45,19 @@ class EventService(
         return enrichedEvent
     }
 
-    fun findEventById(id: String): String? {
+    fun findEventById(id: String): JsonNode? {
         val rdf = eventQueryService.findById(id) ?: return null
-        return eventMapper.toCompactedJSONLD(rdf)
+        return eventMapper.toCompactedJSONLDMap(rdf)
     }
 
-    fun findAll(page: Int, size: Int): List<String> {
+    fun findAll(page: Int, size: Int): List<JsonNode> {
         val result = eventQueryService.findAll(page, size)
-        return result.map { eventMapper.toCompactedJSONLD(it) }
+        return result.map { eventMapper.toCompactedJSONLDMap(it) }
     }
 
-    fun query(eventQuery: EventQuery): String? {
+    fun query(eventQuery: EventQuery): JsonNode? {
         val rdf = eventQueryService.executeQuery(eventQuery) ?: return null
-        return eventMapper.toCompactedJSONLD(rdf)
+        return eventMapper.toCompactedJSONLDMap(rdf)
     }
 
     private fun enrichJsonEvent(jsonEvent: String, eventType: EventType) : EnrichedEvent {
