@@ -1,9 +1,28 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id 'net.corda.plugins.cordapp' version "$corda_gradle_plugin_version"
+    id 'java'
+    id 'kotlin'
+    id 'maven-publish'
 }
 
-apply plugin: 'kotlin'
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+}
 
 cordapp {
     targetPlatformVersion corda_platform_version
@@ -16,6 +35,9 @@ cordapp {
     }
 }
 
+group = 'nl.tno.federated.corda'
+version = '0.3.11-SNAPSHOT'
+
 dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin"
     cordaCompile "net.corda:corda-core"
@@ -24,7 +46,7 @@ dependencies {
     testImplementation "net.corda:corda-node-driver"
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+tasks.withType(KotlinCompile) {
     kotlinOptions {
         languageVersion = "1.2" // corda 4.9 supports kotlin 1.2.71
         apiVersion = "1.2" // corda 4.9 supports kotlin 1.2.71

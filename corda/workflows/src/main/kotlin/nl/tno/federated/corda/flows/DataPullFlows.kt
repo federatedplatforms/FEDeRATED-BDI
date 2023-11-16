@@ -12,10 +12,11 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.transactions.WireTransaction
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
-import nl.tno.federated.contracts.DataPullContract
+import nl.tno.federated.corda.contracts.DataPullContract
 import nl.tno.federated.corda.services.data.fetcher.DataFetcherCordaService
 import nl.tno.federated.corda.services.data.fetcher.dataFetcher
-import nl.tno.federated.states.DataPullState
+import nl.tno.federated.corda.flows.IDataPullQueryFlow
+import nl.tno.federated.corda.states.DataPullState
 import org.slf4j.LoggerFactory
 
 @InitiatingFlow
@@ -23,7 +24,7 @@ import org.slf4j.LoggerFactory
 class DataPullQueryFlow(
     val destination: CordaX500Name,
     val sparql: String
-) : FlowLogic<SignedTransaction>() {
+) : IDataPullQueryFlow() {
 
     private val log = LoggerFactory.getLogger(DataPullQueryFlow::class.java)
 

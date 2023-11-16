@@ -20,8 +20,8 @@ dependencies {
     cordaDriver "net.corda:corda-shell"
 
     // CorDapp dependencies.
-    cordapp project(":corda:workflows")
-    cordapp project(":corda:contracts")
+    cordapp project(":workflows")
+    cordapp project(":contracts")
 
     cordaCompile "org.apache.logging.log4j:log4j-slf4j-impl:$log4j_version"
     cordaCompile "org.apache.logging.log4j:log4j-web:$log4j_version"
@@ -35,8 +35,8 @@ task deploySingleNode(type: Cordform, dependsOn: ['jar']) {
         projectCordapp {
             deploy = false
         }
-        cordapp project(':corda:contracts')
-        cordapp project(':corda:workflows')
+        cordapp project(':contracts')
+        cordapp project(':workflows')
         runSchemaMigration = false
     }
     node {
@@ -70,8 +70,8 @@ task deployNodes(type: Cordform, dependsOn: ['jar']) {
         projectCordapp {
             deploy = false
         }
-        cordapp project(':corda:contracts')
-        cordapp project(':corda:workflows')
+        cordapp project(':contracts')
+        cordapp project(':workflows')
         runSchemaMigration = false //This configuration is for any CorDapps with custom schema, We will leave this as true to avoid
         //problems for developers who are not familiar with Corda. If you are not using custom schemas, you can change
         //it to false for quicker project compiling time.

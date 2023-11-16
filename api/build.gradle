@@ -1,83 +1,38 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
-    id 'org.springframework.boot' version "$spring_boot_version" apply true
-    id 'org.jetbrains.kotlin.plugin.spring' version "$kotlin_version"
+
+    id 'org.springframework.boot' version '3.1.5' apply(false)
+    id 'io.spring.dependency-management' version '1.1.3'
+    id 'org.jetbrains.kotlin.jvm' version '1.9.20'
+    id 'org.jetbrains.kotlin.plugin.spring' version '1.9.20'
 }
 
-apply plugin: 'kotlin'
-apply plugin: 'kotlin-allopen'
-apply plugin: 'io.spring.dependency-management'
+group = 'nl.tno.federated'
+version = '0.3.11-SNAPSHOT'
 
-dependencies {
-    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-
-    // CorDapp dependencies.
-    implementation project(":corda:contracts")
-    implementation project(":corda:workflows")
-
-    // Corda dependency we need for the rpc connection.
-    implementation "net.corda:corda-rpc"
-//    implementation project(":api-spec")
-
-    implementation 'com.apicatalog:titanium-json-ld-jre8:1.3.2' // JSON LD parser
-    implementation "org.springframework.boot:spring-boot-starter-web"
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'io.micrometer:micrometer-registry-prometheus'
-
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-
-    implementation 'org.springdoc:springdoc-openapi-ui:1.6.1'
-    implementation 'org.springdoc:springdoc-openapi-kotlin:1.6.1'
-    implementation 'com.github.jsonld-java:jsonld-java:0.13.4'
-    implementation 'org.glassfish:jakarta.json:2.0.1'
-
-    implementation("be.ugent.rml:rmlmapper") {
-        exclude group: "org.apache.jena"
-    }
-
-    implementation 'org.eclipse.rdf4j:rdf4j-model:3.7.4'
-    implementation 'org.eclipse.rdf4j:rdf4j-rio-rdfjson:3.7.4'
-    implementation 'org.eclipse.rdf4j:rdf4j-rio-jsonld:3.7.4'
-    implementation 'org.eclipse.rdf4j:rdf4j-rio-turtle:3.7.4'
-
-    implementation "org.apache.jena:jena-core:3.13.1"
-    implementation "org.apache.jena:jena-arq:3.13.1"
-
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
-    testImplementation "org.jetbrains.kotlin:kotlin-test"
-    testImplementation "org.mockito.kotlin:mockito-kotlin"
-    testImplementation "io.mockk:mockk"
-    testImplementation 'org.junit.jupiter:junit-jupiter-api'
-
-    testCompileOnly 'junit:junit'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
-}
-
-configurations.implementation {
-    exclude group: 'net.corda', module: 'corda'
-    exclude group: 'org.hibernate', module: 'hibernate-core'
-    exclude group: 'org.liquibase', module: 'liquibase-core'
-}
-
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
-    kotlinOptions {
-        languageVersion = "1.3"
-        apiVersion = "1.3"
-        jvmTarget = "1.8"
-        javaParameters = true   // Useful for reflection.
+allprojects {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven { url 'https://download.corda.net/maven/corda-dependencies' }
+        maven { url 'https://jitpack.io' }
     }
 }
 
-springBoot {
-    mainClassName = "nl.tno.federated.api.ServerKt"
-}
+subprojects {
+    tasks.withType(KotlinCompile).configureEach {
+        kotlinOptions {
+            freeCompilerArgs += '-Xjsr305=strict'
+            languageVersion = "1.9"
+            apiVersion = "1.9"
+            jvmTarget = "21"
+            javaParameters = true   // Useful for reflection.
+        }
+    }
 
-/**
- * This task will start the springboot server that connects to your node (via RPC connection). All of the http requests
- * are in the Controller file. You can leave the Server.kt and NodeRPCConnection.kt file untouched for your use.
- */
-task runTemplateServer(type: JavaExec, dependsOn: assemble) {
-    classpath = sourceSets.main.runtimeClasspath
-    main = 'nl.tno.federated.ServerKt'
-    args '--server.port=10050', '--config.rpc.host=localhost', '--config.rpc.port=10012', '--config.rpc.username=user1', '--config.rpc.password=vzzuABeCut3jGoJfEp94'
+    java {
+        sourceCompatibility = '21'
+    }
+
 }

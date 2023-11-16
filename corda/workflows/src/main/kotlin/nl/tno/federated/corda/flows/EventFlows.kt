@@ -10,9 +10,10 @@ import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
-import nl.tno.federated.contracts.EventContract
+import nl.tno.federated.corda.contracts.EventContract
 import nl.tno.federated.corda.services.ishare.ISHARECordaService
-import nl.tno.federated.states.EventState
+import nl.tno.federated.corda.flows.INewEventFlow
+import nl.tno.federated.corda.states.EventState
 import org.slf4j.LoggerFactory
 import java.util.*
 import kotlin.NoSuchElementException
@@ -24,7 +25,7 @@ class NewEventFlow(
     private val event: String,
     private val eventType: String,
     private val eventUUID: String
-) : FlowLogic<SignedTransaction>() {
+) : INewEventFlow() {
 
     private val log = LoggerFactory.getLogger(NewEventFlow::class.java)
 
