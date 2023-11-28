@@ -37,12 +37,10 @@ dependencies {
     // Corda dependency we need for the rpc connection.
     implementation "net.corda:corda-rpc:4.9.2"
 
-    implementation 'org.springdoc:springdoc-openapi-ui:1.6.1'
-    implementation 'org.springdoc:springdoc-openapi-kotlin:1.6.1'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+
     implementation 'com.github.jsonld-java:jsonld-java:0.13.4'
     implementation 'org.glassfish:jakarta.json:2.0.1'
-
-
     implementation 'com.github.slugify:slugify:3.0.6'
 
     implementation 'org.eclipse.rdf4j:rdf4j-model:4.3.4'

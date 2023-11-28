@@ -1,13 +1,15 @@
 package nl.tno.federated.api
 
 import nl.tno.federated.api.graphdb.GraphDBSPARQLClient
+import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
-import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
+import org.springframework.context.event.ApplicationEventMulticaster
+import org.springframework.context.event.SimpleApplicationEventMulticaster
 import org.springframework.core.env.Environment
-import org.springframework.core.env.get
+import org.springframework.core.task.SimpleAsyncTaskExecutor
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
@@ -32,6 +34,13 @@ class Server {
         }
     }
 
+    @Bean(name = ["applicationEventMulticaster"])
+    fun simpleApplicationEventMulticaster(): ApplicationEventMulticaster {
+        val eventMulticaster = SimpleApplicationEventMulticaster()
+        eventMulticaster.setTaskExecutor(SimpleAsyncTaskExecutor())
+        return eventMulticaster
+    }
+
     @Bean
     fun graphDBSPARQLClient(environment: Environment) = GraphDBSPARQLClient(environment.getProperty("graphdb.sparql.url")!!)
 }
@@ -40,5 +49,5 @@ class Server {
  * Starts our Spring Boot application.
  */
 fun main(args: Array<String>) {
-    runApplication<Server>(*args)
+    SpringApplication.run(Server::class.java, *args)
 }
