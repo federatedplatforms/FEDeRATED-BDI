@@ -1,7 +1,7 @@
 package nl.tno.federated.api.corda
 
 import nl.tno.federated.api.webhook.GenericEvent
-import nl.tno.federated.corda.states.EventState
+import nl.tno.federated.shared.states.EventState
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import rx.schedulers.Schedulers

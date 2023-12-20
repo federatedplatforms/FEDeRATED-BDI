@@ -12,10 +12,10 @@ import net.corda.core.node.services.vault.PageSpecification
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.node.services.vault.Sort
 import net.corda.core.node.services.vault.SortAttribute
-import nl.tno.federated.corda.flows.IDataPullQueryFlow
-import nl.tno.federated.corda.flows.INewEventFlow
-import nl.tno.federated.corda.states.DataPullState
-import nl.tno.federated.corda.states.EventState
+import nl.tno.federated.shared.flows.DataPullFlow
+import nl.tno.federated.shared.states.DataPullState
+import nl.tno.federated.shared.states.EventState
+import nl.tno.federated.shared.flows.NewEventFlow
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -35,7 +35,7 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
     fun startNewEventFlow(eventUUID: String, event: String, eventType: String, cordaNames: Set<CordaX500Name>): UUID {
         if (cordaNames.isEmpty()) throw NoEventDestinationsAvailableException("No event destinations found to send the event to.")
         val newEventTx = rpc.client().startFlowDynamic(
-            INewEventFlow::class.java,
+            NewEventFlow::class.java,
             cordaNames,
             event,
             eventType,
@@ -59,7 +59,7 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
 
     fun startDataPullFlow(query: String, cordaName: CordaX500Name?): UUID {
         val dataPull = rpc.client().startFlowDynamic(
-            IDataPullQueryFlow::class.java,
+            DataPullFlow::class.java,
             cordaName,
             query
         ).returnValue

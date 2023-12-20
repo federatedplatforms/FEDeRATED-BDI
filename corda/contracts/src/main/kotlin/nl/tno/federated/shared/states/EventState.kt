@@ -1,11 +1,10 @@
-package nl.tno.federated.corda.states
+package nl.tno.federated.shared.states
 
 import net.corda.core.contracts.BelongsToContract
 import net.corda.core.contracts.LinearState
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.AbstractParty
-import nl.tno.federated.corda.contracts.EventContract
-import java.util.*
+import nl.tno.federated.shared.contracts.EventContract
 
 // *********
 // * State *

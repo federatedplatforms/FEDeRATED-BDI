@@ -3,29 +3,31 @@ package nl.tno.federated.corda.flows
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.requireThat
-import net.corda.core.flows.*
+import net.corda.core.flows.CollectSignaturesFlow
+import net.corda.core.flows.FinalityFlow
+import net.corda.core.flows.FlowException
+import net.corda.core.flows.FlowLogic
+import net.corda.core.flows.FlowSession
+import net.corda.core.flows.InitiatedBy
+import net.corda.core.flows.ReceiveFinalityFlow
+import net.corda.core.flows.SignTransactionFlow
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
-import nl.tno.federated.corda.contracts.EventContract
 import nl.tno.federated.corda.services.ishare.ISHARECordaService
-import nl.tno.federated.corda.flows.INewEventFlow
-import nl.tno.federated.corda.states.EventState
+import nl.tno.federated.shared.contracts.EventContract
+import nl.tno.federated.shared.states.EventState
 import org.slf4j.LoggerFactory
-import java.util.*
-import kotlin.NoSuchElementException
 
-@InitiatingFlow
-@StartableByRPC
 class NewEventFlow(
-    private val destinations: Collection<CordaX500Name>,
-    private val event: String,
-    private val eventType: String,
-    private val eventUUID: String
-) : INewEventFlow() {
+      destinations: Collection<CordaX500Name>,
+      event: String,
+      eventType: String,
+      eventUUID: String
+) : nl.tno.federated.shared.flows.NewEventFlow(destinations,event, eventType, eventUUID) {
 
     private val log = LoggerFactory.getLogger(NewEventFlow::class.java)
 
@@ -164,7 +166,7 @@ class NewEventFlow(
     }
 }
 
-@InitiatedBy(NewEventFlow::class)
+@InitiatedBy(nl.tno.federated.shared.flows.NewEventFlow::class)
 class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
 
     private val log = LoggerFactory.getLogger(NewEventResponder::class.java)

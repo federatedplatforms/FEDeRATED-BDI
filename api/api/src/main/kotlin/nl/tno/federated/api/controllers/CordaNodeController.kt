@@ -12,8 +12,8 @@ import nl.tno.federated.api.corda.SimpleEventState
 import nl.tno.federated.api.corda.toSimpleDataPullState
 import nl.tno.federated.api.corda.toSimpleEventState
 import nl.tno.federated.api.corda.vaultQueryPagedAndSortedByRecordedTime
-import nl.tno.federated.corda.states.DataPullState
-import nl.tno.federated.corda.states.EventState
+import nl.tno.federated.shared.states.DataPullState
+import nl.tno.federated.shared.states.EventState
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable

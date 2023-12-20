@@ -12,21 +12,19 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.transactions.WireTransaction
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
-import nl.tno.federated.corda.contracts.DataPullContract
+import nl.tno.federated.shared.contracts.DataPullContract
 import nl.tno.federated.corda.services.data.fetcher.DataFetcherCordaService
 import nl.tno.federated.corda.services.data.fetcher.dataFetcher
-import nl.tno.federated.corda.flows.IDataPullQueryFlow
-import nl.tno.federated.corda.states.DataPullState
+import nl.tno.federated.shared.states.DataPullState
+import nl.tno.federated.shared.flows.DataPullFlow
 import org.slf4j.LoggerFactory
 
-@InitiatingFlow
-@StartableByRPC
-class DataPullQueryFlow(
-    val destination: CordaX500Name,
-    val sparql: String
-) : IDataPullQueryFlow() {
+class DataPullFlow(
+    destination: CordaX500Name,
+    query: String
+) : nl.tno.federated.shared.flows.DataPullFlow(destination, query) {
 
-    private val log = LoggerFactory.getLogger(DataPullQueryFlow::class.java)
+    private val log = LoggerFactory.getLogger(DataPullFlow::class.java)
 
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
@@ -75,7 +73,7 @@ class DataPullQueryFlow(
         progressTracker.currentStep = RETRIEVING_COUNTERPARTY_INFO
         val counterParty = findParty()
 
-        val queryState = DataPullState(sparql, null, participants = listOf(counterParty, me!!))
+        val queryState = DataPullState(query, null, participants = listOf(counterParty, me!!))
 
         /////////////
         progressTracker.currentStep = GENERATING_TRANSACTION
@@ -127,7 +125,7 @@ class DataPullQueryFlow(
 }
 
 @InitiatingFlow
-@InitiatedBy(DataPullQueryFlow::class)
+@InitiatedBy(nl.tno.federated.shared.flows.DataPullFlow::class)
 class DataPullQueryResponderFlow(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
 
     companion object {
@@ -227,7 +225,7 @@ class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTran
         // Call [FlowLogic.await] to execute an external operation
         // The result of the operation is returned to the flow
         val result: String = await(
-            RetrieveDataFromExternalSystem(dataFetcher(), input = inputStateWithQuery.sparql)
+            RetrieveDataFromExternalSystem(dataFetcher(), input = inputStateWithQuery.query)
         )
 
         /////////////
