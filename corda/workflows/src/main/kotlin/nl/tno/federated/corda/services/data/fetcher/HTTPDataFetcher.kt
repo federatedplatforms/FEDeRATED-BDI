@@ -3,6 +3,7 @@ package nl.tno.federated.corda.services.data.fetcher
 import org.slf4j.LoggerFactory
 import java.io.InputStream
 import java.io.StringWriter
+import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
@@ -20,6 +21,9 @@ class HTTPDataFetcher : DataFetcher {
         return runTranslateLab(httpAnswer)
     }
 
+    private val societa = 1
+    private val anno = 2
+    private val numero = 3
     private fun executeHTTPGET(societa: Int, anno: Int, numero: Int): String? {
         val uri = properties.get("get.endpoint.url")
         return client.get(URI("$uri?societa=${societa}&anno=${anno}&numero=${numero}"))?.bodyAsString
@@ -42,7 +46,7 @@ class HTTPDataFetcher : DataFetcher {
                     properties.setProperty("get.endpoint.url", this)
                 }
             }
-            
+
             log.info("Loaded ${propertiesFileName}: get.endpoint.url: {}", properties.get("get.endpoint.url"))
             properties
         }
