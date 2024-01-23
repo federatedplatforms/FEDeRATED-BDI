@@ -1,29 +1,30 @@
 package nl.tno.federated.corda.services.data.fetcher
 
+import nl.tno.federated.corda.services.graphdb.GraphDBClientException
+import nl.tno.federated.corda.services.graphdb.GraphDBServerException
+import nl.tno.federated.corda.services.graphdb.contentAsString
+import org.apache.http.HttpEntity
+import org.apache.http.HttpResponse
+import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.impl.client.HttpClientBuilder
 import org.slf4j.LoggerFactory
-import java.io.InputStream
-import java.io.StringWriter
 import java.net.URI
-import java.nio.file.Files
-import java.nio.file.Paths
+import java.nio.charset.StandardCharsets.UTF_8
 import java.util.*
 
 class HTTPDataFetcher : DataFetcher {
 
-    private val log = LoggerFactory.getLogger(SPARQLDataFetcher::class.java)
     // for codgnotto => call their GET endpoint (HTTP data fetcher)
     private val propertiesFileName = "database.properties"
-    private val log = LoggerFactory.getLogger(HTTPDataFetcher::class.java)
+    private val logHTTPDataFetcher = LoggerFactory.getLogger(HTTPDataFetcher::class.java)
 
-    override fun fetch(): String {
-        private val httpAnswer = executeHTTPGET() ?: ""
+    override fun fetch(societa: Int, anno: Int, numero: Int): String {
+        val httpAnswer = executeHTTPGET(societa, anno, numero) ?: ""
         // TODO: how to handle if httpAnswer null? => Codognotto get is down => lazy implementation?
         return runTranslateLab(httpAnswer)
     }
 
-    private val societa = 1
-    private val anno = 2
-    private val numero = 3
     private fun executeHTTPGET(societa: Int, anno: Int, numero: Int): String? {
         val uri = properties.get("get.endpoint.url")
         return client.get(URI("$uri?societa=${societa}&anno=${anno}&numero=${numero}"))?.bodyAsString
@@ -36,22 +37,29 @@ class HTTPDataFetcher : DataFetcher {
 
     private val properties: Properties by lazy {
         getInputStreamFromClassPathResource(propertiesFileName).use {
-            if (it == null) log.warn("${propertiesFileName} could not be found!")
+            if (it == null) logHTTPDataFetcher.warn("${propertiesFileName} could not be found!")
             val properties = Properties()
             properties.load(it)
 
             with(System.getProperties()) {
                 getProperty("get.endpoint.url")?.run {
-                    log.info("Overriding ${propertiesFileName} with System properties: get.endpoint.url: {}", this)
+                    logHTTPDataFetcher.info("Overriding ${propertiesFileName} with System properties: get.endpoint.url: {}", this)
                     properties.setProperty("get.endpoint.url", this)
                 }
             }
 
-            log.info("Loaded ${propertiesFileName}: get.endpoint.url: {}", properties.get("get.endpoint.url"))
+            logHTTPDataFetcher.info("Loaded ${propertiesFileName}: get.endpoint.url: {}", properties.get("get.endpoint.url"))
             properties
         }
     }
     private var externalHttpClient: HttpClient? = null
+
+    private val client: HttpClient by lazy {
+        if (externalHttpClient != null) externalHttpClient!!
+        else {
+            HttpClientBuilder.create().build()
+        }
+    }
 
     private fun HttpClient.get(uri: URI): HttpResponse? {
         val request = HttpGet(uri).apply {
@@ -60,12 +68,17 @@ class HTTPDataFetcher : DataFetcher {
         return execute(request)
     }
 
-    private val client: HttpClient by lazy {
-        if (externalHttpClient != null) externalHttpClient!!
-        else {
-            HttpClientBuilder.create().build()
+    private val HttpEntity.contentAsString: String
+        get() = String(content.readBytes(), UTF_8)
+
+    private val HttpResponse.bodyAsString: String?
+        get() {
+            return when (statusLine.statusCode) {
+                in 400..499 -> throw GraphDBClientException(entity?.contentAsString ?: "Bad request when accessing GraphDB")
+                in 500..599 -> throw GraphDBServerException(entity?.contentAsString ?: "Internal server error when accessing GraphDB")
+                else -> entity?.contentAsString
+            }
         }
-    }
 
 
 
