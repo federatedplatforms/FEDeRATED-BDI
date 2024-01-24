@@ -67,22 +67,22 @@ class RestExceptionHandler {
     fun executionException(ee: ExecutionException): ResponseEntity<ProblemDetail> {
         return when (val e = ee.cause) {
             is UnexpectedFlowEndException -> {
-                log.warn("UnexpectedFlowEndException occurred Event type provided. Message: {}", e.message)
+                log.warn("UnexpectedFlowEndException occurred Event type provided. Message: {}", e.message, e)
                 ResponseEntity(ProblemDetail(type = e.javaClass.name, title = "Flow ended unexpectedly, please check the logs. Message: " + e.message), HttpStatus.INTERNAL_SERVER_ERROR)
             }
 
             is CordaRuntimeException -> {
-                log.warn("CordaRuntimeException occurred. Message: {}", e.message)
+                log.warn("CordaRuntimeException occurred. Message: {}", e.message, e)
                 ResponseEntity(ProblemDetail(type = e.javaClass.name, title = "Runtime exception executing the flow, please check the logs." + e.message), HttpStatus.INTERNAL_SERVER_ERROR)
             }
 
             is CordaThrowable -> {
-                log.warn("CordaThrowable occurred. Message: {}", e.message)
+                log.warn("CordaThrowable occurred. Message: {}", e.message, e)
                 ResponseEntity(ProblemDetail(type = e.javaClass.name, title = e.message), HttpStatus.INTERNAL_SERVER_ERROR)
             }
 
             else -> {
-                log.warn("ExecutionException occurred. Message: {}", ee.message)
+                log.warn("ExecutionException occurred. Message: {}", ee.message, e)
                 ResponseEntity(ProblemDetail(type = ee.javaClass.name, title = ee.message), HttpStatus.INTERNAL_SERVER_ERROR)
             }
         }

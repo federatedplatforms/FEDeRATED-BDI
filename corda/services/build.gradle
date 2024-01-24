@@ -27,25 +27,41 @@ publishing {
     }
 }
 
-
-cordapp {
-    targetPlatformVersion corda_platform_version
-    minimumPlatformVersion corda_platform_version
-    workflow {
-        name "Template Flows"
-        vendor "Corda Open Source"
-        licence "Apache License, Version 2.0"
-        versionId 4
-    }
-}
+//cordapp {
+//    targetPlatformVersion corda_platform_version
+//    minimumPlatformVersion corda_platform_version
+//    workflow {
+//        name "Template Flows"
+//        vendor "Corda Open Source"
+//        licence "Apache License, Version 2.0"
+//        versionId 4
+//    }
+//}
 
 dependencies {
-    cordapp project(":contracts")
-    cordapp project(":services")
+    compile project(":ishare")
 
     // Corda dependencies.
     cordaCompile "net.corda:corda-core"
     cordaRuntime "net.corda:corda"
+
+    // We need to use compile instead of implementation because the corda plugin does not recognize implementation
+    // and the dependency wont be included in the generated cordapp workflows.jar
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin"
+    compile "org.eclipse.rdf4j:rdf4j-rio-turtle"
+    compile "org.eclipse.rdf4j:rdf4j-rio-api"
+    compile "org.eclipse.rdf4j:rdf4j-repository-sparql:3.7.4"
+    compile "org.eclipse.rdf4j:rdf4j-queryresultio-sparqljson:3.7.4"
+
+    compile 'org.apache.httpcomponents:httpclient:4.5.14'
+
+
+    // JSON Web Token support (for iSHARE)
+    compile "io.jsonwebtoken:jjwt-api:0.11.5"
+    compile "io.jsonwebtoken:jjwt-impl:0.11.5"
+    compile "io.jsonwebtoken:jjwt-jackson:0.11.5"
+    // JWKS verification (for iSHARE)
+    compile "org.bitbucket.b_c:jose4j:0.7.12"
 
     testImplementation "junit:junit"
     testImplementation "io.mockk:mockk"

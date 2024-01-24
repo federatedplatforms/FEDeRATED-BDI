@@ -17,7 +17,7 @@ import net.corda.testing.node.StartedMockNode
 import nl.tno.federated.corda.services.graphdb.GraphDBCordaService
 import nl.tno.federated.corda.services.graphdb.GraphDBEventConverter
 import nl.tno.federated.corda.services.graphdb.IGraphDBService
-import nl.tno.federated.shared.states.EventState
+import nl.tno.federated.corda.states.EventState
 import org.junit.After
 import org.junit.Before
 import org.junit.Ignore

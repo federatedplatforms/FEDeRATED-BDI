@@ -9,8 +9,10 @@ import net.corda.core.flows.FlowException
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.FlowSession
 import net.corda.core.flows.InitiatedBy
+import net.corda.core.flows.InitiatingFlow
 import net.corda.core.flows.ReceiveFinalityFlow
 import net.corda.core.flows.SignTransactionFlow
+import net.corda.core.flows.StartableByRPC
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
@@ -18,16 +20,18 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.corda.services.ishare.ISHARECordaService
-import nl.tno.federated.shared.contracts.EventContract
-import nl.tno.federated.shared.states.EventState
+import nl.tno.federated.corda.contracts.EventContract
+import nl.tno.federated.corda.states.EventState
 import org.slf4j.LoggerFactory
 
+@StartableByRPC
+@InitiatingFlow
 class NewEventFlow(
-      destinations: Collection<CordaX500Name>,
-      event: String,
-      eventType: String,
-      eventUUID: String
-) : nl.tno.federated.shared.flows.NewEventFlow(destinations,event, eventType, eventUUID) {
+      val destinations: Collection<CordaX500Name>,
+      val event: String,
+      val eventType: String,
+      val eventUUID: String
+) : FlowLogic<SignedTransaction>() {
 
     private val log = LoggerFactory.getLogger(NewEventFlow::class.java)
 
@@ -166,7 +170,7 @@ class NewEventFlow(
     }
 }
 
-@InitiatedBy(nl.tno.federated.shared.flows.NewEventFlow::class)
+@InitiatedBy(NewEventFlow::class)
 class NewEventResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
 
     private val log = LoggerFactory.getLogger(NewEventResponder::class.java)

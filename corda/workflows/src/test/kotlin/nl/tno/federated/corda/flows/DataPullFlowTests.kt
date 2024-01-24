@@ -13,7 +13,7 @@ import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
 import nl.tno.federated.corda.services.data.fetcher.DataFetcherCordaService
 import nl.tno.federated.corda.services.data.fetcher.SPARQLDataFetcher
-import nl.tno.federated.shared.states.DataPullState
+import nl.tno.federated.corda.states.DataPullState
 import org.junit.After
 import org.junit.Before
 import org.junit.Test

@@ -12,10 +12,10 @@ import net.corda.core.node.services.vault.PageSpecification
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.node.services.vault.Sort
 import net.corda.core.node.services.vault.SortAttribute
-import nl.tno.federated.shared.flows.DataPullFlow
-import nl.tno.federated.shared.states.DataPullState
-import nl.tno.federated.shared.states.EventState
-import nl.tno.federated.shared.flows.NewEventFlow
+import nl.tno.federated.corda.flows.DataPullFlow
+import nl.tno.federated.corda.states.DataPullState
+import nl.tno.federated.corda.states.EventState
+import nl.tno.federated.corda.flows.NewEventFlow
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -80,7 +80,7 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
      *              the first element of the list `participants` in the state.
      */
     fun extractSender(eventId: String): Party? {
-        val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(UUID.fromString(eventId)))
+        val criteria = QueryCriteria.LinearStateQueryCriteria(externalId = listOf(eventId))
         val eventStateParties = rpc.client().vaultQueryBy<EventState>(criteria).states.single().state.data.participants
 
         val me = rpc.client().nodeInfo().legalIdentities.first()

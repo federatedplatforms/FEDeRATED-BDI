@@ -20,6 +20,7 @@ dependencies {
     implementation 'io.micrometer:micrometer-registry-prometheus'
 
     implementation "nl.tno.federated.corda:contracts:0.3.11-SNAPSHOT"
+    implementation "nl.tno.federated.corda:workflows:0.3.11-SNAPSHOT"
 
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
@@ -64,6 +65,7 @@ tasks.named('compileJava') {
 }
 
 configurations.implementation {
+    exclude group: 'nl.tno.federated.corda' , module: 'services'
     exclude group: 'net.corda', module: 'corda'
     exclude group: 'org.hibernate', module: 'hibernate-core'
     exclude group: 'org.liquibase', module: 'liquibase-core'

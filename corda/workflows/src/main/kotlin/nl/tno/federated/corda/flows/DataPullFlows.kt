@@ -12,17 +12,18 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.transactions.WireTransaction
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
-import nl.tno.federated.shared.contracts.DataPullContract
+import nl.tno.federated.corda.contracts.DataPullContract
 import nl.tno.federated.corda.services.data.fetcher.DataFetcherCordaService
 import nl.tno.federated.corda.services.data.fetcher.dataFetcher
-import nl.tno.federated.shared.states.DataPullState
-import nl.tno.federated.shared.flows.DataPullFlow
+import nl.tno.federated.corda.states.DataPullState
 import org.slf4j.LoggerFactory
 
+@StartableByRPC
+@InitiatingFlow
 class DataPullFlow(
-    destination: CordaX500Name,
-    query: String
-) : nl.tno.federated.shared.flows.DataPullFlow(destination, query) {
+    val destination: CordaX500Name,
+    val query: String
+) : FlowLogic<SignedTransaction>() {
 
     private val log = LoggerFactory.getLogger(DataPullFlow::class.java)
 
@@ -125,7 +126,7 @@ class DataPullFlow(
 }
 
 @InitiatingFlow
-@InitiatedBy(nl.tno.federated.shared.flows.DataPullFlow::class)
+@InitiatedBy(DataPullFlow::class)
 class DataPullQueryResponderFlow(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
 
     companion object {

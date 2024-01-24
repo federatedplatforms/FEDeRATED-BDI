@@ -1,17 +1,16 @@
-package nl.tno.federated.shared.contracts
+package nl.tno.federated.corda.contracts
 
 import net.corda.core.contracts.CommandData
 import net.corda.core.contracts.Contract
 import net.corda.core.transactions.LedgerTransaction
 
-
 // ************
 // * Contract *
 // ************
-class DataPullContract : Contract {
+class EventContract : Contract {
     companion object {
         // Used to identify our contract when building a transaction.
-        val ID = DataPullContract::class.qualifiedName!!
+        val ID = EventContract::class.qualifiedName!!
     }
 
     // A transaction is valid if the verify() function of the contract of all the transaction's input and output states
@@ -22,8 +21,11 @@ class DataPullContract : Contract {
 
     // Used to indicate the transaction's intent.
     interface Commands : CommandData {
-        class Query : Commands
-        class Response : Commands
+        class Other : Commands
+        class Create : Commands
+        class UpdateEstimatedTime : Commands
+        class ExecuteEvent : Commands
+        class AccidentEvent : Commands
     }
 }
 

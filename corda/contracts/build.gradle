@@ -7,10 +7,22 @@ plugins {
     id 'maven-publish'
 }
 
+group = 'nl.tno.federated.corda'
+version = '0.3.11-SNAPSHOT'
+
 publishing {
     publications {
-        maven(MavenPublication) {
+        mavenJava(MavenPublication) {
             from components.java
+
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
         }
     }
 }
@@ -25,9 +37,6 @@ cordapp {
         versionId corda_platform_version
     }
 }
-
-group = 'nl.tno.federated.corda'
-version = '0.3.11-SNAPSHOT'
 
 dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin"
