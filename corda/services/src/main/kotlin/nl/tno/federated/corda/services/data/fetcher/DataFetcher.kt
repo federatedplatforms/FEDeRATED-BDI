@@ -11,7 +11,7 @@ interface DataFetcher {
         val log = LoggerFactory.getLogger(DataFetcher::class.java)
     }
 
-    fun fetch(input: String): String
+    fun fetch(): String
 
     fun getInputStreamFromClassPathResource(filename: String): InputStream? {
         val file = Paths.get(filename)
@@ -22,4 +22,6 @@ interface DataFetcher {
         log.info("Using classpath resource: {}", filename)
         return Thread.currentThread().contextClassLoader.getResourceAsStream(filename)
     }
+
+    fun fetch(input: String): String
 }

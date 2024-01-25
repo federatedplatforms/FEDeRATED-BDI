@@ -2,7 +2,6 @@ package nl.tno.federated.corda.services.data.fetcher
 
 import nl.tno.federated.corda.services.graphdb.GraphDBClientException
 import nl.tno.federated.corda.services.graphdb.GraphDBServerException
-import nl.tno.federated.corda.services.graphdb.contentAsString
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
 import org.apache.http.client.HttpClient
@@ -19,20 +18,29 @@ class HTTPDataFetcher : DataFetcher {
     private val propertiesFileName = "database.properties"
     private val logHTTPDataFetcher = LoggerFactory.getLogger(HTTPDataFetcher::class.java)
 
-    override fun fetch(societa: Int, anno: Int, numero: Int): String {
+    override fun fetch(): String {
+        val societa = properties["societa"].toString().toInt()
+        val anno = properties["anno"].toString().toInt()
+        val numero = properties["numero"].toString().toInt()
         val httpAnswer = executeHTTPGET(societa, anno, numero) ?: ""
-        // TODO: how to handle if httpAnswer null? => Codognotto get is down => lazy implementation?
-        return runTranslateLab(httpAnswer)
+        // TODO: how to handle if httpAnswer null? => Codognotto endpoint is down => lazy implementation?
+        return runTranslateLab(httpAnswer)!!
+    }
+
+    // TODO: this should not be called, but I did not how to overload with different parameters
+    override fun fetch(input: String): String {
+        return ""
     }
 
     private fun executeHTTPGET(societa: Int, anno: Int, numero: Int): String? {
-        val uri = properties.get("get.endpoint.url")
+        val uri = properties["get.endpoint.url"]
         return client.get(URI("$uri?societa=${societa}&anno=${anno}&numero=${numero}"))?.bodyAsString
     }
-    // TODO: insert the uri of the rml endpoint
-    private fun runTranslateLab(input: String) {
-        val uri = properties.get("rml.endpoint.url")
 
+    private fun runTranslateLab(input: String): String? {
+        val uri = properties["rml.endpoint.url"]
+        // TODO: still need to test how the translation endpoint runs, maybe using your HTTP trick?
+        return client.get(URI("$uri"))?.bodyAsString
     }
 
     private val properties: Properties by lazy {
@@ -49,6 +57,10 @@ class HTTPDataFetcher : DataFetcher {
             }
 
             logHTTPDataFetcher.info("Loaded ${propertiesFileName}: get.endpoint.url: {}", properties.get("get.endpoint.url"))
+            logHTTPDataFetcher.info("Loaded ${propertiesFileName}: societa: {}", properties.get("societa"))
+            logHTTPDataFetcher.info("Loaded ${propertiesFileName}: anno: {}", properties.get("anno"))
+            logHTTPDataFetcher.info("Loaded ${propertiesFileName}: numero: {}", properties.get("numero"))
+
             properties
         }
     }
@@ -79,11 +91,4 @@ class HTTPDataFetcher : DataFetcher {
                 else -> entity?.contentAsString
             }
         }
-
-
-
-        // reverse RML => interpreter
-        // configure what data fether to use
-    }
-
 }

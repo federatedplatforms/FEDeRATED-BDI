@@ -13,6 +13,11 @@ class SPARQLDataFetcher : DataFetcher {
     private val logSPARQLDataFetcher = LoggerFactory.getLogger(SPARQLDataFetcher::class.java)
     private val propertiesFileName = "database.properties"
 
+    override fun fetch(): String {
+        // TODO: must get rid of this with proper abstraction in DataFetcher
+        return ""
+    }
+
     override fun fetch(input: String): String {
         return executeSPARQL(input)
     }
