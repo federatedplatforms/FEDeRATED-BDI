@@ -55,7 +55,7 @@ class EventsController(
         return ResponseEntity.ok().body(eventService.findAll(page, size))
     }
 
-    @Operation(summary = "Create a new event and distribute to peers according to the distribution rules. The Event-Type header specifies the Event type e.g: federated.events.load-event.v1. See the /event-types endpoint for all supported event types by this node.")
+    @Operation(summary = "Create a new event and distribute to peers according to the distribution rules. The Event-Type header specifies the Event type e.g: federated.events.load-event.v1. See the /event-types endpoint for all supported event types by this node. Event-Destinations header specifies the node names to send the even to. Node names can be separated with a semi-colon (;). An example: O=Cargobase,L=Dusseldorf,C=DE")
     @PostMapping(path = [""], consumes = [APPLICATION_JSON_VALUE], produces = [APPLICATION_JSON_VALUE])
     fun postEvent(@RequestBody event: String, @RequestHeader(EVENT_TYPE_HEADER) eventType: String, @RequestHeader(name = EVENT_DESTINATION_HEADER, required = false) eventDestinations: String?): ResponseEntity<Void> {
         log.info("Received new event: {}", event)
@@ -93,7 +93,7 @@ class EventsController(
     }
 
     private fun eventDestinationsToSet(eventDestinations: String?): Set<String>? {
-        return eventDestinations?.split(",")?.toSet()
+        return eventDestinations?.split(";")?.toSet()
     }
 
     private fun contentTypeToEventType(contentType: String): EventType {
