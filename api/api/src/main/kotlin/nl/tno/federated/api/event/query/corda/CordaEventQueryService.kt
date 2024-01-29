@@ -32,7 +32,7 @@ class CordaEventQueryService(
         // TODO when we add a UUID to the Event, this needs to change
         val criteria = QueryCriteria.LinearStateQueryCriteria(externalId = listOf(id))
         val state = cordaNodeService.startVaultQueryBy(criteria)
-        return state.firstOrNull()?.event
+        return state.firstOrNull()?.eventData
     }
 
     override fun findAll(): List<String> = findAll(1, 100)
@@ -42,7 +42,7 @@ class CordaEventQueryService(
         val criteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.ALL)
         val pagingSpec = PageSpecification(pageNumber = page, pageSize = size)
         val state = cordaNodeService.startVaultQueryBy(criteria, pagingSpec)
-        return state.map { it.event }
+        return state.map { it.eventData }
     }
 
     private fun searchRemoteNode(query: EventQuery, remote: CordaX500Name): String? {

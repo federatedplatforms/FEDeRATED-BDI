@@ -54,7 +54,7 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
     }
 
     fun startVaultQueryBy(criteria: QueryCriteria? = null, pagingSpec: PageSpecification = PageSpecification(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE)): List<SimpleEventState> {
-        return rpc.client().vaultQueryPagedAndSortedByRecordedTime<EventState>(pagingSpec, criteria).map { it.toSimpleEventState() }
+        return rpc.client().vaultQueryPagedAndSortedByRecordedTime<EventState>(pagingSpec, criteria).states.map { it.state.data.toSimpleEventState() }
     }
 
     fun startDataPullFlow(query: String, cordaName: CordaX500Name?): UUID {
@@ -106,9 +106,9 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
     }
 }
 
-inline fun <reified T : ContractState> CordaRPCOps.vaultQueryPagedAndSortedByRecordedTime(pageSpec: PageSpecification, queryCriteria: QueryCriteria? = null): List<T> {
+inline fun <reified T : ContractState> CordaRPCOps.vaultQueryPagedAndSortedByRecordedTime(pageSpec: PageSpecification, queryCriteria: QueryCriteria? = null): Vault.Page<T> {
     val sortAttribute = SortAttribute.Standard(Sort.VaultStateAttribute.RECORDED_TIME)
     val sorter = Sort(setOf(Sort.SortColumn(sortAttribute, Sort.Direction.DESC)))
     val criteria = queryCriteria ?: QueryCriteria.VaultQueryCriteria(Vault.StateStatus.ALL)
-    return this.vaultQueryBy<T>(criteria, pageSpec, sorter).states.map { it.state.data }
+    return this.vaultQueryBy<T>(criteria, pageSpec, sorter)
 }
