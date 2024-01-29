@@ -2,13 +2,20 @@ package nl.tno.federated.api.webhook
 
 import org.slf4j.LoggerFactory
 import org.springframework.context.event.EventListener
+import org.springframework.http.HttpStatusCode
+import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.http.client.ClientHttpResponse
 import org.springframework.stereotype.Service
+import org.springframework.web.client.ResponseErrorHandler
+import org.springframework.web.client.RestClient
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+
 
 data class GenericEvent<T>(val eventType: String, val eventData: T)
 
 @Service
-class WebhookService {
+class WebhookService() {
 
     fun getWebhooks(): List<WebHookRegistration> {
         return webhooks.values.toList()
@@ -23,7 +30,20 @@ class WebhookService {
     }
 
     fun notify(event: GenericEvent<*>, webhook: WebHookRegistration) {
-        println("Sending event: ${event} to: ${webhook}")
+        log.info("Sending event: ${event.eventType} to: ${webhook.callbackURL}")
+
+        restClient.post()
+            .uri(webhook.callbackURL.toString())
+            .contentType(APPLICATION_JSON)
+            .body(event.eventData!!)
+            .retrieve()
+            .onStatus(HttpStatusCode::is4xxClientError) { _, response ->
+                log.warn("Sending event to callback: ${webhook.callbackURL} failed with ${response.statusCode}")
+            }
+            .onStatus(HttpStatusCode::is5xxServerError) { _, response ->
+                log.warn("Sending event to callback: ${webhook.callbackURL} failed with ${response.statusCode}")
+            }
+            .toBodilessEntity()
     }
 
     @EventListener
@@ -35,6 +55,7 @@ class WebhookService {
     }
 
     companion object {
+        private val restClient: RestClient = RestClient.create()
         private val webhooks = ConcurrentHashMap<String, WebHookRegistration>()
         private val log = LoggerFactory.getLogger(WebhookService::class.java)
 
