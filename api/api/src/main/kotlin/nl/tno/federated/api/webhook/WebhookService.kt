@@ -1,16 +1,14 @@
 package nl.tno.federated.api.webhook
 
-import org.springframework.context.ApplicationEventPublisher
+import org.slf4j.LoggerFactory
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
 
-class GenericEvent<T>(val eventType: String, val event: T) {
-    companion object
-}
+data class GenericEvent<T>(val eventType: String, val eventData: T)
 
 @Service
-class WebhookService(private val applicationEventPublisher: ApplicationEventPublisher) {
+class WebhookService {
 
     fun getWebhooks(): List<WebHookRegistration> {
         return webhooks.values.toList()
@@ -24,23 +22,21 @@ class WebhookService(private val applicationEventPublisher: ApplicationEventPubl
         return webhooks.remove(clientId) != null
     }
 
-    fun publishNewEvent(event: GenericEvent<*>) {
-        applicationEventPublisher.publishEvent(event)
-    }
-
     fun notify(event: GenericEvent<*>, webhook: WebHookRegistration) {
         println("Sending event: ${event} to: ${webhook}")
     }
 
     @EventListener
-    fun handleSuccessful(event: GenericEvent<String>) {
-        for (webhook in webhooks) {
-            val filter = webhooks.values.filter { it.eventType == event.eventType }
-            filter.forEach { notify(event, it) }
-        }
+    fun handleSuccessful(event: GenericEvent<Any>) {
+        log.info("Event received for publication...")
+        val filter = webhooks.values.filter { it.eventType == event.eventType }
+        log.info("{} webhooks registered for eventType: {}", filter.size, event.eventType)
+        filter.forEach { notify(event, it) }
     }
 
     companion object {
         private val webhooks = ConcurrentHashMap<String, WebHookRegistration>()
+        private val log = LoggerFactory.getLogger(WebhookService::class.java)
+
     }
 }

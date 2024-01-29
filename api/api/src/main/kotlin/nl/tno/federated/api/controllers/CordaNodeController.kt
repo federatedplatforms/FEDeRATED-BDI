@@ -2,16 +2,12 @@ package nl.tno.federated.api.controllers
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import net.corda.core.contracts.ContractState
 import net.corda.core.identity.CordaX500Name
-import net.corda.core.node.services.Vault
 import net.corda.core.node.services.vault.PageSpecification
 import net.corda.core.utilities.NetworkHostAndPort
 import nl.tno.federated.api.corda.NodeRPCConnection
-import nl.tno.federated.api.corda.SimpleDataPullState
-import nl.tno.federated.api.corda.SimpleEventState
-import nl.tno.federated.api.corda.toSimpleDataPullState
-import nl.tno.federated.api.corda.toSimpleEventState
+import nl.tno.federated.api.corda.StatePlusMeta
+import nl.tno.federated.api.corda.mapToStatePlusMeta
 import nl.tno.federated.api.corda.vaultQueryPagedAndSortedByRecordedTime
 import nl.tno.federated.corda.states.DataPullState
 import nl.tno.federated.corda.states.EventState
@@ -21,7 +17,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import java.time.Instant
 
 /**
  * Wrapper that exposes only the relevant node information that we want to expose.
@@ -64,23 +59,4 @@ class CordaNodeController(private val rpc: NodeRPCConnection) {
         }
         return result
     }
-
-    private fun Vault.Page<*>.mapToStatePlusMeta(): List<StatePlusMeta> {
-        val results = mutableListOf<StatePlusMeta>()
-        this.states.forEach {
-            val meta = this.statesMetadata.find { meta -> meta.ref == it.ref }!!
-            results.add(StatePlusMeta(it.ref.txhash.toHexString(), meta.recordedTime, it.state.data.participants.map { it.nameOrNull() }, it.state.notary.name, meta.status, it.state.data.mapContractState()))
-        }
-        return results
-    }
-
-    private fun ContractState.mapContractState(): Any {
-        return when(this.javaClass) {
-            EventState::class.java -> (this as EventState).toSimpleEventState()
-            DataPullState::class.java -> (this as DataPullState).toSimpleDataPullState()
-            else -> throw IllegalArgumentException("Unknown state_type specified: ${this.javaClass}")
-        }
-    }
 }
-
-data class StatePlusMeta(val txId: String, val recordedTime: Instant, val participants: List<CordaX500Name?>, val notary: CordaX500Name, val status: Vault.StateStatus, val data: Any)

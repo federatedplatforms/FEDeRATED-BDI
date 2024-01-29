@@ -52,7 +52,7 @@ class EventService(
 
     fun findAll(page: Int, size: Int): List<JsonNode> {
         val result = eventQueryService.findAll(page, size)
-        return result.map { eventMapper.toCompactedJSONLDMap(it) }
+        return result.map { eventMapper.toCompactedJSONLDMap(it.eventData) }
     }
 
     fun query(eventQuery: EventQuery): JsonNode? {

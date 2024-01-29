@@ -1,38 +1,27 @@
 package nl.tno.federated.api.corda
 
-import jakarta.annotation.PostConstruct
+import nl.tno.federated.api.event.query.corda.CordaEventQueryService
 import nl.tno.federated.api.webhook.GenericEvent
 import nl.tno.federated.corda.states.EventState
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import rx.schedulers.Schedulers
 
 @Service
-class CordaEventObserver(private val rpc: NodeRPCConnection, private val applicationEventPublisher: ApplicationEventPublisher) {
+class CordaEventObserver(private val eventQueryService: CordaEventQueryService, private val applicationEventPublisher: ApplicationEventPublisher) {
 
     private val log = LoggerFactory.getLogger(CordaEventObserver::class.java)
-    private var subscribed = false
 
-//    @PostConstruct
+    @Scheduled(fixedDelay = 10_000, initialDelay = 5_000)
     fun observe() {
-
-        while (!subscribed) {
-            try {
-                val feed = rpc.client().vaultTrack(EventState::class.java)
-                feed.updates.observeOn(Schedulers.io()).subscribe { update ->
-                    log.info("Received notification: {}", update)
-                    update.produced.forEach { stateAndRef ->
-                        // No need to launch coroutines here because the applicationEventPublisher is async.
-                        stateAndRef.state.data.let { applicationEventPublisher.publishEvent(GenericEvent(it.eventType, it.event)) }
-                    }
-                }
-                subscribed = true
-            } catch (e: Exception) {
-                log.warn("Failed listening for updates... sleeping for 5 seconds. Error: {}", e.message)
-                subscribed = false
-                Thread.sleep(5000)
-            }
+        log.info("Retrieving events for publication...")
+        val findAll = eventQueryService.findAll(1, 100)
+        log.info("{} events available for publication...", findAll.size)
+        findAll.forEach {
+            log.info("Publishing event...")
+            applicationEventPublisher.publishEvent(GenericEvent(it.eventType, it.eventData))
         }
     }
 }

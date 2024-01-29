@@ -10,6 +10,7 @@ import org.springframework.context.event.ApplicationEventMulticaster
 import org.springframework.context.event.SimpleApplicationEventMulticaster
 import org.springframework.core.env.Environment
 import org.springframework.core.task.SimpleAsyncTaskExecutor
+import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
  * BDI API Spring Boot application.
  */
 @EnableConfigurationProperties
+@EnableScheduling
 @SpringBootApplication(scanBasePackages = ["nl.tno.federated.api"])
 class Server {
 
