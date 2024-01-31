@@ -1,12 +1,15 @@
 package nl.tno.federated.corda.services.data.fetcher
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import nl.tno.federated.corda.services.graphdb.GraphDBClientException
 import nl.tno.federated.corda.services.graphdb.GraphDBServerException
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
+import org.apache.http.client.methods.HttpPost
 import org.apache.http.impl.client.HttpClientBuilder
+import org.jose4j.json.internal.json_simple.JSONObject
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.nio.charset.StandardCharsets.UTF_8
@@ -34,13 +37,12 @@ class HTTPDataFetcher : DataFetcher {
 
     private fun executeHTTPGET(societa: Int, anno: Int, numero: Int): String? {
         val uri = properties["get.endpoint.url"]
-        return client.get(URI("$uri?societa=${societa}&anno=${anno}&numero=${numero}"))?.bodyAsString
+        return client.get(URI("$uri/${societa}/${anno}/${numero}"))?.bodyAsString
     }
 
     private fun runTranslateLab(input: String): String? {
         val uri = properties["rml.endpoint.url"]
-        // TODO: still need to test how the translation endpoint runs, maybe using your HTTP trick?
-        return client.get(URI("$uri"))?.bodyAsString
+        return extractPayload(client.post(URI("$uri"))?.bodyAsString!!)
     }
 
     private val properties: Properties by lazy {
@@ -80,8 +82,24 @@ class HTTPDataFetcher : DataFetcher {
         return execute(request)
     }
 
+    private fun HttpClient.post(uri: URI): HttpResponse? {
+        val request = HttpPost(uri).apply {
+            setHeader("Accept", "application/json")
+        }
+        return  execute(request)
+    }
+
     private val HttpEntity.contentAsString: String
         get() = String(content.readBytes(), UTF_8)
+
+    data class TranslateLabResponse(val ok: String, val payload: String, val request:String, val response: JSONObject)
+
+    private fun extractPayload(response: String): String
+    {
+        val mapper = jacksonObjectMapper()
+        val jsonResponse = mapper.readValue<TranslateLabResponse>(response, TranslateLabResponse::class.java)
+        return jsonResponse.payload
+    }
 
     private val HttpResponse.bodyAsString: String?
         get() {
