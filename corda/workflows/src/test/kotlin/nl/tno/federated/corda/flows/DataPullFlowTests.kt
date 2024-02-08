@@ -47,7 +47,8 @@ class DataPullFlowTests {
 
         // For real nodes this happens automatically, but we have to manually register the flow for tests
         startedNodes.forEach {
-            it.services.cordaService(DataFetcherCordaService::class.java).init(dataFetcher)
+            // TODO FIX
+//            it.services.cordaService(DataFetcherCordaService::class.java).init(dataFetcher)
 
             it.registerInitiatedFlow(DataPullQueryResponderFlow::class.java)
             it.registerInitiatedFlow(DataPullResultResponderFlow::class.java)
