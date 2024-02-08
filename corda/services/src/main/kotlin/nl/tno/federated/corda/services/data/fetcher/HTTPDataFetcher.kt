@@ -9,7 +9,6 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.impl.client.HttpClientBuilder
-import org.jose4j.json.internal.json_simple.JSONObject
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.nio.charset.StandardCharsets.UTF_8
