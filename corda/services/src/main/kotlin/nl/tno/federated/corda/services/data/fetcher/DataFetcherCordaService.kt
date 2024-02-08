@@ -23,7 +23,7 @@ class DataFetcherCordaService(serviceHub: AppServiceHub) : SingletonSerializeAsT
     }
 
     // Delegate all calls to the non Corda object.
-    fun fetch(deduplicationId: String, input: String): String {
+    fun fetch(deduplicationId: String, input: String): String? {
         try {
             return dataFetcher.fetch(input)
         } catch (e: Exception) {

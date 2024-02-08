@@ -282,7 +282,7 @@ class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTran
 
         // Implement [execute] which will be run on a thread outside of the flow's context
         override fun execute(deduplicationId: String): String {
-            return dataFetcher.fetch(deduplicationId, input)
+            return dataFetcher.fetch(deduplicationId, input) ?: ""
         }
     }
 }
