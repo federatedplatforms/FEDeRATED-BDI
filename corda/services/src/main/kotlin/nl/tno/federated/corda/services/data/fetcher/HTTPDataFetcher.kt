@@ -9,7 +9,6 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.impl.client.HttpClientBuilder
-import org.jose4j.json.internal.json_simple.JSONObject
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.nio.charset.StandardCharsets.UTF_8
@@ -21,18 +20,13 @@ class HTTPDataFetcher : DataFetcher {
     private val propertiesFileName = "database.properties"
     private val logHTTPDataFetcher = LoggerFactory.getLogger(HTTPDataFetcher::class.java)
 
-    override fun fetch(): String {
+    override fun fetch(input: String): String? {
         val societa = properties["societa"].toString().toInt()
         val anno = properties["anno"].toString().toInt()
         val numero = properties["numero"].toString().toInt()
         val httpAnswer = executeHTTPGET(societa, anno, numero) ?: ""
         // TODO: how to handle if httpAnswer null? => Codognotto endpoint is down => lazy implementation?
-        return runTranslateLab(httpAnswer)!!
-    }
-
-    // TODO: this should not be called, but I did not how to overload with different parameters
-    override fun fetch(input: String): String {
-        return ""
+        return runTranslateLab(httpAnswer)
     }
 
     private fun executeHTTPGET(societa: Int, anno: Int, numero: Int): String? {
@@ -42,7 +36,9 @@ class HTTPDataFetcher : DataFetcher {
 
     private fun runTranslateLab(input: String): String? {
         val uri = properties["rml.endpoint.url"]
-        return extractPayload(client.post(URI("$uri"))?.bodyAsString!!)
+        val responseBody = client.post(URI("$uri"))?.bodyAsString
+        return if (responseBody.isNullOrEmpty()) null
+        else extractPayload(responseBody!!)
     }
 
     private val properties: Properties by lazy {
@@ -92,13 +88,12 @@ class HTTPDataFetcher : DataFetcher {
     private val HttpEntity.contentAsString: String
         get() = String(content.readBytes(), UTF_8)
 
-    data class TranslateLabResponse(val ok: String, val payload: String, val request:String, val response: JSONObject)
-
-    private fun extractPayload(response: String): String
+    private fun extractPayload(response: String): String?
     {
         val mapper = jacksonObjectMapper()
-        val jsonResponse = mapper.readValue<TranslateLabResponse>(response, TranslateLabResponse::class.java)
-        return jsonResponse.payload
+        val jsonResponse = mapper.readTree(response).at("/payload")
+        return if (!jsonResponse.isMissingNode) jsonResponse.textValue()
+        else null
     }
 
     private val HttpResponse.bodyAsString: String?
