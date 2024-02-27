@@ -1,0 +1,436 @@
+[
+  {
+    "@graph": [
+      {
+        "@id": "_:genid-10de40756ad64d46bb51fa38ca5b16b6-0",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryPass",
+        "https://ontology.tno.nl/catenax-addition#hasRenewableContentShare": {
+          "@id": "_:genid-10de40756ad64d46bb51fa38ca5b16b6-2"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#cO2FootprintTotal": "1",
+        "https://ontology.tno.nl/catenaxInterpretation#hasBateryPowerProperties": {
+          "@id": "_:genid-10de40756ad64d46bb51fa38ca5b16b6-3"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#hasBatteryCycleLifeProperties": {
+          "@id": "_:genid-10de40756ad64d46bb51fa38ca5b16b6-4"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#hasStateOfBatteryProperties": {
+          "@id": "_:genid-10de40756ad64d46bb51fa38ca5b16b6-1"
+        }
+      },
+      {
+        "@id": "_:genid-10de40756ad64d46bb51fa38ca5b16b6-1",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#StateOfBatteryProperties",
+        "https://ontology.tno.nl/catenaxInterpretation#stateOfHealth": "100",
+        "https://ontology.tno.nl/catenaxInterpretation#statusBattery": "aaaaaa aaaaa999"
+      },
+      {
+        "@id": "_:genid-10de40756ad64d46bb51fa38ca5b16b6-2",
+        "@type": "https://ontology.tno.nl/catenax-addition#RenewableContentShare",
+        "https://ontology.tno.nl/catenax-addition#recycledMaterialShareAmount": "3.1",
+        "https://ontology.tno.nl/catenax-addition#recycledMaterialShareName": "c50f1d de507"
+      },
+      {
+        "@id": "_:genid-10de40756ad64d46bb51fa38ca5b16b6-3",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryPowerProperties",
+        "https://ontology.tno.nl/catenax-addition#remainingPowerCapability": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#originalPowerCapability": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#powerFade": "3.1"
+      },
+      {
+        "@id": "_:genid-10de40756ad64d46bb51fa38ca5b16b6-4",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryCycleLifeProperties",
+        "https://ontology.tno.nl/catenax-addition#capacityThroughput": "3.1",
+        "https://ontology.tno.nl/catenax-addition#chargeDischargeCycles": "1",
+        "https://ontology.tno.nl/catenax-addition#energyThroughput": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#expectedLifetime": "3.1"
+      }
+    ],
+    "@context": {
+      "ql": "http://semweb.mmlab.be/ns/ql#",
+      "rml": "http://semweb.mmlab.be/ns/rml#",
+      "rr": "http://www.w3.org/ns/r2rml#"
+    }
+  },
+  {
+    "@graph": [
+      {
+        "@id": "_:genid-169099404caf4cb7acc7e8bafdd0ea89-0",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryPass",
+        "https://ontology.tno.nl/catenax-addition#hasRenewableContentShare": {
+          "@id": "_:genid-169099404caf4cb7acc7e8bafdd0ea89-2"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#cO2FootprintTotal": "1",
+        "https://ontology.tno.nl/catenaxInterpretation#hasBateryPowerProperties": {
+          "@id": "_:genid-169099404caf4cb7acc7e8bafdd0ea89-3"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#hasBatteryCycleLifeProperties": {
+          "@id": "_:genid-169099404caf4cb7acc7e8bafdd0ea89-4"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#hasStateOfBatteryProperties": {
+          "@id": "_:genid-169099404caf4cb7acc7e8bafdd0ea89-1"
+        }
+      },
+      {
+        "@id": "_:genid-169099404caf4cb7acc7e8bafdd0ea89-1",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#StateOfBatteryProperties",
+        "https://ontology.tno.nl/catenaxInterpretation#stateOfHealth": "100",
+        "https://ontology.tno.nl/catenaxInterpretation#statusBattery": "82571b b422d999"
+      },
+      {
+        "@id": "_:genid-169099404caf4cb7acc7e8bafdd0ea89-2",
+        "@type": "https://ontology.tno.nl/catenax-addition#RenewableContentShare",
+        "https://ontology.tno.nl/catenax-addition#recycledMaterialShareAmount": "3.1",
+        "https://ontology.tno.nl/catenax-addition#recycledMaterialShareName": "c50f1d de507"
+      },
+      {
+        "@id": "_:genid-169099404caf4cb7acc7e8bafdd0ea89-3",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryPowerProperties",
+        "https://ontology.tno.nl/catenax-addition#remainingPowerCapability": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#originalPowerCapability": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#powerFade": "3.1"
+      },
+      {
+        "@id": "_:genid-169099404caf4cb7acc7e8bafdd0ea89-4",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryCycleLifeProperties",
+        "https://ontology.tno.nl/catenax-addition#capacityThroughput": "3.1",
+        "https://ontology.tno.nl/catenax-addition#chargeDischargeCycles": "1",
+        "https://ontology.tno.nl/catenax-addition#energyThroughput": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#expectedLifetime": "3.1"
+      }
+    ],
+    "@context": {
+      "ql": "http://semweb.mmlab.be/ns/ql#",
+      "rml": "http://semweb.mmlab.be/ns/rml#",
+      "rr": "http://www.w3.org/ns/r2rml#"
+    }
+  },
+  {
+    "@graph": [
+      {
+        "@id": "_:genid-d0345a18324442e3bf8bce025867b03e-0",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryPass",
+        "https://ontology.tno.nl/catenax-addition#hasRenewableContentShare": {
+          "@id": "_:genid-d0345a18324442e3bf8bce025867b03e-2"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#cO2FootprintTotal": "1",
+        "https://ontology.tno.nl/catenaxInterpretation#hasBateryPowerProperties": {
+          "@id": "_:genid-d0345a18324442e3bf8bce025867b03e-3"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#hasBatteryCycleLifeProperties": {
+          "@id": "_:genid-d0345a18324442e3bf8bce025867b03e-4"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#hasStateOfBatteryProperties": {
+          "@id": "_:genid-d0345a18324442e3bf8bce025867b03e-1"
+        }
+      },
+      {
+        "@id": "_:genid-d0345a18324442e3bf8bce025867b03e-1",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#StateOfBatteryProperties",
+        "https://ontology.tno.nl/catenaxInterpretation#stateOfHealth": "1",
+        "https://ontology.tno.nl/catenaxInterpretation#statusBattery": "6b2d6f 95f3f"
+      },
+      {
+        "@id": "_:genid-d0345a18324442e3bf8bce025867b03e-2",
+        "@type": "https://ontology.tno.nl/catenax-addition#RenewableContentShare",
+        "https://ontology.tno.nl/catenax-addition#recycledMaterialShareAmount": "3.1",
+        "https://ontology.tno.nl/catenax-addition#recycledMaterialShareName": "f40f4e fd03f2412024"
+      },
+      {
+        "@id": "_:genid-d0345a18324442e3bf8bce025867b03e-3",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryPowerProperties",
+        "https://ontology.tno.nl/catenax-addition#remainingPowerCapability": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#originalPowerCapability": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#powerFade": "3.1"
+      },
+      {
+        "@id": "_:genid-d0345a18324442e3bf8bce025867b03e-4",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryCycleLifeProperties",
+        "https://ontology.tno.nl/catenax-addition#capacityThroughput": "3.1",
+        "https://ontology.tno.nl/catenax-addition#chargeDischargeCycles": "1",
+        "https://ontology.tno.nl/catenax-addition#energyThroughput": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#expectedLifetime": "3.1"
+      }
+    ],
+    "@context": {
+      "ql": "http://semweb.mmlab.be/ns/ql#",
+      "rml": "http://semweb.mmlab.be/ns/rml#",
+      "rr": "http://www.w3.org/ns/r2rml#"
+    }
+  },
+  {
+    "@graph": [
+      {
+        "@id": "_:genid-70d1b32ecf9d46da8706c40684fcc92e-0",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryPass",
+        "https://ontology.tno.nl/catenax-addition#hasRenewableContentShare": {
+          "@id": "_:genid-70d1b32ecf9d46da8706c40684fcc92e-2"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#cO2FootprintTotal": "1",
+        "https://ontology.tno.nl/catenaxInterpretation#hasBateryPowerProperties": {
+          "@id": "_:genid-70d1b32ecf9d46da8706c40684fcc92e-3"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#hasBatteryCycleLifeProperties": {
+          "@id": "_:genid-70d1b32ecf9d46da8706c40684fcc92e-4"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#hasStateOfBatteryProperties": {
+          "@id": "_:genid-70d1b32ecf9d46da8706c40684fcc92e-1"
+        }
+      },
+      {
+        "@id": "_:genid-70d1b32ecf9d46da8706c40684fcc92e-1",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#StateOfBatteryProperties",
+        "https://ontology.tno.nl/catenaxInterpretation#stateOfHealth": "10000",
+        "https://ontology.tno.nl/catenaxInterpretation#statusBattery": "dc86aa 44b22"
+      },
+      {
+        "@id": "_:genid-70d1b32ecf9d46da8706c40684fcc92e-2",
+        "@type": "https://ontology.tno.nl/catenax-addition#RenewableContentShare",
+        "https://ontology.tno.nl/catenax-addition#recycledMaterialShareAmount": "4.5",
+        "https://ontology.tno.nl/catenax-addition#recycledMaterialShareName": "3dee3d ba2a3"
+      },
+      {
+        "@id": "_:genid-70d1b32ecf9d46da8706c40684fcc92e-3",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryPowerProperties",
+        "https://ontology.tno.nl/catenax-addition#remainingPowerCapability": "4.5",
+        "https://ontology.tno.nl/catenaxInterpretation#originalPowerCapability": "4.5",
+        "https://ontology.tno.nl/catenaxInterpretation#powerFade": "3.144"
+      },
+      {
+        "@id": "_:genid-70d1b32ecf9d46da8706c40684fcc92e-4",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryCycleLifeProperties",
+        "https://ontology.tno.nl/catenax-addition#capacityThroughput": "3.1",
+        "https://ontology.tno.nl/catenax-addition#chargeDischargeCycles": "1",
+        "https://ontology.tno.nl/catenax-addition#energyThroughput": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#expectedLifetime": "3.1"
+      }
+    ],
+    "@context": {
+      "ql": "http://semweb.mmlab.be/ns/ql#",
+      "rml": "http://semweb.mmlab.be/ns/rml#",
+      "rr": "http://www.w3.org/ns/r2rml#"
+    }
+  },
+  {
+    "@graph": [
+      {
+        "@id": "_:genid-38b16499cb8f4e23b7a696fb5eaac03d-0",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryPass",
+        "https://ontology.tno.nl/catenax-addition#hasRenewableContentShare": {
+          "@id": "_:genid-38b16499cb8f4e23b7a696fb5eaac03d-2"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#cO2FootprintTotal": "1",
+        "https://ontology.tno.nl/catenaxInterpretation#hasBateryPowerProperties": {
+          "@id": "_:genid-38b16499cb8f4e23b7a696fb5eaac03d-3"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#hasBatteryCycleLifeProperties": {
+          "@id": "_:genid-38b16499cb8f4e23b7a696fb5eaac03d-4"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#hasStateOfBatteryProperties": {
+          "@id": "_:genid-38b16499cb8f4e23b7a696fb5eaac03d-1"
+        }
+      },
+      {
+        "@id": "_:genid-38b16499cb8f4e23b7a696fb5eaac03d-1",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#StateOfBatteryProperties",
+        "https://ontology.tno.nl/catenaxInterpretation#stateOfHealth": "1",
+        "https://ontology.tno.nl/catenaxInterpretation#statusBattery": "dc86aa 44b22"
+      },
+      {
+        "@id": "_:genid-38b16499cb8f4e23b7a696fb5eaac03d-2",
+        "@type": "https://ontology.tno.nl/catenax-addition#RenewableContentShare",
+        "https://ontology.tno.nl/catenax-addition#recycledMaterialShareAmount": "3.1",
+        "https://ontology.tno.nl/catenax-addition#recycledMaterialShareName": "3dee3d ba2a3"
+      },
+      {
+        "@id": "_:genid-38b16499cb8f4e23b7a696fb5eaac03d-3",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryPowerProperties",
+        "https://ontology.tno.nl/catenax-addition#remainingPowerCapability": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#originalPowerCapability": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#powerFade": "3.1"
+      },
+      {
+        "@id": "_:genid-38b16499cb8f4e23b7a696fb5eaac03d-4",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryCycleLifeProperties",
+        "https://ontology.tno.nl/catenax-addition#capacityThroughput": "3.1",
+        "https://ontology.tno.nl/catenax-addition#chargeDischargeCycles": "1",
+        "https://ontology.tno.nl/catenax-addition#energyThroughput": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#expectedLifetime": "3.1"
+      }
+    ],
+    "@context": {
+      "ql": "http://semweb.mmlab.be/ns/ql#",
+      "rml": "http://semweb.mmlab.be/ns/rml#",
+      "rr": "http://www.w3.org/ns/r2rml#"
+    }
+  },
+  {
+    "@graph": [
+      {
+        "@id": "_:genid-f689647f42fe445fbf13008129ad74aa-0",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryPass",
+        "https://ontology.tno.nl/catenax-addition#hasRenewableContentShare": {
+          "@id": "_:genid-f689647f42fe445fbf13008129ad74aa-2"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#cO2FootprintTotal": "1",
+        "https://ontology.tno.nl/catenaxInterpretation#hasBateryPowerProperties": {
+          "@id": "_:genid-f689647f42fe445fbf13008129ad74aa-3"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#hasBatteryCycleLifeProperties": {
+          "@id": "_:genid-f689647f42fe445fbf13008129ad74aa-4"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#hasStateOfBatteryProperties": {
+          "@id": "_:genid-f689647f42fe445fbf13008129ad74aa-1"
+        }
+      },
+      {
+        "@id": "_:genid-f689647f42fe445fbf13008129ad74aa-1",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#StateOfBatteryProperties",
+        "https://ontology.tno.nl/catenaxInterpretation#stateOfHealth": "1",
+        "https://ontology.tno.nl/catenaxInterpretation#statusBattery": "7c6476 7cfe0"
+      },
+      {
+        "@id": "_:genid-f689647f42fe445fbf13008129ad74aa-2",
+        "@type": "https://ontology.tno.nl/catenax-addition#RenewableContentShare",
+        "https://ontology.tno.nl/catenax-addition#recycledMaterialShareAmount": "3.1",
+        "https://ontology.tno.nl/catenax-addition#recycledMaterialShareName": "8c56dc 89da8"
+      },
+      {
+        "@id": "_:genid-f689647f42fe445fbf13008129ad74aa-3",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryPowerProperties",
+        "https://ontology.tno.nl/catenax-addition#remainingPowerCapability": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#originalPowerCapability": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#powerFade": "3.1"
+      },
+      {
+        "@id": "_:genid-f689647f42fe445fbf13008129ad74aa-4",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryCycleLifeProperties",
+        "https://ontology.tno.nl/catenax-addition#capacityThroughput": "3.1",
+        "https://ontology.tno.nl/catenax-addition#chargeDischargeCycles": "1",
+        "https://ontology.tno.nl/catenax-addition#energyThroughput": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#expectedLifetime": "3.1"
+      }
+    ],
+    "@context": {
+      "ql": "http://semweb.mmlab.be/ns/ql#",
+      "rml": "http://semweb.mmlab.be/ns/rml#",
+      "rr": "http://www.w3.org/ns/r2rml#"
+    }
+  },
+  {
+    "@graph": [
+      {
+        "@id": "_:genid-436a64b916c14e27bef6040968214a60-0",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryPass",
+        "https://ontology.tno.nl/catenax-addition#hasRenewableContentShare": {
+          "@id": "_:genid-436a64b916c14e27bef6040968214a60-2"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#cO2FootprintTotal": "1",
+        "https://ontology.tno.nl/catenaxInterpretation#hasBateryPowerProperties": {
+          "@id": "_:genid-436a64b916c14e27bef6040968214a60-3"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#hasBatteryCycleLifeProperties": {
+          "@id": "_:genid-436a64b916c14e27bef6040968214a60-4"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#hasStateOfBatteryProperties": {
+          "@id": "_:genid-436a64b916c14e27bef6040968214a60-1"
+        }
+      },
+      {
+        "@id": "_:genid-436a64b916c14e27bef6040968214a60-1",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#StateOfBatteryProperties",
+        "https://ontology.tno.nl/catenaxInterpretation#stateOfHealth": "1",
+        "https://ontology.tno.nl/catenaxInterpretation#statusBattery": "40229f e743c"
+      },
+      {
+        "@id": "_:genid-436a64b916c14e27bef6040968214a60-2",
+        "@type": "https://ontology.tno.nl/catenax-addition#RenewableContentShare",
+        "https://ontology.tno.nl/catenax-addition#recycledMaterialShareAmount": "3.1",
+        "https://ontology.tno.nl/catenax-addition#recycledMaterialShareName": "f2ac2b 10790"
+      },
+      {
+        "@id": "_:genid-436a64b916c14e27bef6040968214a60-3",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryPowerProperties",
+        "https://ontology.tno.nl/catenax-addition#remainingPowerCapability": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#originalPowerCapability": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#powerFade": "3.1"
+      },
+      {
+        "@id": "_:genid-436a64b916c14e27bef6040968214a60-4",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryCycleLifeProperties",
+        "https://ontology.tno.nl/catenax-addition#capacityThroughput": "3.1",
+        "https://ontology.tno.nl/catenax-addition#chargeDischargeCycles": "1",
+        "https://ontology.tno.nl/catenax-addition#energyThroughput": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#expectedLifetime": "3.1"
+      }
+    ],
+    "@context": {
+      "ql": "http://semweb.mmlab.be/ns/ql#",
+      "rml": "http://semweb.mmlab.be/ns/rml#",
+      "rr": "http://www.w3.org/ns/r2rml#"
+    }
+  },
+  {
+    "@id": "_:genid-bb7d34f8023346fcbe36c90b291282a6-0",
+    "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryPass",
+    "https://ontology.tno.nl/catenaxInterpretation#cO2FootprintTotal": "15000",
+    "@context": {
+      "ql": "http://semweb.mmlab.be/ns/ql#",
+      "rml": "http://semweb.mmlab.be/ns/rml#",
+      "rr": "http://www.w3.org/ns/r2rml#"
+    }
+  },
+  {
+    "@graph": [
+      {
+        "@id": "_:genid-c131a5a625414402844cbb26df750849-0",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryPass",
+        "https://ontology.tno.nl/catenax-addition#hasRenewableContentShare": {
+          "@id": "_:genid-c131a5a625414402844cbb26df750849-2"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#cO2FootprintTotal": "1",
+        "https://ontology.tno.nl/catenaxInterpretation#hasBateryPowerProperties": {
+          "@id": "_:genid-c131a5a625414402844cbb26df750849-3"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#hasBatteryCycleLifeProperties": {
+          "@id": "_:genid-c131a5a625414402844cbb26df750849-4"
+        },
+        "https://ontology.tno.nl/catenaxInterpretation#hasStateOfBatteryProperties": {
+          "@id": "_:genid-c131a5a625414402844cbb26df750849-1"
+        }
+      },
+      {
+        "@id": "_:genid-c131a5a625414402844cbb26df750849-1",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#StateOfBatteryProperties",
+        "https://ontology.tno.nl/catenaxInterpretation#stateOfHealth": "1",
+        "https://ontology.tno.nl/catenaxInterpretation#statusBattery": "7c742b 2a767"
+      },
+      {
+        "@id": "_:genid-c131a5a625414402844cbb26df750849-2",
+        "@type": "https://ontology.tno.nl/catenax-addition#RenewableContentShare",
+        "https://ontology.tno.nl/catenax-addition#recycledMaterialShareAmount": "3.1",
+        "https://ontology.tno.nl/catenax-addition#recycledMaterialShareName": "0b2a44 f2e93"
+      },
+      {
+        "@id": "_:genid-c131a5a625414402844cbb26df750849-3",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryPowerProperties",
+        "https://ontology.tno.nl/catenax-addition#remainingPowerCapability": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#originalPowerCapability": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#powerFade": "3.1"
+      },
+      {
+        "@id": "_:genid-c131a5a625414402844cbb26df750849-4",
+        "@type": "https://ontology.tno.nl/catenaxInterpretation#BatteryCycleLifeProperties",
+        "https://ontology.tno.nl/catenax-addition#capacityThroughput": "3.1",
+        "https://ontology.tno.nl/catenax-addition#chargeDischargeCycles": "1",
+        "https://ontology.tno.nl/catenax-addition#energyThroughput": "3.1",
+        "https://ontology.tno.nl/catenaxInterpretation#expectedLifetime": "3.1"
+      }
+    ],
+    "@context": {
+      "ql": "http://semweb.mmlab.be/ns/ql#",
+      "rml": "http://semweb.mmlab.be/ns/rml#",
+      "rr": "http://www.w3.org/ns/r2rml#"
+    }
+  }
+]
