@@ -49,8 +49,9 @@ crashlytics-build.properties
 # docs related
 docs/virtualenv/
 
-# if you use the installQuasar task
+# if you use the installQuasar task. But keep lib in gui
 lib
+!gui/src/lib
 
 # sensorlab logs
 logs/sensorlabLogs/
