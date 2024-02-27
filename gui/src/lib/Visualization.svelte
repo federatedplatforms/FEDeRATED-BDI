@@ -17,6 +17,14 @@
     $: console.log("data", $data);
 </script>
 
-{#each $data as node}
-    <NodePanel {node} />
-{/each}
+<div class="node-container">
+    {#each $data as node}
+        <NodePanel {node} />
+    {/each}
+</div>
+
+<style>
+    .node-container {
+        margin: 20px;
+    }
+</style>
