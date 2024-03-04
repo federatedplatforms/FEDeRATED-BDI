@@ -51,7 +51,7 @@ docs/virtualenv/
 
 # if you use the installQuasar task. But keep lib in gui
 lib
-!gui/src/lib
+!gui/frontend/src/lib
 
 # sensorlab logs
 logs/sensorlabLogs/
