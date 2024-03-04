@@ -37,6 +37,7 @@
         padding: 5px;
         border-radius: 3px;
         cursor: pointer;
+        margin-left: 20px;
     }
     .menu-bar button:hover {
         background-color: #c8e5ff;

@@ -23,10 +23,12 @@ import { convertToConnectedObjects } from "$lib/util/jsonUtil.js";
 // })
 
 const data = writable([])
+const isLoading = writable(false)
 
 const selectedEndpoint = writable({ label: "Codognotto", url: "https://fenix-codognotto.azurewebsites.net/api/GetOrderEvent/90/2023/192" })
 
 export {
     data,
+    isLoading,
     selectedEndpoint
 }
