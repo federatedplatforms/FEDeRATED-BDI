@@ -1,0 +1,8 @@
+version: "2.2"
+services:
+  api:
+    # entry point from gui to BDI endpoints
+    build: ./api
+    container_name: api
+    ports:
+      - 5432:80
