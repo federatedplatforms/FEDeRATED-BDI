@@ -17,7 +17,7 @@ data class SimpleEventState(val eventUUID: String, val eventType: String, val ev
 
 fun EventState.toSimpleEventState() = SimpleEventState(this.linearId.externalId.toString(), this.eventType, this.event)
 
-data class StatePlusMeta(val txId: String, val recordedTime: Instant, val participants: List<CordaX500Name?>, val notary: CordaX500Name, val status: Vault.StateStatus, val data: Any)
+data class StatePlusMeta(val id: String, val recordedTime: Instant, val participants: List<CordaX500Name?>, val notary: CordaX500Name, val status: Vault.StateStatus, val data: Any)
 
 fun ContractState.mapContractState(): Any {
     return when(this.javaClass) {
