@@ -160,6 +160,7 @@ In case of any validation errors a HTTP BAD_REQUEST (400) response will be gener
 ```bash
 curl -X 'POST' \
   'http://localhost:10050/events' \
+  -H "Authorization: Basic YXBpdXNlcjphcGlwd2Q="
   -H 'accept: */*' \
   -H 'Event-Type: federated.events.load-event.v1' \
   -H 'Content-Type: application/json' \

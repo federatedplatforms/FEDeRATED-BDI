@@ -29,50 +29,16 @@
                     <td th:text="${version}"></td>
                 </tr>
                 <tr>
-                    <td>Open API specification / Swagger UI</td>
+                    <td>OpenAPI specification</td>
+                    <td><a href="./v3/api-docs">/v3/api-docs</a></td>
+                </tr>
+                <tr>
+                    <td>Swagger UI</td>
                     <td><a href="./swagger-ui/index.html">/swagger-ui/index.html</a></td>
                 </tr>
-                </tbody>
-            </table>
-
-            <h3>Events viewer</h3>
-            <p>Go to the following page to view all the events</p>
-            <table class="table table-striped table-responsive-md">
-                <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>URL</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Events Viewer</td>
+                    <td>Event viewer</td>
                     <td><a href="./index.html">/index.html</a></td>
-                </tr>
-                </tbody>
-            </table>
-
-            <h3>Documentation</h3>
-            <p>Documentation for this FEDeRATED node is available on github.com, please follow the links below for more details.</p>
-            <table class="table table-striped table-responsive-md">
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>URL</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Technical documentation</td>
-                    <td><a href="https://github.com/TNO/FEDeRATED-BDI/tree/main/docs">https://github.com/TNO/FEDeRATED-BDI/tree/main/docs</a></td>
-                </tr>
-                <tr>
-                    <td>Source code</td>
-                    <td><a href="https://github.com/TNO/FEDeRATED-BDI/">https://github.com/TNO/FEDeRATED-BDI/</a></td>
-                </tr>
-                <tr>
-                    <td>Kubernetes installation / Helm charts</td>
-                    <td><a href="https://github.com/Federated-BDI/Kubernetes-BDI-Node">https://github.com/Federated-BDI/Kubernetes-BDI-Node</a></td>
                 </tr>
                 </tbody>
             </table>
@@ -116,23 +82,6 @@
                 </tbody>
             </table>
 
-            <h3>GraphDB</h3>
-            <p>The <a href="./swagger-ui/index.html#/sparql-controller/sparql">/sparql</a> endpoint allows for execution of SPARQL against the configured GraphDB SPARQL endpoint below.</p>
-            <table class="table table-striped table-responsive-md">
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Value</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>SPARQL URL</td>
-                    <td><a th:href="${graphdbSparqlUrl}" th:text="${graphdbSparqlUrl}"></a></td>
-                </tr>
-                </tbody>
-            </table>
-
             <h3>Event Distribution</h3>
             <p>Event distribution rules are configurable. The default rule is to distribute events to all peers in the network. The following distribution rules are configured:</p>
             <table class="table table-striped table-responsive-md">
@@ -146,6 +95,23 @@
                 <tr>
                     <td>Event distribution rule(s)</td>
                     <td th:text="${eventDistributionRules}"></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <h3>GraphDB</h3>
+            <p>The <a href="./swagger-ui/index.html#/sparql-controller/sparql">/sparql</a> endpoint allows for execution of SPARQL against the configured GraphDB SPARQL endpoint below.</p>
+            <table class="table table-striped table-responsive-md">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>SPARQL URL</td>
+                    <td><a th:href="${graphdbSparqlUrl}" th:text="${graphdbSparqlUrl}"></a></td>
                 </tr>
                 </tbody>
             </table>
@@ -170,7 +136,33 @@
                 </tr>
                 </tbody>
             </table>
+
+            <h3>Documentation</h3>
+            <p>Documentation for this FEDeRATED node is available on github.com, please follow the links below for more details.</p>
+            <table class="table table-striped table-responsive-md">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>URL</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Technical documentation</td>
+                    <td><a href="https://github.com/TNO/FEDeRATED-BDI/tree/main/docs">https://github.com/TNO/FEDeRATED-BDI/tree/main/docs</a></td>
+                </tr>
+                <tr>
+                    <td>Source code</td>
+                    <td><a href="https://github.com/TNO/FEDeRATED-BDI/">https://github.com/TNO/FEDeRATED-BDI/</a></td>
+                </tr>
+                <tr>
+                    <td>Kubernetes installation / Helm charts</td>
+                    <td><a href="https://github.com/Federated-BDI/Kubernetes-BDI-Node">https://github.com/Federated-BDI/Kubernetes-BDI-Node</a></td>
+                </tr>
+                </tbody>
+            </table>
         </div>
+
     </div>
     <div class="footer"><p>FEDeRATED Node Version: <i th:text="${version}"></i></p></div>
 </div>

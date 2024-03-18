@@ -29,7 +29,7 @@ const val EVENT_TYPE_HEADER = "Event-Type"
 const val EVENT_DESTINATION_HEADER = "Event-Destinations"
 
 @RestController
-@RequestMapping("/events")
+@RequestMapping("/api/events")
 @Tag(name = "EventsController", description = "Allows for creation, distribution and retrieval of events. See the /event-types endpoint for all supported event types by this node.")
 class EventsController(
     private val eventService: EventService,

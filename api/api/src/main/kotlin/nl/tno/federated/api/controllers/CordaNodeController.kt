@@ -29,7 +29,7 @@ data class CordaNodeInfo(val names: List<CordaX500Name>, val addresses: List<Net
  * Do not expose these endpoints to the outside world without implementing security.
  */
 @RestController
-@RequestMapping("/corda", produces = [MediaType.APPLICATION_JSON_VALUE])
+@RequestMapping("/api/corda", produces = [MediaType.APPLICATION_JSON_VALUE])
 @Tag(name = "CordaNodeController", description = "Corda network and node details")
 class CordaNodeController(private val rpc: NodeRPCConnection) {
 
