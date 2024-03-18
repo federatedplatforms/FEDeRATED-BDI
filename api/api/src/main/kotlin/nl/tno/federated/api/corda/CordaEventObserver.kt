@@ -16,12 +16,17 @@ class CordaEventObserver(private val eventQueryService: CordaEventQueryService, 
 
     @Scheduled(fixedDelay = 10_000, initialDelay = 5_000)
     fun observe() {
-        log.info("Retrieving events for publication...")
-        val findAll = eventQueryService.findAll(1, 100)
-        log.info("{} events available for publication...", findAll.size)
-        findAll.forEach {
-            log.info("Publishing event...")
-            applicationEventPublisher.publishEvent(GenericEvent(it.eventType, it.eventData))
+        try {
+            log.info("Retrieving events for publication...")
+            val findAll = eventQueryService.findAll(1, 100)
+            log.info("{} events available for publication...", findAll.size)
+            findAll.forEach {
+                log.info("Publishing event...")
+                applicationEventPublisher.publishEvent(GenericEvent(it.eventType, it.eventData))
+            }
+        }
+        catch (e: Exception) {
+            log.warn("Failed to fetch events for publication: {}", e.message)
         }
     }
 }
