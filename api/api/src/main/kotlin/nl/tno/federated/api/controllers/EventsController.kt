@@ -62,7 +62,7 @@ class EventsController(
         val destinations: Set<String>? = eventDestinationsToSet(eventDestinations)
         val enrichedEvent = eventService.newJsonEvent(event, type, destinations)
         log.info("New event created with UUID: {}", enrichedEvent.eventUUID)
-        return ResponseEntity.created(URI("/events/${enrichedEvent.eventUUID}")).build()
+        return ResponseEntity.created(URI("/api/events/${enrichedEvent.eventUUID}")).build()
     }
 
     @PostMapping(path = ["/query"], produces = [MediaType.APPLICATION_JSON_VALUE])
