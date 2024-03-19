@@ -175,7 +175,7 @@ curl -X 'POST' \
   'http://localhost:10050/events' \
   -H 'accept: */*' \
   -H 'Event-Type: federated.events.load-event.v1' \
-  -H 'Event-Destinations: ORGANISATION/LOCALITY/COUNTRY' \
+  -H 'Event-Destinations: O=ORGANISATION,L=LOCALITY,C=COUNTRY' \
   -H 'Content-Type: application/json' \
   -d '{ "event" : "data" }'
 ```
