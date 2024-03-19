@@ -1,5 +1,6 @@
 package nl.tno.federated.api.webhook
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.slf4j.LoggerFactory
 import org.springframework.context.event.EventListener
 import org.springframework.http.HttpStatusCode
@@ -9,7 +10,7 @@ import org.springframework.web.client.RestClient
 import java.net.URI
 import java.util.concurrent.ConcurrentHashMap
 
-data class GenericEvent<T>(val eventType: String, val eventData: T, val eventUUID: String)
+data class GenericEvent<T>(val eventType: String, @JsonIgnore val eventData: T, val eventUUID: String)
 
 @Service
 class WebhookService {
@@ -44,7 +45,7 @@ class WebhookService {
                 .headers {
                     it.location = URI("/api/events/${event.eventUUID}")
                 }
-                .body(event.eventData ?: "")
+                .body(event)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError) { _, response ->
                     log.warn("Sending event to callback: ${webhook.callbackURL} failed with ${response.statusCode}")
