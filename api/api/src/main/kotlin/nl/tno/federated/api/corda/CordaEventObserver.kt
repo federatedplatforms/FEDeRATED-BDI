@@ -20,7 +20,7 @@ class CordaEventObserver(private val eventQueryService: CordaEventQueryService, 
             log.info("{} events available for publication...", findAll.size)
             findAll.forEach {
                 log.info("Publishing event...")
-                applicationEventPublisher.publishEvent(GenericEvent(it.eventType, it.eventData))
+                applicationEventPublisher.publishEvent(GenericEvent(it.eventType, it.eventData, it.eventUUID))
             }
         }
         catch (e: Exception) {

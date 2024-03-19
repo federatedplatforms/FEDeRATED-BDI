@@ -31,10 +31,8 @@ class EventTypeMapping(val config: EventTypeMappingConfig) {
         return config.types.find { it.eventType == contentType }?.toEventType()
     }
 
-    fun getEventTypes(): Map<String, EventType> {
-        return config.types.associate {
-            it.eventType to it.toEventType()
-        }
+    fun getEventTypes(): List<EventTypeMappingConfig.Type> {
+        return config.types
     }
 
     fun readShacl(eventType: EventType) = if (eventType.shacl != null) {

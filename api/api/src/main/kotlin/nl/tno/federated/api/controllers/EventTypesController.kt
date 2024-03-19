@@ -16,12 +16,12 @@ class EventTypesController(private val eventTypeMapping: EventTypeMapping) {
     fun getEventTypes() = eventTypeMapping.getEventTypes()
 
     @GetMapping("/{type}/shacl", produces = ["text/turtle"])
-    fun getShacl(@PathVariable type: String) = eventTypeMapping.getEventTypes()[type]?.let {
-        eventTypeMapping.readShacl(it)
+    fun getShacl(@PathVariable type: String) = eventTypeMapping.getEventTypes().firstOrNull {it.eventType == type}?.let {
+        eventTypeMapping.readShacl(it.toEventType())
     }
 
     @GetMapping("/{type}/rml", produces = ["text/turtle"])
-    fun getRml(@PathVariable type: String) = eventTypeMapping.getEventTypes()[type]?.let {
-        eventTypeMapping.readRml(it)
+    fun getRml(@PathVariable type: String) = eventTypeMapping.getEventTypes().firstOrNull {it.eventType == type}?.let {
+        eventTypeMapping.readRml(it.toEventType())
     }
 }

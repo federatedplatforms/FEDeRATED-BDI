@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RestController
 class WebhookController(private val webhookService: WebhookService) {
 
     @GetMapping
-    fun getWebhooks(): List<WebHookRegistration> {
+    fun getWebhooks(): List<Webhook> {
         return webhookService.getWebhooks()
     }
 
     @PostMapping
-    fun registerWebhook(@RequestBody(required = true) registration: WebHookRegistration): WebHookRegistration {
+    fun registerWebhook(@RequestBody(required = true) registration: Webhook): Webhook {
         webhookService.register(registration)
         return registration
     }

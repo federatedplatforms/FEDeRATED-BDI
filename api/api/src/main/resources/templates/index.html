@@ -99,6 +99,23 @@
                 </tbody>
             </table>
 
+            <h3>Registered Webhooks</h3>
+            <p>The following Webhooks have been registered</p>
+            <table class="table table-striped table-responsive-md">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Webhooks</td>
+                    <td th:text="${webhooks}"></td>
+                </tr>
+                </tbody>
+            </table>
+
             <h3>GraphDB</h3>
             <p>The <a href="./swagger-ui/index.html#/sparql-controller/sparql">/sparql</a> endpoint allows for execution of SPARQL against the configured GraphDB SPARQL endpoint below.</p>
             <table class="table table-striped table-responsive-md">

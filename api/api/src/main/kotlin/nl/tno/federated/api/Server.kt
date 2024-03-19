@@ -21,8 +21,6 @@ import org.springframework.scheduling.annotation.EnableScheduling
 @SpringBootApplication(scanBasePackages = ["nl.tno.federated.api"])
 class Server {
 
-
-
     @Bean(name = ["applicationEventMulticaster"])
     fun simpleApplicationEventMulticaster(): ApplicationEventMulticaster {
         val eventMulticaster = SimpleApplicationEventMulticaster()
