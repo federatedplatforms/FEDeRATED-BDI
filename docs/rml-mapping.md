@@ -15,13 +15,11 @@ The configuration of the events, their RMl and optional SHACL can be found in th
 
 ```properties
 bdi.federated.event.types[0].eventType=federated.events.arrival-event.v1
-bdi.federated.event.types[0].name=ArrivalEvent
 bdi.federated.event.types[0].rml=classpath:rml/EventMapping.ttl
 # SHACL is optional and not specified for this event
 # bdi.federated.event.types[0].shacl=classpath:shacl/ArrivalEvent.ttl
 
 bdi.federated.event.types[1].eventType=federated.events.load-event.v1
-bdi.federated.event.types[1].name=LoadEvent
 bdi.federated.event.types[1].rml=classpath:rml/EventMapping.ttl
 bdi.federated.event.types[1].shacl=classpath:shacl/LoadEvent.ttl
 ```
