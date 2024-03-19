@@ -101,8 +101,8 @@ An example configuration of static distribution:
 # Comma separated list of rules, rules defined here are executed in the order specified
 bdi.event.distribution.rules.list=static
 
-# Comma separated list of static destinations, all events will be sent to the locations specified here (format: ORGANISATION/LOCALITY/COUNTRY).
-bdi.event.distribution.rules.static.destinations=DCA/Schiphol/NL
+# Comma separated list of static destinations, all events will be sent to the locations specified here (format: O=ORGANISATION,L=LOCALITY,C=COUNTRY).
+bdi.event.distribution.rules.static.destinations=O=DCA,L=Schiphol,C=NL
 ```
 
 ### Broadcast
