@@ -1,12 +1,25 @@
 # Security
 
-## API security consideration
+## FEDeRATED node security consideration
 
-The FEDeRATED Node API endpoints are out of the box not secured, however we strongly recommend to secure the API endpoints
-using transport layer security and an authentication and/or authorisation mechanism for the API. 
+FEDeRATED node API endpoints (/api/**) are out of the box secured using (Spring Security)[https://spring.io/projects/spring-security]. Basic authentication is
+implemented for the api endpoints, this is not recommended for production environments! We also strongly recommend to 
+ secure the API endpoints using transport layer security (TLS). Security can be disabled complete in favor of an API 
+gateway or any other existing authentication mechanisms.
 
-Reason for not embedding an authentication and/or authorisation mechanism for the API is because most parties already 
-have existing authentication mechanisms in place like a secure proxy or API gateway.
+In the `application.properties` the following properties can be set to modify the security configuration of a node.
+
+```properties
+# Enable or disable the api security feature, default=true
+bdi.api.security.enabled=true
+# API username, default=api
+bdi.api.security.username=api
+# API password encrypted using bcrypt, default=password
+bdi.api.security.password=$2a$04$QSdb8yrtXowsJMBf/.Nkku/85wceyamR4LPArNCwE264bXtATef8m
+```
+
+API to Corda communication is by default non-secure on the transport
+layer. This can be secured usin TLS. 
 
 ```mermaid
 graph LR

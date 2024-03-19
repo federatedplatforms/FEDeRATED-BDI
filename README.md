@@ -136,7 +136,6 @@ Example configuration:
 
 ```properties
 bdi.federated.event.types[0].eventType=federated.events.load-event.v1
-bdi.federated.event.types[0].name=LoadEvent
 bdi.federated.event.types[0].rml=classpath:rml/EventMapping.ttl
 bdi.federated.event.types[0].shacl=classpath:shacl/LoadEvent.ttl
 ```
@@ -145,7 +144,6 @@ If no SHACL validation is required, one could omit this property.
 
 ```properties
 bdi.federated.event.types[1].eventType=federated.events.arrival-event.v1
-bdi.federated.event.types[1].name=ArrivalEvent
 bdi.federated.event.types[1].rml=classpath:rml/EventMapping.ttl
 ```
 
