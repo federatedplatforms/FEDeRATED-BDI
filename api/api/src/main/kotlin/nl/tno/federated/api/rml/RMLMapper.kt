@@ -9,7 +9,6 @@ import be.ugent.rml.store.RDF4JStore
 import be.ugent.rml.term.NamedNode
 import org.eclipse.rdf4j.rio.RDFFormat
 import org.slf4j.LoggerFactory
-import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.DefaultResourceLoader
 import org.springframework.core.io.Resource
 import org.springframework.core.io.ResourceLoader

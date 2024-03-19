@@ -6,8 +6,6 @@ import net.corda.core.node.services.vault.PageSpecification
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.api.corda.CordaNodeService
 import nl.tno.federated.api.corda.SimpleEventState
-import nl.tno.federated.api.event.DUMMY_DATA_LOAD_EVENT
-import nl.tno.federated.api.event.EventTypeMapping
 import nl.tno.federated.api.event.query.EventQuery
 import nl.tno.federated.api.event.query.EventQueryService
 import org.slf4j.LoggerFactory

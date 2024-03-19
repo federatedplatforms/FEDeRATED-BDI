@@ -67,7 +67,7 @@ class EventService(
         node as ObjectNode
         val uuid = UUID.randomUUID()
         node.put(EVENT_UUID_FIELD, uuid.toString())
-        node.put(EVENT_TYPE_FIELD, eventType.name)
+        node.put(EVENT_TYPE_FIELD, eventType.eventType)
 
         val rdf = eventMapper.toRDFTurtle(jsonNode = node, eventType = eventType)
         return EnrichedEvent(jsonEvent, eventType, uuid, rdf)

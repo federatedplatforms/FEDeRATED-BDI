@@ -1,5 +1,6 @@
 package nl.tno.federated.api
 
+import nl.tno.federated.api.event.EventTypeMappingConfig
 import nl.tno.federated.api.graphdb.GraphDBSPARQLClient
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -15,7 +16,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 /**
  * BDI API Spring Boot application.
  */
-@EnableConfigurationProperties
+@EnableConfigurationProperties(EventTypeMappingConfig::class)
 @EnableScheduling
 @SpringBootApplication(scanBasePackages = ["nl.tno.federated.api"])
 class Server {

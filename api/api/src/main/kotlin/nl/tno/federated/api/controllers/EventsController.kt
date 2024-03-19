@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.net.URI
-import java.util.*
 
 const val EVENT_TYPE_HEADER = "Event-Type"
 const val EVENT_DESTINATION_HEADER = "Event-Destinations"

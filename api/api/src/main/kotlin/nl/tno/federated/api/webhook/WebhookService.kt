@@ -4,11 +4,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.event.EventListener
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType.APPLICATION_JSON
-import org.springframework.http.client.ClientHttpResponse
 import org.springframework.stereotype.Service
-import org.springframework.web.client.ResponseErrorHandler
 import org.springframework.web.client.RestClient
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 
