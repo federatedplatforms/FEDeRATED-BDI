@@ -2,10 +2,7 @@ package nl.tno.federated.corda.contracts
 
 import net.corda.core.contracts.CommandData
 import net.corda.core.contracts.Contract
-import net.corda.core.contracts.requireSingleCommand
-import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
-import nl.tno.federated.states.*
 
 // ************
 // * Contract *
@@ -13,7 +10,7 @@ import nl.tno.federated.states.*
 class EventContract : Contract {
     companion object {
         // Used to identify our contract when building a transaction.
-        const val ID = "nl.tno.federated.contracts.EventContract"
+        val ID = EventContract::class.qualifiedName!!
     }
 
     // A transaction is valid if the verify() function of the contract of all the transaction's input and output states

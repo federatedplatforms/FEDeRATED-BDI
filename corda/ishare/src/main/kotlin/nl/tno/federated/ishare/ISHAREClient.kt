@@ -19,7 +19,6 @@ import nl.tno.federated.ishare.model.token.ISHARETokenRequest
 import nl.tno.federated.ishare.model.token.ISHARETokenResponse
 import nl.tno.federated.ishare.utils.ISHAREHTTPClient
 import nl.tno.federated.ishare.utils.ISHAREPemReaderUtil
-import org.apache.commons.io.IOUtils
 import org.apache.http.NameValuePair
 import org.apache.http.client.entity.UrlEncodedFormEntity
 import org.apache.http.client.methods.HttpGet
@@ -54,7 +53,7 @@ class ISHAREClient(ishareConfigFileName: String = "ishare.properties") {
             val response = ishareHTTPClient.sendRequest(HttpGet("${ishareConfig.schemeURL}/parties?eori=${partyEORI}"), getToken(ishareConfig.schemeURL, ishareConfig.schemeID))
 
             if (response.statusLine.statusCode == 200) {
-                val partiesResponse = mapper.readValue(String(IOUtils.toByteArray(response.entity.content)), PartiesResponse::class.java)
+                val partiesResponse = mapper.readValue(response.entity.content, PartiesResponse::class.java)
                 val decodedToken = decodeJWTToken(partiesResponse.parties_token.replace("/\\s/g", ""))
                 val partiesToken = mapper.readValue(decodedToken.second, PartiesToken::class.java)
                 if (partiesToken.parties_info.data.isNotEmpty()) return "ACTIVE" == partiesToken.parties_info.data[0].adherence.status.toUpperCase()
@@ -224,9 +223,9 @@ class ISHAREClient(ishareConfigFileName: String = "ishare.properties") {
         try {
             logger.info("sending accessToken request to : {} with parameters: {}", url, form)
             val response = ishareHTTPClient.sendRequest(httpPost)
-            val responseString = String(IOUtils.toByteArray(response.entity.content))
+
             if (response.statusLine.statusCode == 200) {
-                accessTokens[url] = mapper.readValue(responseString, ISHAREAccessToken::class.java)
+                accessTokens[url] = mapper.readValue(response.entity.content, ISHAREAccessToken::class.java)
                 logger.info("Access token successfully renewed/acquired for $url")
                 return accessTokens[url]!!
             } else {

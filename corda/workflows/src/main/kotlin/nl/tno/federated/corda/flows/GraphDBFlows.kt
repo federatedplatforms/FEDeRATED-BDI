@@ -5,7 +5,6 @@ import net.corda.core.flows.FlowExternalOperation
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.InitiatingFlow
 import net.corda.core.flows.StartableByRPC
-import nl.tno.federated.corda.services.data.fetcher.DataFetcherCordaService
 import nl.tno.federated.corda.services.graphdb.GraphDBCordaService
 import org.slf4j.LoggerFactory
 

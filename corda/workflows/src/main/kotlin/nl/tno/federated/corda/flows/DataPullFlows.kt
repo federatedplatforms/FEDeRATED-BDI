@@ -15,18 +15,17 @@ import net.corda.core.utilities.ProgressTracker.Step
 import nl.tno.federated.corda.contracts.DataPullContract
 import nl.tno.federated.corda.services.data.fetcher.DataFetcherCordaService
 import nl.tno.federated.corda.services.data.fetcher.dataFetcher
-import nl.tno.federated.corda.flows.IDataPullQueryFlow
 import nl.tno.federated.corda.states.DataPullState
 import org.slf4j.LoggerFactory
 
-@InitiatingFlow
 @StartableByRPC
-class DataPullQueryFlow(
+@InitiatingFlow
+class DataPullFlow(
     val destination: CordaX500Name,
-    val sparql: String
-) : IDataPullQueryFlow() {
+    val query: String
+) : FlowLogic<SignedTransaction>() {
 
-    private val log = LoggerFactory.getLogger(DataPullQueryFlow::class.java)
+    private val log = LoggerFactory.getLogger(DataPullFlow::class.java)
 
     /**
      * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
@@ -75,7 +74,7 @@ class DataPullQueryFlow(
         progressTracker.currentStep = RETRIEVING_COUNTERPARTY_INFO
         val counterParty = findParty()
 
-        val queryState = DataPullState(sparql, null, participants = listOf(counterParty, me!!))
+        val queryState = DataPullState(query, null, participants = listOf(counterParty, me!!))
 
         /////////////
         progressTracker.currentStep = GENERATING_TRANSACTION
@@ -127,7 +126,7 @@ class DataPullQueryFlow(
 }
 
 @InitiatingFlow
-@InitiatedBy(DataPullQueryFlow::class)
+@InitiatedBy(DataPullFlow::class)
 class DataPullQueryResponderFlow(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
 
     companion object {
@@ -227,7 +226,7 @@ class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTran
         // Call [FlowLogic.await] to execute an external operation
         // The result of the operation is returned to the flow
         val result: String = await(
-            RetrieveDataFromExternalSystem(dataFetcher(), input = inputStateWithQuery.sparql)
+            RetrieveDataFromExternalSystem(dataFetcher(), input = inputStateWithQuery.query)
         )
 
         /////////////
@@ -283,7 +282,7 @@ class RespondToQueryFlow(val previousTx: WireTransaction) : FlowLogic<SignedTran
 
         // Implement [execute] which will be run on a thread outside of the flow's context
         override fun execute(deduplicationId: String): String {
-            return dataFetcher.fetch(deduplicationId, input)
+            return dataFetcher.fetch(deduplicationId, input) ?: ""
         }
     }
 }

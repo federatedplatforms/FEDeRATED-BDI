@@ -5,7 +5,6 @@ import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.vaultQueryBy
-import net.corda.core.node.NodeInfo
 import net.corda.core.node.services.Vault
 import net.corda.core.node.services.vault.DEFAULT_PAGE_NUM
 import net.corda.core.node.services.vault.DEFAULT_PAGE_SIZE
@@ -13,11 +12,10 @@ import net.corda.core.node.services.vault.PageSpecification
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.node.services.vault.Sort
 import net.corda.core.node.services.vault.SortAttribute
-import nl.tno.federated.corda.flows.IDataPullQueryFlow
-import nl.tno.federated.corda.flows.INewEventFlow
+import nl.tno.federated.corda.flows.DataPullFlow
+import nl.tno.federated.corda.flows.NewEventFlow
 import nl.tno.federated.corda.states.DataPullState
 import nl.tno.federated.corda.states.EventState
-
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.*
@@ -36,7 +34,7 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
     fun startNewEventFlow(eventUUID: String, event: String, eventType: String, cordaNames: Set<CordaX500Name>): UUID {
         if (cordaNames.isEmpty()) throw NoEventDestinationsAvailableException("No event destinations found to send the event to.")
         val newEventTx = rpc.client().startFlowDynamic(
-            INewEventFlow::class.java,
+            NewEventFlow::class.java,
             cordaNames,
             event,
             eventType,
@@ -55,12 +53,12 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
     }
 
     fun startVaultQueryBy(criteria: QueryCriteria? = null, pagingSpec: PageSpecification = PageSpecification(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE)): List<SimpleEventState> {
-        return rpc.client().vaultQueryPagedAndSortedByRecordedTime<EventState>(pagingSpec, criteria).map { it.toSimpleEventState() }
+        return rpc.client().vaultQueryPagedAndSortedByRecordedTime<EventState>(pagingSpec, criteria).states.map { it.state.data.toSimpleEventState() }
     }
 
     fun startDataPullFlow(query: String, cordaName: CordaX500Name?): UUID {
         val dataPull = rpc.client().startFlowDynamic(
-            IDataPullQueryFlow::class.java,
+            DataPullFlow::class.java,
             cordaName,
             query
         ).returnValue
@@ -81,7 +79,7 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
      *              the first element of the list `participants` in the state.
      */
     fun extractSender(eventId: String): Party? {
-        val criteria = QueryCriteria.LinearStateQueryCriteria(uuid = listOf(UUID.fromString(eventId)))
+        val criteria = QueryCriteria.LinearStateQueryCriteria(externalId = listOf(eventId))
         val eventStateParties = rpc.client().vaultQueryBy<EventState>(criteria).states.single().state.data.participants
 
         val me = rpc.client().nodeInfo().legalIdentities.first()
@@ -107,9 +105,9 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
     }
 }
 
-inline fun <reified T : ContractState> CordaRPCOps.vaultQueryPagedAndSortedByRecordedTime(pageSpec: PageSpecification, queryCriteria: QueryCriteria? = null): List<T> {
+inline fun <reified T : ContractState> CordaRPCOps.vaultQueryPagedAndSortedByRecordedTime(pageSpec: PageSpecification, queryCriteria: QueryCriteria? = null): Vault.Page<T> {
     val sortAttribute = SortAttribute.Standard(Sort.VaultStateAttribute.RECORDED_TIME)
     val sorter = Sort(setOf(Sort.SortColumn(sortAttribute, Sort.Direction.DESC)))
     val criteria = queryCriteria ?: QueryCriteria.VaultQueryCriteria(Vault.StateStatus.ALL)
-    return this.vaultQueryBy<T>(criteria, pageSpec, sorter).states.map { it.state.data }
+    return this.vaultQueryBy<T>(criteria, pageSpec, sorter)
 }

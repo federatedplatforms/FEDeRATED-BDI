@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/distribution-rules", produces = [MediaType.APPLICATION_JSON_VALUE])
+@RequestMapping("/api/distribution-rules", produces = [MediaType.APPLICATION_JSON_VALUE])
 @Tag(name = "DistributionRulesController", description = "Returns info regarding the distribution roles for this node.")
 class DistributionRulesController(private val rules: EventDistributionRuleConfiguration) {
     @GetMapping()

@@ -8,15 +8,34 @@ class CordaEventDestination(destination: CordaX500Name) : EventDestination<Corda
 
     companion object {
         /**
-         * EventDestination format: ORGANISATION/LOCALITY/COUNTRY for example: "DCA/Schiphol/NL"
+         * EventDestination minimal format: O=Cargobase,L=Dusseldorf,C=DE
          */
         fun parse(eventDestination: String): CordaEventDestination {
-            val result = eventDestination.split("/")
-            return when (result.size) {
-                3 -> CordaEventDestination(CordaX500Name(result[0], result[1], result[2]))
-                4 -> CordaEventDestination(CordaX500Name(result[0], result[1], result[2], result[3]))
-                else -> throw InvalidEventDestinationFormat("Invalid format for: ${eventDestination}, expected format: ORGANISATION/LOCALITY/COUNTRY")
+            val pairs = eventDestination.split(",")
+                .map { it.trim() }
+                .associate { it.split("=").let { keyValue -> keyValue[0].uppercase() to keyValue[1] } }
+
+            if (listOf(ORGANISATION, COUNTRY, LOCALITY).any { it !in pairs }) {
+                throw InvalidEventDestinationFormat("Invalid format for: $eventDestination, expected format: O=Cargobase,L=Dusseldorf,C=DE")
             }
+
+            val cordaX500Name = CordaX500Name(
+                pairs[COMMON_NAME],
+                pairs[ORGANISATION_UNIT],
+                pairs[ORGANISATION]!!,
+                pairs[LOCALITY]!!,
+                pairs[STATE],
+                pairs[COUNTRY]!!
+            )
+
+            return CordaEventDestination(cordaX500Name)
         }
+
+        private const val ORGANISATION = "O"
+        private const val ORGANISATION_UNIT = "O"
+        private const val LOCALITY = "L"
+        private const val STATE = "S"
+        private const val COUNTRY = "C"
+        private const val COMMON_NAME = "CN"
     }
 }

@@ -1,3 +1,3 @@
 package nl.tno.federated.api.event.mapper
 
-class EventType(val name: String, val rml: String, val shacl: String?)
+class EventType(val eventType: String, val rml: String, val shacl: String?)

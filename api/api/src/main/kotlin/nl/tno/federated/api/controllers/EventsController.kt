@@ -23,13 +23,12 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.net.URI
-import java.util.*
 
 const val EVENT_TYPE_HEADER = "Event-Type"
 const val EVENT_DESTINATION_HEADER = "Event-Destinations"
 
 @RestController
-@RequestMapping("/events")
+@RequestMapping("/api/events")
 @Tag(name = "EventsController", description = "Allows for creation, distribution and retrieval of events. See the /event-types endpoint for all supported event types by this node.")
 class EventsController(
     private val eventService: EventService,
@@ -55,7 +54,7 @@ class EventsController(
         return ResponseEntity.ok().body(eventService.findAll(page, size))
     }
 
-    @Operation(summary = "Create a new event and distribute to peers according to the distribution rules. The Event-Type header specifies the Event type e.g: federated.events.load-event.v1. See the /event-types endpoint for all supported event types by this node.")
+    @Operation(summary = "Create a new event and distribute to peers according to the distribution rules. The Event-Type header specifies the Event type e.g: federated.events.load-event.v1. See the /event-types endpoint for all supported event types by this node. Event-Destinations header specifies the node names to send the even to. Node names can be separated with a semi-colon (;). An example: O=Cargobase,L=Dusseldorf,C=DE")
     @PostMapping(path = [""], consumes = [APPLICATION_JSON_VALUE], produces = [APPLICATION_JSON_VALUE])
     fun postEvent(@RequestBody event: String, @RequestHeader(EVENT_TYPE_HEADER) eventType: String, @RequestHeader(name = EVENT_DESTINATION_HEADER, required = false) eventDestinations: String?): ResponseEntity<Void> {
         log.info("Received new event: {}", event)
@@ -63,7 +62,7 @@ class EventsController(
         val destinations: Set<String>? = eventDestinationsToSet(eventDestinations)
         val enrichedEvent = eventService.newJsonEvent(event, type, destinations)
         log.info("New event created with UUID: {}", enrichedEvent.eventUUID)
-        return ResponseEntity.created(URI("/events/${enrichedEvent.eventUUID}")).build()
+        return ResponseEntity.created(URI("/api/events/${enrichedEvent.eventUUID}")).build()
     }
 
     @PostMapping(path = ["/query"], produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -93,7 +92,7 @@ class EventsController(
     }
 
     private fun eventDestinationsToSet(eventDestinations: String?): Set<String>? {
-        return eventDestinations?.split(",")?.toSet()
+        return eventDestinations?.split(";")?.toSet()
     }
 
     private fun contentTypeToEventType(contentType: String): EventType {

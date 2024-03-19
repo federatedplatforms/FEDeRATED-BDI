@@ -44,11 +44,11 @@ class EventControllerTest {
         }
 
         val jsonString = String(ClassPathResource("test-data/LoadEvent.json").inputStream.readBytes())
-        val response = testRestTemplate.postForEntity("/events", HttpEntity(jsonString, headers), String::class.java)
+        val response = testRestTemplate.postForEntity("/api/events", HttpEntity(jsonString, headers), String::class.java)
 
         assertNotNull(response)
         assertEquals(HttpStatus.CREATED, response.statusCode)
-        assertTrue(response.headers.location!!.toString().startsWith("/events/"))
+        assertTrue(response.headers.location!!.toString().startsWith("/api/events/"))
     }
 
     /**
@@ -57,7 +57,7 @@ class EventControllerTest {
     @Test
     fun testEventEventWithProvidedDestinations() {
         val eventContentType = "federated.events.load-event.v1"
-        val eventDestinations = "DCA/Apeldoorn/NL,DCA/Utrecht/NL"
+        val eventDestinations = "O=DCA,L=Apeldoorn,C=NL;O=DCA,L=Utrecht,C=NL"
 
         val headers = HttpHeaders().apply {
             set(ACCEPT, APPLICATION_JSON_VALUE);
@@ -67,11 +67,11 @@ class EventControllerTest {
         }
 
         val jsonString = String(ClassPathResource("test-data/LoadEvent.json").inputStream.readBytes())
-        val response = testRestTemplate.postForEntity("/events", HttpEntity(jsonString, headers), String::class.java)
+        val response = testRestTemplate.postForEntity("/api/events", HttpEntity(jsonString, headers), String::class.java)
 
         assertNotNull(response)
         assertEquals(HttpStatus.CREATED, response.statusCode)
-        assertTrue(response.headers.location!!.toString().startsWith("/events/"))
+        assertTrue(response.headers.location!!.toString().startsWith("/api/events/"))
     }
 
 
@@ -89,11 +89,11 @@ class EventControllerTest {
         }
 
         val jsonString = String(ClassPathResource("test-data/ArrivalEvent.json").inputStream.readBytes())
-        val response = testRestTemplate.postForEntity("/events", HttpEntity(jsonString, headers), String::class.java)
+        val response = testRestTemplate.postForEntity("/api/events", HttpEntity(jsonString, headers), String::class.java)
 
         assertNotNull(response)
         assertEquals(HttpStatus.CREATED, response.statusCode)
-        assertTrue(response.headers.location!!.toString().startsWith("/events/"))
+        assertTrue(response.headers.location!!.toString().startsWith("/api/events/"))
     }
 
 
@@ -110,7 +110,7 @@ class EventControllerTest {
         }
 
         val jsonString = String(ClassPathResource("test-data/ArrivalEvent.json").inputStream.readBytes())
-        val response = testRestTemplate.postForEntity("/events/validate", HttpEntity(jsonString, headers), String::class.java)
+        val response = testRestTemplate.postForEntity("/api/events/validate", HttpEntity(jsonString, headers), String::class.java)
 
         println(response.body)
 

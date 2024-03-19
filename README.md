@@ -101,8 +101,8 @@ An example configuration of static distribution:
 # Comma separated list of rules, rules defined here are executed in the order specified
 bdi.event.distribution.rules.list=static
 
-# Comma separated list of static destinations, all events will be sent to the locations specified here (format: ORGANISATION/LOCALITY/COUNTRY).
-bdi.event.distribution.rules.static.destinations=DCA/Schiphol/NL
+# Comma separated list of static destinations, all events will be sent to the locations specified here (format: O=ORGANISATION,L=LOCALITY,C=COUNTRY).
+bdi.event.distribution.rules.static.destinations=O=DCA,L=Schiphol,C=NL
 ```
 
 ### Broadcast
@@ -136,7 +136,6 @@ Example configuration:
 
 ```properties
 bdi.federated.event.types[0].eventType=federated.events.load-event.v1
-bdi.federated.event.types[0].name=LoadEvent
 bdi.federated.event.types[0].rml=classpath:rml/EventMapping.ttl
 bdi.federated.event.types[0].shacl=classpath:shacl/LoadEvent.ttl
 ```
@@ -145,7 +144,6 @@ If no SHACL validation is required, one could omit this property.
 
 ```properties
 bdi.federated.event.types[1].eventType=federated.events.arrival-event.v1
-bdi.federated.event.types[1].name=ArrivalEvent
 bdi.federated.event.types[1].rml=classpath:rml/EventMapping.ttl
 ```
 
@@ -160,6 +158,7 @@ In case of any validation errors a HTTP BAD_REQUEST (400) response will be gener
 ```bash
 curl -X 'POST' \
   'http://localhost:10050/events' \
+  -H "Authorization: Basic YXBpdXNlcjphcGlwd2Q="
   -H 'accept: */*' \
   -H 'Event-Type: federated.events.load-event.v1' \
   -H 'Content-Type: application/json' \

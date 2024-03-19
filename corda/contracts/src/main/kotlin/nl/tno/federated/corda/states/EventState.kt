@@ -5,7 +5,6 @@ import net.corda.core.contracts.LinearState
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.AbstractParty
 import nl.tno.federated.corda.contracts.EventContract
-import java.util.*
 
 // *********
 // * State *

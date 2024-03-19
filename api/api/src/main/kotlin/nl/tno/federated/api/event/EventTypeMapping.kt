@@ -3,26 +3,21 @@ package nl.tno.federated.api.event
 import nl.tno.federated.api.event.mapper.EventType
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.DefaultResourceLoader
-import org.springframework.core.io.Resource
 import org.springframework.core.io.ResourceLoader
 import org.springframework.stereotype.Component
 import org.springframework.util.FileCopyUtils
 import java.io.InputStreamReader
-import java.lang.Exception
 import java.nio.charset.StandardCharsets.UTF_8
 
-@Configuration
 @ConfigurationProperties(prefix = "bdi.federated.event")
 class EventTypeMappingConfig(val types: List<Type>) {
     class Type {
         lateinit var eventType: String
-        lateinit var name: String
         lateinit var rml: String
         var shacl: String? = null
 
-        fun toEventType() = EventType(name, rml, shacl)
+        fun toEventType() = EventType(eventType, rml, shacl)
     }
 }
 
@@ -36,10 +31,8 @@ class EventTypeMapping(val config: EventTypeMappingConfig) {
         return config.types.find { it.eventType == contentType }?.toEventType()
     }
 
-    fun getEventTypes(): Map<String, EventType> {
-        return config.types.associate {
-            it.eventType to it.toEventType()
-        }
+    fun getEventTypes(): List<EventTypeMappingConfig.Type> {
+        return config.types
     }
 
     fun readShacl(eventType: EventType) = if (eventType.shacl != null) {
