@@ -26,10 +26,10 @@ import org.springframework.stereotype.Component
  */
 @Component
 class NodeRPCConnection(
-    @Value("\${corda.rpc.host}") private val host: String,
-    @Value("\${corda.rpc.username}") private val username: String,
-    @Value("\${corda.rpc.password}") private val password: String,
-    @Value("\${corda.rpc.port}") private val rpcPort: Int
+    @Value("\${federated.node.corda.rpc.host}") private val host: String,
+    @Value("\${federated.node.corda.rpc.username}") private val username: String,
+    @Value("\${federated.node.corda.rpc.password}") private val password: String,
+    @Value("\${federated.node.corda.rpc.port}") private val rpcPort: Int
 ) {
     private val log = LoggerFactory.getLogger(NodeRPCConnection::class.java)
     private var rpcConnection: CordaRPCConnection? = null
