@@ -5,10 +5,12 @@
     font-style: normal
 }
 
-body, a, div, p, span {
-    font-family: "Barlow", "Arial", serif;
+body, div {
     padding: 0;
     margin: 0;
+}
+body, a, div, p, span  {
+    font-family: "Barlow", "Arial", serif;
 }
 
 .header {
