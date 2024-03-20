@@ -32,7 +32,7 @@ app.add_middleware(
 )
 
 
-# get events from BDI endpoint
+# get events from FEDeRATED Node API endpoint
 @app.get("/events")
 def get_events(company: str, year: str, number: str):
     url = f"{FEDERATED_ENDPOINT}/{company}/{year}/{number}"
