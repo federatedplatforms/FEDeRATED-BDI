@@ -10,7 +10,7 @@ import org.springframework.util.FileCopyUtils
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets.UTF_8
 
-@ConfigurationProperties(prefix = "bdi.federated.event")
+@ConfigurationProperties(prefix = "federated.node.event")
 class EventTypeMappingConfig(val types: List<Type>) {
     class Type {
         lateinit var eventType: String

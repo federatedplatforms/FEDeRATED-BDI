@@ -14,7 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 
 
 /**
- * BDI API Spring Boot application.
+ * FEDeRATED Node API Spring Boot application.
  */
 @EnableConfigurationProperties(EventTypeMappingConfig::class)
 @EnableScheduling
@@ -29,7 +29,7 @@ class Server {
     }
 
     @Bean
-    fun graphDBSPARQLClient(environment: Environment) = GraphDBSPARQLClient(environment.getProperty("graphdb.sparql.url")!!)
+    fun graphDBSPARQLClient(environment: Environment) = GraphDBSPARQLClient(environment.getProperty("federated.node.graphdb.sparql.url")!!)
 }
 
 /**

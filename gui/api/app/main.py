@@ -19,7 +19,7 @@ origins = [
     "*",  # for DEV, remove in production
 ]
 
-BDI_ENDPOINT = "https://fenix-codognotto.azurewebsites.net/api/GetOrderEvent"  # refer to docker container that holds ES database
+FEDERATED_ENDPOINT = "https://fenix-codognotto.azurewebsites.net/api/GetOrderEvent"  # refer to docker container that holds ES database
 
 app = FastAPI()
 
@@ -35,6 +35,6 @@ app.add_middleware(
 # get events from BDI endpoint
 @app.get("/events")
 def get_events(company: str, year: str, number: str):
-    url = f"{BDI_ENDPOINT}/{company}/{year}/{number}"
+    url = f"{FEDERATED_ENDPOINT}/{company}/{year}/{number}"
     reply = requests.get(url)
     return json.loads(reply.text)

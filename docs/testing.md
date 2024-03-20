@@ -16,11 +16,11 @@ Corda workflows are working as expected.
 
 A Gitlab CI pipeline definition is included in the root of the project.
 
-## End-to-end testing of the BDI node
+## End-to-end testing of the FEDeRATED Node
 
-As described in this documentation, the BDI node is not a monolithic application that can be run as a stand-alone element. Instead, it is meant to operate in a network composed of nodes (peers) and at least one notary. The single entity of the BDI node is then in turn formed by a set of components that operate together.
+As described in this documentation, the FEDeRATED Node is not a monolithic application that can be run as a stand-alone element. Instead, it is meant to operate in a network composed of nodes (peers) and at least one notary. The single entity of the FEDeRATED Node is then in turn formed by a set of components that operate together.
 
-The features of the BDI node can be tested in a local environment where a minimum set of the components needed are running. In particular, it is needed:
+The features of the FEDeRATED Node can be tested in a local environment where a minimum set of the components needed are running. In particular, it is needed:
   - A network of corda nodes where peers and the notary are known to each other;
   - One entity of GraphDB (every Corda node will see this one instance as its own triple-store database, it is meant only for testing purpose; in a real environment every node would connect to its own GraphDB instance);
   - One running API for each node that requires user interaction;
@@ -30,9 +30,9 @@ You can change the identities of the nodes in the file `corda/cordformation/buil
 
 In the default scenario you will have 3 running nodes (in the Netherlands, Germany and Great Britain) and 1 Notary (in Luxemburg).
 
-We propose the following "journey" to test the BDI main functionalities:
+We propose the following "journey" to test the FEDeRATED Node main functionalities:
   - Data Distribution
-    1. The node in GB posts an event that is planned to happen in the NL (for instance an arrival event). The BDI will understand that such an event is meant for the NL and the distribution algorithm will forward it to the node in the NL. The node in DE will have no knowledge of that event.
+    1. The node in GB posts an event that is planned to happen in the NL (for instance an arrival event). The FEDeRATED Node will understand that such an event is meant for the NL and the distribution algorithm will forward it to the node in the NL. The node in DE will have no knowledge of that event.
     2. The node in GB now posts another event that will take place in DE. As in the previous case, nothing will be shared with the node in NL this time.
   - Data Pull
     1. The node in the NL will perform a SPARQL query on its own database to get info about what to ask for details over;
@@ -82,7 +82,7 @@ You can repeat the previous tryout changing the country and observe that it gets
 
 ### Data Pull - 1 & 2
 
-The general assumption when new data is fed into a node is that it comes from an external system that is configured to first translate data from its own model to the BDI ontology, and then it is also supposed to feed a private GraphDB repository with enriched detailed data that are supposed not to be shared with anyone unless an authority asks for it. We are going to test this scenario but first some more set-up is needed.
+The general assumption when new data is fed into a node is that it comes from an external system that is configured to first translate data from its own model to the FEDeRATED ontology, and then it is also supposed to feed a private GraphDB repository with enriched detailed data that are supposed not to be shared with anyone unless an authority asks for it. We are going to test this scenario but first some more set-up is needed.
 
 In the previous tests we (the user) acted as the system feeding data. Now we can suppose that when we shared the first event, we (the system) also uploaded detailed related data in the private repository of GraphDB. We can simulate this by doing it manually:
 
@@ -114,4 +114,4 @@ Eventually, the Dutch node can inspect the result using the aforementioned UUID 
 /datapull/retrieve/{uuid}
 ```
 
-The previous examples are meant to showcase the main features in their basic form. The BDI can be further developed to increase the complexity of such features – for instance creating a more complex distribution algorithm or a more secure data pull where the receiving node applies some kind of access control policy.
+The previous examples are meant to showcase the main features in their basic form. The FEDeRATED Node can be further developed to increase the complexity of such features – for instance creating a more complex distribution algorithm or a more secure data pull where the receiving node applies some kind of access control policy.

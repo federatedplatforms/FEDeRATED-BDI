@@ -29,7 +29,7 @@ class SecurityConfig {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "bdi.api.security", name = ["enabled"], havingValue = "false")
+    @ConditionalOnProperty(prefix = "federated.node.api.security", name = ["enabled"], havingValue = "false")
     @Throws(Exception::class)
     fun securityFilterChainAllAccess(http: HttpSecurity): SecurityFilterChain {
         http
@@ -46,7 +46,7 @@ class SecurityConfig {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "bdi.api.security", name = ["enabled"], havingValue = "true")
+    @ConditionalOnProperty(prefix = "federated.node.api.security", name = ["enabled"], havingValue = "true")
     @Throws(Exception::class)
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
@@ -75,8 +75,8 @@ class SecurityConfig {
     @Bean
     fun userDetailsService(): UserDetailsService {
         val user: UserDetails =
-            User.withUsername(environment.getProperty("bdi.api.security.username"))
-                .password(environment.getProperty("bdi.api.security.password"))
+            User.withUsername(environment.getProperty("federated.node.api.security.username"))
+                .password(environment.getProperty("federated.node.api.security.password"))
                 .roles("API_USER")
                 .build()
 
@@ -84,11 +84,11 @@ class SecurityConfig {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "bdi.node.cors", name = ["enabled"], havingValue = "true")
+    @ConditionalOnProperty(prefix = "federated.node.cors", name = ["enabled"], havingValue = "true")
     fun corsConfigurer(environment: Environment): WebMvcConfigurer? {
         return object : WebMvcConfigurer {
             override fun addCorsMappings(registry: CorsRegistry) {
-                val allowedOrigins = environment.getProperty("bdi.node.cors.allowed-origins")
+                val allowedOrigins = environment.getProperty("federated.node.cors.allowed-origins")
                 if (!allowedOrigins.isNullOrEmpty()) {
                     registry.addMapping("/**").allowedOrigins(*allowedOrigins.split(",").toTypedArray())
                 }

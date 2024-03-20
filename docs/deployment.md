@@ -1,9 +1,9 @@
-## Deployment of a BDI Node
+## Deployment of a FEDeRATED Node
 
-A BDI node consists of the following components:
+A FEDeRATED Node consists of the following components:
 
 * GraphDB: triple store
-* BDI API: standalone Java application, packaged as an executable jar
+* FEDeRATED Node API: standalone Java application, packaged as an executable jar
 * Corda node: corda + cordapps
 
 ### Corda network
@@ -16,8 +16,8 @@ The cordapps require the presence of at least one Notary in the Corda network.
 
 ```mermaid
 flowchart LR
-    API(BDI API) -- HTTP --> GraphDB
-    API(BDI API) -- RPC --> CORDA(Corda Node)
+    API(FEDeRATED API) -- HTTP --> GraphDB
+    API(FEDeRATED API) -- RPC --> CORDA(Corda Node)
     CORDA -- HTTP --> GraphDB
     subgraph Corda Network
         direction LR
@@ -27,19 +27,19 @@ flowchart LR
 
 #### Containers
 
-The docker based deployment consists of at least 3 containers per BDI node. 
+The docker based deployment consists of at least 3 containers per FEDeRATED Node. 
 
 * 'khaller/graphdb-free:10.0.0' 
   * exposed port: 7200
-* bdi-api
+* federated-node-api
   * exposed port: 10050
 * corda
   * exposed port: 10006
 
 ```mermaid
 flowchart LR
-        bdi-api -- HTTP --> graphdb
-        bdi-api -- RPC --> corda
+        federated-api -- HTTP --> graphdb
+        federated-api -- RPC --> corda
         corda -- HTTP --> graphdb
     
 ```

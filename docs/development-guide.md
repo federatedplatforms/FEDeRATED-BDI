@@ -46,8 +46,7 @@ Building the application will also trigger (unit/integration) test to run.
 ## Running GraphDB
 
 GraphDB is used in the Corda workflows a persistent triple store. This project includes a docker-compose.yml file for running GraphDB. 
-When starting the Docker container for GraphDB two repositories will automatically be intialized, the `bdi` and `private` repositories.
-Next to that the `bdi` repository is initialized with the ontologies and federated SHACL files.
+When starting the Docker container for GraphDB two repositories will automatically be intialized, the `federated` repository.
 
 ## Running the Corda nodes
 
@@ -109,9 +108,9 @@ the other nodes on the network:
 
 You can find out more about the node shell [here](https://docs.corda.net/shell.html).
 
-### Interacting using the BDI API 
+### Interacting using the FEDeRATED Node API 
 
-The API also provides a way of interacting with Corda nodes via HTTP. Please refer to the [api](api.md) docs on how to work with the BDI API. 
+The API also provides a way of interacting with Corda nodes via HTTP. Please refer to the [api](api.md) docs on how to work with the FEDeRATED Node API. 
 
 
 # Credits

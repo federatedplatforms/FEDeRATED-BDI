@@ -99,10 +99,10 @@ An example configuration of static distribution:
 ```properties
 # When there are no rules explicit rules enabled, the broadcast rule will be enabled by default
 # Comma separated list of rules, rules defined here are executed in the order specified
-bdi.event.distribution.rules.list=static
+federated.node.event.distribution.rules.list=static
 
 # Comma separated list of static destinations, all events will be sent to the locations specified here (format: O=ORGANISATION,L=LOCALITY,C=COUNTRY).
-bdi.event.distribution.rules.static.destinations=O=DCA,L=Schiphol,C=NL
+federated.node.event.distribution.rules.static.destinations=O=DCA,L=Schiphol,C=NL
 ```
 
 ### Broadcast
@@ -114,7 +114,7 @@ If not, the events will be distributed to the nodes that are available, but the 
 ```properties
 # When there are no rules explicit rules enabled, the broadcast rule will be enabled by default
 # Comma separated list of rules, rules defined here are executed in the order specified
-bdi.event.distribution.rules.list=broadcast
+federated.node.event.distribution.rules.list=broadcast
 ```
 
 ## API usage
@@ -135,16 +135,16 @@ For each eventType a call to the `/events` endpoint can be made to submit new ev
 Example configuration:
 
 ```properties
-bdi.federated.event.types[0].eventType=federated.events.load-event.v1
-bdi.federated.event.types[0].rml=classpath:rml/EventMapping.ttl
-bdi.federated.event.types[0].shacl=classpath:shacl/LoadEvent.ttl
+federated.node.event.types[0].eventType=federated.events.load-event.v1
+federated.node.event.types[0].rml=classpath:rml/EventMapping.ttl
+federated.node.event.types[0].shacl=classpath:shacl/LoadEvent.ttl
 ```
 
 If no SHACL validation is required, one could omit this property.
 
 ```properties
-bdi.federated.event.types[1].eventType=federated.events.arrival-event.v1
-bdi.federated.event.types[1].rml=classpath:rml/EventMapping.ttl
+federated.node.event.types[1].eventType=federated.events.arrival-event.v1
+federated.node.event.types[1].rml=classpath:rml/EventMapping.ttl
 ```
 
 Both the rml and shacl follow the Spring resource syntax, please refer to the Spring documentation on how to specify resources: https://docs.spring.io/spring-framework/reference/core/resources.html  
@@ -211,7 +211,7 @@ Technical documentation [can be found here](docs/README.md).
 | [api](api/)                           | FEDeRATED API application that exposes endpoints for interacting with the node  | 
 | [corda](corda/)                       | Contains the corda specific functionality (workflows, contracts, cordformation) | 
 | [docs](docs/)                         | Technical documentation                                                         |
-| [graphdb](graphdb/)                   | GraphDB repository configuration for bdi and private repositories               |
+| [graphdb](graphdb/)                   | GraphDB repository configuration for federated node and private repositories    |
 | [http](http/)                         | Example HTTP requests demonstrating how to invoke the API application           |
 | [ishare](ishare/)                     | iSHARE specific integration code                                                | 
 

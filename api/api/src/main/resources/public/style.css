@@ -5,7 +5,7 @@
     font-style: normal
 }
 
-body, a, div {
+body, a, div, p, span {
     font-family: "Barlow", "Arial", serif;
     padding: 0;
     margin: 0;

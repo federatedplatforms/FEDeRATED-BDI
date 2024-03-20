@@ -23,10 +23,10 @@ class IndexController(
 
     @RequestMapping("/")
     fun index(model: Model): String {
-        model.addAttribute("version", environment.getProperty("bdi.node.version"))
-        model.addAttribute("graphdbSparqlUrl", environment.getProperty("graphdb.sparql.url"))
-        model.addAttribute("cordaNmsUrl", environment.getProperty("corda.nms.url"))
-        model.addAttribute("cordaRpcUrl", (environment.getProperty("corda.rpc.host") ?: "localhost") + ":" + environment.getProperty("corda.rpc.port"))
+        model.addAttribute("version", environment.getProperty("federated.node.version"))
+        model.addAttribute("graphdbSparqlUrl", environment.getProperty("federated.node.graphdb.sparql.url"))
+        model.addAttribute("cordaNmsUrl", environment.getProperty("federated.node.corda.nms.url"))
+        model.addAttribute("cordaRpcUrl", (environment.getProperty("federated.node.corda.rpc.host") ?: "localhost") + ":" + environment.getProperty("federated.node.corda.rpc.port"))
         model.addAttribute("eventDistributionRules", getDistributionRules())
         model.addAttribute("identities", getIdentities())
         model.addAttribute("notaries", getNotaries())

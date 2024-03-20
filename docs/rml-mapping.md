@@ -14,14 +14,14 @@ Optionally a SHACL can be specified to verify incoming events.
 The configuration of the events, their RMl and optional SHACL can be found in the application.properties of the API project. An example configuration below:
 
 ```properties
-bdi.federated.event.types[0].eventType=federated.events.arrival-event.v1
-bdi.federated.event.types[0].rml=classpath:rml/EventMapping.ttl
+federated.node.event.types[0].eventType=federated.events.arrival-event.v1
+federated.node.event.types[0].rml=classpath:rml/EventMapping.ttl
 # SHACL is optional and not specified for this event
-# bdi.federated.event.types[0].shacl=classpath:shacl/ArrivalEvent.ttl
+# federated.node.event.types[0].shacl=classpath:shacl/ArrivalEvent.ttl
 
-bdi.federated.event.types[1].eventType=federated.events.load-event.v1
-bdi.federated.event.types[1].rml=classpath:rml/EventMapping.ttl
-bdi.federated.event.types[1].shacl=classpath:shacl/LoadEvent.ttl
+federated.node.event.types[1].eventType=federated.events.load-event.v1
+federated.node.event.types[1].rml=classpath:rml/EventMapping.ttl
+federated.node.event.types[1].shacl=classpath:shacl/LoadEvent.ttl
 ```
 
 The rml and shacl properties follow the Spring Resource definition syntax (see: https://docs.spring.io/spring-framework/reference/core/resources.html).

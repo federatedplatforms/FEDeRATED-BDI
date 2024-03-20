@@ -1,6 +1,6 @@
-# BDI API
+# FEDeRATED Node API
 
-BDI API exposed all the endpoints for interaction with a BDI Node.
+FEDeRATED Node API exposed all the endpoints for interaction with a node.
 
 ## Available endpoints
 
@@ -12,7 +12,7 @@ BDI API exposed all the endpoints for interaction with a BDI Node.
 
 ## API documentation
 
-When the BDI API application is started, the following endpoint will be available for accessing the Swagger API documentation:
+When the FEDeRATED Node API application is started, the following endpoint will be available for accessing the Swagger API documentation:
 
 - http://localhost:10050/swagger-ui.html
 
@@ -20,19 +20,18 @@ In order to start the application first build and run it.
 
 ## Configuration
 
-[application.properties](../api/src/main/resources/application.properties) contains all the configuration properties for the BDI API application. All the properties can be overridden by passing them to the startup command. For more information see: https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.files
+[application.properties](../api/src/main/resources/application.properties) contains all the configuration properties for the FEDeRATED Node API application. All the properties can be overridden by passing them to the startup command. For more information see: https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.files
 
 Important properties are listed in the table below.
 
-| Endpoint           | Description                               | Default value                          |
-|--------------------|-------------------------------------------|----------------------------------------|
-| demo.mode          | Enables dummy responses for demo purposes | false                                  | 
-| corda.rpc.host     | Corda RPC hostname                        | localhost                              |
-| corda.rpc.port     | Corda RPC port                            | 10006                                  |
-| corda.rpc.username | Corda RPC username                        | user1                                  |
-| corda.rpc.password | Corda RPC password                        | vzzuABeCut3jGoJfEp94                   |
-| server.port        | BDI API server port                       | 10050                                  | 
-| graphdb.sparql.url | GraphDB repository SPARQL endpoint URL    | http://localhost:7200/repositories/bdi | 
+| Endpoint                          | Description                               | Default value                                |
+|-----------------------------------|-------------------------------------------|----------------------------------------------|
+| federated.node.corda.rpc.host     | Corda RPC hostname                        | localhost                                    |
+| federated.node.corda.rpc.port     | Corda RPC port                            | 10006                                        |
+| federated.node.corda.rpc.username | Corda RPC username                        | user1                                        |
+| federated.node.corda.rpc.password | Corda RPC password                        | vzzuABeCut3jGoJfEp94                         |
+| federated.node.graphdb.sparql.url | GraphDB repository SPARQL endpoint URL    | http://localhost:7200/repositories/federated | 
+| server.port                       | FEDeRATED Node API server port            | 10050                                        | 
 
 
 ## Build
@@ -61,7 +60,7 @@ INFO  [main] org.springframework.boot.StartupInfoLogger: Started ServerKt in 1.2
 
 To test the application navigate to the Swagger API documentation page (see API documentation). 
 
-The BDI application can be started without any corda node being up and running. 
+The FEDeRATED Node application can be started without any corda node being up and running. 
 In order to be able to successfully test the integration with Corda you need to run one or more corda nodes.
 See the CordaRPC section for more details/
 
@@ -69,11 +68,11 @@ See the CordaRPC section for more details/
  
 ### Kotlin
 
-Code was written in Kotlin and is compatible with Kotlin 1.3
+Code was written in Kotlin and is compatible with Kotlin 1.7/1.3
 
 ### Spring Boot
 
-The BDI application was build using Spring Boot 2.3.12. For more information regarding Spring Boot please refer to the Spring Boot documentation: 
+The FEDeRATED Node application was build using Spring Boot 3.2.*. For more information regarding Spring Boot please refer to the Spring Boot documentation: 
 
 - https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/
 

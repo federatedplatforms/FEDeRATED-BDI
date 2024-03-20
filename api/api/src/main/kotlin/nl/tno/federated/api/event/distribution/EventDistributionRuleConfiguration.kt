@@ -28,7 +28,7 @@ class EventDistributionRuleConfiguration(
     }
 
     private fun setupRules(): List<EventDistributionRule<CordaEventDestination>> {
-        val userDefinedRulesList = environment.getProperty("bdi.event.distribution.rules.list")?.trim()?.split(",")
+        val userDefinedRulesList = environment.getProperty("federated.node.event.distribution.rules.list")?.trim()?.split(",")
         return if (userDefinedRulesList.isNullOrEmpty()) listOf(broadcastEventDistributionRule())
         else mutableListOf<EventDistributionRule<CordaEventDestination>>().apply {
             userDefinedRulesList.forEach {
@@ -57,7 +57,7 @@ class EventDistributionRuleConfiguration(
 
     private fun staticDestinationEventDistributionRule(): StaticDestinationEventDistributionRule {
         val destinations =
-            environment.getProperty("bdi.event.distribution.rules.static.destinations")?.trim()?.split(",") ?: throw EventDistributionRuleConfigurationException("No static destinations defined for static destination rule")
+            environment.getProperty("federated.node.event.distribution.rules.static.destinations")?.trim()?.split(",") ?: throw EventDistributionRuleConfigurationException("No static destinations defined for static destination rule")
         val cordaEventDestinations = destinations.map { CordaEventDestination.parse(it) }.toSet()
         return StaticDestinationEventDistributionRule(cordaEventDestinations)
     }

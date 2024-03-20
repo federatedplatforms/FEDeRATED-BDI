@@ -1,6 +1,6 @@
 # GraphDB
 
-This page contains information about the implementation of GraphDB in the FEDeRATED BDI prototype.
+This page contains information about the implementation of GraphDB in the FEDeRATED Node prototype.
 
 ## Application and motivation
 
@@ -11,12 +11,12 @@ The RDF data model also enables people using RDF to execute computationally inex
 GraphDB is a free triple storage database solution that runs as a web application, from a Docker image. Setting up a repository to host data in GraphDB
 allows for the integration of the verification extension SHACL just from a click of a button.
 
-The FEDeRATED BDI prototype saves event data as RDF in GraphDB, enabling the possibility of querying for events information based on the access rights given
+The FEDeRATED Node prototype saves event data as RDF in GraphDB, enabling the possibility of querying for events information based on the access rights given
 by the uploader of the event data.
 
 ## How to run
 
-To run the GraphDB docker open a terminal window and navigate to the root folder of the FEDeRATED BDI prototype Kotlin project and run the command:
+To run the GraphDB docker open a terminal window and navigate to the root folder of the FEDeRATED Node prototype Kotlin project and run the command:
 ```docker compose up```.
 
 The [docker compose](../docker-compose.yml) file specifies the files loaded into the GraphDB server instance. The FEDeRATED ontology,

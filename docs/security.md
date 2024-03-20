@@ -11,11 +11,11 @@ In the `application.properties` the following properties can be set to modify th
 
 ```properties
 # Enable or disable the api security feature, default=true
-bdi.api.security.enabled=true
+federated.node.api.security.enabled=true
 # API username, default=api
-bdi.api.security.username=api
+federated.node.api.security.username=api
 # API password encrypted using bcrypt, default=password
-bdi.api.security.password=$2a$04$QSdb8yrtXowsJMBf/.Nkku/85wceyamR4LPArNCwE264bXtATef8m
+federated.node.api.security.password=$2a$04$QSdb8yrtXowsJMBf/.Nkku/85wceyamR4LPArNCwE264bXtATef8m
 ```
 
 API to Corda communication is by default non-secure on the transport

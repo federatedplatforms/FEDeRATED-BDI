@@ -1,6 +1,6 @@
-# FEDeRATED BDI prototype technical documentation
+# FEDeRATED Node prototype technical documentation
 
-This document contains the technical documentation for the FEDeRATED BDI prototype.
+This document contains the technical documentation for the FEDeRATED Node prototype.
 
 ## Components
 
@@ -8,8 +8,8 @@ This document contains the technical documentation for the FEDeRATED BDI prototy
 graph TD
     DataPull[Data Pull] -- SPARQL/HTTP --> API
     PublishEvent[New Event] -- JSON --> API
-        subgraph BDI Node
-            subgraph api[BDI API]
+        subgraph FEDeRATED Node
+            subgraph api[FEDeRATED API]
             API(Spring Boot) -- contains --> RMLMapper
             API -- contains --> EventDistribution(Event Distribution Service)
             API -- uses --> CordaRPC[CordaRPC Client]
@@ -23,8 +23,8 @@ graph TD
             end
             subgraph GraphDB
                 subgraph Repositories
-                    GRAPHDB -- HTTP --> BDI(bdi)
-                    BDI -- uses --> SHACL(SHACL)
+                    GRAPHDB -- HTTP --> FEDeRATED(federated)
+                    FEDeRATED -- uses --> SHACL(SHACL)
                 end
             end
         end
@@ -40,7 +40,7 @@ The following documentation is available:
 
 | Component                                 | Description                                               |
 |-------------------------------------------|-----------------------------------------------------------|
-| [API](api.md)                             | BDI API documentation                                     | 
+| [API](api.md)                             | FEDeRATED API documentation                               | 
 | [Corda](corda.md)                         | Corda documentation (workflows, contracts, cordformation) |
 | [Development Guide](development-guide.md) | Development environment setup guide                       |
 | [Deployment](deployment.md)               | Deployment guide                                          |
