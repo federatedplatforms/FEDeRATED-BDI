@@ -10,6 +10,7 @@ import org.springframework.context.event.ApplicationEventMulticaster
 import org.springframework.context.event.SimpleApplicationEventMulticaster
 import org.springframework.core.env.Environment
 import org.springframework.core.task.SimpleAsyncTaskExecutor
+import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories
 import org.springframework.scheduling.annotation.EnableScheduling
 
 
@@ -17,6 +18,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
  * FEDeRATED Node API Spring Boot application.
  */
 @EnableConfigurationProperties(EventTypeMappingConfig::class)
+@EnableJdbcRepositories
 @EnableScheduling
 @SpringBootApplication(scanBasePackages = ["nl.tno.federated.api"])
 class Server {

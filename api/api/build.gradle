@@ -14,6 +14,9 @@ dependencies {
 
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
+    implementation 'com.h2database:h2'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
@@ -67,6 +70,7 @@ tasks.named('compileJava') {
     inputs.files(tasks.named('processResources'))
 }
 
+
 configurations.implementation {
     exclude group: 'nl.tno.federated.corda' , module: 'services'
     exclude group: 'net.corda', module: 'corda'
@@ -80,14 +84,4 @@ springBoot {
 
 tasks.named('test') {
     useJUnitPlatform()
-}
-
-/**
- * This task will start the springboot server that connects to your node (via RPC connection). All of the http requests
- * are in the Controller file. You can leave the Server.kt and NodeRPCConnection.kt file untouched for your use.
- */
-task runTemplateServer(type: JavaExec, dependsOn: assemble) {
-    classpath = sourceSets.main.runtimeClasspath
-    main = 'nl.tno.federated.ServerKt'
-    args '--server.port=10050', '--config.rpc.host=localhost', '--config.rpc.port=10012', '--config.rpc.username=user1', '--config.rpc.password=vzzuABeCut3jGoJfEp94'
 }

@@ -9,7 +9,11 @@ import java.util.concurrent.ConcurrentHashMap
 data class GenericEvent<T>(val eventType: String, @JsonIgnore val eventData: T, val eventUUID: String)
 
 @Service
-class WebhookService(private val webhookHttpClient: WebhookHttpClient) {
+class WebhookService(
+    private val webhookHttpClient: WebhookHttpClient,
+    private val webhookRepository: WebhookRepository
+
+) {
 
     /**
      * This method is being invoked whenever new GenericEvent's are published by the ApplicationEventPublisher
@@ -23,15 +27,17 @@ class WebhookService(private val webhookHttpClient: WebhookHttpClient) {
     }
 
     fun getWebhooks(): List<Webhook> {
-        return webhooks.values.toList()
+        return webhookRepository.findAll().map { it.toWebhook() }
     }
 
-    fun register(registration: Webhook) {
-        webhooks[registration.clientId] = registration
+    fun register(w: Webhook) {
+        webhookRepository.save(WebhookEntity(clientId = w.clientId, eventType = w.eventType, callbackURL = w.callbackURL.toString(), id = null))
     }
 
     fun unregister(clientId: String): Boolean {
-        return webhooks.remove(clientId) != null
+        val webhook = webhookRepository.findByClientId(clientId)
+        webhookRepository.delete(webhook.get())
+        return true
     }
 
     companion object {

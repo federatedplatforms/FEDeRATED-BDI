@@ -21,18 +21,14 @@ class EventDistributionRuleConfiguration(
 ) {
 
     private val log = LoggerFactory.getLogger(EventDistributionRuleConfiguration::class.java)
-    private val rules: List<EventDistributionRule<CordaEventDestination>>
-
-    init {
-        rules = setupRules()
-    }
+    private val rules: List<EventDistributionRule<CordaEventDestination>> = setupRules()
 
     private fun setupRules(): List<EventDistributionRule<CordaEventDestination>> {
         val userDefinedRulesList = environment.getProperty("federated.node.event.distribution.rules.list")?.trim()?.split(",")
         return if (userDefinedRulesList.isNullOrEmpty()) listOf(broadcastEventDistributionRule())
         else mutableListOf<EventDistributionRule<CordaEventDestination>>().apply {
             userDefinedRulesList.forEach {
-                when (it.toLowerCase()) {
+                when (it.lowercase()) {
                     "static" -> add(staticDestinationEventDistributionRule())
                     "broadcast" -> add(broadcastEventDistributionRule())
                     "sparql" -> add(sparqlEventDistributionRule())
