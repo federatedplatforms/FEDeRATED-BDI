@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/webhooks")
+@RequestMapping("/api/webhooks")
 class WebhookController(private val webhookService: WebhookService) {
 
     @GetMapping

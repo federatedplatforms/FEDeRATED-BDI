@@ -222,4 +222,4 @@ Please refer to the [changelog](CHANGELOG.md).
 
 ## License
 
-Project [license](LICENSE.md).   
+Project [license](LICENSE.md).
