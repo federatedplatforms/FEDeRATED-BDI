@@ -57,3 +57,8 @@ lib
 logs/sensorlabLogs/
 
 **/*.lock
+
+# h2 ignores
+h2/
+**/.mv.db
+**/.trace.db
