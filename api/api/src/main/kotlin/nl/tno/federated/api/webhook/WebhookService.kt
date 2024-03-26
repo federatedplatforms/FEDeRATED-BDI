@@ -30,12 +30,15 @@ class WebhookService(
         return webhookRepository.findAll().map { it.toWebhook() }
     }
 
-    fun register(w: Webhook) {
-        webhookRepository.save(WebhookEntity(clientId = w.clientId, eventType = w.eventType, callbackURL = w.callbackURL.toString(), id = null))
+    fun register(w: Webhook): Webhook {
+        val save = webhookRepository.save(WebhookEntity(clientId = w.clientId, eventType = w.eventType, callbackURL = w.callbackURL.toString(), id = null))
+        log.info("New Webhook saved with id: {}", save.id)
+        return save.toWebhook()
     }
 
     fun unregister(clientId: String): Boolean {
         val webhook = webhookRepository.findByClientId(clientId)
+        if(!webhook.isPresent) return false
         webhookRepository.delete(webhook.get())
         return true
     }

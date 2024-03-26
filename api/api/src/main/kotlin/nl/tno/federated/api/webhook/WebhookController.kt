@@ -20,13 +20,12 @@ class WebhookController(private val webhookService: WebhookService) {
 
     @PostMapping
     fun registerWebhook(@RequestBody(required = true) registration: Webhook): Webhook {
-        webhookService.register(registration)
-        return registration
+        return webhookService.register(registration)
     }
 
     @DeleteMapping("/{client_id}")
     fun unregisterWebhook(@PathVariable("client_id") clientId: String): ResponseEntity<Void> {
-        return if(webhookService.unregister(clientId)) ResponseEntity.noContent().build()
+        return if (webhookService.unregister(clientId)) ResponseEntity.noContent().build()
         else ResponseEntity.notFound().build()
     }
 }
