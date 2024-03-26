@@ -133,6 +133,8 @@ task deployNodes(type: Cordform, dependsOn: ['jar']) {
             into "build/nodes/Cargobase_LSP"
         }
         copy {
+            from '../services/src/main/resources/database.properties'
+            from '../services/src/main/resources/ishare.properties'
             into "build/nodes/Notary_Notary"
         }
     }
