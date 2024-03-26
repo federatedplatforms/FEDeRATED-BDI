@@ -46,14 +46,15 @@ class CordaNodeService(private val rpc: NodeRPCConnection) {
         try {
             return (newEventTx.returnValue.get(15, TimeUnit.SECONDS).coreTransaction.getOutput(0) as EventState).linearId.id
         } catch (e: TimeoutException) {
-            val msg = "Timeout occurred waiting for flow completion for NewEventFlow(flowRunId=$flowRunId, eventUUID=$eventUUID, eventType=$eventType, destinations=${cordaNames}), please check the flow run details or the corda logs for more details."
+            val msg =
+                "Timeout occurred waiting for flow completion for NewEventFlow(flowRunId=$flowRunId, eventUUID=$eventUUID, eventType=$eventType, destinations=${cordaNames}), please check the flow run details or the corda logs for more details."
             log.warn(msg)
-            throw CordaFlowTimeoutException(msg,e)
+            throw CordaFlowTimeoutException(msg, e)
         }
     }
 
-    fun startVaultQueryBy(criteria: QueryCriteria? = null, pagingSpec: PageSpecification = PageSpecification(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE)): List<SimpleEventState> {
-        return rpc.client().vaultQueryPagedAndSortedByRecordedTime<EventState>(pagingSpec, criteria).states.map { it.state.data.toSimpleEventState() }
+    fun vaultQueryBy(criteria: QueryCriteria? = null, pagingSpec: PageSpecification = PageSpecification(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE)): Vault.Page<EventState> {
+        return rpc.client().vaultQueryPagedAndSortedByRecordedTime<EventState>(pagingSpec, criteria)
     }
 
     fun startDataPullFlow(query: String, cordaName: CordaX500Name?): UUID {

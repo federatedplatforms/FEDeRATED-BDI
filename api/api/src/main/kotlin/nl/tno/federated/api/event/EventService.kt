@@ -60,9 +60,9 @@ class EventService(
         return eventMapper.toCompactedJSONLDMap(rdf)
     }
 
-    private fun enrichJsonEvent(jsonEvent: String, eventType: EventType) : EnrichedEvent {
+    private fun enrichJsonEvent(jsonEvent: String, eventType: EventType): EnrichedEvent {
         val node = eventMapper.toJsonNode(jsonEvent)
-        if(node.nodeType != JsonNodeType.OBJECT) throw UnsupportedEventTypeException("Unexpected Event content, not parsable as JSON!")
+        if (node.nodeType != JsonNodeType.OBJECT) throw UnsupportedEventTypeException("Unexpected Event content, not parsable as JSON!")
 
         node as ObjectNode
         val uuid = UUID.randomUUID()
@@ -74,7 +74,7 @@ class EventService(
     }
 
     private fun validateWithShacl(enrichedEvent: EnrichedEvent) {
-        if(enrichedEvent.eventType.shacl != null) shaclValidator.validate(enrichedEvent.eventRDF)
+        if (enrichedEvent.eventType.shacl != null) shaclValidator.validate(enrichedEvent.eventRDF)
     }
 
     private fun publishRDFEvent(enrichedEvent: EnrichedEvent, destinations: Set<String>? = null): UUID {

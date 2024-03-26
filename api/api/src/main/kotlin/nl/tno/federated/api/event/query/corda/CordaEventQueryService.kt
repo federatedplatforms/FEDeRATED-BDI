@@ -2,6 +2,8 @@ package nl.tno.federated.api.event.query.corda
 
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.Vault
+import net.corda.core.node.services.vault.BinaryComparisonOperator
+import net.corda.core.node.services.vault.ColumnPredicate
 import net.corda.core.node.services.vault.PageSpecification
 import net.corda.core.node.services.vault.QueryCriteria
 import nl.tno.federated.api.corda.CordaNodeService
@@ -9,13 +11,12 @@ import nl.tno.federated.api.corda.SimpleEventState
 import nl.tno.federated.api.event.query.EventQuery
 import nl.tno.federated.api.event.query.EventQueryService
 import org.slf4j.LoggerFactory
-import org.springframework.core.env.Environment
 import org.springframework.stereotype.Service
+import java.time.Instant
 
 @Service
 class CordaEventQueryService(
-    private val cordaNodeService: CordaNodeService,
-    private val environment: Environment
+    private val cordaNodeService: CordaNodeService
 ) : EventQueryService {
 
     private val log = LoggerFactory.getLogger(CordaEventQueryService::class.java)
@@ -27,16 +28,38 @@ class CordaEventQueryService(
 
     override fun findById(id: String): String? {
         val criteria = QueryCriteria.LinearStateQueryCriteria(externalId = listOf(id))
-        val state = cordaNodeService.startVaultQueryBy(criteria)
-        return state.firstOrNull()?.eventData
+        val state = cordaNodeService.vaultQueryBy(criteria)
+        return state.states.firstOrNull()?.state?.data?.event
     }
 
     override fun findAll(): List<String> = findAll(1, 100).map { it.eventData }
 
+    fun findAfter(offset: Instant, page: Int, size: Int): List<SimpleEventState> {
+        val criteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.ALL)
+            .and(QueryCriteria.VaultQueryCriteria(timeCondition = QueryCriteria.TimeCondition(QueryCriteria.TimeInstantType.RECORDED, ColumnPredicate.BinaryComparison(BinaryComparisonOperator.GREATER_THAN, offset))))
+
+        val vaultQueryBy = cordaNodeService.vaultQueryBy(criteria, PageSpecification(page, size))
+        val meta = vaultQueryBy.statesMetadata
+
+        val map = vaultQueryBy.states.map {
+            val itemMeta = meta.find { m -> m.ref == it.ref }!!
+            val eventState = it.state.data
+            SimpleEventState(eventState.linearId.externalId!!, eventState.eventType, eventState.event, itemMeta.recordedTime)
+        }
+        return map
+    }
+
     fun findAll(page: Int, size: Int): List<SimpleEventState> {
         val criteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.ALL)
-        val pagingSpec = PageSpecification(pageNumber = page, pageSize = size)
-        return cordaNodeService.startVaultQueryBy(criteria, pagingSpec)
+        val vaultQueryBy = cordaNodeService.vaultQueryBy(criteria, PageSpecification(page, size))
+        val meta = vaultQueryBy.statesMetadata
+
+        val map = vaultQueryBy.states.map {
+            val itemMeta = meta.find { m -> m.ref == it.ref }!!
+            val eventState = it.state.data
+            SimpleEventState(eventState.linearId.externalId!!, eventState.eventType, eventState.event, itemMeta.recordedTime)
+        }
+        return map
     }
 
     private fun searchRemoteNode(query: EventQuery, remote: CordaX500Name): String? {
