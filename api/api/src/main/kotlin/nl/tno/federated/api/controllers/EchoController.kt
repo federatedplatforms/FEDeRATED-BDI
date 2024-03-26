@@ -19,7 +19,7 @@ class EchoController {
     fun echo(@RequestBody body: String, request: HttpServletRequest) {
         val headerNames = request.headerNames
         val map = headerNames.asSequence().associateWith { request.getHeader(it) }
-        log.info("Incoming request, body: {}, headers: {}", body, map)
+        log.info("Echoing incoming request, body: {}, headers: {}", body, map)
     }
 
     companion object {
