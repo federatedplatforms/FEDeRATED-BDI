@@ -53,7 +53,7 @@ class EventDistributionRuleConfiguration(
 
     private fun staticDestinationEventDistributionRule(): StaticDestinationEventDistributionRule {
         val destinations =
-            environment.getProperty("federated.node.event.distribution.rules.static.destinations")?.trim()?.split(",") ?: throw EventDistributionRuleConfigurationException("No static destinations defined for static destination rule")
+            environment.getProperty("federated.node.event.distribution.rules.static.destinations")?.trim()?.split(";") ?: throw EventDistributionRuleConfigurationException("No static destinations defined for static destination rule")
         val cordaEventDestinations = destinations.map { CordaEventDestination.parse(it) }.toSet()
         return StaticDestinationEventDistributionRule(cordaEventDestinations)
     }
