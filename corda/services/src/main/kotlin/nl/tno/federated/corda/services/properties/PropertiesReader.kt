@@ -11,8 +11,13 @@ class PropertiesReader {
 
     fun readProperties(filename: String): Properties {
         getInputStreamFromClassPathResource(filename).use {
-            if (it == null) log.warn("database.properties could not be found!")
             val properties = Properties()
+
+            if (it == null) {
+                log.warn("database.properties could not be found!")
+                return properties
+            }
+
             properties.load(it)
 
             with(System.getProperties()) {

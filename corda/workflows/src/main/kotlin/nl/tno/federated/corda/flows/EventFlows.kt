@@ -19,18 +19,18 @@ import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
-import nl.tno.federated.corda.services.ishare.ISHARECordaService
 import nl.tno.federated.corda.contracts.EventContract
+import nl.tno.federated.corda.services.ishare.ISHARECordaService
 import nl.tno.federated.corda.states.EventState
 import org.slf4j.LoggerFactory
 
 @StartableByRPC
 @InitiatingFlow
 class NewEventFlow(
-      val destinations: Collection<CordaX500Name>,
-      val event: String,
-      val eventType: String,
-      val eventUUID: String
+    val destinations: Collection<CordaX500Name>,
+    val event: String,
+    val eventType: String,
+    val eventUUID: String
 ) : FlowLogic<SignedTransaction>() {
 
     private val log = LoggerFactory.getLogger(NewEventFlow::class.java)
@@ -68,7 +68,7 @@ class NewEventFlow(
     @Suspendable
     override fun call(): SignedTransaction {
         val notaryIdentities = serviceHub.networkMapCache.notaryIdentities
-        if(notaryIdentities.isEmpty()) throw FlowException("Expected at least one Notary, but none are present in the NetworkMap.")
+        if (notaryIdentities.isEmpty()) throw FlowException("Expected at least one Notary, but none are present in the NetworkMap.")
 
         val notary = notaryIdentities.first()
 
@@ -77,7 +77,7 @@ class NewEventFlow(
 
         // Retrieving counterparties (sending to all nodes, for now)
         val me = serviceHub.myInfo.legalIdentities.first()
-        val counterParties = findParties()
+        val counterParties = findMatchingParties(destinations)
 
         val newEventState = EventState(
             event = event,
@@ -153,21 +153,23 @@ class NewEventFlow(
         }
     }
 
-    private fun findParties(): List<Party> = destinations.map { destination ->
+    private fun findMatchingParties(destinations: Collection<CordaX500Name>): Set<Party> = destinations.flatMap { destination ->
         try {
-            serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
-                .single { it.name.organisation.equals(destination.organisation, ignoreCase = true) && it.name.locality.equals(destination.locality, ignoreCase = true) && it.name.country.equals(destination.country, ignoreCase = true) }
-        } catch (e: IllegalArgumentException) {
-            log.warn("Too many parties found matching organisation: $destination.name and locality: $destination.locality and country $destination.country")
-            throw IllegalArgumentException("Too many parties found matching organisation: $destination.name and locality: $destination.locality and country $destination.country")
-        } catch (e: NoSuchElementException) {
-            log.warn("No parties found matching organisation: $destination.name and locality: $destination.locality and country $destination.country")
-            throw IllegalArgumentException("No parties found matching organisation: $destination.name and locality: $destination.locality and country $destination.country")
+            val parties = serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
+            parties
+                .filter {
+                    (destination.commonName == null || it.name.commonName.equals(destination.commonName, ignoreCase = true))
+                        && (destination.organisationUnit == null || it.name.organisationUnit.equals(destination.organisationUnit, ignoreCase = true))
+                        && (destination.state == null || it.name.state.equals(destination.state, ignoreCase = true))
+                        && it.name.organisation.equals(destination.organisation, ignoreCase = true)
+                        && it.name.locality.equals(destination.locality, ignoreCase = true)
+                        && it.name.country.equals(destination.country, ignoreCase = true)
+                }
         } catch (e: Exception) {
-            log.warn("Finding the correct party failed because $e.message")
+            log.warn("Finding parties for destionation: $destination failed because ${e.message}")
             throw e
         }
-    }
+    }.toSet()
 }
 
 @InitiatedBy(NewEventFlow::class)

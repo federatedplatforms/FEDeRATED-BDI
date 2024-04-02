@@ -1,5 +1,6 @@
 package nl.tno.federated.ishare.config
 
+import org.slf4j.LoggerFactory
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -16,11 +17,17 @@ class ISHAREConfig(
     val enabled: Boolean = false
 ) {
     companion object {
+        private val log = LoggerFactory.getLogger(ISHAREConfig::class.java)
+
         fun loadProperties(fileName: String): ISHAREConfig {
             getInputStreamFromClassPathResource(fileName).use {
-                val properties = Properties().apply {
-                    load(it)
+                val properties = Properties()
+
+                if (it == null) {
+                    log.warn("ishare.properties could not be found!")
                 }
+
+                properties.load(it)
 
                 // System properties overrides
                 with(System.getProperties()) {
