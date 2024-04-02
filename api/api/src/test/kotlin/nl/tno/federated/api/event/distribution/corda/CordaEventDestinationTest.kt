@@ -21,7 +21,10 @@ class CordaEventDestinationTest {
         val parse = CordaEventDestination.parse("CN=tno.nl,OU=DE,O=TNO,C=NL,S=Zuid Holland,L=Den Haag")
         assertEquals("TNO", parse.destination.organisation)
         assertEquals("NL", parse.destination.country)
+        assertEquals("DE", parse.destination.organisationUnit)
         assertEquals("Den Haag", parse.destination.locality)
+        assertEquals("tno.nl", parse.destination.commonName)
+        assertEquals("Zuid Holland", parse.destination.state)
     }
 
     @Test
