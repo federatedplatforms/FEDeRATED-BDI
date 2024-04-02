@@ -32,7 +32,7 @@ class CordaEventDestination(destination: CordaX500Name) : EventDestination<Corda
         }
 
         private const val ORGANISATION = "O"
-        private const val ORGANISATION_UNIT = "O"
+        private const val ORGANISATION_UNIT = "OU"
         private const val LOCALITY = "L"
         private const val STATE = "S"
         private const val COUNTRY = "C"
