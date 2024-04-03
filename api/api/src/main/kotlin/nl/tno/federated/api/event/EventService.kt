@@ -25,8 +25,6 @@ class EventService(
     private val eventTypeMapping: EventTypeMapping
 ) {
 
-    private val shaclValidator = ShaclValidator(eventTypeMapping.readShaclShapes())
-
     /**
      * Convert the given event to RDF.
      *
@@ -74,6 +72,7 @@ class EventService(
     }
 
     private fun validateWithShacl(enrichedEvent: EnrichedEvent) {
+        val shaclValidator = ShaclValidator(eventTypeMapping.readShaclShapes())
         if (enrichedEvent.eventType.shacl != null) shaclValidator.validate(enrichedEvent.eventRDF)
     }
 
