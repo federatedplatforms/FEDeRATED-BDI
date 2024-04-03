@@ -1,26 +1,27 @@
 package nl.tno.federated.api.rml
 
-import nl.tno.federated.api.event.mapper.EventType
 import org.junit.Test
 import org.springframework.core.io.ClassPathResource
+import java.nio.charset.Charset
 import kotlin.test.assertNotNull
 
 class RMLMapperTest {
 
     private val rmlMapper = RMLMapper()
-    private val loadEventJson = String(ClassPathResource("test-data/LoadEvent.json").inputStream.readBytes())
-    private val arrivalEventJson = String(ClassPathResource("test-data/ArrivalEvent.json").inputStream.readBytes())
+    private val loadEventJson = ClassPathResource("test-data/LoadEvent.json").getContentAsString(Charset.defaultCharset())
+    private val arrivalEventJson = ClassPathResource("test-data/ArrivalEvent.json").getContentAsString(Charset.defaultCharset())
+    private val rml = ClassPathResource("rml/EventMapping.ttl").getContentAsString(Charset.defaultCharset())
 
     @Test
     fun test() {
-        val result = rmlMapper.createTriples(loadEventJson, "rml/EventMapping.ttl")
+        val result = rmlMapper.createTriples(loadEventJson, rml)
         assertNotNull(result)
         // TODO more assertions here
     }
 
     @Test
     fun testArrival() {
-        val result = rmlMapper.createTriples(arrivalEventJson, "rml/EventMapping.ttl")
+        val result = rmlMapper.createTriples(arrivalEventJson, rml)
         assertNotNull(result)
         // TODO more assertions here
     }

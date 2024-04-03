@@ -17,12 +17,9 @@ class RMLMapper {
 
     private val log = LoggerFactory.getLogger(RMLMapper::class.java)
 
-    fun createTriples(data: String, rml: String, baseUri: String? = null): String? {
-        // Replace namespace in rules file if one is provided.
-        val ttl = replaceNamespaceUrl(rml, baseUri)
-
+    fun createTriples(data: String, rml: String): String? {
         // Map the data with the provided rules
-        val result = mapRml(data, ttl)
+        val result = mapRml(data, rml)
         log.trace("Result: $result")
         return result
     }
@@ -83,35 +80,6 @@ class RMLMapper {
             tempDir.deleteIfExists()
             log.debug("Deleted temp dir: ${tempDir.absolutePathString()}")
         }
-    }
-
-    /**
-     * Replaces the namespace url ("https://ontology.tno.nl/logistics/federated/tradelens") in the provided file
-     * with the provided baseUri. Skips if baseUri is null or blank.
-     */
-    private fun replaceNamespaceUrl(rml: String, baseUri: String?): String {
-        val readLines = StringReader(rml).readLines()
-        val stringBuilder = StringBuilder()
-
-        if (baseUri.isNullOrBlank()) {
-            log.debug("Skip replacing namespaceUrl with baseUri: $baseUri")
-            readLines.forEach { stringBuilder.append(it) }
-            return stringBuilder.toString()
-        }
-
-        log.debug("Replacing namespaceUrl with baseUri: $baseUri")
-
-        val oldUrl = "https://ontology.tno.nl/logistics/federated/tradelens"
-
-        for (line in readLines) {
-            val l = when {
-                line.contains(oldUrl) -> line.replace(oldUrl, baseUri)
-                else -> line
-            }
-            stringBuilder.append(l)
-        }
-
-        return stringBuilder.toString()
     }
 
     @Throws(Exception::class)
