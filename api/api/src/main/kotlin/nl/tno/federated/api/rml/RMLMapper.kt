@@ -9,9 +9,6 @@ import be.ugent.rml.store.RDF4JStore
 import be.ugent.rml.term.NamedNode
 import org.eclipse.rdf4j.rio.RDFFormat
 import org.slf4j.LoggerFactory
-import org.springframework.core.io.DefaultResourceLoader
-import org.springframework.core.io.Resource
-import org.springframework.core.io.ResourceLoader
 import java.io.*
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -19,12 +16,10 @@ import java.nio.file.Files
 class RMLMapper {
 
     private val log = LoggerFactory.getLogger(RMLMapper::class.java)
-    private val resourceLoader: ResourceLoader = DefaultResourceLoader()
 
-
-    fun createTriples(data: String, ruleFileLocation: String, baseUri: String? = null): String? {
+    fun createTriples(data: String, rml: String, baseUri: String? = null): String? {
         // Replace namespace in rules file if one is provided.
-        val ttl = replaceNamespaceUrl(resourceLoader.getResource(ruleFileLocation), baseUri)
+        val ttl = replaceNamespaceUrl(rml, baseUri)
 
         // Map the data with the provided rules
         val result = mapRml(data, ttl)
@@ -94,20 +89,13 @@ class RMLMapper {
      * Replaces the namespace url ("https://ontology.tno.nl/logistics/federated/tradelens") in the provided file
      * with the provided baseUri. Skips if baseUri is null or blank.
      */
-    private fun replaceNamespaceUrl(file: Resource, baseUri: String?): String {
-        val readAllLines = file.inputStream.use {
-            val reader = BufferedReader(InputStreamReader(it))
-            val lines = mutableListOf<String>()
-            while (reader.ready()) {
-                lines.add(reader.readLine())
-            }
-            lines
-        }
+    private fun replaceNamespaceUrl(rml: String, baseUri: String?): String {
+        val readLines = StringReader(rml).readLines()
         val stringBuilder = StringBuilder()
 
         if (baseUri.isNullOrBlank()) {
             log.debug("Skip replacing namespaceUrl with baseUri: $baseUri")
-            readAllLines.forEach { stringBuilder.append(it) }
+            readLines.forEach { stringBuilder.append(it) }
             return stringBuilder.toString()
         }
 
@@ -115,7 +103,7 @@ class RMLMapper {
 
         val oldUrl = "https://ontology.tno.nl/logistics/federated/tradelens"
 
-        for (line in readAllLines) {
+        for (line in readLines) {
             val l = when {
                 line.contains(oldUrl) -> line.replace(oldUrl, baseUri)
                 else -> line
