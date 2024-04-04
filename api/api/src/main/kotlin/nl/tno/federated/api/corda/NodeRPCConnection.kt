@@ -44,7 +44,11 @@ class NodeRPCConnection(
         rpcConnection.proxy
     }
 
-    fun client() = cordaRPCOps
+    fun client() = try {
+        cordaRPCOps
+    } catch (e: Exception) {
+        log.error("Failed to initialize CordaRPCOps: ${e.message}")
+    }
 
     @PreDestroy
     fun close() {

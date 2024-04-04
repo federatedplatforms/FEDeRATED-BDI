@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import nl.tno.federated.api.event.distribution.corda.CordaEventDestination
 import nl.tno.federated.api.event.distribution.corda.CordaEventDistributionService
 import nl.tno.federated.api.event.mapper.EventMapper
-import nl.tno.federated.api.event.mapper.EventType
 import nl.tno.federated.api.event.mapper.UnsupportedEventTypeException
 import nl.tno.federated.api.event.query.EventQuery
 import nl.tno.federated.api.event.query.corda.CordaEventQueryService
@@ -31,16 +30,14 @@ class EventService(
      * @throws UnsupportedEventTypeException is an unsupported Event type is encountered.
      */
     fun newJsonEvent(event: String, eventType: String, eventDestinations: Set<String>? = null): EnrichedEvent {
-        val type = eventTypeMapping.getEventType(eventType) ?: throw EventTypeMappingException("EventType not found: $eventType")
-        val enrichedEvent = enrichJsonEvent(event, type)
+        val enrichedEvent = enrichJsonEvent(event, eventType)
         validateWithShacl(enrichedEvent)
         publishRDFEvent(enrichedEvent, eventDestinations)
         return enrichedEvent
     }
 
     fun validateNewJsonEvent(event: String, eventType: String): EnrichedEvent {
-        val type = eventTypeMapping.getEventType(eventType) ?: throw EventTypeMappingException("EventType not found: $eventType")
-        val enrichedEvent = enrichJsonEvent(event, type)
+        val enrichedEvent = enrichJsonEvent(event, eventType)
         validateWithShacl(enrichedEvent)
         return enrichedEvent
     }
@@ -60,17 +57,18 @@ class EventService(
         return eventMapper.toCompactedJSONLDMap(rdf)
     }
 
-    private fun enrichJsonEvent(jsonEvent: String, eventType: EventType): EnrichedEvent {
+    private fun enrichJsonEvent(jsonEvent: String, eventType: String): EnrichedEvent {
+        val type = eventTypeMapping.getEventType(eventType) ?: throw EventTypeMappingException("EventType not found: $eventType")
         val node = eventMapper.toJsonNode(jsonEvent)
         if (node.nodeType != JsonNodeType.OBJECT) throw UnsupportedEventTypeException("Unexpected Event content, not parsable as JSON!")
 
         node as ObjectNode
         val uuid = UUID.randomUUID()
         node.put(EVENT_UUID_FIELD, uuid.toString())
-        node.put(EVENT_TYPE_FIELD, eventType.eventType)
+        node.put(EVENT_TYPE_FIELD, type.eventType)
 
-        val rdf = eventMapper.toRDFTurtle(jsonNode = node, eventType = eventType)
-        return EnrichedEvent(jsonEvent, eventType, uuid, rdf)
+        val rdf = eventMapper.toRDFTurtle(jsonNode = node, eventType = type)
+        return EnrichedEvent(jsonEvent, type, uuid, rdf)
     }
 
     private fun validateWithShacl(enrichedEvent: EnrichedEvent) {
