@@ -1,0 +1,119 @@
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+
+[]
+  rml:logicalSource [
+    rml:source "data.json" ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$"
+  ] ;
+  rr:subjectMap [
+    rr:termType rr:BlankNode ;
+    rr:class <https://ontology.tno.nl/logistics/federated/Event#Event>
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate <https://ontology.tno.nl/logistics/federated/Event#involvesTimestamp> ;
+    rr:objectMap [ rml:reference "involvesTimestamp" ]
+  ], [
+    rr:predicate <https://ontology.tno.nl/logistics/federated/Event#involvesTimeClassification> ;
+    rr:objectMap [ rml:reference "involvesTimeClassification" ]
+  ], [
+    rr:predicate <https://ontology.tno.nl/logistics/federated/Event#involvesActor> ;
+    rr:objectMap [
+      rr:parentTriplesMap [
+        rml:logicalSource [
+          rml:source "data.json" ;
+          rml:referenceFormulation ql:JSONPath ;
+          rml:iterator "$.involvesActor[*]"
+        ] ;
+        rr:subjectMap [
+          rr:termType rr:BlankNode ;
+          rr:class <https://ontology.tno.nl/logistics/federated/LegalPerson#Actor>
+        ] ;
+        rr:predicateObjectMap [
+          rr:predicate <https://ontology.tno.nl/logistics/federated/LegalPerson#involvesLegalPerson> ;
+          rr:objectMap [
+            rr:parentTriplesMap [
+              rml:logicalSource [
+                rml:source "data.json" ;
+                rml:referenceFormulation ql:JSONPath ;
+                rml:iterator "$.involvesActor[*].involvesLegalPerson"
+              ] ;
+              rr:subjectMap [
+                rr:termType rr:BlankNode ;
+                rr:class <https://ontology.tno.nl/logistics/federated/LegalPerson#LegalPerson>
+              ] ;
+              rr:predicateObjectMap [
+                rr:predicate <https://ontology.tno.nl/logistics/federated/LegalPerson#legalPersonName> ;
+                rr:objectMap [ rml:reference "legalPersonName" ]
+              ]
+            ] ;
+            rr:joinCondition [
+              rr:child "." ;
+              rr:parent ".."
+            ]
+          ]
+        ], [
+          rr:predicate <https://ontology.tno.nl/logistics/federated/LegalPerson#actorRole> ;
+          rr:objectMap [ rml:reference "actorRole" ]
+        ]
+      ] ;
+      rr:joinCondition [
+        rr:child "." ;
+        rr:parent ".."
+      ]
+    ]
+  ], [
+    rr:predicate <https://ontology.tno.nl/logistics/federated/Event#involvesDigitalTwin> ;
+    rr:objectMap [
+      rr:parentTriplesMap [
+        rml:logicalSource [
+          rml:source "data.json" ;
+          rml:referenceFormulation ql:JSONPath ;
+          rml:iterator "$.involvedCargo[*]"
+        ] ;
+        rr:subjectMap [
+          rr:termType rr:BlankNode ;
+          rr:class <https://ontology.tno.nl/logistics/federated/DigitalTwin#Container>
+        ] ;
+        rr:predicateObjectMap [
+          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#containerType> ;
+          rr:objectMap [ rml:reference "digitalTwinType" ]
+        ], [
+          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#externalIdentifier> ;
+          rr:objectMap [ rml:reference "digitalTwinID" ]
+        ]
+      ] ;
+      rr:joinCondition [
+        rr:child "." ;
+        rr:parent ".."
+      ]
+    ]
+  ], [
+    rr:predicate <https://ontology.tno.nl/logistics/federated/Event#involvesDigitalTwin> ;
+    rr:objectMap [
+      rr:parentTriplesMap [
+        rml:logicalSource [
+          rml:source "data.json" ;
+          rml:referenceFormulation ql:JSONPath ;
+          rml:iterator "$.transportMeans[*]"
+        ] ;
+        rr:subjectMap [
+          rr:termType rr:BlankNode ;
+          rr:class <https://ontology.tno.nl/logistics/federated/DigitalTwin#Vessel>
+        ] ;
+        rr:predicateObjectMap [
+          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#externalIdentifier> ;
+          rr:objectMap [ rml:reference "digitalTwinID" ]
+        ], [
+          rr:predicate <https://ontology.tno.nl/logistics/federated/DigitalTwin#transportMeansMode> ;
+          rr:objectMap [ rml:reference "transportMeansMode" ]
+        ]
+      ] ;
+      rr:joinCondition [
+        rr:child "." ;
+        rr:parent ".."
+      ]
+    ]
+  ] .
