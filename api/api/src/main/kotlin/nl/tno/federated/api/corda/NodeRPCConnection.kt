@@ -48,6 +48,7 @@ class NodeRPCConnection(
         cordaRPCOps
     } catch (e: Exception) {
         log.error("Failed to initialize CordaRPCOps: ${e.message}")
+        throw e
     }
 
     @PreDestroy

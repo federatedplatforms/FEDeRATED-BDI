@@ -15,7 +15,7 @@ class BroadcastEventDistributionRule(@JsonIgnore val cordaNodeService: CordaNode
     override fun getDestinations() = try {
         cordaNodeService.getPeersExcludingSelfAndNotary().map { CordaEventDestination(it.name) }.toSet()
     }catch (e: Exception) {
-        log.error("Failed to retrieve destinations for BroadcastEventDistributionRule: ${e.message}", e)
+        log.error("Failed to retrieve destinations for BroadcastEventDistributionRule: ${e.message}")
         emptySet<CordaEventDestination>()
     }
 

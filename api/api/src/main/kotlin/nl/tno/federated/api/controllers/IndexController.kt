@@ -41,7 +41,7 @@ class IndexController(
         return try {
             rpc.client().nodeInfo().legalIdentities.map { it.name }.jts()
         } catch (e: Exception) {
-            log.warn(e.message, e)
+            log.warn(e.message)
             "ERROR: Cant retrieve information about the identities, maybe the Corda RPC URL is not reachable? See logs for details."
         }
     }
@@ -50,7 +50,7 @@ class IndexController(
         return try {
             rpc.client().notaryIdentities().map { it.name }.jts()
         } catch (e: Exception) {
-            log.warn(e.message, e)
+            log.warn(e.message)
             "ERROR: Cant retrieve information about notaries, maybe the Corda RPC URL is not reachable? See logs for details."
         }
     }
@@ -63,7 +63,7 @@ class IndexController(
                 .minus(rpc.client().notaryIdentities().toSet())
                 .map { it.name }.jts()
         } catch (e: Exception) {
-            log.warn(e.message, e)
+            log.warn(e.message)
             "ERROR: Cant retrieve information about peers, maybe the Corda RPC URL is not reachable? See logs for details."
         }
     }

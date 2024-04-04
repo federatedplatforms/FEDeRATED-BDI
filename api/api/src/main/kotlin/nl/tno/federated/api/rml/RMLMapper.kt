@@ -35,48 +35,38 @@ class RMLMapper {
         val dataFile = Files.createFile(tempDir.resolve("data.json"))
         log.debug("Created data file: ${dataFile.absolutePathString()}")
 
-        val ttlFile = Files.createFile(tempDir.resolve("rules.ttl"))
-        log.debug("Created ttl file: ${ttlFile.absolutePathString()}")
-
         Files.write(dataFile, jsonData.toByteArray(StandardCharsets.UTF_8))
-        Files.write(ttlFile, mappingTtl.toByteArray(StandardCharsets.UTF_8))
 
-        // Get the mapping string stream
         try {
-            ttlFile.inputStream().use {
+            // Load the mapping in a QuadStore
+            val rmlStore = RDF4JStore()
 
-                // Load the mapping in a QuadStore
-                val rmlStore = RDF4JStore().apply {
-                    read(it, null, RDFFormat.TURTLE)
-                }
-
-                // Set up the basepath for the records factory, i.e., the basepath for the (local file) data sources
-                val factory = RecordsFactory(tempDir.pathString)
-
-                // Set up the outputstore (needed when you want to output something else than nquads
-                val outputStore = RDF4JStore()
-
-                // Create the Executor
-                val executor = Executor(rmlStore, factory, outputStore, Utils.getBaseDirectiveTurtle(it), functionAgent)
-
-                // Execute the mapping
-                val targets = executor.execute(null)
-
-                if (targets != null) {
-                    val result = targets[NamedNode("rmlmapper://default.store")]
-                    if (result != null) {
-                        result.copyNameSpaces(rmlStore)
-                        return writeToString(result)
-                    }
-                }
-                return null
+            ByteArrayInputStream(mappingTtl.toByteArray(StandardCharsets.UTF_8)).use {
+                rmlStore.read(it, null, RDFFormat.TURTLE)
             }
-        } finally {
+
+            // Set up the basepath for the records factory, i.e., the basepath for the (local file) data sources
+            val factory = RecordsFactory(tempDir.pathString)
+
+            // Set up the outputstore (needed when you want to output something else than nquads
+            val outputStore = RDF4JStore()
+
+            // Create the Executor
+            val executor = Executor(rmlStore, factory, outputStore, Utils.getBaseDirectiveTurtle(mappingTtl), functionAgent)
+
+            // Execute the mapping
+            log.info("Executing RML mapping...")
+            val targets = executor.execute(null) ?: return null
+
+            // Get result from store
+            val result = targets[NamedNode("rmlmapper://default.store")] ?: return null
+            result.copyNameSpaces(rmlStore)
+            return writeToString(result)
+        }
+        finally {
             // Cleanup
             dataFile.deleteIfExists()
             log.debug("Deleted data file: ${dataFile.absolutePathString()}")
-            ttlFile.deleteIfExists()
-            log.debug("Deleted ttl file: ${ttlFile.absolutePathString()}")
             tempDir.deleteIfExists()
             log.debug("Deleted temp dir: ${tempDir.absolutePathString()}")
         }

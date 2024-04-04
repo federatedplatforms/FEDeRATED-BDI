@@ -60,7 +60,7 @@ class EventService(
     private fun enrichJsonEvent(jsonEvent: String, eventType: String): EnrichedEvent {
         val type = eventTypeMapping.getEventType(eventType) ?: throw EventTypeMappingException("EventType not found: $eventType")
         val node = eventMapper.toJsonNode(jsonEvent)
-        if (node.nodeType != JsonNodeType.OBJECT) throw UnsupportedEventTypeException("Unexpected Event content, not parsable as JSON!")
+        if (node.nodeType != JsonNodeType.OBJECT) throw UnsupportedEventTypeException("Unexpected event data, invalid JSON data!")
 
         node as ObjectNode
         val uuid = UUID.randomUUID()
