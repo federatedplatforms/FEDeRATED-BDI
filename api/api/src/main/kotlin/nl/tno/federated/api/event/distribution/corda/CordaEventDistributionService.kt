@@ -17,7 +17,6 @@ class CordaEventDistributionService(
 ) : EventDistributionService<CordaEventDestination> {
 
     override fun distributeEvent(enrichedEvent: EnrichedEvent, destinations: Set<CordaEventDestination>?): UUID {
-        if (environment.getProperty("demo.mode", Boolean::class.java) == true) return UUID.randomUUID()
         val destinationSet = destinations ?: runEventDistributionRules(enrichedEvent.eventRDF)
         log.info("Sending eventType: ${enrichedEvent.eventType.eventType} with eventUUID: ${enrichedEvent.eventUUID} to destination(s): ${destinationSet.map { it.destination }}")
         return cordaNodeService.startNewEventFlow(eventUUID = enrichedEvent.eventUUID.toString(), event = enrichedEvent.eventRDF, eventType = enrichedEvent.eventType.eventType, cordaNames = destinationSet.map { it.destination }.toSet())

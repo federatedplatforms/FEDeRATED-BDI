@@ -8,21 +8,15 @@ import kotlin.test.assertNotNull
 class RMLMapperTest {
 
     private val rmlMapper = RMLMapper()
-    private val loadEventJson = ClassPathResource("test-data/LoadEvent.json").getContentAsString(Charset.defaultCharset())
-    private val arrivalEventJson = ClassPathResource("test-data/ArrivalEvent.json").getContentAsString(Charset.defaultCharset())
-    private val rml = ClassPathResource("rml/EventMapping.ttl").getContentAsString(Charset.defaultCharset())
+    private val loadEventJson = ClassPathResource("test-data/MinimalEvent.json").getContentAsString(Charset.defaultCharset())
+    private val rml = ClassPathResource("rml/MinimalEvent.ttl").getContentAsString(Charset.defaultCharset())
 
     @Test
-    fun test() {
+    fun testMinimalEvent() {
         val result = rmlMapper.createTriples(loadEventJson, rml)
+        println(result)
         assertNotNull(result)
         // TODO more assertions here
     }
 
-    @Test
-    fun testArrival() {
-        val result = rmlMapper.createTriples(arrivalEventJson, rml)
-        assertNotNull(result)
-        // TODO more assertions here
-    }
 }

@@ -9,7 +9,7 @@ import kotlin.test.assertNotNull
 class EventMapperTest {
 
     private var eventMapper: EventMapper = EventMapper(ObjectMapper())
-    private val event = ClassPathResource("test-data/LoadEvent.ttl")
+    private val event = ClassPathResource("rml/MinimalEvent.ttl")
 
     @Test
     fun rdfToJsonLDCompacted() {

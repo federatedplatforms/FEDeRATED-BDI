@@ -1,9 +1,9 @@
 {
-    "Timestamp": "1/30/2024 12:43:15 PM",
-    "TimeClassification": null,
-    "involvedActors": [
+    "involvesTimestamp": "1/30/2024 12:43:15 PM",
+    "involvesTimeClassification": null,
+    "involvesActor": [
         {
-            "actorLegalPerson": {
+            "involvesLegalPerson": {
                 "postalCode": "8660",
                 "locatedAtStreetName": "Godthåbsvej 19",
                 "postalAddress": "Godthåbsvej 19",
@@ -12,10 +12,10 @@
                 "legalPersonName": "WAYS Logistics A/S",
                 "legalPersonID": "0"
             },
-            "actorLogisticsRole": "Consignor"
+            "actorRole": "Consignor"
         },
         {
-            "actorLegalPerson": {
+            "involvesLegalPerson": {
                 "postalCode": "37137",
                 "locatedAtStreetName": "Via Sommacampagna 32",
                 "postalAddress": "Via Sommacampagna 32",
@@ -24,10 +24,10 @@
                 "legalPersonName": "Verona Quadrante Europa TVR",
                 "legalPersonID": null
             },
-            "actorLogisticsRole": "Consignee"
+            "actorRole": "Consignee"
         },
         {
-            "actorLegalPerson": {
+            "involvesLegalPerson": {
                 "postalCode": "8660",
                 "locatedAtStreetName": "Godthåbsvej 19",
                 "postalAddress": "Godthåbsvej 19",
@@ -36,7 +36,7 @@
                 "legalPersonName": "WAYS Logistics A/S",
                 "legalPersonID": null
             },
-            "actorLogisticsRole": "Carrier"
+            "actorRole": "Carrier"
         }
     ],
     "transportMeans": [
