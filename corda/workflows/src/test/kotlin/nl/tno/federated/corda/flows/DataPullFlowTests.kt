@@ -10,9 +10,9 @@ import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
+import net.corda.testing.node.MockServices
 import net.corda.testing.node.StartedMockNode
 import nl.tno.federated.corda.services.data.fetcher.DataFetcherCordaService
-import nl.tno.federated.corda.services.data.fetcher.SPARQLDataFetcher
 import nl.tno.federated.corda.states.DataPullState
 import org.junit.After
 import org.junit.Before
@@ -23,17 +23,12 @@ class DataPullFlowTests {
     private lateinit var network: MockNetwork
     private lateinit var a: StartedMockNode
     private lateinit var b: StartedMockNode
-    private lateinit var dataFetcher: SPARQLDataFetcher
 
     private val aName = CordaX500Name("PartyA", "Reykjavik", "IS")
     private val bName = CordaX500Name("PartyB", "Rotterdam", "NL")
-    private val fakeResult = "Very nice result, the best result ever, I've never seen such a good result. Let's make results great again."
 
     @Before
     fun setup() {
-        dataFetcher = mockk()
-        every { dataFetcher.fetch(any()) } returns fakeResult
-
         network = MockNetwork(
             listOf("nl.tno.federated"),
             notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary", "Brussels", "BE"))),
@@ -41,15 +36,13 @@ class DataPullFlowTests {
         )
 
         a = network.createNode(MockNodeParameters(legalName = aName))
+        a = network.createNode(MockNodeParameters(legalName = aName))
         b = network.createNode(MockNodeParameters(legalName = bName))
 
         val startedNodes = arrayListOf(a, b)
 
         // For real nodes this happens automatically, but we have to manually register the flow for tests
         startedNodes.forEach {
-            // TODO FIX
-//            it.services.cordaService(DataFetcherCordaService::class.java).init(dataFetcher)
-
             it.registerInitiatedFlow(DataPullQueryResponderFlow::class.java)
             it.registerInitiatedFlow(DataPullResultResponderFlow::class.java)
         }
@@ -68,7 +61,8 @@ class DataPullFlowTests {
 
     @Test
     fun `Simple data pull flow test`() {
-        val flow = DataPullFlow(bName, "Very special Query")
+        val query = "Very special Query"
+        val flow = DataPullFlow(bName, query)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -77,7 +71,7 @@ class DataPullFlowTests {
 
         // The following assertion verifies that the state eventually saved in the vault actually contains the result of the query
         val resultOfTheQueryInRequesterVault = a.services.vaultService.queryBy<DataPullState>().states.single().state.data
-        assertEquals(fakeResult, resultOfTheQueryInRequesterVault.results, "The result of the query must be in the state at the end of the flows")
+        assertEquals(query, resultOfTheQueryInRequesterVault.results, "The result of the query must be in the state at the end of the flows")
 
         // "Proxy" test for L1
         // The following assertion verifies that when you use the info you get returned from the flow (a SignedTransaction) you
@@ -86,6 +80,6 @@ class DataPullFlowTests {
         val resultOfTheQueryInRequesterVaultFromUUID = a.services.vaultService.queryBy<DataPullState>().states
             .filter { it.state.data.linearId.id == uuidOfStateWithResult }
         assertEquals(1, resultOfTheQueryInRequesterVaultFromUUID.size, "Exactly 1 state should be retrieved by the search in the vault via UUID")
-        assertEquals(fakeResult, resultOfTheQueryInRequesterVaultFromUUID.single().state.data.results, "The result of the query must be in the state with UUID retrieved from the SignedTransaction")
+        assertEquals(query, resultOfTheQueryInRequesterVaultFromUUID.single().state.data.results, "The result of the query must be in the state with UUID retrieved from the SignedTransaction")
     }
 }

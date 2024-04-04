@@ -40,6 +40,7 @@ class DataFetcherCordaService(serviceHub: AppServiceHub) : SingletonSerializeAsT
         dataFetcher = when (properties.getProperty("datafetcher.type")) {
             "sparql" -> SPARQLDataFetcher(properties)
             "codognotto" -> CodognottoHTTPDataFetcher(properties = properties)
+            "mock" -> MockDataFetcher()
             else -> throw RuntimeException("Invalid DataFetcher type specified: ${properties.getProperty("datafetcher.type")}")
         }
     }

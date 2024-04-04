@@ -154,21 +154,27 @@ class NewEventFlow(
     }
 
     private fun findMatchingParties(destinations: Collection<CordaX500Name>): Set<Party> = destinations.flatMap { destination ->
-        try {
-            val parties = serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
-            parties
-                .filter {
-                    (destination.commonName == null || it.name.commonName.equals(destination.commonName, ignoreCase = true))
-                        && (destination.organisationUnit == null || it.name.organisationUnit.equals(destination.organisationUnit, ignoreCase = true))
-                        && (destination.state == null || it.name.state.equals(destination.state, ignoreCase = true))
-                        && it.name.organisation.equals(destination.organisation, ignoreCase = true)
-                        && it.name.locality.equals(destination.locality, ignoreCase = true)
-                        && it.name.country.equals(destination.country, ignoreCase = true)
-                }
-        } catch (e: Exception) {
-            log.warn("Finding parties for destionation: $destination failed because ${e.message}")
-            throw e
+        val me = serviceHub.myInfo.legalIdentities.first()
+        val parties = serviceHub.networkMapCache.allNodes
+            .flatMap { it.legalIdentities }
+            .minus(me)
+            .filter {
+                (destination.commonName == null || it.name.commonName.equals(destination.commonName, ignoreCase = true))
+                    && (destination.organisationUnit == null || it.name.organisationUnit.equals(destination.organisationUnit, ignoreCase = true))
+                    && (destination.state == null || it.name.state.equals(destination.state, ignoreCase = true))
+                    && it.name.organisation.equals(destination.organisation, ignoreCase = true)
+                    && it.name.locality.equals(destination.locality, ignoreCase = true)
+                    && it.name.country.equals(destination.country, ignoreCase = true)
+            }
+
+        if (parties.isEmpty()) {
+            log.warn("One of the requested counterparties was not found: $destination")
+            throw IllegalArgumentException("One of the requested counterparties was not found: $destination")
         }
+
+        log.info("Found: {} counterparties for destination: {}", parties.size, destination)
+        parties
+
     }.toSet()
 }
 

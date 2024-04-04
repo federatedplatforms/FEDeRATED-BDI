@@ -72,7 +72,7 @@ class DataPullFlow(
 
         /////////////
         progressTracker.currentStep = RETRIEVING_COUNTERPARTY_INFO
-        val counterParty = findParty()
+        val counterParty = findParty(destination)
 
         val queryState = DataPullState(query, null, participants = listOf(counterParty, me!!))
 
@@ -107,20 +107,25 @@ class DataPullFlow(
         return subFlow(FinalityFlow(fullySignedTx, otherPartySession, FINALISING_TRANSACTION.childProgressTracker()))
     }
 
-    private fun findParty(): Party {
-        val counterParty = try {
-            serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }
-                .single { it.name.organisation.equals(destination.organisation, ignoreCase = true) && it.name.locality.equals(destination.locality, ignoreCase = true) && it.name.country.equals(destination.country, ignoreCase = true) }
-        } catch (e: IllegalArgumentException) {
-            log.debug("Too many parties found matching organisation: $destination.organisation and locality: $destination.Locality and country $destination.Country")
-            throw IllegalArgumentException("Too many parties found matching organisation: $destination.organisation and locality: $destination.Locality and country $destination.Country")
-        } catch (e: NoSuchElementException) {
-            log.debug("No parties found matching organisation: $destination.organisation and locality: $destination.Locality and country $destination.Country")
-            throw IllegalArgumentException("No parties found matching organisation: $destination.organisation and locality: $destination.Locality and country $destination.Country")
-        } catch (e: Exception) {
-            log.info("Finding the correct party failed because $e.message")
-            throw e
+    private fun findParty(destination: CordaX500Name): Party {
+        val me = serviceHub.myInfo.legalIdentities.first()
+        val parties = serviceHub.networkMapCache.allNodes.flatMap { it.legalIdentities }.minus(me)
+
+        val counterParty = parties
+            .find {
+                (destination.commonName == null || it.name.commonName.equals(destination.commonName, ignoreCase = true))
+                    && (destination.organisationUnit == null || it.name.organisationUnit.equals(destination.organisationUnit, ignoreCase = true))
+                    && (destination.state == null || it.name.state.equals(destination.state, ignoreCase = true))
+                    && it.name.organisation.equals(destination.organisation, ignoreCase = true)
+                    && it.name.locality.equals(destination.locality, ignoreCase = true)
+                    && it.name.country.equals(destination.country, ignoreCase = true)
+            }
+
+        if(counterParty == null) {
+            log.debug("No parties found matching destination: {}", destination)
+            throw IllegalArgumentException("No parties found matching destination: $destination")
         }
+
         return counterParty
     }
 }
