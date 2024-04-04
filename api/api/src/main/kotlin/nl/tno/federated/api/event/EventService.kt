@@ -30,15 +30,17 @@ class EventService(
      *
      * @throws UnsupportedEventTypeException is an unsupported Event type is encountered.
      */
-    fun newJsonEvent(event: String, eventType: EventType, eventDestinations: Set<String>? = null): EnrichedEvent {
-        val enrichedEvent = enrichJsonEvent(event, eventType)
+    fun newJsonEvent(event: String, eventType: String, eventDestinations: Set<String>? = null): EnrichedEvent {
+        val type = eventTypeMapping.getEventType(eventType) ?: throw EventTypeMappingException("EventType not found: $eventType")
+        val enrichedEvent = enrichJsonEvent(event, type)
         validateWithShacl(enrichedEvent)
         publishRDFEvent(enrichedEvent, eventDestinations)
         return enrichedEvent
     }
 
-    fun validateNewJsonEvent(event: String, eventType: EventType): EnrichedEvent {
-        val enrichedEvent = enrichJsonEvent(event, eventType)
+    fun validateNewJsonEvent(event: String, eventType: String): EnrichedEvent {
+        val type = eventTypeMapping.getEventType(eventType) ?: throw EventTypeMappingException("EventType not found: $eventType")
+        val enrichedEvent = enrichJsonEvent(event, type)
         validateWithShacl(enrichedEvent)
         return enrichedEvent
     }

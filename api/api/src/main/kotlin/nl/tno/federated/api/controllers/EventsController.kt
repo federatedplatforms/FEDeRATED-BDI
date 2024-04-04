@@ -31,8 +31,7 @@ const val EVENT_DESTINATION_HEADER = "Event-Destinations"
 @RequestMapping("/api/events")
 @Tag(name = "EventsController", description = "Allows for creation, distribution and retrieval of events. See the /event-types endpoint for all supported event types by this node.")
 class EventsController(
-    private val eventService: EventService,
-    private val eventTypeMapping: EventTypeMapping
+    private val eventService: EventService
 ) {
 
     companion object {
@@ -58,9 +57,8 @@ class EventsController(
     @PostMapping(path = [""], consumes = [APPLICATION_JSON_VALUE], produces = [APPLICATION_JSON_VALUE])
     fun postEvent(@RequestBody event: String, @RequestHeader(EVENT_TYPE_HEADER) eventType: String, @RequestHeader(name = EVENT_DESTINATION_HEADER, required = false) eventDestinations: String?): ResponseEntity<Void> {
         log.info("Received new event: {}", event)
-        val type = contentTypeToEventType(eventType)
         val destinations: Set<String>? = eventDestinationsToSet(eventDestinations)
-        val enrichedEvent = eventService.newJsonEvent(event, type, destinations)
+        val enrichedEvent = eventService.newJsonEvent(event, eventType, destinations)
         log.info("New event created with UUID: {}", enrichedEvent.eventUUID)
         return ResponseEntity.created(URI("/api/events/${enrichedEvent.eventUUID}")).build()
     }
@@ -86,8 +84,7 @@ class EventsController(
     @PostMapping(path = ["/validate"], consumes = [APPLICATION_JSON_VALUE], produces = [MediaType.TEXT_PLAIN_VALUE])
     fun validateEvent(@RequestBody event: String, @RequestHeader(EVENT_TYPE_HEADER) eventType: String): ResponseEntity<String> {
         log.info("Validate new event: {}", event)
-        val type = contentTypeToEventType(eventType)
-        val rdf = eventService.validateNewJsonEvent(event, type)
+        val rdf = eventService.validateNewJsonEvent(event, eventType)
         return ResponseEntity.ok(rdf.eventRDF)
     }
 
@@ -95,7 +92,4 @@ class EventsController(
         return eventDestinations?.split(";")?.toSet()
     }
 
-    private fun contentTypeToEventType(contentType: String): EventType {
-        return eventTypeMapping.getEventType(contentType) ?: throw UnsupportedEventTypeException(contentType)
-    }
 }

@@ -44,7 +44,7 @@ class EventTypeMapping(
     }
 
     fun getEventType(eventType: String): EventType? {
-        return config.types.find { it.eventType == eventType }?.toEventType()
+        return getEventTypes().find { it.eventType == eventType }
     }
 
     fun getEventTypes(): List<EventType> {
