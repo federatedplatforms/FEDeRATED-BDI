@@ -18,21 +18,25 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "EventTypesController", description = "Returns info regarding the supported event types by this node.")
 class EventTypesController(private val eventTypeMapping: EventTypeMapping) {
 
-    @GetMapping()
-    fun getEventTypes() = eventTypeMapping.getEventTypes()
+    @GetMapping
+    fun getEventTypes(): List<EventType> {
+        return eventTypeMapping.getEventTypes()
+    }
 
     @PostMapping
     fun newEventType(@Valid @RequestBody eventType: EventType) {
         eventTypeMapping.addEventType(eventType)
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{eventType}")
     fun deleteEventType(@PathVariable eventType: String) {
         eventTypeMapping.deleteEventType(eventType)
     }
 
     @GetMapping("/{type}/shacl", produces = ["text/turtle"])
-    fun getShacl(@PathVariable type: String) = eventTypeMapping.getEventTypes().firstOrNull { it.eventType == type }?.shacl
+    fun getShacl(@PathVariable type: String): String? {
+        return eventTypeMapping.getEventTypes().firstOrNull { it.eventType == type }?.shacl
+    }
 
     @PostMapping("/{type}/shacl", consumes = [MediaType.TEXT_PLAIN_VALUE])
     fun updateShacl(@PathVariable type: String, @RequestBody shacl: String) {
@@ -40,7 +44,9 @@ class EventTypesController(private val eventTypeMapping: EventTypeMapping) {
     }
 
     @GetMapping("/{type}/rml", produces = ["text/turtle"])
-    fun getRml(@PathVariable type: String) = eventTypeMapping.getEventTypes().firstOrNull { it.eventType == type }?.rml
+    fun getRml(@PathVariable type: String): String? {
+        return eventTypeMapping.getEventType( type )?.rml
+    }
 
     @PostMapping("/{type}/rml", consumes = [MediaType.TEXT_PLAIN_VALUE])
     fun updateRml(@PathVariable type: String, @RequestBody rml: String) {
