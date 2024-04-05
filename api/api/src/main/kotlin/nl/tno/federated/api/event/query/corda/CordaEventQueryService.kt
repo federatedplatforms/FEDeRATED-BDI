@@ -64,7 +64,7 @@ class CordaEventQueryService(
 
     private fun searchRemoteNode(query: EventQuery, remote: CordaX500Name): String? {
         log.info("Sending EventQuery to remote node: {}", remote)
-        val stateId = cordaNodeService.startDataPullFlow(query.sparql, remote)
+        val stateId = cordaNodeService.startDataPullFlow(query.query, remote)
         // TODO need to check if the flow has been completed, only then we can fetch the result.
         // https://docs.r3.com/en/platform/corda/4.9/enterprise/node/operating/querying-flow-data.html#view-summary-information-for-a-suspended-flow
         return cordaNodeService.getDataPullResults(stateId)

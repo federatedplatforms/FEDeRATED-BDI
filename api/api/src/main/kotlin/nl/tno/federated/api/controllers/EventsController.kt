@@ -70,7 +70,7 @@ class EventsController(
                 ExampleObject(
                     name = "Query additional information from the node related to specified event UUID.",
                     description = "eventUUID should exit in the Corda Vault.",
-                    value = """{ "sparql" : "select * where { ?s ?p ?o . } limit 100", "eventUUID" : "asasd-asas234cda-sasw233ds" }"""
+                    value = """{ "query" : "select * where { ?s ?p ?o . } limit 100", "eventUUID" : "asasd-asas234cda-sasw233ds" }"""
                 )
             ]
         )]
