@@ -9,6 +9,8 @@ import nl.tno.federated.api.event.mapper.EventMapper
 import nl.tno.federated.api.event.mapper.UnsupportedEventTypeException
 import nl.tno.federated.api.event.query.EventQuery
 import nl.tno.federated.api.event.query.corda.CordaEventQueryService
+import nl.tno.federated.api.event.type.EventTypeMapping
+import nl.tno.federated.api.event.type.EventTypeMappingException
 import nl.tno.federated.api.event.validation.ShaclValidator
 import org.springframework.stereotype.Service
 import java.util.*

@@ -1,27 +1,9 @@
-package nl.tno.federated.api.event
+package nl.tno.federated.api.event.type
 
-import nl.tno.federated.api.event.mapper.EventType
 import org.slf4j.LoggerFactory
-import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.core.io.DefaultResourceLoader
 import org.springframework.stereotype.Component
-import java.nio.charset.StandardCharsets.UTF_8
 
-@ConfigurationProperties(prefix = "federated.node.event")
-class EventTypeMappingConfig(val types: List<Type>) {
-    class Type {
-        lateinit var eventType: String
-        lateinit var rml: String
-        var shacl: String? = null
-        private val resourceLoader = DefaultResourceLoader()
 
-        fun toEventType() = EventType(eventType, rml.loadResourceAsString(), shacl?.loadResourceAsString())
-
-        fun String.loadResourceAsString() = resourceLoader.getResource(this).getContentAsString(UTF_8)
-    }
-}
-
-class EventTypeMappingException(message: String) : Exception(message)
 
 @Component
 class EventTypeMapping(

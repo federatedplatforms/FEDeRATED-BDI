@@ -1,6 +1,6 @@
 package nl.tno.federated.api
 
-import nl.tno.federated.api.event.EventTypeMappingConfig
+import nl.tno.federated.api.event.type.EventTypeMappingConfig
 import nl.tno.federated.api.graphdb.GraphDBSPARQLClient
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication

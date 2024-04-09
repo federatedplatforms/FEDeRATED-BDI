@@ -2,8 +2,8 @@ package nl.tno.federated.api.controllers
 
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import nl.tno.federated.api.event.EventTypeMapping
-import nl.tno.federated.api.event.mapper.EventType
+import nl.tno.federated.api.event.type.EventTypeMapping
+import nl.tno.federated.api.event.type.EventType
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping

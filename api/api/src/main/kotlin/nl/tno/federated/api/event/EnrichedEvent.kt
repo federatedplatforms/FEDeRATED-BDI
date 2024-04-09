@@ -1,6 +1,6 @@
 package nl.tno.federated.api.event
 
-import nl.tno.federated.api.event.mapper.EventType
+import nl.tno.federated.api.event.type.EventType
 import java.util.*
 
 /**

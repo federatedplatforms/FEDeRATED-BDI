@@ -1,6 +1,5 @@
-package nl.tno.federated.api.event
+package nl.tno.federated.api.event.type
 
-import nl.tno.federated.api.event.mapper.EventType
 import org.springframework.stereotype.Service
 
 class EventTypeServiceException(msg: String) : Exception(msg)
@@ -11,11 +10,11 @@ class EventTypeService(private val eventTypeRepository: EventTypeRepository) {
     fun addEventType(e: EventType): EventTypeEntity {
         val current = eventTypeRepository.findByEventType(eventType = e.eventType)
         if( current != null) throw EventTypeServiceException("EventType already exists: ${e.eventType}")
-        return eventTypeRepository.save(EventTypeEntity(eventType = e.eventType, rml = e.rml, shacl = e.shacl) )
+        return eventTypeRepository.save(EventTypeEntity(eventType = e.eventType, rml = e.rml, shacl = e.shacl, schemaDefinition = e.schemaDefinition) )
     }
 
     fun getAllEventTypes(): List<EventType> {
-        return eventTypeRepository.findAll().map { EventType(eventType = it.eventType, rml = it.rml, shacl = it.shacl) }
+        return eventTypeRepository.findAll().map { EventType(eventType = it.eventType, rml = it.rml, shacl = it.shacl, schemaDefinition = it.schemaDefinition) }
     }
 
     fun deleteEventType(eventType: String) {

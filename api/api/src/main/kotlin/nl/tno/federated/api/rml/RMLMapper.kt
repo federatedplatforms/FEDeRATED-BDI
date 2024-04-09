@@ -18,7 +18,6 @@ class RMLMapper {
     private val log = LoggerFactory.getLogger(RMLMapper::class.java)
 
     fun createTriples(data: String, rml: String): String? {
-        // Map the data with the provided rules
         val result = mapRml(data, rml)
         log.trace("Result: $result")
         return result
@@ -27,7 +26,10 @@ class RMLMapper {
     /**
      * Run rml mapper for the given json data and provided ttl mapping.
      */
-    private fun mapRml(jsonData: String, mappingTtl: String): String? {
+    private fun mapRml(jsonData: String, rml: String): String? {
+        // Replace all rml:source references to data.json since the RML mapper expects them in a file called data.json
+        val rmlToUse = replaceBetween(input = rml, "rml:source", ";", " \"data.json\" ")
+
         // RmlMapper requires an unique folder per request, it read the data from data.json
         val tempDir = Files.createTempDirectory("semantic-adapter")
         log.debug("Created temp dir: ${tempDir.absolutePathString()}")
@@ -41,7 +43,7 @@ class RMLMapper {
             // Load the mapping in a QuadStore
             val rmlStore = RDF4JStore()
 
-            ByteArrayInputStream(mappingTtl.toByteArray(StandardCharsets.UTF_8)).use {
+            ByteArrayInputStream(rmlToUse.toByteArray(StandardCharsets.UTF_8)).use {
                 rmlStore.read(it, null, RDFFormat.TURTLE)
             }
 
@@ -52,7 +54,7 @@ class RMLMapper {
             val outputStore = RDF4JStore()
 
             // Create the Executor
-            val executor = Executor(rmlStore, factory, outputStore, Utils.getBaseDirectiveTurtle(mappingTtl), functionAgent)
+            val executor = Executor(rmlStore, factory, outputStore, Utils.getBaseDirectiveTurtle(rmlToUse), functionAgent)
 
             // Execute the mapping
             log.info("Executing RML mapping...")
@@ -62,8 +64,7 @@ class RMLMapper {
             val result = targets[NamedNode("rmlmapper://default.store")] ?: return null
             result.copyNameSpaces(rmlStore)
             return writeToString(result)
-        }
-        finally {
+        } finally {
             // Cleanup
             dataFile.deleteIfExists()
             log.debug("Deleted data file: ${dataFile.absolutePathString()}")
@@ -91,6 +92,22 @@ class RMLMapper {
         }
 
         return str.toString()
+    }
+
+    fun replaceBetween(input: String, start: String, end: String, replacement: String): String {
+        var startIndex = input.indexOf(start)
+        if (startIndex <= 0) return input
+
+        var result = input
+
+        while (startIndex > 0) {
+            val endIndex = result.indexOf(end, startIndex = startIndex)
+            log.info("Replacing value in string '${input.substring(startIndex, endIndex + end.length)}' between: '{}' and: '{}' with: '{}'", start, end, replacement)
+            result = result.replaceRange(startIndex + start.length, endIndex, replacement)
+            startIndex = result.indexOf(start, startIndex = endIndex)
+        }
+
+        return result
     }
 
     companion object {

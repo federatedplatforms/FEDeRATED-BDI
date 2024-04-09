@@ -2,6 +2,7 @@ package nl.tno.federated.api.event.mapper
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import nl.tno.federated.api.event.type.EventType
 import nl.tno.federated.api.rml.RMLMapper
 import nl.tno.federated.api.util.RDFUtils.convert
 import nl.tno.federated.api.util.toJsonNode

@@ -6,9 +6,6 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.tags.Tag
 import nl.tno.federated.api.event.EventService
-import nl.tno.federated.api.event.EventTypeMapping
-import nl.tno.federated.api.event.mapper.EventType
-import nl.tno.federated.api.event.mapper.UnsupportedEventTypeException
 import nl.tno.federated.api.event.query.EventQuery
 import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType

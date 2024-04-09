@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## TODO / Wishlist
+## TODO
 
 Documentation:
 
@@ -21,12 +21,13 @@ Documentation:
 
 Implementation:
 
+- Add schema location URL to the eventType definition for documentation purposed.
 - Store distribution rule configuration in the database
 - Implement paging and sorting for the event viewer UI
 - Implement viewing a single events details in the event viewer UI
 - We are currently using Corda 4.9 but the next major release is Corda 5.x, consider upgrading.
 
-Ideas worth investigating:
+## Ideas worth investigating
 
 - It might be useful if events would include links to relevant data that a sender of an event is able to provide. 
   Similar to what HATEOS is for RESTful services or Hydra for JSON-LD https://www.markus-lanthaler.com/hydra/spec/latest/core/
@@ -38,8 +39,9 @@ Ideas worth investigating:
 
 ## [0.4]
 
+- Replace all rml:source declarations with: rml:source "data.json" ;
 - Add an API to add/update/delete event types
-- Store the event types in the database
+- Store the event types in the h2 database
 - Add h2 database for storing the Webhooks so that Webhooks can survive a restart now.
 - Add polling mechanism for the Corda vault which retrieves all the (new) events and publishes them to the registered webhooks.
 - Add Spring Security and configured Basic Ath for to the /api/** endpoints.

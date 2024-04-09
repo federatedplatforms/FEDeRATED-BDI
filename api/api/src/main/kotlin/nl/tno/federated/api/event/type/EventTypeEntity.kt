@@ -1,4 +1,4 @@
-package nl.tno.federated.api.event
+package nl.tno.federated.api.event.type
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
@@ -9,5 +9,6 @@ data class EventTypeEntity(
     var id: Long? = null,
     val eventType: String,
     val rml: String,
-    val shacl: String?
+    val shacl: String?,
+    val schemaDefinition: String?
 )
