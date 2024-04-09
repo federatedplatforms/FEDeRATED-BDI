@@ -4,19 +4,42 @@ All notable changes to this project will be documented in this file. The format 
 
 ## TODO / Wishlist
 
-- Update usage documentation
-  - How to use Webhooks API
-  - How to configure new events
-  - How to use the Data Pull flow
-- Store the distribution rules in the database
-- Store supported event types in the database
-- Paging and sorting not working in the event viewer UI
-- Upgrade to Corda 5?
+Documentation:
+
+- How to use the Webhooks API
+  - Add/edit/delete
+  - Structure of the webhook notification message
+- How to configure event types and use the for new events
+  - How to add/edit/delete new event types
+  - How to use the Event-Type and Event-Destination headers
+- How to use the Data Pull flow
+  - Structure of the request
+  - Configuring a Data Fetcher
+- How to enable API security
+  - What properties
+  - How to extend
+
+Implementation:
+
+- Store distribution rule configuration in the database
+- Implement paging and sorting for the event viewer UI
+- Implement viewing a single events details in the event viewer UI
+- We are currently using Corda 4.9 but the next major release is Corda 5.x, consider upgrading.
+
+Ideas worth investigating:
+
+- It might be useful if events would include links to relevant data that a sender of an event is able to provide. 
+  Similar to what HATEOS is for RESTful services or Hydra for JSON-LD https://www.markus-lanthaler.com/hydra/spec/latest/core/
+  This way a data pull can be initiated based on links in an event, without having to figure out what additional information a party, 
+  sending the initial event, has to offer.
+
 
 ## [Unreleased]
 
 ## [0.4]
 
+- Add an API to add/update/delete event types
+- Store the event types in the database
 - Add h2 database for storing the Webhooks so that Webhooks can survive a restart now.
 - Add polling mechanism for the Corda vault which retrieves all the (new) events and publishes them to the registered webhooks.
 - Add Spring Security and configured Basic Ath for to the /api/** endpoints.
