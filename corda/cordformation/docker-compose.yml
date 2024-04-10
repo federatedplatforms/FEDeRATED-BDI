@@ -100,7 +100,7 @@ services:
 
     demo-node1-graphdb:
         volumes:
-            - './graphdb/repositories:/repository.init'
+            - './config/docker-demo-node1-graphdb/repositories:/repository.init'
         ports:
             - '7201:7200'
         image: 'khaller/graphdb-free:10.2.1'
@@ -109,7 +109,7 @@ services:
 
     demo-node2-graphdb:
         volumes:
-            - './graphdb/repositories:/repository.init'
+            - './config/docker-demo-node2-graphdb/repositories:/repository.init'
         ports:
             - '7202:7200'
         image: 'khaller/graphdb-free:10.2.1'
