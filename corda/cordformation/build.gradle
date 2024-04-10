@@ -140,6 +140,71 @@ task deployNodes(type: Cordform, dependsOn: ['jar']) {
     }
 }
 
+// Task to deploy the nodes in order to bootstrap a network
+task deployDockerNodes(type: Cordform, dependsOn: ['jar']) {
+
+    /* This property will load the CorDapps to each of the node by default, including the Notary. You can find them
+     * in the cordapps folder of the node at build/nodes/Notary/cordapps. However, the notary doesn't really understand
+     * the notion of cordapps. In production, Notary does not need cordapps as well. This is just a short cut to load
+     * the Corda network bootstrapper.
+     */
+    nodeDefaults {
+        projectCordapp {
+            deploy = false
+        }
+        runSchemaMigration = false //This configuration is for any CorDapps with custom schema, We will leave this as true to avoid
+        //problems for developers who are not familiar with Corda. If you are not using custom schemas, you can change
+        //it to false for quicker project compiling time.
+    }
+    node {
+        name "OU=Notary,O=Notary,L=Utrecht,C=NL"
+        notary = [validating: false]
+        p2pAddress "demo-notary-corda:10002"
+        rpcSettings {
+            address("demo-notary-corda:10003")
+            adminAddress("localhost:10043")
+        }
+    }
+    node {
+        name "OU=Node1,O=Demo,L=Rotterdam,C=NL"
+        p2pAddress "demo-node1-corda:10005"
+        rpcSettings {
+            address("demo-node1-corda:10006")
+            adminAddress("localhost:10046")
+        }
+        cordapp project(':contracts')
+        cordapp project(":services")
+        cordapp project(':workflows')
+        rpcUsers = [[user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
+    }
+    node {
+        name "OU=Node2,O=Demo,L=Apeldoorn,C=NL"
+        p2pAddress "demo-node2-corda:10008"
+        rpcSettings {
+            address("demo-node2-corda:10009")
+            adminAddress("localhost:10049")
+        }
+        cordapp project(':contracts')
+        cordapp project(":services")
+        cordapp project(':workflows')
+        rpcUsers = [[user: "user1", "password": "vzzuABeCut3jGoJfEp94", "permissions": ["ALL"]]]
+    }
+
+    doLast {
+        copy {
+            from './config/docker-demo-node1-corda/database.properties'
+            from '../services/src/main/resources/ishare.properties'
+            into "build/nodes/Demo_Node1"
+        }
+        copy {
+            from './config/docker-demo-node2-corda/database.properties'
+            from '../services/src/main/resources/ishare.properties'
+            into "build/nodes/Demo_Node2"
+        }
+    }
+}
+
+
 task installQuasar(type: Copy) {
     destinationDir rootProject.file("lib")
     from(configurations.quasar) {

@@ -1,0 +1,117 @@
+version: '3.9'
+#
+# For more info see: https://github.com/khaller93/graphdb-free
+#
+# If on Windows WSL2 the mounting of the volume does not work, make sure to check that in your Windows home dir .wslconfig the following option is set:
+#
+#  [automount]
+#  options = "metadata"
+#
+# Note: remove the graphdb-data/<repo>/init.lock if you want to reinitialize the graphdb repository.
+#
+services:
+    demo-node1-corda:
+        image: azul/zulu-openjdk:8
+        entrypoint: [ "/bin/sh","-c" ]
+        container_name: demo-node1-corda
+        hostname: demo-node1-corda
+        ports:
+            - "10005:10005"
+            - "10006:10006"
+        command:
+            - |
+                cd /opt/corda/ && java -Dname=Demo_Node1 -jar corda.jar
+        volumes:
+            - ./build/nodes/Demo_Node1:/opt/corda/
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+
+    demo-node2-corda:
+        image: azul/zulu-openjdk:8
+        entrypoint: [ "/bin/sh","-c" ]
+        hostname: demo-node2-corda
+        container_name: demo-node2-corda
+        ports:
+            - "10008:10008"
+            - "10009:10009"
+        command:
+            - |
+                cd /opt/corda/ && java -Dname=Demo_Node2 -jar corda.jar
+        volumes:
+            - ./build/nodes/Demo_Node2:/opt/corda/
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+
+    demo-notary-corda:
+        image: azul/zulu-openjdk:8
+        entrypoint: [ "/bin/sh","-c" ]
+        hostname: demo-notary-corda
+        container_name: demo-notary-corda
+        ports:
+            - "10002:10002"
+            - "10003:10003"
+        command:
+            - |
+                cd /opt/corda/ && java -Dname=Notary_Notary -jar corda.jar
+        volumes:
+            - ./build/nodes/Notary_Notary:/opt/corda/
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+
+    demo-node1-api:
+        ports:
+            - '10051:10050'
+        image: 'federatedbdi/federated-node-api:0.4.3'
+        container_name: demo-node1-api
+        hostname: demo-node1-api
+        command: >
+                /bin/bash -c "java 
+                --add-opens java.base/java.time=ALL-UNNAMED
+                --add-opens java.base/java.lang=ALL-UNNAMED
+                --add-opens java.base/java.io=ALL-UNNAMED
+                --add-opens java.base/java.net=ALL-UNNAMED
+                -Dfederated.node.corda.rpc.host=demo-node1-corda 
+                -Dfederated.node.corda.rpc.port=10006 
+                -Dfederated.node.graphdb.sparql.url=http://demo-node1-graphdb:7200/repositories/federated 
+                -Dfederated.node.event.distribution.rules.list=static 
+                -Dfederated.node.event.distribution.rules.static.destinations=OU=Node2,O=Demo,L=Apeldoorn,C=NL 
+                -jar api.jar"
+        restart: on-failure
+
+    demo-node2-api:
+        ports:
+            - '10052:10050'
+        image: 'federatedbdi/federated-node-api:0.4.3'
+        container_name: demo-node2-api
+        hostname: demo-node2-api
+        command: >
+            /bin/bash -c "java 
+            --add-opens java.base/java.time=ALL-UNNAMED
+            --add-opens java.base/java.lang=ALL-UNNAMED
+            --add-opens java.base/java.io=ALL-UNNAMED
+            --add-opens java.base/java.net=ALL-UNNAMED
+            -Dfederated.node.corda.rpc.host=demo-node2-corda 
+            -Dfederated.node.corda.rpc.port=10009
+            -Dfederated.node.graphdb.sparql.url=http://demo-node2-graphdb:7200/repositories/federated 
+            -Dfederated.node.event.distribution.rules.list=static 
+            -Dfederated.node.event.distribution.rules.static.destinations=OU=Node1,O=Demo,L=Rotterdam,C=NL 
+            -jar api.jar"
+        restart: on-failure
+
+    demo-node1-graphdb:
+        volumes:
+            - './graphdb/repositories:/repository.init'
+        ports:
+            - '7201:7200'
+        image: 'khaller/graphdb-free:10.2.1'
+        hostname: demo-node1-graphdb
+        container_name: demo-node1-graphdb
+
+    demo-node2-graphdb:
+        volumes:
+            - './graphdb/repositories:/repository.init'
+        ports:
+            - '7202:7200'
+        image: 'khaller/graphdb-free:10.2.1'
+        hostname: demo-node2-graphdb
+        container_name: demo-node2-graphdb
