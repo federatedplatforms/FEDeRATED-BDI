@@ -40,6 +40,7 @@ The following documentation is available:
 
 | Component                                 | Description                                               |
 |-------------------------------------------|-----------------------------------------------------------|
+| [Notifications / Webhook](webhook.md)     | Notification / Webook documentation                       |
 | [API](api.md)                             | FEDeRATED API documentation                               | 
 | [Corda](corda.md)                         | Corda documentation (workflows, contracts, cordformation) |
 | [Development Guide](development-guide.md) | Development environment setup guide                       |
