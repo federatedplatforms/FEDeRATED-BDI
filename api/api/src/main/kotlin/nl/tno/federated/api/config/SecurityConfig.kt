@@ -40,7 +40,6 @@ class SecurityConfig {
             }
             .authorizeHttpRequests { requests ->
                 requests.anyRequest().permitAll()
-
             }
         return http.build()
     }

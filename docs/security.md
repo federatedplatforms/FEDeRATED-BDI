@@ -1,51 +1,36 @@
 # Security
 
-## FEDeRATED node security consideration
+## FEDeRATED Node Security
 
-FEDeRATED node API endpoints (/api/**) are out of the box secured using (Spring Security)[https://spring.io/projects/spring-security]. Basic authentication is
-implemented for the api endpoints, this is not recommended for production environments! We also strongly recommend to 
- secure the API endpoints using transport layer security (TLS). Security can be disabled complete in favor of an API 
-gateway or any other existing authentication mechanisms.
+There are two security concerns that need attention. First is the API endpoints that are exposed by the FEDeRATED Node API. 
+Second is the event distribution communication between nodes.
 
-In the `application.properties` the following properties can be set to modify the security configuration of a node.
+API endpoints (/api/**) are out of the box secured using Basic authentication, note that this is **not recommended** for production environments!
+The current implementation is based on [Spring Security](https://spring.io/projects/spring-security).
+Whenever API endpoint security is enabled the API consumer is required to provide a base64 encrypted username:password combination in the Authorization: Basic request header.
+The built-in security mechanism provides a role-based authentication configuration. 
+
+When using an external authentication mechanism, like an API gateway, then one might want to disable the provided authentication mechanism. This can be
+done using the configuration of the Node API. In the `application.properties` the following properties can be altered to modify the security configuration of a node.
 
 ```properties
 # Enable or disable the api security feature, default=true
 federated.node.api.security.enabled=true
-# API username, default=api
+# API username, default value=api
 federated.node.api.security.username=api
-# API password encrypted using bcrypt, default=password
+# API password encrypted using bcrypt, default value=password
 federated.node.api.security.password=$2a$04$QSdb8yrtXowsJMBf/.Nkku/85wceyamR4LPArNCwE264bXtATef8m
-```
-
-API to Corda communication is by default non-secure on the transport
-layer. This can be secured usin TLS. 
-
-```mermaid
-graph LR
-    
-    Client -- HTTPS POST /events --> Proxy
-    
-    subgraph Secure 
-        Proxy[Secure Proxy] --> Auth[Authentication Provider]      
-    end
-        
-    subgraph Unsecure
-        Proxy -- HTTP /POST events --> API
-        API --> Corda
-        Corda --> GraphDB
-    end
 ```
 
 ## TLS
 
-### API endpoints
+### Node API endpoints
 
 For production environment it's highly recommended to use transport layer security (HTTPS) for accessing the API endpoints. One could use https://letsencrypt.org/ or any other certificate authority for generating certificates.
 
-### Corda nodes
+### Event Distribution / Communication between Corda nodes
 
-Corda nodes communicate peer-to-peer. Communication using AMQP over TLS can be configured when needed. Please refer to the Corda documentation for more information: https://docs.r3.com/en/platform/corda/4.9/enterprise/node/component-topology.html#node-communication-protocols
+Corda nodes communicate peer-to-peer. Corda 4.x uses AMQP. AMQP over TLS can be configured whenever needed. Please refer to the Corda documentation for more information: https://docs.r3.com/en/platform/corda/4.9/enterprise/node/component-topology.html#node-communication-protocols
 
 ```mermaid
 graph TD
@@ -57,7 +42,6 @@ graph TD
         OTHER(Corda Node) -- events --> OTHERGRAPHDB(GraphDB)
     end
 ```
-
 
 ## Corda Network admission
 
