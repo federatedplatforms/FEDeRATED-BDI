@@ -33,7 +33,7 @@ Implementation:
   Similar to what HATEOS is for RESTful services or Hydra for JSON-LD https://www.markus-lanthaler.com/hydra/spec/latest/core/
   This way a data pull can be initiated based on links in an event, without having to figure out what additional information a party, 
   sending the initial event, has to offer.
-
+- Come up with a mechanism that describes the capabilities of a Node and a way of exposing them.
 
 ## [Unreleased]
 
