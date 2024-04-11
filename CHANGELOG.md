@@ -6,22 +6,15 @@ All notable changes to this project will be documented in this file. The format 
 
 Documentation:
 
-- How to use the Webhooks API
-  - Add/edit/delete
-  - Structure of the webhook notification message
 - How to configure event types and use the for new events
   - How to add/edit/delete new event types
   - How to use the Event-Type and Event-Destination headers
 - How to use the Data Pull flow
   - Structure of the request
   - Configuring a Data Fetcher
-- How to enable API security
-  - What properties
-  - How to extend
 
 Implementation:
 
-- Add schema location URL to the eventType definition for documentation purposed.
 - Store distribution rule configuration in the database
 - Implement paging and sorting for the event viewer UI
 - Implement viewing a single events details in the event viewer UI
@@ -39,6 +32,9 @@ Implementation:
 
 ## [0.4]
 
+- Add documentation how the Notifications / Webhooks work.
+- Add schema location URL to the eventType definition. This allows for providing a link to the schema definition/documentation.
+- Update security documentation
 - Replace all rml:source declarations with: rml:source "data.json" ;
 - Add an API to add/update/delete event types
 - Store the event types in the h2 database
