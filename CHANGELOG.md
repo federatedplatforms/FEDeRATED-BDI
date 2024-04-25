@@ -16,6 +16,7 @@ Documentation:
 Implementation:
 
 - Store distribution rule configuration in the database
+- Add authentication to the Webhook calls, some strategies for the implementation: https://hookdeck.com/webhooks/guides/what-are-the-webhook-authentication-strategies#signature-verification
 - Implement paging and sorting for the event viewer UI
 - Implement viewing a single events details in the event viewer UI
 - We are currently using Corda 4.9 but the next major release is Corda 5.x, consider upgrading.
