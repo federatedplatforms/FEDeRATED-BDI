@@ -15,7 +15,7 @@ services:
             - './graphdb/repositories:/repository.init'
         ports:
             - '7200:7200'
-        image: 'khaller/graphdb-free:10.2.1'
+        image: 'khaller/graphdb-free:10.6.2'
         container_name: graphdb
 
     graphdb_nl:
@@ -23,7 +23,7 @@ services:
             - './graphdb/repositories:/repository.init'
         ports:
             - '7201:7200'
-        image: 'khaller/graphdb-free:10.2.1'
+        image: 'khaller/graphdb-free:10.6.2'
         container_name: graphdb_nl
 
     graphdb_de:
@@ -31,7 +31,7 @@ services:
             - './graphdb/repositories:/repository.init'
         ports:
             - '7202:7200'
-        image: 'khaller/graphdb-free:10.2.1'
+        image: 'khaller/graphdb-free:10.6.2'
         container_name: graphdb_de
 
     graphdb_gb:
@@ -39,5 +39,5 @@ services:
             - './graphdb/repositories:/repository.init'
         ports:
             - '7203:7200'
-        image: 'khaller/graphdb-free:10.2.1'
+        image: 'khaller/graphdb-free:10.6.2'
         container_name: graphdb_gb
