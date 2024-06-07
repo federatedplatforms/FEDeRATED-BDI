@@ -121,7 +121,7 @@ federated.node.event.distribution.rules.list=broadcast
 A FEDeRATED Node can support any number of events. The API was designed in such a way that it can be configured what events
 are supported and how incoming events should be converted the expected internal format of the FEDeRATED Node: RDF
 
-There is an introspection API for the event configuration. The `/event-types` endpoint can be called to retrieve all the supported/configured
+There is an introspection API for the event configuration. The `/api/event-types` endpoint can be called to retrieve all the supported/configured
 events of a node. The configuration includes:
 
 * eventType: unique key for an event
@@ -148,8 +148,6 @@ federated.node.event.types[0].rml=classpath:rml/OtherEvent.ttl
 
 Both the rml and shacl follow the Spring resource syntax, please refer to the Spring documentation on how to specify resources: https://docs.spring.io/spring-framework/reference/core/resources.html  
 
-Event can also be added using the `/api/event-types` endpoints. See the swagger documentation on how to add, update or delete events.
-
 ### Creating an event
 
 When creating new events a JSON payload has to be POST-ed to the `/events` endpoint. The JSON payload will be converted to RDF by reading the `Event-Type` header and looking up the RML file matching the provided `Event-Type` value. After converting the JSON payload to RDF an optional SHACL validation is triggered.
@@ -158,7 +156,7 @@ In case of any validation errors a HTTP BAD_REQUEST (400) response will be gener
 
 ```bash
 curl -X 'POST' \
-  'http://localhost:10050/events' \
+  'http://localhost:10050/api/events' \
   -H "Authorization: Basic YXBpdXNlcjphcGlwd2Q=" \
   -H 'Accept: */*' \
   -H 'Event-Type: federated.events.minimal-event.v1' \
@@ -173,7 +171,7 @@ When creating new events the event will be distributed according to the distribu
 
 ```bash
 curl -X 'POST' \
-  'http://localhost:10050/events' \
+  'http://localhost:10050/api/events' \
   -H 'Accept: */*' \
   -H "Authorization: Basic YXBpdXNlcjphcGlwd2Q=" \
   -H 'Event-Type: federated.events.minimal-event.v1' \
@@ -190,7 +188,7 @@ Clients can perform SPARQL queries on the nodes local triple store using the `/s
 
 ```bash
 curl -X 'POST' \
-  'http://localhost:10050/sparql' \
+  'http://localhost:10050/api/sparql' \
   -H "Authorization: Basic YXBpdXNlcjphcGlwd2Q=" \
   -H 'Accept: application/sparql-results+json' \
   -H 'Content-Type: text/plain' \
