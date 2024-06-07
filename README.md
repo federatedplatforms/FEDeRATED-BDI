@@ -8,7 +8,6 @@ In the following diagram the logical steps are described how the FEDeRATED Node 
 An ontology for the FEDeRATED node is maintained using Semantic Treehouse (https://www.semantic-treehouse.nl/).
 The RML and SHACL are based on the ontology as defined in Semantic Threehouse.
 
-
 ```mermaid
 flowchart TD 
  
@@ -88,9 +87,9 @@ graph TD
 
 Events are distributed to other nodes based on the Nodes configuration. There are a few options how to configure the distribution mechanism:
 
-* static: messages are routed to preconfigured destinations
-* broadcast: messages are broadcast to all nodes in the network (based on the nodes in the Network Map Service).
-* sparql: based on the outcome of a SPARQL ASK messages are routed to the provided destination(s).
+* static: messages are routed to pre-defined destinations
+* broadcast: messages are broadcast to all nodes in the network (based on the nodes in the Network Map Service)
+* sparql: based on the outcome of a SPARQL ASK messages are routed to the provided destination(s)
 
 ### Static distribution
 
@@ -132,22 +131,24 @@ events of a node. The configuration includes:
 
 For each eventType a call to the `/events` endpoint can be made to submit new events, see the section: Creating an event.
 
-Example configuration:
+Pre-configured event:
 
 ```properties
-federated.node.event.types[0].eventType=federated.events.load-event.v1
-federated.node.event.types[0].rml=classpath:rml/EventMapping.ttl
-federated.node.event.types[0].shacl=classpath:shacl/LoadEvent.ttl
+federated.node.event.types[0].eventType=federated.events.minimal-event.v1
+federated.node.event.types[0].rml=classpath:rml/MinimalEvent.ttl
+federated.node.event.types[0].shacl=classpath:shacl/MinimalEvent.ttl
 ```
 
 If no SHACL validation is required, one could omit this property.
 
 ```properties
-federated.node.event.types[1].eventType=federated.events.arrival-event.v1
-federated.node.event.types[1].rml=classpath:rml/EventMapping.ttl
+federated.node.event.types[0].eventType=federated.events.other-event.v1
+federated.node.event.types[0].rml=classpath:rml/OtherEvent.ttl
 ```
 
 Both the rml and shacl follow the Spring resource syntax, please refer to the Spring documentation on how to specify resources: https://docs.spring.io/spring-framework/reference/core/resources.html  
+
+Event can also be added using the `/api/event-types` endpoints. See the swagger documentation on how to add, update or delete events.
 
 ### Creating an event
 
@@ -158,9 +159,9 @@ In case of any validation errors a HTTP BAD_REQUEST (400) response will be gener
 ```bash
 curl -X 'POST' \
   'http://localhost:10050/events' \
-  -H "Authorization: Basic YXBpdXNlcjphcGlwd2Q="
-  -H 'accept: */*' \
-  -H 'Event-Type: federated.events.load-event.v1' \
+  -H "Authorization: Basic YXBpdXNlcjphcGlwd2Q=" \
+  -H 'Accept: */*' \
+  -H 'Event-Type: federated.events.minimal-event.v1' \
   -H 'Content-Type: application/json' \
   -d '{ "event" : "data" }'
 ```
@@ -168,13 +169,14 @@ curl -X 'POST' \
 ### Creating an event and distribute to specific destination(s)
 
 When creating new events the event will be distributed according to the distribution rules and configured destinations. There is a way to override the destinations to which an event is sent by setting the 
-`Event-Destinations` header. One could specify a comma separated list of destinations to which the event has to be sent (format: ORGANISATION/LOCALITY/COUNTRY). And example:
+`Event-Destinations` header. One could specify a comma separated list of destinations to which the event has to be sent (in Corda X500 node identification format: O=ORGANISATION,L=LOCALITY,C=COUNTRY (etc)). And example:
 
 ```bash
 curl -X 'POST' \
   'http://localhost:10050/events' \
-  -H 'accept: */*' \
-  -H 'Event-Type: federated.events.load-event.v1' \
+  -H 'Accept: */*' \
+  -H "Authorization: Basic YXBpdXNlcjphcGlwd2Q=" \
+  -H 'Event-Type: federated.events.minimal-event.v1' \
   -H 'Event-Destinations: O=ORGANISATION,L=LOCALITY,C=COUNTRY' \
   -H 'Content-Type: application/json' \
   -d '{ "event" : "data" }'
@@ -189,7 +191,8 @@ Clients can perform SPARQL queries on the nodes local triple store using the `/s
 ```bash
 curl -X 'POST' \
   'http://localhost:10050/sparql' \
-  -H 'accept: application/sparql-results+json' \
+  -H "Authorization: Basic YXBpdXNlcjphcGlwd2Q=" \
+  -H 'Accept: application/sparql-results+json' \
   -H 'Content-Type: text/plain' \
   -d 'select * where { ?s ?p ?o . } limit 100'
 ```
