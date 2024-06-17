@@ -217,6 +217,15 @@ Technical documentation [can be found here](docs/README.md).
 | [ishare](ishare/)                     | iSHARE specific integration code                                                | 
 
 
+## Two applications in one repository
+
+This repository contains two (deployable) applications:
+
+* API project (Kotlin 1.9/Java 17)
+* Corda project (Kotlin 1.3/Java 8)
+
+For more information see the technical documentation.
+
 ## Changelog
 
 Please refer to the [changelog](CHANGELOG.md).
