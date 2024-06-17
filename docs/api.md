@@ -4,12 +4,12 @@ FEDeRATED Node API exposed all the endpoints for interaction with a node.
 
 ## Available endpoints
 
-| Endpoint                                                                                        | Description                |
-|-------------------------------------------------------------------------------------------------|----------------------------|
-| [/api/corda](../api/api/src/main/kotlin/nl/tno/federated/api/controllers/CordaNodeController.kt) | Corda node related endpoints |
-| [/api/events](../api/api/src/main/kotlin/nl/tno/federated/api/controllers/EventsController.kt)  | Event related endpoints    | 
-| [/api/sparql](../api/api/src/main/kotlin/nl/tno/federated/api/controllers/SPARQLController.kt)  | SPARQL endpoint            |
-| [/api/webhooks](../api/api/src/main/kotlin/nl/tno/federated/api/webhook/WebhookController.kt)   | Webhook endpoint           |
+| Endpoint                                                                                        | Description                | Documentation                     |
+|-------------------------------------------------------------------------------------------------|----------------------------|-----------------------------------|
+| [/api/corda](../api/api/src/main/kotlin/nl/tno/federated/api/controllers/CordaNodeController.kt) | Corda node related endpoints |                                   |
+| [/api/events](../api/api/src/main/kotlin/nl/tno/federated/api/controllers/EventsController.kt)  | Event related endpoints    |                                   |
+| [/api/sparql](../api/api/src/main/kotlin/nl/tno/federated/api/controllers/SPARQLController.kt)  | SPARQL endpoint            |                                   |
+| [/api/webhooks](../api/api/src/main/kotlin/nl/tno/federated/api/webhook/WebhookController.kt)   | Webhook endpoint           | [Read more...](./webhook.md) |
 
 ## API documentation
 
