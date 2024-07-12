@@ -1,42 +1,16 @@
 {
     "involvesTimestamp": "1/30/2024 12:43:15 PM",
-    "involvesTimeClassification": null,
     "involvesActor": [
         {
             "involvesLegalPerson": {
-                "postalCode": "8660",
-                "locatedAtStreetName": "Godthåbsvej 19",
-                "postalAddress": "Godthåbsvej 19",
-                "locatedInCountry": "DK",
-                "locatedInCity": "Skanderborg",
-                "legalPersonName": "WAYS Logistics A/S",
-                "legalPersonID": "0"
+                "postalCode": "1234AB",
+                "locatedAtStreetName": "Somestreet 1234",
+                "locatedInCountry": "NL",
+                "locatedInCity": "Soesterberg",
+                "legalPersonName": "TNO",
+                "legalPersonID": "1234"
             },
             "actorRole": "Consignor"
-        },
-        {
-            "involvesLegalPerson": {
-                "postalCode": "37137",
-                "locatedAtStreetName": "Via Sommacampagna 32",
-                "postalAddress": "Via Sommacampagna 32",
-                "locatedInCountry": "IT",
-                "locatedInCity": "Verona",
-                "legalPersonName": "Verona Quadrante Europa TVR",
-                "legalPersonID": null
-            },
-            "actorRole": "Consignee"
-        },
-        {
-            "involvesLegalPerson": {
-                "postalCode": "8660",
-                "locatedAtStreetName": "Godthåbsvej 19",
-                "postalAddress": "Godthåbsvej 19",
-                "locatedInCountry": "DK",
-                "locatedInCity": "Skanderborg",
-                "legalPersonName": "WAYS Logistics A/S",
-                "legalPersonID": null
-            },
-            "actorRole": "Carrier"
         }
     ],
     "transportMeans": [
@@ -57,47 +31,6 @@
             "digitalTwinType": "Goods",
             "transportEquipmentSizeType": null,
             "size": null
-        },
-        {
-            "digitalTwinID": "",
-            "grossMass": 0.0,
-            "grossVolume": 0.0,
-            "netMass": 0,
-            "numberOfUnits": 0,
-            "goodsDescription": null,
-            "digitalTwinType": "TransportEquipment",
-            "transportEquipmentSizeType": "AA",
-            "size": {
-                "height": 0.0,
-                "length": 0.0,
-                "width": 0.0
-            }
-        },
-        {
-            "digitalTwinID": null,
-            "grossMass": 19.000,
-            "grossVolume": 13.600,
-            "netMass": 0,
-            "numberOfUnits": 0,
-            "goodsDescription": "Food",
-            "digitalTwinType": "Goods",
-            "transportEquipmentSizeType": null,
-            "size": null
-        },
-        {
-            "digitalTwinID": "",
-            "grossMass": 0.0,
-            "grossVolume": 0.0,
-            "netMass": 0,
-            "numberOfUnits": 0,
-            "goodsDescription": null,
-            "digitalTwinType": "TransportEquipment",
-            "transportEquipmentSizeType": "AA",
-            "size": {
-                "height": 0.0,
-                "length": 0.0,
-                "width": 0.0
-            }
         }
     ]
 }

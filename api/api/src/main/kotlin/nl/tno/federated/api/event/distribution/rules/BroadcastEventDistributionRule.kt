@@ -8,15 +8,15 @@ import org.slf4j.LoggerFactory
 /**
  * This rule refreshes its destinations list based on the latest networkMapSnapshot.
  */
-class BroadcastEventDistributionRule(@JsonIgnore val cordaNodeService: CordaNodeService) : EventDistributionRule<CordaEventDestination> {
+class BroadcastEventDistributionRule(@JsonIgnore private val cordaNodeService: CordaNodeService) : EventDistributionRule {
 
     private val log = LoggerFactory.getLogger(BroadcastEventDistributionRule::class.java)
 
     override fun getDestinations() = try {
-        cordaNodeService.getPeersExcludingSelfAndNotary().map { CordaEventDestination(it.name) }.toSet()
+        cordaNodeService.getPeersExcludingSelfAndNotary().map { it.name.toString() }.toSet()
     }catch (e: Exception) {
         log.error("Failed to retrieve destinations for BroadcastEventDistributionRule: ${e.message}")
-        emptySet<CordaEventDestination>()
+        emptySet()
     }
 
     override fun appliesTo(ttl: String): Boolean = true
@@ -27,6 +27,6 @@ class BroadcastEventDistributionRule(@JsonIgnore val cordaNodeService: CordaNode
         } catch (e: Exception) {
             emptySet<CordaEventDestination>()
         }
-        return "BroadcastToAllEventDistributionRule(destinations='${cordaEventDestinations.joinToString(",") { "[organisation=${it.destination.organisation},locality=${it.destination.locality},country=${it.destination.country}]" }}')"
+        return "BroadcastToAllEventDistributionRule(destinations='${cordaEventDestinations.joinToString(",")}')"
     }
 }

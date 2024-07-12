@@ -1,7 +1,7 @@
 package nl.tno.federated.api.controllers
 
 import nl.tno.federated.api.corda.NodeRPCConnection
-import nl.tno.federated.api.event.distribution.EventDistributionRuleConfiguration
+import nl.tno.federated.api.event.distribution.rules.EventDistributionRuleService
 import nl.tno.federated.api.webhook.WebhookService
 import org.slf4j.LoggerFactory
 import org.springframework.core.env.Environment
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 @Controller
 class IndexController(
     private val environment: Environment,
-    private val rules: EventDistributionRuleConfiguration,
+    private val rules: EventDistributionRuleService,
     private val rpc: NodeRPCConnection,
     private val webhookService: WebhookService
 ) {

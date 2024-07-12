@@ -1,6 +1,5 @@
 package nl.tno.federated.api.event.distribution.rules
 
-import nl.tno.federated.api.event.distribution.corda.CordaEventDestination
 import org.eclipse.rdf4j.repository.Repository
 import org.eclipse.rdf4j.repository.sail.SailRepository
 import org.eclipse.rdf4j.rio.RDFFormat
@@ -9,8 +8,8 @@ import java.io.StringReader
 
 class SparqlEventDistributionRule(
     private val sparql: String,
-    private val destinations: Set<CordaEventDestination>
-) : EventDistributionRule<CordaEventDestination> {
+    private val destinations: Set<String>
+) : EventDistributionRule {
 
     override fun getDestinations() = destinations
 
@@ -32,6 +31,6 @@ class SparqlEventDistributionRule(
     }
 
     override fun toString(): String {
-        return "SparqlEventDistributionRule(destinations='${getDestinations().joinToString(",") { "[organisation=${it.destination.organisation},locality=${it.destination.locality},country=${it.destination.country}]" }}',sparql='$sparql')"
+        return "SparqlEventDistributionRule(destinations='${getDestinations().joinToString(",")}'"
     }
 }
