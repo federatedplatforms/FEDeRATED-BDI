@@ -64,6 +64,11 @@ dependencies {
     testCompileOnly 'junit:junit'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+
+    // JSON Validation
+    implementation 'net.pwall.json:json-kotlin-schema:0.47'
+
+
 }
 
 tasks.named('compileJava') {

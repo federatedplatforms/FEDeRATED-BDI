@@ -1,0 +1,35 @@
+{
+    "involvesActor": [
+        {
+            "involvesLegalPerson": {
+                "postalCode": "1234AB",
+                "locatedAtStreetName": "Somestreet 1234",
+                "locatedInCountry": "NL",
+                "locatedInCity": "Soesterberg",
+                "legalPersonName": "TNO",
+                "legalPersonID": "1234"
+            },
+            "actorRole": "Consignor"
+        }
+    ],
+    "transportMeans": [
+        {
+            "digitalTwinID": "S",
+            "transportMeansMode": "Sea",
+            "hasTransportmeansNationality": null
+        }
+    ],
+    "involvedCargo": [
+        {
+            "digitalTwinID": null,
+            "grossMass": 19.000,
+            "grossVolume": 13.600,
+            "netMass": 0,
+            "numberOfUnits": 0,
+            "goodsDescription": "Food",
+            "digitalTwinType": "Goods",
+            "transportEquipmentSizeType": null,
+            "size": null
+        }
+    ]
+}

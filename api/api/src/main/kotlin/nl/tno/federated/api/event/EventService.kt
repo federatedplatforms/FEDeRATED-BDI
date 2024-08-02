@@ -1,7 +1,6 @@
 package nl.tno.federated.api.event
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.fasterxml.jackson.databind.node.ObjectNode
 import nl.tno.federated.api.event.distribution.corda.CordaEventDestination
 import nl.tno.federated.api.event.distribution.corda.CordaEventDistributionService
@@ -11,6 +10,7 @@ import nl.tno.federated.api.event.query.EventQuery
 import nl.tno.federated.api.event.query.corda.CordaEventQueryService
 import nl.tno.federated.api.event.type.EventTypeMapping
 import nl.tno.federated.api.event.type.EventTypeMappingException
+import nl.tno.federated.api.event.validation.JSONValidator
 import nl.tno.federated.api.event.validation.ShaclValidator
 import org.springframework.stereotype.Service
 import java.util.*
@@ -40,6 +40,7 @@ class EventService(
 
     fun validateNewJsonEvent(event: String, eventType: String): EnrichedEvent {
         val enrichedEvent = enrichJsonEvent(event, eventType)
+
         validateWithShacl(enrichedEvent)
         return enrichedEvent
     }
@@ -61,8 +62,14 @@ class EventService(
 
     private fun enrichJsonEvent(jsonEvent: String, eventType: String): EnrichedEvent {
         val type = eventTypeMapping.getEventType(eventType) ?: throw EventTypeMappingException("EventType not found: $eventType")
+        // only validate if a schema is attached to the type
+        if (type.schemaDefinition != null) {
+            val jsonValidator = JSONValidator()
+            jsonValidator.validateJSON(jsonEvent, type.schemaDefinition)
+        }
         val node = eventMapper.toJsonNode(jsonEvent)
-        if (node.nodeType != JsonNodeType.OBJECT) throw UnsupportedEventTypeException("Unexpected event data, invalid JSON data!")
+        //if (node.nodeType != JsonNodeType.OBJECT)
+        //  throw UnsupportedEventTypeException("Unexpected event data, invalid JSON data!")
 
         node as ObjectNode
         val uuid = UUID.randomUUID()

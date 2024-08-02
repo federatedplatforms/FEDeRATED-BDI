@@ -33,6 +33,6 @@ class EventTypeService(private val eventTypeRepository: EventTypeRepository) {
     fun getEventType(eventType: String): EventType? {
         val entity = eventTypeRepository.findByEventType(eventType)
         return if(entity == null)  null
-        else EventType(eventType = entity.eventType, rml = entity.rml, shacl = entity.shacl)
+        else EventType(eventType = entity.eventType, rml = entity.rml, shacl = entity.shacl, schemaDefinition = entity.schemaDefinition)
     }
 }

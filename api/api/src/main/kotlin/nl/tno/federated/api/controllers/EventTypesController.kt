@@ -43,6 +43,11 @@ class EventTypesController(private val eventTypeMapping: EventTypeMapping) {
         eventTypeMapping.updateShacl(type, shacl)
     }
 
+    @PostMapping("/{type}/schemadefinition", consumes = [MediaType.TEXT_PLAIN_VALUE])
+    fun updateSchemaDefinition(@PathVariable type: String, @RequestBody schema: String) {
+        eventTypeMapping.updateSchemaDefinition(type, schema)
+    }
+
     @GetMapping("/{type}/rml", produces = ["text/turtle"])
     fun getRml(@PathVariable type: String): String? {
         return eventTypeMapping.getEventType( type )?.rml
