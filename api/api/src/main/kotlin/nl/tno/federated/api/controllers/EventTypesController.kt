@@ -48,6 +48,11 @@ class EventTypesController(private val eventTypeMapping: EventTypeMapping) {
         eventTypeMapping.updateSchemaDefinition(type, schema)
     }
 
+    @GetMapping("/{type}/schemadefinition", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun getSchemaDefinition(@PathVariable type: String): String?  {
+        return eventTypeMapping.getEventType(type)?.schemaDefinition
+    }
+
     @GetMapping("/{type}/rml", produces = ["text/turtle"])
     fun getRml(@PathVariable type: String): String? {
         return eventTypeMapping.getEventType( type )?.rml

@@ -22,7 +22,4 @@ class JSONValidator () {
             throw JSONValidationException(builder.toString())
         }
     }
-
-
-
 }
