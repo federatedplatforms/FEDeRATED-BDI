@@ -50,6 +50,23 @@ class EventControllerTest {
         assertTrue(response.headers.location!!.toString().startsWith("/api/events/"))
     }
 
+    @Test
+    fun testCreateIncorrectMinimalEvent() {
+        val eventContentType = "federated.events.minimal.v1"
+
+        val headers = HttpHeaders().apply {
+            set(ACCEPT, APPLICATION_JSON_VALUE);
+            set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
+            set(EVENT_TYPE_HEADER, eventContentType)
+        }
+        val jsonString = String(ClassPathResource("test-data/IncorrectMinimalEvent.json").inputStream.readBytes())
+        val response = testRestTemplate.postForEntity("/api/events", HttpEntity(jsonString, headers), String::class.java)
+
+        assertNotNull(response)
+        assertEquals(HttpStatus.CREATED, response.statusCode)
+        assertTrue(response.headers.location!!.toString().startsWith("/api/events/"))
+    }
+
     /**
      * When creating a LoadEvent we expect a 201 created response code with the location header pointing to the correct resource URI.
      */
