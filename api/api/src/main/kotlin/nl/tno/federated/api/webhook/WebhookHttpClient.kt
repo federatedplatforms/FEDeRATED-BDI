@@ -2,11 +2,8 @@ package nl.tno.federated.api.webhook
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import io.jsonwebtoken.Claims
-import io.jsonwebtoken.Jws
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
-import nl.tno.federated.api.config.WebHookSecurityConfig
 import nl.tno.federated.api.webhook.jwt.AcquireJwtException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatusCode
@@ -20,7 +17,7 @@ import java.security.Key
 
 
 @Service
-class WebhookHttpClient (val keystoreConfig: WebHookSecurityConfig) {
+class WebhookHttpClient (val keystoreConfig: WebHookKeyStoreConfig) {
 
     var tokenRepo = mutableMapOf<String, String>()
     val jwtHelper = JwtHelper

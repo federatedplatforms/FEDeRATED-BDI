@@ -1,4 +1,4 @@
-package nl.tno.federated.api.config
+package nl.tno.federated.api.webhook
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -14,7 +14,7 @@ import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateException
 
 @Configuration
-class WebHookSecurityConfig {
+class WebHookKeyStoreConfig {
 
 
     @Autowired

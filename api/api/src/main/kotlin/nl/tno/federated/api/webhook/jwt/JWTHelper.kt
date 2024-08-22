@@ -2,8 +2,6 @@ package nl.tno.federated.api.webhook.jwt
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.*
-import javax.crypto.spec.SecretKeySpec
-import kotlin.collections.HashMap
 import kotlin.text.Charsets.UTF_8
 
 object JwtHelper {

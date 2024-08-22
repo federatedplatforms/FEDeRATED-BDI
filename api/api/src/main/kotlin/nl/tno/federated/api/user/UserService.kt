@@ -2,7 +2,6 @@ package nl.tno.federated.api.user
 
 import nl.tno.federated.api.event.type.EventTypeServiceException
 import org.springframework.stereotype.Service
-import java.util.*
 
 class UserServiceException(msg: String) : Exception(msg)
 
