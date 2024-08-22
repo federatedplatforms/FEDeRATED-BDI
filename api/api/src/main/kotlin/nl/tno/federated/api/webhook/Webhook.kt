@@ -5,5 +5,8 @@ import java.net.URL
 data class Webhook(
     val clientId: String,
     val eventType: String,
-    val callbackURL: URL
+    val callbackURL: URL,
+    val tokenURL: URL?,
+    val extraVariables: String? // json format key/value pairs  e.g. "{'aud':value', 'iss':'value'}"
+
 )
