@@ -1,6 +1,8 @@
 package nl.tno.federated.api.controllers
 
 import nl.tno.federated.api.corda.CordaNodeService
+import nl.tno.federated.api.event.type.EventTypeMappingException
+import nl.tno.federated.api.event.validation.JSONValidationException
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -50,7 +52,7 @@ class EventControllerTest {
         assertTrue(response.headers.location!!.toString().startsWith("/api/events/"))
     }
 
-    @Test
+    @Test(expected = EventTypeMappingException::class)
     fun testCreateIncorrectMinimalEvent() {
         val eventContentType = "federated.events.minimal.v1"
 
@@ -63,9 +65,8 @@ class EventControllerTest {
         val response = testRestTemplate.postForEntity("/api/events", HttpEntity(jsonString, headers), String::class.java)
 
         assertNotNull(response)
-        assertEquals(HttpStatus.CREATED, response.statusCode)
-        assertTrue(response.headers.location!!.toString().startsWith("/api/events/"))
-    }
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.statusCode)
+   }
 
     /**
      * When creating a LoadEvent we expect a 201 created response code with the location header pointing to the correct resource URI.

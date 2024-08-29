@@ -23,4 +23,6 @@ class JSONValidatorTest
         val validator = JSONValidator()
         validator.validateJSON(json, schema)
     }
+
+
 }

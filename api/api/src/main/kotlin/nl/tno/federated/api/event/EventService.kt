@@ -10,6 +10,7 @@ import nl.tno.federated.api.event.query.EventQuery
 import nl.tno.federated.api.event.query.corda.CordaEventQueryService
 import nl.tno.federated.api.event.type.EventTypeMapping
 import nl.tno.federated.api.event.type.EventTypeMappingException
+import nl.tno.federated.api.event.validation.JSONValidationException
 import nl.tno.federated.api.event.validation.JSONValidator
 import nl.tno.federated.api.event.validation.ShaclValidator
 import org.springframework.stereotype.Service
@@ -65,7 +66,12 @@ class EventService(
         // only validate if a schema is attached to the type
         if (type.schemaDefinition != null) {
             val jsonValidator = JSONValidator()
-            jsonValidator.validateJSON(jsonEvent, type.schemaDefinition)
+            try {
+                jsonValidator.validateJSON(jsonEvent, type.schemaDefinition)
+            } catch (e: JSONValidationException)
+            {
+                throw EventTypeMappingException("Event JSON does not match the schema definition of EventType $eventType: \n ${e.message}")
+            }
         }
         val node = eventMapper.toJsonNode(jsonEvent)
         //if (node.nodeType != JsonNodeType.OBJECT)
