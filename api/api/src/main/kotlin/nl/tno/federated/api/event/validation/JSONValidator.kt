@@ -3,17 +3,17 @@ package nl.tno.federated.api.event.validation
 import net.pwall.json.schema.JSONSchema
 import org.slf4j.LoggerFactory
 
+class JSONValidationException(msg: String) : Exception(msg)
 
-class JSONValidationException(msg: String?) : Exception(msg)
-class JSONValidator () {
+class JSONValidator {
 
     private val log = LoggerFactory.getLogger(JSONValidator::class.java)
 
     fun validateJSON(json: String,schema: String) {
-
         val JSONschema = JSONSchema.parse(schema)
         val output = JSONschema.validateBasic(json)
         if (!output.valid ) {
+            log.debug("JSON validation failed for event data: {}", json)
             val builder = StringBuilder()
             builder.append("The JSON event provided does not match the required definition: \n")
             output.errors?.forEach {
@@ -22,7 +22,4 @@ class JSONValidator () {
             throw JSONValidationException(builder.toString())
         }
     }
-
-
-
 }

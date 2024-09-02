@@ -1,6 +1,8 @@
 package nl.tno.federated.api.controllers
 
 import nl.tno.federated.api.corda.CordaNodeService
+import nl.tno.federated.api.event.type.EventTypeMappingException
+import nl.tno.federated.api.event.validation.JSONValidationException
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,12 +16,18 @@ import org.springframework.http.HttpHeaders.ACCEPT
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit4.SpringRunner
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+)
+@TestPropertySource(
+    properties = ["federated.node.api.security.enabled=false"]
+)
 @RunWith(SpringRunner::class)
 class EventControllerTest {
 
@@ -49,6 +57,22 @@ class EventControllerTest {
         assertEquals(HttpStatus.CREATED, response.statusCode)
         assertTrue(response.headers.location!!.toString().startsWith("/api/events/"))
     }
+
+    @Test
+    fun testCreateIncorrectMinimalEvent() {
+        val eventContentType = "federated.events.minimal.v1"
+
+        val headers = HttpHeaders().apply {
+            set(ACCEPT, APPLICATION_JSON_VALUE);
+            set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
+            set(EVENT_TYPE_HEADER, eventContentType)
+        }
+        val jsonString = String(ClassPathResource("test-data/IncorrectMinimalEvent.json").inputStream.readBytes())
+        val response = testRestTemplate.postForEntity("/api/events", HttpEntity(jsonString, headers), String::class.java)
+
+        assertNotNull(response)
+        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+   }
 
     /**
      * When creating a LoadEvent we expect a 201 created response code with the location header pointing to the correct resource URI.

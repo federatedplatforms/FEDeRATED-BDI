@@ -1,6 +1,7 @@
 package nl.tno.federated.api.event
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.fasterxml.jackson.databind.node.ObjectNode
 import nl.tno.federated.api.event.distribution.corda.CordaEventDestination
 import nl.tno.federated.api.event.distribution.corda.CordaEventDistributionService
@@ -68,8 +69,8 @@ class EventService(
             jsonValidator.validateJSON(jsonEvent, type.schemaDefinition)
         }
         val node = eventMapper.toJsonNode(jsonEvent)
-        //if (node.nodeType != JsonNodeType.OBJECT)
-        //  throw UnsupportedEventTypeException("Unexpected event data, invalid JSON data!")
+        if (node.nodeType != JsonNodeType.OBJECT)
+            throw UnsupportedEventTypeException("Unexpected event data, invalid JSON data!")
 
         node as ObjectNode
         val uuid = UUID.randomUUID()

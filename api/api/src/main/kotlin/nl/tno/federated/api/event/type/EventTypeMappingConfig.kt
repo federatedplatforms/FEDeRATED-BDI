@@ -13,7 +13,7 @@ class EventTypeMappingConfig(val types: List<Type>) {
         var schemaDefinition: String? = null
         private val resourceLoader = DefaultResourceLoader()
 
-        fun toEventType() = EventType(eventType, rml.loadResourceAsString(), shacl?.loadResourceAsString(), schemaDefinition)
+        fun toEventType() = EventType(eventType, rml.loadResourceAsString(), shacl?.loadResourceAsString(), schemaDefinition?.loadResourceAsString())
 
         fun String.loadResourceAsString() = resourceLoader.getResource(this).getContentAsString(StandardCharsets.UTF_8)
     }

@@ -1,0 +1,121 @@
+{
+
+    "title": "MinimalEvent",
+    "type": "object",
+    "required": [
+        "involvesActor",
+        "involvesTimestamp",
+        "transportMeans",
+        "involvedCargo"
+    ],
+    "properties": {
+        "involvesTimestamp": {
+            "type": "string",
+            "format": "datetime"
+        },
+        "involvesActor": {
+            "type": "array",
+            "items": {
+                "involvesLegalPerson": {
+                    "type": "object",
+                    "required": [
+                        "postalCode",
+                        "locatedAtStreetName",
+                        "locatedInCountry",
+                        "locatedInCity",
+                        "legalPersonName",
+                        "legalPersonID"
+                    ],
+                    "properties": {
+                        "postalCode": {
+                            "type": "string",
+                            "required": true
+                        },
+                        "locatedAtStreetName": {
+                            "type": "string",
+                            "required": true
+                        },
+                        "locatedInCountry": {
+                            "type": "string",
+                            "required": true
+                        },
+                        "locatedInCity": {
+                            "type": "string",
+                            "required": true
+                        },
+                        "legalPersonName": {
+                            "type": "string",
+                            "required": true
+                        },
+                        "legalPersonID": {
+                            "type": "string",
+                            "required": true
+                        }
+                    }
+                },
+                "actorRole":  {
+                    "type": "string",
+                    "required": true
+                }
+            }
+        },
+        "transportMeans": {
+            "type": "array",
+            "items": {
+                "digitalTwinID": {
+                    "type": "string",
+                    "required": false
+                },
+                "transportMeansMode": {
+                    "type": "string",
+                    "required": true
+                },
+                "hasTransportmeansNationality": {
+                    "type": "string",
+                    "required": false
+                }
+            }
+        },
+        "involvedCargo": {
+            "type": "array",
+            "items": {
+                "digitalTwinID": {
+                    "type": "string",
+                    "required": false
+                },
+                "grossMass": {
+                    "type": "number",
+                    "required": true
+                },
+                "grossVolume": {
+                    "type": "number",
+                    "required": true
+                },
+                "netMass": {
+                    "type": "number",
+                    "required": true
+                },
+                "numberOfUnits": {
+                    "type": "number",
+                    "required": true
+                },
+                "goodsDescription": {
+                    "type": "string",
+                    "required": true
+                },
+                "digitalTwinType": {
+                    "type": "string",
+                    "required": true
+                },
+                "transportEquipmentSizeType": {
+                    "type": "string",
+                    "required": false
+                },
+                "size": {
+                    "type": "number",
+                    "required": false
+                }
+            }
+        }
+    }
+}
