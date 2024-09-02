@@ -6,6 +6,7 @@ import net.corda.core.flows.UnexpectedFlowEndException
 import nl.tno.federated.api.corda.CordaFlowTimeoutException
 import nl.tno.federated.api.event.InvalidEventDataException
 import nl.tno.federated.api.event.mapper.UnsupportedEventTypeException
+import nl.tno.federated.api.event.validation.JSONValidationException
 import nl.tno.federated.api.event.validation.ShaclValidationException
 import nl.tno.federated.api.util.InvalidRDFException
 import org.slf4j.LoggerFactory
@@ -36,6 +37,12 @@ class RestExceptionHandler {
     @ExceptionHandler(InvalidEventDataException::class)
     fun invalidEventDataException(e: InvalidEventDataException): ResponseEntity<ProblemDetail> {
         log.debug("Invalid Event data provided. Message: {}", e.message)
+        return ResponseEntity(ProblemDetail(type = e.javaClass.name, title = e.message), HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(JSONValidationException::class)
+    fun jsonValidationException(e: JSONValidationException): ResponseEntity<ProblemDetail> {
+        log.debug("JSON validation failed. Message: {}", e.message)
         return ResponseEntity(ProblemDetail(type = e.javaClass.name, title = e.message), HttpStatus.BAD_REQUEST)
     }
 

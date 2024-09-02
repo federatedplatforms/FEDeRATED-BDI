@@ -1,7 +1,5 @@
 package nl.tno.federated.api.event.distribution.rules
 
-import net.corda.core.identity.CordaX500Name
-import nl.tno.federated.api.event.distribution.corda.CordaEventDestination
 import org.eclipse.rdf4j.model.vocabulary.FOAF
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -29,7 +27,7 @@ class SparqlEventDistributionRuleTest {
         ASK  { ?x foaf:surname  "Oudmaijer" }
     """.trimIndent()
 
-    private val destinations = setOf(CordaEventDestination(CordaX500Name("TNO", "Den Haag", "NL")))
+    private val destinations = setOf("O=TNO,L=Den Haag,C=NL")
 
     private val rule = SparqlEventDistributionRule(sparql = sparql, destinations = destinations)
 

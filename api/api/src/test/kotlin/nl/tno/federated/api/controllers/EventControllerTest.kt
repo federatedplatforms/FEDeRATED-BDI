@@ -16,12 +16,18 @@ import org.springframework.http.HttpHeaders.ACCEPT
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit4.SpringRunner
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+)
+@TestPropertySource(
+    properties = ["federated.node.api.security.enabled=false"]
+)
 @RunWith(SpringRunner::class)
 class EventControllerTest {
 
@@ -52,7 +58,7 @@ class EventControllerTest {
         assertTrue(response.headers.location!!.toString().startsWith("/api/events/"))
     }
 
-    @Test(expected = EventTypeMappingException::class)
+    @Test
     fun testCreateIncorrectMinimalEvent() {
         val eventContentType = "federated.events.minimal.v1"
 
@@ -65,7 +71,7 @@ class EventControllerTest {
         val response = testRestTemplate.postForEntity("/api/events", HttpEntity(jsonString, headers), String::class.java)
 
         assertNotNull(response)
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.statusCode)
+        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
    }
 
     /**

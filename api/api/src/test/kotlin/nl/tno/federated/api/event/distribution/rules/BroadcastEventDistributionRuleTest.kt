@@ -7,9 +7,11 @@ import net.corda.core.identity.Party
 import net.corda.core.node.NodeInfo
 import nl.tno.federated.api.corda.CordaNodeService
 import nl.tno.federated.api.event.distribution.corda.CordaEventDestination
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 import java.security.PublicKey
+import kotlin.test.assertTrue
 
 class BroadcastEventDistributionRuleTest {
 
@@ -26,15 +28,16 @@ class BroadcastEventDistributionRuleTest {
     fun getDestinations() {
         every { nodeInfo.legalIdentities }.returns(listOf(Party(destination, owningKey)))
         every { cordaNodeService.getPeersExcludingSelfAndNotary() } returns listOf(nodeInfo.legalIdentities.first())
+
         val destination1 = destinations.first().destination
         val destination2 = rule.getDestinations().first()
-        kotlin.test.assertEquals(destination1.commonName, destination2.destination.commonName)
-        kotlin.test.assertEquals(destination1.locality, destination2.destination.locality)
-        kotlin.test.assertEquals(destination1.country, destination2.destination.country)
+
+        val dest = CordaEventDestination.parse(destination2)
+        assertEquals(destination1, dest.destination)
     }
 
     @Test
     fun appliesTo() {
-        kotlin.test.assertTrue { rule.appliesTo("rdfEventString") }
+        assertTrue { rule.appliesTo("rdfEventString") }
     }
 }
