@@ -24,18 +24,46 @@ Content-Type: application/json
 }
 ```
 
-## Update a Webhook
+optionally a tokenURL and extra variables for the acquirement of the token can be added 
+The extra variables are used to crete the JWT and can contain 
+For this feature a keystore is used containing the private key that is used to sign the jwt. 
+The information of the keystore is enabled and configured in the federated.node.keystore a
 
-Updating a Webhook can be done using the POST http method. The clientId needs to be provided as a path parameter.
+```configuration
+federated.node.keystore.enabled=<true/false>
+federated.node.keystore.password=<bcrypt encrypted password> 
+federated.node.keystore.location=<name of the keystore>
+federated.node.keystore.type=<type of keystore>
+federated.node.keystore.alias=<certificat alias> 
+```
 
 ```http request
-POST http://localhost:10050/api/webhooks/client-id-federated.events.minimal.v1
+POST http://localhost:10050/api/webhooks
 Content-Type: application/json
 
 {
   "clientId": "client-id-federated.events.minimal.v1",
   "eventType": "federated.events.minimal.v1",
   "callbackURL": "http://my-client.link"
+  "tokenURL": "https://my-token.link"
+  "extraVariables": "{'var1':'val1','val2':'val2'}"
+}
+```
+
+## Update a Webhook
+
+Updating a Webhook can be done using the POST http method. The clientId needs to be provided as a path parameter.
+
+```http request
+POST http://localhost:10050/api/webhooks
+Content-Type: application/json
+
+{
+  "clientId": "client-id-federated.events.minimal.v1",
+  "eventType": "federated.events.minimal.v1",
+  "callbackURL": "http://my-client.link"
+  "tokenURL": "https://my-token.link"
+  "extraVariables": "{'var1':'val1','val2':'val2'}"
 }
 ```
 

@@ -64,22 +64,34 @@ class SecurityConfig {
                     .requestMatchers("/assets/**").permitAll()
                     .requestMatchers("/swagger-ui/**").permitAll()
                     .requestMatchers("/v3/**").permitAll()
-                    .requestMatchers("/api/**").hasRole("API_USER")
+                   // .requestMatchers("/api/**").hasRole("API_USER")
+                    .requestMatchers("/api/distribution-rules/**").hasRole("API_USER")
+                    .requestMatchers("/api/corda/**").hasRole("API_USER")
+                    .requestMatchers("/api/event-types/**").hasRole("API_USER")
+                    .requestMatchers("/api/events/**").hasRole("API_USER")
+                    .requestMatchers("/api/sparql/**").hasRole("API_USER")
+                    .requestMatchers("/api/echo/**").hasRole("API_USER")
+                    .requestMatchers("/api/webhooks/**").hasRole("WEBHOOK_USER")
                     .anyRequest().authenticated()
             }
-
         return http.build()
     }
 
     @Bean
     fun userDetailsService(): UserDetailsService {
         val user: UserDetails =
-            User.withUsername(environment.getProperty("federated.node.api.security.username"))
-                .password(environment.getProperty("federated.node.api.security.password"))
+            User.withUsername(environment.getProperty("federated.node.api.security.api.username"))
+                .password(environment.getProperty("federated.node.api.security.api.password"))
                 .roles("API_USER")
                 .build()
 
-        return InMemoryUserDetailsManager(user)
+        val webhookUser: UserDetails =
+            User.withUsername(environment.getProperty("federated.node.api.security.webhook.username"))
+                .password(environment.getProperty("federated.node.api.security.webhook.password"))
+                .roles("WEBHOOK_USER")
+                .build()
+
+        return InMemoryUserDetailsManager(user,webhookUser)
     }
 
     @Bean

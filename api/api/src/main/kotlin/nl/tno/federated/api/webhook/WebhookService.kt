@@ -30,7 +30,7 @@ class WebhookService(
     }
 
     fun register(w: Webhook): Webhook {
-        val save = webhookRepository.save(WebhookEntity(clientId = w.clientId, eventType = w.eventType, callbackURL = w.callbackURL.toString(), id = null))
+        val save = webhookRepository.save(WebhookEntity(clientId = w.clientId, eventType = w.eventType, callbackURL = w.callbackURL.toString(), tokenURL = w.tokenURL?.toString(), aud= w.aud,  id = null))
         log.info("New Webhook saved with id: {}", save.id)
         return save.toWebhook()
     }

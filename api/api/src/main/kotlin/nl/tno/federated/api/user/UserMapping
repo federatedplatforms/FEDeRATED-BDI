@@ -1,0 +1,14 @@
+package nl.tno.federated.api.security.user
+
+import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
+
+
+
+@Component
+class UserMapping(
+    private val config: UserMappingConfig,
+    private val eventTypeService: EventTypeService
+) {
+
+    private val log = LoggerFactory.getLogger(EventTypeMapping::class.java)
