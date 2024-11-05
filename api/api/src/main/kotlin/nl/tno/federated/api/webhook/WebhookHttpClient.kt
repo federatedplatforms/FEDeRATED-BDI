@@ -24,7 +24,7 @@ class WebhookHttpClient () {
     fun send(event: GenericEvent<*>, webhook: Webhook) {
         log.info("Sending event: {} with UUID: {} to: {}", event.eventType, event.eventUUID, webhook.callbackURL)
         try {
-            if (webhook.useAuthentication) {
+            if (webhook.tokenURL != null) {
                 try {
                     val token: AccessToken? = tokenRepo.get(webhook.tokenURL.toString())?: tokenHelper.getAccessToken(webhook, jwtHelper)
                     if (JwtHelper.isTokenExpired(token!!.token)) {

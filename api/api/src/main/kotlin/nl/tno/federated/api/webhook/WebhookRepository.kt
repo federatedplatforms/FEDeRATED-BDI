@@ -6,5 +6,5 @@ import java.util.*
 
 @Repository
 interface WebhookRepository : CrudRepository<WebhookEntity, Long> {
-    fun findByClientId(clientId: String): Optional<WebhookEntity>
+    fun findByClientId(clientId: String): List<WebhookEntity>
 }

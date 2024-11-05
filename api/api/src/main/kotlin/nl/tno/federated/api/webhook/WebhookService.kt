@@ -30,16 +30,20 @@ class WebhookService(
     }
 
     fun register(w: Webhook): Webhook {
-        val save = webhookRepository.save(WebhookEntity(clientId = w.clientId, eventType = w.eventType, callbackURL = w.callbackURL.toString(), tokenURL = w.tokenURL?.toString(), aud= w.aud,  id = null))
+        val save = webhookRepository.save(WebhookEntity(clientId = w.clientId, eventType = w.eventType, callbackURL = w.callbackURL.toString(), tokenURL = w.tokenURL?.toString(),refreshURL = w.tokenURL?.toString() , aud= w.aud,  id = null))
         log.info("New Webhook saved with id: {}", save.id)
         return save.toWebhook()
     }
 
     fun unregister(clientId: String): Boolean {
-        val webhook = webhookRepository.findByClientId(clientId)
-        if(!webhook.isPresent) return false
-        webhookRepository.delete(webhook.get())
-        return true
+        val webhooks = webhookRepository.findByClientId(clientId)
+        if(!webhooks.isEmpty()) {
+            webhooks.forEach {
+                webhookRepository.delete(it)
+            }
+            return true
+        }
+        return false
     }
 
     companion object {

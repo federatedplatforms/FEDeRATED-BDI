@@ -14,10 +14,10 @@ class WebhookEntity(
     val clientId: String,
     val eventType: String,
     val callbackURL: String,
-    val useAuthentication: Boolean = false,
-    val tokenURL: String? = null,
-    val refreshURL: String? = null,
-    val aud: String? = null
+    val tokenURL: String?,
+    val refreshURL: String?,
+    val aud: String?
 ) {
-    fun toWebhook() = Webhook(clientId, eventType, URL(callbackURL),useAuthentication, URL(tokenURL), URL(refreshURL), aud)
+    fun toWebhook() = Webhook(clientId, eventType, URL(callbackURL),tokenURL?.let { URL(tokenURL) } ?: null, refreshURL?.let { URL(refreshURL) } ?: null, aud)
+
 }
