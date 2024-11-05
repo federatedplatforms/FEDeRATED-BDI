@@ -6,7 +6,8 @@ data class Webhook(
     val clientId: String,
     val eventType: String,
     val callbackURL: URL,
+    val useAuthentication: Boolean,
     val tokenURL: URL?,
-    val extraVariables: String? // json format key/value pairs  e.g. "{'aud':value', 'iss':'value'}"
-
+    val refreshURL: URL?,
+    val aud: String?
 )

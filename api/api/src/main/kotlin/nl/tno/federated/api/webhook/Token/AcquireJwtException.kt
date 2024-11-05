@@ -1,4 +1,4 @@
-package nl.tno.federated.api.webhook.jwt
+package nl.tno.federated.api.webhook.Token
 
 class AcquireJwtException(message: String? = null) : Exception(message){
 }

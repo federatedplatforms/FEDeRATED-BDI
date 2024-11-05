@@ -1,6 +1,16 @@
-package nl.tno.federated.api.webhook.jwt
+package nl.tno.federated.api.webhook.Token
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.jsonwebtoken.Jwts
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.env.Environment
+import java.io.File
+import java.nio.charset.Charset
+import java.nio.file.Files
+import java.security.KeyFactory
+import java.security.interfaces.RSAPrivateKey
+import java.security.interfaces.RSAPublicKey
+import java.security.spec.PKCS8EncodedKeySpec
 import java.util.*
 import kotlin.text.Charsets.UTF_8
 
@@ -8,6 +18,10 @@ object JwtHelper {
     /**
      * Enum class representing JWT algorithms with their corresponding values.
      */
+
+    @Autowired
+    private lateinit var environment: Environment
+
     enum class JwtAlgorithm(val value: String) {
         ALGORITHM_HS256("HS256"), ALGORITHM_HS384("HS384"), ALGORITHM_HS512("HS512"), ALGORITHM_RS256("RS256")
     }
@@ -30,9 +44,6 @@ object JwtHelper {
 
     /**
      * Initializes the JWT Helper with the secret key and algorithm.
-     *
-     * @param key Secret key for JWT token generation and verification.
-     * @param algorithm JWT algorithm to be used (default is ALGORITHM_HS512).
      */
     fun init() {
 
@@ -97,6 +108,35 @@ object JwtHelper {
     private fun serializeToJson(data: Map<String, Any>): String {
         val entries = data.entries.joinToString(",") { "\"${it.key}\":\"${it.value}\"" }
         return "{$entries}"
+    }
+
+    @Throws(java.lang.Exception::class)
+    fun readRSAPrivateKey(file:File): RSAPrivateKey? {
+        val key = String(Files.readAllBytes(file.toPath()), Charset.defaultCharset())
+        val privateKeyPEM = key
+            .replace("-----BEGIN PRIVATE KEY-----", "")
+            .replace(System.lineSeparator().toRegex(), "")
+            .replace("-----END PRIVATE KEY-----", "")
+        val encoded: ByteArray = Base64.getDecoder().decode(privateKeyPEM)
+        val keyFactory: KeyFactory = KeyFactory.getInstance("RSA")
+        val keySpec = PKCS8EncodedKeySpec(encoded)
+        return keyFactory.generatePrivate(keySpec) as RSAPrivateKey
+    }
+
+    fun createJWT(clientId: String, audience: String): String {
+        return createJWT(clientId, audience, readRSAPrivateKey(File(environment.getProperty("federated.node.api.security.webhook.privatekey"))))
+    }
+
+    fun createJWT(clientId: String, audience: String, key: RSAPrivateKey?): String {
+
+        return  Jwts.builder()
+                .setHeaderParam("alg", "RS256").setHeaderParam("typ", "JWT")
+                .setIssuer(clientId)
+                .setSubject(UUID.randomUUID().toString())
+                .setAudience(audience)
+                .setIssuedAt(Date())
+                .signWith(key, io.jsonwebtoken.SignatureAlgorithm.RS256)
+                .compact()
     }
 
 }
