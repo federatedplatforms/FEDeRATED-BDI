@@ -7,7 +7,7 @@ import org.springframework.data.relational.core.mapping.Table
 data class UserEntity(
     @Id
     var id: Long? = null,
-    val username: String,
+    val userName: String,
     val encryptedPassword: String,
     val roles: String?,
 )

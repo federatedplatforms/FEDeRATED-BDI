@@ -12,3 +12,4 @@ class UserMapping(
 ) {
 
     private val log = LoggerFactory.getLogger(EventTypeMapping::class.java)
+}
