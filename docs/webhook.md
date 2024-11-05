@@ -24,31 +24,32 @@ Content-Type: application/json
 }
 ```
 
-optionally a tokenURL and extra variables for the acquirement of the token can be added 
-The extra variables are used to crete the JWT and can contain 
-For this feature a keystore is used containing the private key that is used to sign the jwt. 
-The information of the keystore is enabled and configured in the federated.node.keystore a
+Optionally a token URL, token refresh URL and audience for the acquirement of a token can be added 
+By filling the token URL the webhook will try to get a token based on the NTP specifications.
+For this feature a private key is used to sign the jwt used in the token request.
+The location of this private key is set in the application.properties file
 
-```configuration
-federated.node.keystore.enabled=<true/false>
-federated.node.keystore.password=<bcrypt encrypted password> 
-federated.node.keystore.location=<name of the keystore>
-federated.node.keystore.type=<type of keystore>
-federated.node.keystore.alias=<certificat alias> 
+``` configuration
+federated.node.api.security.webhook.privatekey=<private key location>
 ```
+
+THe request to add a webhook with oauth authentication (According to NTP specifications) is added like below 
 
 ```http request
 POST http://localhost:10050/api/webhooks
 Content-Type: application/json
 
 {
-  "clientId": "client-id-federated.events.minimal.v1",
+  "clientId": "clientId",
   "eventType": "federated.events.minimal.v1",
   "callbackURL": "http://my-client.link"
   "tokenURL": "https://my-token.link"
-  "extraVariables": "{'var1':'val1','val2':'val2'}"
+  "refreshURL": "https://my-refresh.link"
+  "aud": "NTP"
 }
 ```
+
+To be able to use the token url a private key has to be used to sign the JWT
 
 ## Update a Webhook
 
@@ -63,7 +64,8 @@ Content-Type: application/json
   "eventType": "federated.events.minimal.v1",
   "callbackURL": "http://my-client.link"
   "tokenURL": "https://my-token.link"
-  "extraVariables": "{'var1':'val1','val2':'val2'}"
+  "refreshURL": "https://my-refresh.link"
+  "aud": "NTP"
 }
 ```
 
@@ -72,7 +74,7 @@ Content-Type: application/json
 Removing a Webhook can be done using the DELETE http method. The clientId needs to be provided as a path parameter.
 
 ```http request
-DELETE http://localhost:10050/api/webhooks/client-id-federated.events.minimal.v1
+DELETE http://localhost:10050/api/webhooks/clientId
 ```
 
 ## Callback payload

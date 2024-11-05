@@ -22,6 +22,15 @@ federated.node.api.security.username=api
 federated.node.api.security.password=$2a$04$QSdb8yrtXowsJMBf/.Nkku/85wceyamR4LPArNCwE264bXtATef8m
 ```
 
+optional a seperate user can be defined for the webhook API. If this is not used the above username is used for the webhook API
+
+```properties
+# API username, default value=webhook
+federated.node.api.security.webhook.username=webhook
+# API password encrypted using bcrypt, default value=password
+federated.node.api.security.webhook.password=$2a$04$QSdb8yrtXowsJMBf/.Nkku/85wceyamR4LPArNCwE264bXtATef8m
+```
+
 ## TLS
 
 ### Node API endpoints
