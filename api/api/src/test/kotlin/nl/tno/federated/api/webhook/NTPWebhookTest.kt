@@ -22,7 +22,7 @@ class NTPWebhookTest {
     private val refreshTokenURL = URL("https://api-test.ntp.gov.sg//oauth/v1/refreshToken")
     private val callBackURL = URL("https://call.back/to/me")
     private val clientId = "L7UQQHHOMK65YW4NEM3T"
-    private val webhook = Webhook(clientId,eventType, callBackURL,true, tokenURL,refreshTokenURL,"NTP")
+    private val webhook = Webhook(clientId,eventType, callBackURL, tokenURL,refreshTokenURL,"NTP")
 
     @Test
     fun getPrivateKeyFromFileTest() {
