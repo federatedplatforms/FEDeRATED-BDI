@@ -3,7 +3,6 @@ package nl.tno.federated.api
 import nl.tno.federated.api.event.type.EventTypeMappingConfig
 import nl.tno.federated.api.graphdb.GraphDBSPARQLClient
 import nl.tno.federated.api.user.UserMappingConfig
-import nl.tno.federated.api.webhook.WebHookKeyStoreConfig
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -19,7 +18,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 /**
  * FEDeRATED Node API Spring Boot application.
  */
-@EnableConfigurationProperties(EventTypeMappingConfig::class, UserMappingConfig::class, WebHookKeyStoreConfig::class)
+@EnableConfigurationProperties(EventTypeMappingConfig::class, UserMappingConfig::class)
 @EnableJdbcRepositories
 @EnableScheduling
 @SpringBootApplication(scanBasePackages = ["nl.tno.federated.api"])
